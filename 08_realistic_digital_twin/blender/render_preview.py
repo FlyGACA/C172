@@ -1,0 +1,143 @@
+"""Cycles reference renders of the built scene (run after build.py in the same Blender session or on the .blend).
+    blender -b models/C172N_realistic.blend --python blender/render_preview.py -- --out docs/renders --samples 64 --views all
+"""
+import argparse, math, os, sys
+import bpy
+from mathutils import Vector
+
+VIEWS = {
+    "front_quarter": dict(pos=(-9.5, -9.0, 3.2), target=(0, 1.2, 1.2), fov=36),
+    "rear_quarter": dict(pos=(8.5, 9.5, 3.0), target=(0, 1.4, 1.3), fov=36),
+    "side": dict(pos=(-14.0, 1.2, 1.6), target=(0, 1.2, 1.4), fov=32),
+    "front": dict(pos=(0, -13.0, 2.0), target=(0, 0.5, 1.4), fov=40),
+    "top": dict(pos=(0.0, 1.5, 16.0), target=(0, 1.5, 1.0), fov=44),
+    "nose_detail": dict(pos=(-3.2, -4.2, 1.7), target=(0, -0.6, 1.3), fov=35),
+    "tail_detail": dict(pos=(4.0, 7.5, 2.2), target=(0, 5.0, 1.8), fov=35),
+    "gear_detail": dict(pos=(-3.5, -1.0, 0.6), target=(-1.0, 0.5, 0.35), fov=35),
+    "cockpit": dict(pos=(0.0, 0.95, 1.78), target=(0.0, -1.6, 1.30), fov=80),
+    "cockpit_pilot": dict(pos=(0.30, 0.30, 1.74), target=(0.12, -1.6, 1.36), fov=68),
+    "cockpit_side": dict(pos=(1.4, 0.3, 1.5), target=(-0.2, -0.2, 1.3), fov=60),
+    "engine": dict(pos=(-2.2, -3.6, 1.9), target=(0, -0.5, 1.35), fov=40),
+    "engine_right": dict(pos=(2.4, -2.6, 1.6), target=(0, -0.55, 1.35), fov=40),
+    # gallery views: long lens so wings read as lines in profile, hero three-quarter
+    "side_long": dict(pos=(-42.0, 1.4, 1.8), target=(0, 1.9, 1.35), fov=13),
+    "hero": dict(pos=(-9.0, -8.6, 3.4), target=(0, 1.0, 1.25), fov=30),
+    "rear_long": dict(pos=(30.0, 32.0, 6.0), target=(0, 1.4, 1.3), fov=12),
+    "front_long": dict(pos=(0.3, -42.0, 2.2), target=(0, 0.5, 1.35), fov=16),
+    "top_long": dict(pos=(0.0, 1.6, 48.0), target=(0, 1.6, 1.0), fov=15),
+    "exploded": dict(pos=(-16.0, -13.0, 7.0), target=(0.3, 1.0, 1.6), fov=36),
+    "exploded_side": dict(pos=(-46.0, 2.0, 4.0), target=(0, 1.8, 1.8), fov=15),
+}
+
+def setup_world(hdr):
+    w = bpy.context.scene.world or bpy.data.worlds.new("World")
+    bpy.context.scene.world = w
+    w.use_nodes = True
+    nt = w.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    bg = nt.nodes.new("ShaderNodeBackground"); out = nt.nodes.new("ShaderNodeOutputWorld")
+    env = nt.nodes.new("ShaderNodeTexEnvironment"); env.image = bpy.data.images.load(hdr, check_existing=True)
+    bg.inputs["Strength"].default_value = 1.0
+    nt.links.new(env.outputs["Color"], bg.inputs["Color"]); nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
+
+def ground(mat_apron, shadow_catcher=False):
+    bpy.ops.mesh.primitive_plane_add(size=80, location=(0, 0, 0))
+    g = bpy.context.active_object; g.name = "_ground"
+    if shadow_catcher:
+        g.is_shadow_catcher = True
+    elif mat_apron:
+        g.data.materials.append(mat_apron)
+    return g
+
+EXPLODE = {"AIRFRAME": 0.9, "WING_L": 1.0, "WING_R": 1.0, "EMPENNAGE": 1.0, "GEAR": 0.8, "POWERPLANT": 1.1, "ENGINE": 0.8, "INTERIOR": 0.6, "PANEL": 0.25}
+
+def explode(f):
+    """Move each direct child of a system group away from the group centre (viewer rule)."""
+    deps = bpy.context.evaluated_depsgraph_get()
+    def centre(obs):
+        pts = []
+        for o in obs:
+            for ob in [o] + [c for c in o.children_recursive]:
+                if ob.type == "MESH" and not ob.hide_render:
+                    ev = ob.evaluated_get(deps)
+                    pts += [ev.matrix_world @ Vector(c) for c in ev.bound_box]
+        if not pts:
+            return None
+        mn = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
+        mx = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+        return (mn + mx) / 2
+    for g in [o for o in bpy.data.objects if o.type == "EMPTY" and o.get("group")]:
+        gc = centre(g.children)
+        if gc is None:
+            continue
+        dist = EXPLODE.get(g["system"], 0.6)
+        for o in g.children:
+            pc = centre([o])
+            if pc is None:
+                continue
+            d = pc - gc
+            if d.length < 1e-3:
+                d = Vector((0, 0, 1))
+            d.normalize(); d.z += 0.25; d.normalize()
+            o.matrix_world.translation += d * dist * f * (1.6 if o.get("internal") else 1.0)
+
+def white_world():
+    w = bpy.context.scene.world
+    bg = w.node_tree.nodes.get("Background")
+    env = [n for n in w.node_tree.nodes if n.type == "TEX_ENVIRONMENT"]
+    if bg and env:
+        w.node_tree.links.remove(env[0].outputs["Color"].links[0]) if env[0].outputs["Color"].links else None
+        bg.inputs["Color"].default_value = (1, 1, 1, 1); bg.inputs["Strength"].default_value = 1.2
+
+def main():
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    ap = argparse.ArgumentParser(); ap.add_argument("--out", default="docs/renders"); ap.add_argument("--samples", type=int, default=64)
+    ap.add_argument("--views", default="front_quarter,rear_quarter,side"); ap.add_argument("--res", default="1280x720"); ap.add_argument("--prefix", default="phase8_")
+    ap.add_argument("--hdr", default=None); ap.add_argument("--hide", default="")
+    ap.add_argument("--explode", type=float, default=0.0, help="exploded-assembly factor 0..1 (same rule as the viewer)")
+    ap.add_argument("--white", action="store_true", help="plain white studio background")
+    ap.add_argument("--transparent", action="store_true", help="transparent background with a shadow catcher (print/gallery)")
+    ap.add_argument("--fill", type=float, default=0.0, help="soft fill light strength (W) from the camera side")
+    a = ap.parse_args(argv)
+    os.makedirs(a.out, exist_ok=True)
+    sc = bpy.context.scene
+    sc.render.engine = "CYCLES"; sc.cycles.samples = a.samples; sc.cycles.device = "CPU"; sc.cycles.use_denoising = True
+    sc.render.resolution_x, sc.render.resolution_y = [int(v) for v in a.res.split("x")]
+    sc.render.film_transparent = bool(a.transparent)
+    sc.render.image_settings.color_mode = "RGBA" if a.transparent else "RGB"
+    sc.view_settings.view_transform = "AgX"; sc.view_settings.look = "AgX - Medium High Contrast"
+    hdr = a.hdr or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "hdri", "sky.hdr")
+    setup_world(hdr)
+    sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 4.0; sun.angle = math.radians(1.5)
+    so = bpy.data.objects.new("sun", sun); sc.collection.objects.link(so)
+    so.rotation_euler = (math.radians(48), 0, math.radians(35))
+    ground(bpy.data.materials.get("apron_asphalt"), shadow_catcher=a.transparent)
+    if a.fill > 0:
+        fl = bpy.data.lights.new("fill", "AREA"); fl.energy = a.fill; fl.size = 12; fl.color = (0.9, 0.95, 1.0)
+        fo = bpy.data.objects.new("fill", fl); sc.collection.objects.link(fo)
+        fo.location = (-12, -10, 9); fo.rotation_euler = (Vector((12, 10, -9)).to_track_quat("-Z", "Y").to_euler())
+        fl2 = bpy.data.lights.new("rim", "AREA"); fl2.energy = a.fill * 0.6; fl2.size = 10
+        fo2 = bpy.data.objects.new("rim", fl2); sc.collection.objects.link(fo2)
+        fo2.location = (10, 12, 7); fo2.rotation_euler = (Vector((-10, -12, -7)).to_track_quat("-Z", "Y").to_euler())
+    if a.explode > 0:
+        explode(a.explode)
+    if a.white:
+        white_world()
+        sc.view_settings.look = "AgX - Base"
+    for n in a.hide.split(","):
+        if n and bpy.data.objects.get(n):
+            bpy.data.objects[n].hide_render = True
+    cam = bpy.data.cameras.new("cam"); co = bpy.data.objects.new("cam", cam); sc.collection.objects.link(co); sc.camera = co
+    views = list(VIEWS) if a.views == "all" else a.views.split(",")
+    for v in views:
+        spec = VIEWS[v]
+        co.location = spec["pos"]
+        d = Vector(spec["target"]) - Vector(spec["pos"])
+        co.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
+        cam.angle = math.radians(spec["fov"]); cam.clip_start = 0.05
+        sc.render.filepath = os.path.join(a.out, f"{a.prefix}{v}.png")
+        bpy.ops.render.render(write_still=True)
+        print("rendered", sc.render.filepath)
+
+main()

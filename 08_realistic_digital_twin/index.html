@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FlyGACA C172N — Phase 8 realistic digital twin</title>
+<link rel="stylesheet" href="css/app.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/build/three.module.min.js", "three/addons/": "./vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<header id="top">
+  <div class="brand"><span class="logo">FlyGACA</span><span id="title">C172N</span></div>
+  <nav id="modes" class="seg">
+    <button data-mode="exterior" class="on" data-i18n="m_exterior">Exterior</button>
+    <button data-mode="cockpit" data-i18n="m_cockpit">Cockpit</button>
+    <button data-mode="engine" data-i18n="m_engine">Engine</button>
+    <button data-mode="systems" data-i18n="m_systems">Systems</button>
+  </nav>
+  <div class="right">
+    <select id="quality" title="quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    <button id="btnControls" class="mobile-only" data-i18n="controls">Controls</button>
+    <button id="btnParts" class="mobile-only" data-i18n="parts">Parts</button>
+    <a id="galleryLink" href="docs/gallery.html" class="btnlink" data-i18n="gallery">Gallery</a>
+    <button id="lang">English</button>
+  </div>
+</header>
+
+<main id="main">
+  <div id="viewport">
+    <div id="loading"><div class="bar"><i></i></div><span data-i18n="loading">Loading…</span></div>
+    <div id="hint" data-i18n="hint"></div>
+    <div id="annun"></div>
+  </div>
+
+  <aside id="left" class="drawer">
+    <details open><summary data-i18n="controls">Cockpit controls</summary>
+      <div class="grid">
+        <label><span data-i18n="master">Master</span><span class="pair"><button id="bat" class="tog">BAT</button><button id="alt" class="tog">ALT</button></span></label>
+        <label><span data-i18n="avionics">Avionics</span><button id="avionics" class="tog">ON</button></label>
+        <label><span data-i18n="ignition">Ignition</span><span class="seg small" id="ign"><button data-v="OFF" class="on">OFF</button><button data-v="R">R</button><button data-v="L">L</button><button data-v="BOTH">BOTH</button><button id="start" data-i18n="start_hold">START</button></span></label>
+        <label><span data-i18n="throttle">Throttle</span><input id="throttle" type="range" min="0" max="1" step="0.01" value="0"></label>
+        <label><span data-i18n="mixture">Mixture</span><input id="mixture" type="range" min="0" max="1" step="0.01" value="1"></label>
+        <label><span data-i18n="carbHeat">Carb heat</span><input id="carbHeat" type="range" min="0" max="1" step="0.05" value="0"></label>
+        <label><span data-i18n="primer">Primer</span><span class="pair"><button id="prime" data-i18n="prime_stroke">Stroke</button><output id="primes">0</output></span></label>
+        <label><span data-i18n="fuelSelector">Fuel selector</span><span class="seg small" id="fuelsel"><button data-v="LEFT">LEFT</button><button data-v="BOTH" class="on">BOTH</button><button data-v="RIGHT">RIGHT</button><button data-v="OFF">OFF</button></span></label>
+        <label><span data-i18n="flaps">Flaps</span><span class="seg small" id="flapsel"><button data-v="0" class="on">0°</button><button data-v="10">10°</button><button data-v="20">20°</button><button data-v="30">30°</button></span></label>
+        <label><span data-i18n="lights">Lights</span><span class="pair wrap"><button id="beacon" class="tog">BCN</button><button id="navLights" class="tog">NAV</button><button id="strobe" class="tog">STRB</button><button id="landingLight" class="tog">LDG</button><button id="pitotHeat" class="tog">PITOT</button><button id="altStatic" class="tog">ALT STATIC</button></span></label>
+        <label><span data-i18n="kollsman">Kollsman</span><input id="kollsman" type="number" min="28" max="31" step="0.01" value="29.92"></label>
+      </div>
+    </details>
+    <details><summary data-i18n="flightctl">Flight controls</summary>
+      <div class="grid">
+        <label><span data-i18n="aileron">Aileron</span><input id="aileron" type="range" min="-1" max="1" step="0.01" value="0"></label>
+        <label><span data-i18n="elevator">Elevator</span><input id="elevator" type="range" min="-1" max="1" step="0.01" value="0"></label>
+        <label><span data-i18n="rudder">Rudder</span><input id="rudder" type="range" min="-1" max="1" step="0.01" value="0"></label>
+        <label><span data-i18n="trim">Trim</span><input id="trim" type="range" min="-1" max="1" step="0.01" value="0"></label>
+        <label><span data-i18n="center">Centre</span><button id="centerCtl" data-i18n="center">Centre</button></label>
+      </div>
+    </details>
+    <details><summary data-i18n="flight">Flight state (instructor)</summary>
+      <div class="grid">
+        <label><span data-i18n="onGround">On ground</span><button id="onGround" class="tog on">ON</button></label>
+        <label><span data-i18n="iasTarget">IAS</span><input id="iasTarget" type="range" min="0" max="160" step="1" value="0"><output id="iasOut">0</output></label>
+        <label><span data-i18n="altTarget">Altitude</span><input id="altTarget" type="range" min="0" max="12000" step="100" value="0"><output id="altOut">0</output></label>
+        <label><span data-i18n="bank">Bank</span><input id="bank" type="range" min="-60" max="60" step="1" value="0"><output id="bankOut">0</output></label>
+        <label><span data-i18n="pitch">Pitch</span><input id="pitch" type="range" min="-20" max="20" step="1" value="0"><output id="pitchOut">0</output></label>
+        <label><span data-i18n="timeScale">Time</span><span class="pair"><input id="timeScale" type="range" min="1" max="10" step="1" value="1"><button id="pause" data-i18n="pause">Pause</button><button id="resetSim" data-i18n="resetSim">Reset</button></span></label>
+      </div>
+    </details>
+    <details><summary data-i18n="faults">Faults (instructor)</summary>
+      <div class="grid">
+        <label><span data-i18n="f_pitot">Pitot</span><select id="f_pitot"><option value="none">ok</option><option value="ram">ram</option><option value="ram_and_drain">ram+drain</option></select></label>
+        <label><span data-i18n="f_static">Static</span><button id="f_static" class="tog">BLOCKED</button></label>
+        <label><span data-i18n="f_alt">Alternator</span><select id="f_alt"><option value="none">ok</option><option value="failed">failed</option><option value="overvoltage">over-voltage</option></select></label>
+        <label><span data-i18n="f_vac">Vacuum</span><button id="f_vac" class="tog">FAIL</button></label>
+        <label><span data-i18n="f_ice">Carb icing</span><button id="f_ice" class="tog">ICING</button></label>
+        <label><span data-i18n="f_mag">Mag R / L</span><span class="pair"><select id="f_magR"><option value="ok">ok</option><option value="weak">weak</option><option value="dead">dead</option><option value="ungrounded">ungrounded</option></select><select id="f_magL"><option value="ok">ok</option><option value="weak">weak</option><option value="dead">dead</option><option value="ungrounded">ungrounded</option></select></span></label>
+        <label><span data-i18n="f_fuel">Fuel L / R</span><span class="pair"><input id="fuelL" type="number" min="0" max="21.5" step="0.5" value="21.5"><input id="fuelR" type="number" min="0" max="21.5" step="0.5" value="21.5"></span></label>
+      </div>
+    </details>
+    <details id="scenarioBox"><summary data-i18n="scenario">Scenario</summary>
+      <select id="scenarioSel"></select>
+      <div id="scenarioBody"></div>
+    </details>
+  </aside>
+
+  <aside id="right" class="drawer">
+    <details open><summary data-i18n="tools">View tools</summary>
+      <div class="grid">
+        <label><span data-i18n="explode">Explode</span><input id="explode" type="range" min="0" max="1" step="0.01" value="0"></label>
+        <label><span data-i18n="assembly">Assembly</span><span class="pair"><button id="playExplode" data-i18n="play">Animate</button></span></label>
+        <label><span data-i18n="toggles">Toggles</span><span class="pair wrap"><button id="xray" class="tog">X-RAY</button><button id="labels" class="tog">LABELS</button><button id="cowl" class="tog" data-i18n="cowl">COWL OFF</button><button id="doors" class="tog" data-i18n="doors">DOORS</button><button id="fairings" class="tog on" data-i18n="fairings">FAIRINGS</button><button id="ao" class="tog on">AO</button></span></label>
+        <label><span data-i18n="animSpeed">Motion</span><input id="animSpeed" type="range" min="0.005" max="1" step="0.005" value="0.05"></label>
+        <label><span data-i18n="crankAngle">Crank</span><span class="pair"><input id="crank" type="range" min="0" max="720" step="1" value="0"><output id="crankOut">0°</output></span></label>
+        <label><span data-i18n="camera">Camera</span><span class="seg small" id="cams"><button data-cam="exterior">360°</button><button data-cam="front">↑</button><button data-cam="top">⊤</button><button data-cam="nose" data-i18n="c_nose">Nose</button><button data-cam="tail" data-i18n="c_tail">Tail</button><button data-cam="gear" data-i18n="c_gear">Gear</button><button data-cam="pilot" data-i18n="c_pilot">Pilot</button><button data-cam="panel" data-i18n="c_panel">Panel</button></span></label>
+      </div>
+    </details>
+    <details open><summary data-i18n="parts">Parts & systems</summary>
+      <div class="pair"><button id="showAll" data-i18n="showAll">Show all</button><button id="isolateNone" data-i18n="restore">Restore</button></div>
+      <ul id="tree"></ul>
+    </details>
+    <details open id="infoBox"><summary data-i18n="part">Selected part</summary>
+      <div id="info" class="info"><p data-i18n="clickPart">Click any part.</p></div>
+    </details>
+    <details><summary data-i18n="panel2d">Instrument panel (2D)</summary>
+      <div id="gauges" class="gauges"></div>
+    </details>
+    <details><summary data-i18n="sources">Sources & status</summary>
+      <div id="sources" class="info"></div>
+    </details>
+  </aside>
+</main>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

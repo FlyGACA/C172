@@ -6,3 +6,4 @@ node_modules/
 dist/
 .cache/
 e2e-screenshots/
+08_realistic_digital_twin/models/*.blend1

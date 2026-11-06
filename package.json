@@ -1,15 +1,22 @@
 {
   "name": "flygaca-c172-digital-twin",
   "private": true,
-  "description": "FlyGACA Cessna 172N educational digital twin (phases 01-07).",
+  "description": "FlyGACA Cessna 172N educational digital twin (phases 01-08).",
   "type": "module",
   "scripts": {
     "build:model": "python3 07_kinematic_twin/build/build_phase7_model.py",
     "verify:model": "python3 07_kinematic_twin/build/verify_model.py",
     "verify:checksums": "sed 's#  README.md$#  docs/archive/UPLOAD_PACKAGE_README.md#' SHA256SUMS.txt | sha256sum -c --quiet",
-    "test": "node --test 07_kinematic_twin/tests/*.test.mjs",
+    "test": "node --test 07_kinematic_twin/tests/*.test.mjs 08_realistic_digital_twin/tests/*.test.mjs",
     "test:e2e": "node 07_kinematic_twin/tests/e2e.mjs",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "build:model8": "cd 08_realistic_digital_twin/blender && python3 -m c172.textures ../assets && cd ../.. && \"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b --python 08_realistic_digital_twin/blender/build.py -- --lod all --skip-textures",
+    "textures8": "cd 08_realistic_digital_twin/blender && python3 -m c172.textures ../assets",
+    "render8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/render_preview.py -- --out 08_realistic_digital_twin/docs/renders --samples 96 --views all --res 1600x900",
+    "validate:glb8": "python3 08_realistic_digital_twin/scripts/validate_glb.py",
+    "test:py8": "python3 08_realistic_digital_twin/tests/test_profiles.py",
+    "test:e2e8": "node 08_realistic_digital_twin/tests/e2e.mjs",
+    "gallery8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/render_preview.py -- --out 08_realistic_digital_twin/docs/gallery --prefix c172n_ --samples 96 --views hero,side_long,front_long,top_long,rear_long,cockpit_pilot,engine --res 1800x1000 --transparent --fill 600 --hide POWERPLANT.cowl_upper"
   },
   "devDependencies": {
     "playwright": "1.63.0"
