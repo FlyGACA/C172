@@ -5,6 +5,7 @@ from mathutils import Vector
 
 from . import units as U
 from .units import fs
+from .airframe import fus_surface_z
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf, add_boolean,
                      add_solidify, superellipse, ellipse, interp_table)
 
@@ -74,7 +75,7 @@ def build_main_gear(ctx, side):
     name = "L" if side > 0 else "R"          # +x is the left side
     grp = ctx.groups["GEAR"]
     axle = Vector((side * U.TRACK / 2, U.MAIN_AXLE_Y, U.MAIN_TYRE_R))
-    attach = Vector((side * 0.27, fs(63), 0.86))
+    attach = Vector((side * 0.27, fs(63), fus_surface_z(63, 0.27) + 0.03))
     mid1 = Vector((side * 0.55, fs(62), 0.70))
     mid2 = Vector((side * 1.05, fs(59.5), 0.42))
     leg_pts = bezier(attach, mid1, mid2, axle + Vector((-side * 0.09, 0, 0.02)), 16)

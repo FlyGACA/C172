@@ -1,14 +1,14 @@
 {
  "lod": "high",
- "objects": 331,
- "triangles": 310530,
+ "objects": 333,
+ "triangles": 312330,
  "systems": {
   "AIRFRAME": 20,
-  "WING_L": 4,
+  "WING_L": 5,
   "FUEL": 7,
   "ELECTRICAL": 32,
   "PITOT_STATIC": 2,
-  "WING_R": 4,
+  "WING_R": 5,
   "EMPENNAGE": 5,
   "INTERIOR": 36,
   "GEAR": 24,
@@ -29,7 +29,7 @@
    "note": "Envelope from POH Fig 1-1; cross-sections estimated from photographs",
    "id": "AIRFRAME.fuselage",
    "name": "AIRFRAME.fuselage",
-   "triangles": 75374,
+   "triangles": 77376,
    "parent": "AIRFRAME"
   },
   {
@@ -40,7 +40,7 @@
    "kind": "glass",
    "id": "AIRFRAME.windshield",
    "name": "AIRFRAME.windshield",
-   "triangles": 5234,
+   "triangles": 5090,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -51,7 +51,7 @@
    "kind": "glass",
    "id": "AIRFRAME.rear_window",
    "name": "AIRFRAME.rear_window",
-   "triangles": 3428,
+   "triangles": 3176,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -62,7 +62,7 @@
    "kind": "glass",
    "id": "AIRFRAME.window_rear_R",
    "name": "AIRFRAME.window_rear_R",
-   "triangles": 2484,
+   "triangles": 1966,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -73,7 +73,7 @@
    "kind": "glass",
    "id": "AIRFRAME.window_rear_L",
    "name": "AIRFRAME.window_rear_L",
-   "triangles": 2484,
+   "triangles": 1966,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -90,7 +90,7 @@
    "animate": "door",
    "id": "AIRFRAME.door_L",
    "name": "AIRFRAME.door_L",
-   "triangles": 3488,
+   "triangles": 3374,
    "parent": "AIRFRAME"
   },
   {
@@ -101,7 +101,7 @@
    "kind": "glass",
    "id": "AIRFRAME.door_window_L",
    "name": "AIRFRAME.door_window_L",
-   "triangles": 2164,
+   "triangles": 1744,
    "parent": "AIRFRAME.door_L"
   },
   {
@@ -128,7 +128,7 @@
    "animate": "door",
    "id": "AIRFRAME.door_R",
    "name": "AIRFRAME.door_R",
-   "triangles": 3488,
+   "triangles": 3374,
    "parent": "AIRFRAME"
   },
   {
@@ -139,7 +139,7 @@
    "kind": "glass",
    "id": "AIRFRAME.door_window_R",
    "name": "AIRFRAME.door_window_R",
-   "triangles": 2164,
+   "triangles": 1744,
    "parent": "AIRFRAME.door_R"
   },
   {
@@ -160,7 +160,7 @@
    "note": "NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout (type data); planform estimated",
    "id": "WING_L.wing",
    "name": "WING_L.wing",
-   "triangles": 5036,
+   "triangles": 5398,
    "parent": "WING_L"
   },
   {
@@ -205,6 +205,16 @@
    "id": "WING_L.strut",
    "name": "WING_L.strut",
    "triangles": 560,
+   "parent": "WING_L"
+  },
+  {
+   "system": "WING_L",
+   "label_en": "Wing root fairing",
+   "label_ar": "غطاء جذر الجناح الانسيابي",
+   "status": "estimated",
+   "id": "WING_L.root_fairing",
+   "name": "WING_L.root_fairing",
+   "triangles": 672,
    "parent": "WING_L"
   },
   {
@@ -291,7 +301,7 @@
    "note": "NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout (type data); planform estimated",
    "id": "WING_R.wing",
    "name": "WING_R.wing",
-   "triangles": 5036,
+   "triangles": 5398,
    "parent": "WING_R"
   },
   {
@@ -336,6 +346,16 @@
    "id": "WING_R.strut",
    "name": "WING_R.strut",
    "triangles": 560,
+   "parent": "WING_R"
+  },
+  {
+   "system": "WING_R",
+   "label_en": "Wing root fairing",
+   "label_ar": "غطاء جذر الجناح الانسيابي",
+   "status": "estimated",
+   "id": "WING_R.root_fairing",
+   "name": "WING_R.root_fairing",
+   "triangles": 672,
    "parent": "WING_R"
   },
   {
@@ -575,7 +595,7 @@
    "status": "estimated",
    "id": "INTERIOR.cabin_liner",
    "name": "INTERIOR.cabin_liner",
-   "triangles": 6466,
+   "triangles": 6696,
    "parent": "INTERIOR"
   },
   {
@@ -4028,6 +4048,6 @@
   }
  ],
  "file": "C172N_realistic_high.glb",
- "bytes": 4514880,
- "build_seconds": 27.7
+ "bytes": 4519964,
+ "build_seconds": 27.1
 }
