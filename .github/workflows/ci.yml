@@ -2,15 +2,20 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "claude/**", "codex/**"]
   pull_request:
+
+concurrency:
+  group: c172-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # CI_RUNNER_LABEL routes trusted work to a dedicated runner. Fork PRs stay hosted.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.CI_RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +34,10 @@ jobs:
         run: |
           python 08_realistic_digital_twin/tests/test_profiles.py
           python 08_realistic_digital_twin/scripts/validate_glb.py
+          python 08_realistic_digital_twin/scripts/quality_gate.py
+
+      - name: Verify release archive and checksums
+        run: python -m unittest discover -s tests -v
 
       - uses: actions/setup-node@v4
         with:
@@ -58,7 +67,7 @@ jobs:
   blender-rebuild:
     # Rebuilds the Phase 8 model from the scripts with the pinned Blender LTS and checks that the
     # result has the same parts and triangle counts as the committed GLBs (deterministic build).
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.CI_RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

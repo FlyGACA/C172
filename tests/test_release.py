@@ -16,7 +16,8 @@ class ReleaseSmokeTests(unittest.TestCase):
         model = folder / "C172N_Phase6_Animated_Parts.glb"
         html = (folder / "FlyGACA_C172N_Phase6_Viewer.html").read_text(encoding="utf-8")
         self.assertGreater(model.stat().st_size, 10000)
-        self.assertEqual(model.open("rb").read(4), b"glTF")
+        with model.open("rb") as stream:
+            self.assertEqual(stream.read(4), b"glTF")
         self.assertIn('type="importmap"', html)
         self.assertIn('"three/addons/"', html)
         self.assertIn("./C172N_Phase6_Animated_Parts.glb", html)
@@ -29,7 +30,9 @@ class ReleaseSmokeTests(unittest.TestCase):
             if not line.strip():
                 continue
             digest, relpath = line.split("  ", 1)
-            target = ROOT / relpath
+            # The release manifest came from the original upload package. Its README is
+            # preserved verbatim while the repository root README documents later phases.
+            target = ROOT / ("docs/archive/UPLOAD_PACKAGE_README.md" if relpath == "README.md" else relpath)
             with self.subTest(path=relpath):
                 self.assertTrue(target.is_file(), relpath)
                 self.assertEqual(hashlib.sha256(target.read_bytes()).hexdigest(), digest)
