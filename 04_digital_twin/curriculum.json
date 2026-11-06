@@ -1,0 +1,74 @@
+[
+  {
+    "id": "engine",
+    "title_ar": "المحرك",
+    "reference": "Lycoming O-320-H2AD (reference configuration to verify)",
+    "model_group": "engine",
+    "learning_outcome_ar": "تحديد المكونات الأساسية ومراحل السحب والضغط والقدرة والعادم",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "pitot",
+    "title_ar": "Pitot-Static",
+    "reference": "Airspeed, Altimeter, VSI",
+    "model_group": "panel",
+    "learning_outcome_ar": "فهم الضغط الكلي والثابت والتأثيرات المفاهيمية للانسداد",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "flight",
+    "title_ar": "العدادات الستة",
+    "reference": "ASI, AI, ALT, TC, HI, VSI",
+    "model_group": "panel",
+    "learning_outcome_ar": "قراءة المؤشرات وفهم حدود المحاكاة",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "fuel",
+    "title_ar": "نظام الوقود",
+    "reference": "Wing tanks, selector, strainer, induction",
+    "model_group": "fuel",
+    "learning_outcome_ar": "تتبع مسار الوقود والتمييز بين المكونات",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "electrical",
+    "title_ar": "الكهرباء",
+    "reference": "Battery, alternator, bus, circuit protection",
+    "model_group": "electrical",
+    "learning_outcome_ar": "تحديد مصادر الطاقة وفهم الاعتماد على البطارية",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "ignition",
+    "title_ar": "الإشعال",
+    "reference": "Magnetos, spark plugs",
+    "model_group": "engine",
+    "learning_outcome_ar": "فهم استقلالية الإشعال عن شبكة الكهرباء الرئيسية",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "controls",
+    "title_ar": "أسطح التحكم",
+    "reference": "Ailerons, elevator, rudder, flaps",
+    "model_group": "airframe",
+    "learning_outcome_ar": "ربط التحكم بالمحاور الثلاثة",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "walkaround",
+    "title_ar": "الفحص الخارجي",
+    "reference": "Preflight inspection concepts",
+    "model_group": "airframe",
+    "learning_outcome_ar": "التعرف على نقاط الفحص دون استبدال قائمة POH",
+    "verification": "pending aircraft-specific source review"
+  },
+  {
+    "id": "navigation",
+    "title_ar": "الملاحة",
+    "reference": "VOR/CDI/OBS (equipment-dependent)",
+    "model_group": "panel",
+    "learning_outcome_ar": "تمييز الأجهزة الموجودة فعليًا حسب تجهيز الطائرة",
+    "verification": "pending aircraft-specific source review"
+  }
+]

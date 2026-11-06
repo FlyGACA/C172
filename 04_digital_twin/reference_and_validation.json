@@ -1,0 +1,42 @@
+{
+  "aircraft": "Cessna 172N",
+  "status": "unvalidated educational prototype",
+  "reference_hierarchy": [
+    "Specific aircraft AFM/POH and approved supplements",
+    "Aircraft/engine data plates and maintenance records",
+    "Applicable Cessna and Lycoming illustrated parts catalog and service manuals",
+    "Photos and project approximations"
+  ],
+  "claims": [
+    {
+      "claim": "C172N is the chosen reference airframe",
+      "class": "user_selected_reference",
+      "source": "User selection in conversation",
+      "verification": "confirmed as project scope"
+    },
+    {
+      "claim": "O-320-H2AD is a common original C172N engine reference",
+      "class": "reference_pending",
+      "source": "General aircraft model identification; no specific serial-number POH provided",
+      "verification": "Check serial number, engine data plate, approved AFM/POH and modifications"
+    },
+    {
+      "claim": "Engine exploded geometry and all fuel/electrical routing",
+      "class": "illustrative",
+      "source": "Procedural geometry generated for learning",
+      "verification": "Not engineering-accurate; verify using IPC/maintenance manual before instruction"
+    },
+    {
+      "claim": "Instrument needle readings and simulated failures",
+      "class": "illustrative",
+      "source": "Simplified educational simulation",
+      "verification": "Not calibrated or certified; not for procedures"
+    },
+    {
+      "claim": "Installed avionics and electrical details",
+      "class": "configuration_dependent",
+      "source": "Equipment varies by serial number and retrofit",
+      "verification": "Inspect actual panel and approved documents"
+    }
+  ]
+}

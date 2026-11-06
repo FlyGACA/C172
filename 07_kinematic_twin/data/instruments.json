@@ -1,0 +1,114 @@
+{
+  "_doc": "Instrument scales shared by build/build_phase7_model.py (3D dial markings) and js/gauges.js (2D panel). 'map' is a piecewise-linear list of [value, needle_angle_deg] where angle is measured clockwise from 12 o'clock as seen by the pilot. Markings carry the POH page they were checked against; dial layouts themselves are illustrative.",
+  "source": "Cessna Model 172N Pilot's Operating Handbook, 1 July 1978 (1979 model), Section 2 Figures 2-2 and 2-3",
+  "instruments": {
+    "ASI": {
+      "label": {"en": "Airspeed", "ar": "السرعة الجوية"},
+      "unit": "KIAS",
+      "map": [[0, 0], [40, 30], [160, 315], [200, 345]],
+      "min": 0, "max": 200,
+      "ticks": {"major": [40, 60, 80, 100, 120, 140, 160, 180, 200], "minor_step": 10, "minor_from": 40},
+      "labels": [40, 60, 80, 100, 120, 140, 160],
+      "arcs": [
+        {"color": "white", "from": 41, "to": 85, "band": "inner", "ref": "POH p.2-5 Fig 2-2 (full-flap operating range)"},
+        {"color": "green", "from": 47, "to": 128, "band": "outer", "ref": "POH p.2-5 Fig 2-2 (normal operating range)"},
+        {"color": "yellow", "from": 128, "to": 160, "band": "outer", "ref": "POH p.2-5 Fig 2-2 (caution range)"}
+      ],
+      "redlines": [{"value": 160, "ref": "POH p.2-5 Fig 2-2 (VNE)"}]
+    },
+    "ALT": {
+      "label": {"en": "Altimeter", "ar": "مقياس الارتفاع"},
+      "unit": "ft",
+      "map": [[0, 0], [1000, 360]],
+      "min": 0, "max": 1000, "wrap": true,
+      "ticks": {"major": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900], "minor_step": 20, "minor_from": 0},
+      "labels": [0, 100, 200, 300, 400, 500, 600, 700, 800, 900],
+      "label_divisor": 100,
+      "arcs": [], "redlines": []
+    },
+    "VSI": {
+      "label": {"en": "Vertical speed", "ar": "مؤشر معدل الصعود"},
+      "unit": "fpm",
+      "map": [[-2000, -260], [0, -90], [2000, 80]],
+      "min": -2000, "max": 2000,
+      "ticks": {"major": [-2000, -1500, -1000, -500, 0, 500, 1000, 1500, 2000], "minor_step": 100, "minor_from": -2000},
+      "labels": [-1500, -1000, -500, 0, 500, 1000, 1500],
+      "label_divisor": 100, "label_abs": true,
+      "arcs": [], "redlines": []
+    },
+    "TACH": {
+      "label": {"en": "Tachometer", "ar": "عداد الدورات"},
+      "unit": "RPM",
+      "map": [[0, -135], [3500, 135]],
+      "min": 0, "max": 3500,
+      "ticks": {"major": [0, 500, 1000, 1500, 2000, 2500, 3000, 3500], "minor_step": 100, "minor_from": 0},
+      "labels": [0, 500, 1000, 1500, 2000, 2500, 3000, 3500],
+      "label_divisor": 100,
+      "arcs": [
+        {"color": "green", "from": 2100, "to": 2450, "band": "outer", "ref": "POH p.2-6 Fig 2-3 (normal operating, sea level)"},
+        {"color": "green", "from": 2450, "to": 2700, "band": "inner", "ref": "POH p.2-6 Fig 2-3 (green arc extends to 2575 RPM at 5000 ft and 2700 RPM at 10000 ft)"}
+      ],
+      "redlines": [{"value": 2700, "ref": "POH p.2-5 / p.2-6 (maximum engine speed)"}]
+    },
+    "SUCTION": {
+      "label": {"en": "Suction", "ar": "مقياس الشفط"},
+      "unit": "inHg",
+      "map": [[0, -120], [10, 120]],
+      "min": 0, "max": 10,
+      "ticks": {"major": [0, 2, 4, 6, 8, 10], "minor_step": 1, "minor_from": 0},
+      "labels": [0, 2, 4, 6, 8, 10],
+      "arcs": [{"color": "green", "from": 4.5, "to": 5.4, "band": "outer", "ref": "POH p.2-6 Fig 2-3 and p.7-34"}],
+      "redlines": []
+    },
+    "AMMETER": {
+      "label": {"en": "Ammeter", "ar": "مقياس التيار"},
+      "unit": "A",
+      "map": [[-60, -60], [60, 60]],
+      "min": -60, "max": 60,
+      "ticks": {"major": [-60, -30, 0, 30, 60], "minor_step": 10, "minor_from": -60},
+      "labels": [-60, 0, 60],
+      "arcs": [], "redlines": [],
+      "note": "Centre-zero: shows battery charge (+) or discharge (-), POH p.7-26"
+    },
+    "OIL_P": {
+      "label": {"en": "Oil pressure", "ar": "ضغط الزيت"},
+      "unit": "psi",
+      "map": [[0, -50], [120, 50]],
+      "min": 0, "max": 120,
+      "ticks": {"major": [0, 30, 60, 90, 120], "minor_step": 10, "minor_from": 0},
+      "labels": [0, 60, 120],
+      "arcs": [{"color": "green", "from": 60, "to": 90, "band": "outer", "ref": "POH p.2-6 Fig 2-3"}],
+      "redlines": [{"value": 25, "ref": "POH p.2-5 (minimum 25 psi)"}, {"value": 100, "ref": "POH p.2-5 (maximum 100 psi)"}]
+    },
+    "OIL_T": {
+      "label": {"en": "Oil temperature", "ar": "حرارة الزيت"},
+      "unit": "°F",
+      "map": [[50, -50], [275, 50]],
+      "min": 50, "max": 275,
+      "ticks": {"major": [50, 100, 150, 200, 250], "minor_step": 25, "minor_from": 50},
+      "labels": [100, 245],
+      "arcs": [{"color": "green", "from": 100, "to": 245, "band": "outer", "ref": "POH p.2-6 Fig 2-3"}],
+      "redlines": [{"value": 245, "ref": "POH p.2-5 (maximum 245 °F)"}]
+    },
+    "FUEL_L": {
+      "label": {"en": "Fuel left", "ar": "وقود الخزان الأيسر"},
+      "unit": "gal",
+      "map": [[0, -50], [20, 50]],
+      "min": 0, "max": 20,
+      "ticks": {"major": [0, 5, 10, 15, 20], "minor_step": 2.5, "minor_from": 0},
+      "labels": [0, 20],
+      "label_text": {"0": "E", "20": "F"},
+      "arcs": [], "redlines": [{"value": 0, "ref": "POH p.2-6 Fig 2-3 (E red line, 1.5 gal unusable each standard tank)"}]
+    },
+    "FUEL_R": {
+      "label": {"en": "Fuel right", "ar": "وقود الخزان الأيمن"},
+      "unit": "gal",
+      "map": [[0, -50], [20, 50]],
+      "min": 0, "max": 20,
+      "ticks": {"major": [0, 5, 10, 15, 20], "minor_step": 2.5, "minor_from": 0},
+      "labels": [0, 20],
+      "label_text": {"0": "E", "20": "F"},
+      "arcs": [], "redlines": [{"value": 0, "ref": "POH p.2-6 Fig 2-3 (E red line, 1.5 gal unusable each standard tank)"}]
+    }
+  }
+}

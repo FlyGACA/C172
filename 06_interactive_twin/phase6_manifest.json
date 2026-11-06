@@ -1,0 +1,101 @@
+{
+  "project": "FlyGACA C172N Digital Twin Phase 6",
+  "reference": {
+    "airframe": "Cessna 172N, factory-standard 1979 educational baseline",
+    "engine": "Lycoming O-320-H2AD (verify against applicable POH/engine data plate)",
+    "authoritative_source": "Aircraft-specific approved POH/AFM, applicable supplements, Cessna/Lycoming parts and maintenance documentation",
+    "documentation_status": "Reference claims not independently verified against serial-specific approved documents"
+  },
+  "model": {
+    "file": "C172N_Phase6_Animated_Parts.glb",
+    "parts": 224,
+    "groups": [
+      "ENGINE",
+      "IGNITION",
+      "OIL",
+      "PANEL",
+      "FUEL",
+      "ELECTRICAL"
+    ],
+    "geometry_status": "schematic, non-dimensional, no mechanical validation"
+  },
+  "simulation": {
+    "type": "deterministic educational state machine",
+    "physical_accuracy": "not validated",
+    "controls": [
+      "throttle",
+      "mixture",
+      "master",
+      "alternator",
+      "fuel",
+      "ignition",
+      "starter",
+      "airspeed",
+      "altitude"
+    ],
+    "scenarios": [
+      "normal",
+      "fuel_off",
+      "alternator_off",
+      "pitot_blocked",
+      "static_blocked"
+    ]
+  },
+  "lessons": [
+    {
+      "id": "engine",
+      "title": "المحرك والمكابس",
+      "group": "ENGINE",
+      "question": "كم أسطوانة في المحرك المرجعي؟",
+      "options": [
+        "أربع أسطوانات متقابلة",
+        "ست أسطوانات"
+      ],
+      "correct": 0
+    },
+    {
+      "id": "fuel",
+      "title": "الوقود",
+      "group": "FUEL",
+      "question": "ما دور صمام اختيار الوقود؟",
+      "options": [
+        "اختيار مسار تغذية الوقود",
+        "قياس الضغط الجوي"
+      ],
+      "correct": 0
+    },
+    {
+      "id": "electrical",
+      "title": "الكهرباء",
+      "group": "ELECTRICAL",
+      "question": "ما الوظيفة الأساسية للمولد؟",
+      "options": [
+        "تغذية الأحمال وشحن البطارية عند عمله",
+        "زيادة قدرة المحرك"
+      ],
+      "correct": 0
+    },
+    {
+      "id": "instruments",
+      "title": "العدادات",
+      "group": "PANEL",
+      "question": "على ماذا يعتمد مؤشر السرعة الجوية؟",
+      "options": [
+        "فرق الضغط الكلي والثابت",
+        "ضغط الزيت"
+      ],
+      "correct": 0
+    },
+    {
+      "id": "ignition",
+      "title": "الإشعال",
+      "group": "IGNITION",
+      "question": "هل تتطلب Magnetos بطارية الطائرة لتوليد الشرارة أثناء التشغيل الطبيعي؟",
+      "options": [
+        "لا",
+        "نعم"
+      ],
+      "correct": 0
+    }
+  ]
+}

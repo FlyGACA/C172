@@ -1,0 +1,119 @@
+{
+  "project": "FlyGACA Digital Twin",
+  "aircraft": "Cessna 172N",
+  "reference_year": 1979,
+  "source_title": "Cessna Model 172N Pilot Operating Handbook (1979)",
+  "source_url": "https://teensinflight.org/wp-content/uploads/13F-C-172N-1979-POH.pdf",
+  "source_publisher": "Cessna Aircraft Company",
+  "source_date": "1978-07-01",
+  "source_access": "Publicly accessible manufacturer-authored handbook reproduction; not serial-number-specific approved flight manual",
+  "source_sections": [
+    "1 General",
+    "2 Limitations",
+    "3 Emergency Procedures",
+    "4 Normal Procedures",
+    "5 Performance",
+    "6 Weight and Balance",
+    "7 Airplane and Systems Descriptions",
+    "8 Service and Maintenance",
+    "9 Supplements"
+  ],
+  "values": [
+    {
+      "key": "engine.model",
+      "value": "Lycoming O-320-H2AD",
+      "source_page": "Section 1, p.1-3",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "engine.configuration",
+      "value": "4-cylinder, horizontally opposed, normally aspirated, carbureted, air-cooled, direct drive",
+      "source_page": "Section 1, p.1-3",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "engine.power_hp",
+      "value": 160,
+      "source_page": "Section 1, p.1-3",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "engine.rated_rpm",
+      "value": 2700,
+      "source_page": "Section 1, p.1-3",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "propeller.type",
+      "value": "McCauley fixed pitch, two blades",
+      "source_page": "Section 1, p.1-3",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "propeller.diameter_in",
+      "value": 75,
+      "source_page": "Section 1, p.1-3 (maximum)",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "fuel.standard_total_gal",
+      "value": 43,
+      "source_page": "Section 1, p.1-4",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "fuel.standard_usable_gal",
+      "value": 40,
+      "source_page": "Section 1, p.1-4",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "fuel.long_range_total_gal",
+      "value": 54,
+      "source_page": "Section 1, p.1-4",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "fuel.long_range_usable_gal",
+      "value": 50,
+      "source_page": "Section 1, p.1-4",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "weight.max_takeoff_lb",
+      "value": 2300,
+      "source_page": "Section 1, p.1-5, normal category",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "oil.sump_quarts",
+      "value": 6,
+      "source_page": "Section 1, p.1-4",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "geometry.wingspan_ft",
+      "value": 36,
+      "source_page": "Figure 1-1, p.1-2",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "geometry.length_ft",
+      "value": 26.916666666666668,
+      "source_page": "Figure 1-1, p.1-2",
+      "status": "verified_for_1979_reference"
+    },
+    {
+      "key": "geometry.height_ft",
+      "value": 8.791666666666666,
+      "source_page": "Figure 1-1, p.1-2",
+      "status": "verified_for_1979_reference"
+    }
+  ],
+  "cautions": [
+    "1979 baseline; not identical to 1978 or 1980 variants",
+    "Confirm aircraft serial number, installed equipment and current supplements before applying procedures",
+    "POH provides system descriptions but not sufficient geometry for detailed CAD",
+    "All 3D meshes remain approximations; no certified engine or systems simulation"
+  ]
+}
