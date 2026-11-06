@@ -1,7 +1,7 @@
 {
  "lod": "low",
  "objects": 333,
- "triangles": 86897,
+ "triangles": 86896,
  "systems": {
   "AIRFRAME": 20,
   "WING_L": 5,
@@ -355,7 +355,7 @@
    "status": "estimated",
    "id": "WING_R.root_fairing",
    "name": "WING_R.root_fairing",
-   "triangles": 336,
+   "triangles": 335,
    "parent": "WING_R"
   },
   {
@@ -4048,6 +4048,6 @@
   }
  ],
  "file": "C172N_realistic_low.glb",
- "bytes": 2046196,
- "build_seconds": 16.0
+ "bytes": 2046160,
+ "build_seconds": 16.1
 }

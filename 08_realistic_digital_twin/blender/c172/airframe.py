@@ -332,6 +332,10 @@ def build_wing(ctx, side):
     bm = new_bm()
     loft(bm, rings, close=False, cap_start=False, cap_end=False, flip=(side < 0))   # exterior faces up/outward
     fair = obj_from_bm(f"WING_{name}.root_fairing", bm, ctx.col, pivot=(side * 0.5, U.WING_LE_Y, U.WING_Z), mat=M["paint_white"])
+    # recalc_face_normals picks an arbitrary side for an open strip: force the exterior (up/outward) side,
+    # otherwise the single-sided paint material is back-face culled in the web viewer
+    if sum(p.normal.z for p in fair.data.polygons) < 0:
+        fair.data.flip_normals()
     add_subsurf(fair, 1)
     parent_keep(fair, grp)
     ctx.tag(fair, "WING_" + name, "Wing root fairing", "غطاء جذر الجناح الانسيابي", status="estimated")
