@@ -4,12 +4,14 @@ Canonical repository for the FlyGACA Cessna 172N educational 3D project (replace
 Reference aircraft: **Cessna 172N, 1979 model**, factory-standard educational baseline;
 the configuration of a specific serial number is not verified.
 
-**Latest: [Phase 7 — kinematic twin & POH-referenced systems simulation](07_kinematic_twin/)**
+**Latest: [Phase 8 — realistic digital twin (Blender-built airframe, cockpit, engine)](08_realistic_digital_twin/)**
 
 ```bash
 python3 -m http.server 8000
-# then open http://localhost:8000/07_kinematic_twin/
+# then open http://localhost:8000/08_realistic_digital_twin/   (Phase 7: /07_kinematic_twin/)
 ```
+
+![Phase 8 exterior](08_realistic_digital_twin/docs/renders/phase8_front_quarter.png)
 
 ## Phases
 
@@ -23,7 +25,8 @@ python3 -m http.server 8000
 | 04b | [`04b_poh_reference/`](04b_poh_reference/) | 1979 POH reference data and revised lab |
 | 05 | [`05_systems_lab/`](05_systems_lab/) | Interactive systems lab, lessons, build script |
 | 06 | [`06_interactive_twin/`](06_interactive_twin/) | 224-part GLB, Three.js viewer, manifest |
-| **07** | [**`07_kinematic_twin/`**](07_kinematic_twin/) | Rebuilt model with pivots and Lycoming-correct engine, crank-driven animation, documented systems simulation, 10 guided POH scenarios, offline viewer, tests |
+| 07 | [`07_kinematic_twin/`](07_kinematic_twin/) | Rebuilt model with pivots and Lycoming-correct engine, crank-driven animation, documented systems simulation, 10 guided POH scenarios, offline viewer, tests |
+| **08** | [**`08_realistic_digital_twin/`**](08_realistic_digital_twin/) | Blender-scripted realistic model (editable `.blend`, three Draco GLB quality levels, generated PBR textures), full cockpit and O-320 engine assembly, PBR viewer with HDR sky, shadows and AO, bilingual part catalogue, Phase 7 simulation and scenarios, Playwright and CI rebuild checks |
 
 Folders 01–06 are the original release packages, imported unchanged; see
 [RELEASES.md](RELEASES.md). Their integrity is checked against
@@ -35,12 +38,18 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | Command | What it does |
 |---|---|
 | `npm run build:model` | Rebuild the Phase 7 GLB (Python 3 + numpy) |
+| `npm run build:model8` | Rebuild the Phase 8 `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
+| `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
+| `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
+| `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
+| `npm run render8` | Cycles reference renders of the Phase 8 model |
 | `npm run verify:model` | Rebuild in a temp dir and compare with the committed GLB |
 | `npm run verify:checksums` | Verify the archived phase packages |
 | `npm test` | Unit tests: kinematics, POH-referenced simulation behaviour, scenarios |
 | `npm run test:e2e` | Browser test with Playwright (`npm ci && npx playwright install chromium` first) |
 
-GitHub Actions runs all of the above on every pull request and push to `main`.
+GitHub Actions runs all of the above on every pull request and push to `main`, and a second job
+rebuilds the Phase 8 model with the pinned Blender and compares it with the committed files.
 
 ## Safety
 

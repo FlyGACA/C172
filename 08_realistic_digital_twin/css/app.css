@@ -1,0 +1,78 @@
+:root { --bg:#0e1116; --panel:#171b22; --panel2:#1f242d; --line:#2b323d; --fg:#e6e9ee; --mute:#9aa4b2; --acc:#4f8ef7; --gold:#d4a63c; --red:#e5484d; --green:#3dd68c; --radius:10px; font-size:14px; }
+* { box-sizing:border-box; min-width:0; }
+html, body { height:100%; margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif; overflow:hidden; }
+button, select, input { font: inherit; color: inherit; }
+button { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:4px 9px; cursor:pointer; }
+button:hover { border-color:var(--acc); }
+button.on, .seg button.on { background:var(--acc); border-color:var(--acc); color:#fff; }
+button.tog.on { background:var(--green); border-color:var(--green); color:#07240f; }
+select { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:3px 6px; max-width:100%; }
+input[type=range] { width:100%; accent-color:var(--acc); direction:ltr; }
+input[type=number] { width:5.5em; background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:3px 5px; }
+#top { height:52px; display:flex; align-items:center; gap:12px; padding:0 12px; background:var(--panel); border-bottom:1px solid var(--line); overflow:hidden; }
+#modes { flex:0 1 auto; min-width:0; overflow-x:auto; scrollbar-width:none; }
+.seg button { white-space:nowrap; }
+.brand { display:flex; gap:8px; align-items:baseline; white-space:nowrap; }
+.logo { font-weight:800; color:var(--gold); letter-spacing:.5px; }
+#title { color:var(--mute); font-size:.9rem; }
+.seg { display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg button { border:0; border-radius:0; background:transparent; }
+.seg.small button { padding:3px 7px; font-size:.85rem; }
+#top .right { margin-inline-start:auto; display:flex; gap:8px; align-items:center; }
+#main { position:relative; height:calc(100% - 52px); display:grid; grid-template-columns: 340px 1fr 340px; }
+#left { grid-column:1; grid-row:1; } #viewport { grid-column:2; grid-row:1; } #right { grid-column:3; grid-row:1; }
+#viewport { position:relative; overflow:hidden; background:#9fb4cc; touch-action:none; }
+#viewport canvas { display:block; width:100%; height:100%; }
+.drawer { background:var(--panel); border-inline:1px solid var(--line); overflow:auto; padding:8px; }
+details { border:1px solid var(--line); border-radius:var(--radius); margin-bottom:8px; background:var(--panel2); }
+summary { cursor:pointer; padding:7px 10px; font-weight:600; list-style:none; }
+summary::before { content:"▸ "; color:var(--mute); }
+details[open] summary::before { content:"▾ "; }
+details > *:not(summary) { padding:0 10px 10px; }
+.grid label { display:grid; grid-template-columns: 7.5em 1fr; align-items:center; gap:8px; margin:6px 0; }
+.grid label > span:first-child { color:var(--mute); font-size:.85rem; }
+.pair { display:flex; gap:6px; align-items:center; }
+.pair.wrap { flex-wrap:wrap; }
+output { color:var(--gold); font-variant-numeric: tabular-nums; min-width:3em; }
+#loading { position:absolute; inset:0; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; background:rgba(14,17,22,.75); z-index:5; }
+#loading .bar { width:240px; height:6px; background:var(--line); border-radius:3px; overflow:hidden; }
+#loading .bar i { display:block; height:100%; width:0; background:var(--acc); transition:width .2s; }
+#loading.hide { display:none; }
+#hint { position:absolute; bottom:10px; inset-inline-start:10px; background:rgba(14,17,22,.7); padding:5px 9px; border-radius:7px; font-size:.8rem; color:var(--mute); pointer-events:none; }
+#annun { position:absolute; top:10px; inset-inline-start:10px; display:flex; flex-direction:column; gap:4px; pointer-events:none; }
+#annun span { background:var(--red); color:#fff; padding:3px 8px; border-radius:6px; font-size:.8rem; font-weight:700; }
+#annun span.warn { background:var(--gold); color:#2a1d00; }
+.label { background:rgba(14,17,22,.75); color:#fff; padding:2px 6px; border-radius:5px; font-size:.75rem; white-space:nowrap; pointer-events:none; }
+.label.sys { background:rgba(79,142,247,.85); font-weight:700; }
+#tree { list-style:none; margin:0; padding:0; }
+#tree li { display:flex; align-items:center; gap:6px; padding:3px 0; border-bottom:1px solid var(--line); }
+#tree li.sub { padding-inline-start:16px; font-size:.85rem; color:var(--mute); }
+#tree li button { padding:1px 6px; font-size:.75rem; }
+#tree li .nm { flex:1; cursor:pointer; }
+.info { font-size:.9rem; line-height:1.45; }
+.info h3 { margin:4px 0 6px; font-size:1rem; }
+.badge { display:inline-block; padding:1px 7px; border-radius:6px; font-size:.75rem; font-weight:700; margin-inline-end:6px; }
+.badge.poh { background:var(--green); color:#07240f; } .badge.type_data { background:var(--gold); color:#2a1d00; } .badge.estimated { background:#6b7280; color:#fff; }
+.gauges { display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; }
+.gauges svg { width:100%; height:auto; }
+.steps { list-style:none; padding:0; margin:6px 0; }
+.steps li { padding:4px 6px; border-radius:6px; margin:2px 0; background:var(--panel); border:1px solid var(--line); }
+.steps li.done { border-color:var(--green); color:var(--green); }
+.steps li.cur { border-color:var(--gold); }
+.mobile-only { display:none; }
+@media (max-width: 1000px) {
+  :root { font-size:13px; }
+  #main { grid-template-columns: 1fr; }
+  #left, #viewport, #right { grid-column:1; grid-row:1; }
+  .drawer { position:absolute; top:0; bottom:0; width:min(92vw, 360px); z-index:6; transform:translateX(-110%); transition:transform .25s; }
+  [dir=rtl] .drawer { transform:translateX(110%); }
+  .drawer.open { transform:none !important; }
+  #left { inset-inline-start:0; } #right { inset-inline-end:0; }
+  .mobile-only { display:inline-block; }
+  #modes button { padding:4px 6px; font-size:.8rem; }
+  .brand #title { display:none; }
+  #top { gap:6px; padding:0 8px; }
+  #top .right { gap:4px; }
+  #top .right button, #top select { padding:4px 6px; font-size:.8rem; }
+  #quality { width:4.5em; }
+}

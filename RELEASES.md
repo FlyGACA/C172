@@ -16,4 +16,13 @@
 - 41 unit/scenario tests, Playwright browser test, GitHub Actions CI.
 - Fixes Phase 6 issues: exploded view had no effect, cylinders 1 and 2 on the same side, two separate magnetos, missing airframe GLB, viewer never browser-tested.
 
+08 — Realistic digital twin (2026-11-06):
+- Model built in Blender 4.5 LTS by a Python package (`blender/c172`): subdivision-surface fuselage with boolean window/door openings and hinged doors, NACA 2412/0012 lofted wings with flaps/ailerons, empennage with elevator/rudder/trim tab, tubular gear with fairings, cowl with inlets and landing light, spinner/propeller.
+- Full cockpit: 15 instruments with faces drawn from the POH-referenced scales, radio stack, switches, push-pull controls, yokes, pedals, trim wheel, fuel selector, seats and belts.
+- O-320-H2AD assembly: finned barrels and heads, accessories, exhaust/muffler, mount, baffles; crank train animated with the Phase 7 kinematics; POH plug map on the plugs.
+- Generated PBR textures (livery, rivets/seams, wear, dials, placards), generated sky HDR; editable `.blend`; high/medium/low Draco GLBs with per-level textures.
+- New three.js viewer: HDR environment, shadows, GTAO, modes (exterior/cockpit/engine/systems), select/isolate/hide, exploded assembly, animated controls and surfaces, 3D instruments driven by the Phase 7 simulation, 69-entry bilingual part catalogue.
+- Tests: Python profile tests, node tests (GLB ↔ kinematics ↔ plug map), GLB validator, Playwright browser test, CI job that rebuilds the model in Blender and compares it.
+- Every dimension carries a status (POH page / type data / estimated); geometry remains representative, not manufacturer drawings.
+
 **Status:** Phases 01–06 are stored exactly as delivered (verify with `npm run verify:checksums`). No flight-certified or maintenance-grade simulation is claimed.
