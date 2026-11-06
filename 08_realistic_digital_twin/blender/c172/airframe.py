@@ -330,7 +330,7 @@ def build_wing(ctx, side):
             pts.append(Vector((side * (0.36 + (xr - 0.36) * math.sin(a)), y, zr + (zw + 0.01 - zr) * (1 - math.cos(a)))))
         rings.append(pts)
     bm = new_bm()
-    loft(bm, rings, close=False, cap_start=False, cap_end=False, flip=(side > 0))
+    loft(bm, rings, close=False, cap_start=False, cap_end=False, flip=(side < 0))   # exterior faces up/outward
     fair = obj_from_bm(f"WING_{name}.root_fairing", bm, ctx.col, pivot=(side * 0.5, U.WING_LE_Y, U.WING_Z), mat=M["paint_white"])
     add_subsurf(fair, 1)
     parent_keep(fair, grp)
