@@ -49,7 +49,43 @@ fit was attempted — fuselage sections remain **estimated**.
 
 ## 4. Browser test (`tests/e2e.mjs`, Playwright Chromium + SwiftShader)
 
-See the appended section below for the run log and measured numbers.
+Final run: **10 / 10 checks passed** (`?test=1` disables the GTAO pass; everything else as shipped).
+
+| Check | Result |
+|---|---|
+| high level loads: 10 system groups, 331 parts, no console errors | ok |
+| doors open, flaps 30°, aileron input moves the surfaces | ok |
+| part selection shows bilingual info and the status badge (propeller → POH) | ok |
+| exploded assembly animation displaces parts from their system centres | ok |
+| engine mode removes the upper cowl; start from the cockpit controls (BAT/ALT, prime, throttle, BOTH, START) → engine runs, crank turns, piston 1 on the right bank, 2 on the left | ok |
+| cockpit mode: camera at the pilot's eye, tachometer needle follows the simulation | ok |
+| run-up scenario starts and evaluates steps live | ok |
+| Arabic RTL default | ok |
+| phone width (Pixel 5 emulation) picks the low level, no horizontal overflow, console clean | ok |
+| medium level loads, console clean | ok |
+
+Measured in the container (software WebGL, so load times and frame rates are not representative
+of a real GPU; draw calls and triangles are device-independent):
+
+| Level | Load to interactive | Draw calls | Triangles per frame (incl. shadow pass) |
+|---|---|---|---|
+| high | 4.6 s | 690 | 621 576 |
+| medium | 1.8 s | 687 | 342 028 |
+| low | 1.7 s | 681 | 171 468 |
+
+Draw calls are dominated by part count (331 selectable objects); the next optimisation step would
+be merging static exterior parts into fewer meshes for the low level while keeping the part
+index for selection.
+
+Screenshots from the run are uploaded as the `e2e-screenshots` artifact in CI
+(`npm run test:e2e8` with `E2E_SHOTS=dir` locally).
+
+## 4b. Gallery renders
+
+`docs/gallery.html` presents seven transparent print-size views plus two exploded-assembly
+views (`docs/gallery/*.png`, 1800 × 1000, Cycles 96 samples, shadow catcher, soft fill), with
+live EN/AR captions. Before/after images of the same camera on the Phase 7 and Phase 8 models
+are in `docs/renders/phase7_*.png` and `phase8_*.png`.
 
 ## 5. Known limitations (technical)
 

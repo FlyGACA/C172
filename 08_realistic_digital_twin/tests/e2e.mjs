@@ -80,11 +80,13 @@ try {
   });
 
   await check('explode animation moves parts away from their system centres', async () => {
-    await page.click('#playExplode'); await settle(page, 2200);
+    await page.click('#playExplode');
+    await page.waitForFunction(() => !window.__twin.exploding, null, { timeout: 120000 });
     const d = await page.evaluate(() => { const r = window.__twin.rig; const w = r.part('WING_L.wing'); const b = r.base.get(w).p; return { dist: w.position.distanceTo(b), f: Number(document.getElementById('explode').value) }; });
     assert.ok(d.f > 0.8 && d.dist > 0.4, JSON.stringify(d));
     await shot(page, 'p8_exploded');
     await page.$eval('#explode', (el) => { el.value = '0'; el.dispatchEvent(new Event('input')); });
+    await settle(page, 500);
   });
 
   await check('engine mode removes the cowl; start from the controls turns the crank and pistons (1-3-2-4)', async () => {

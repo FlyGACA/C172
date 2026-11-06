@@ -63,7 +63,7 @@ export class Rig {
       for (const o of g.children) {
         if (!o.userData.system) continue;
         box.setFromObject(o); if (box.isEmpty()) continue; box.getCenter(pc);
-        const dir = pc.sub(gc); if (dir.length() < 1e-3) dir.set(0, 1, 0); dir.normalize();
+        const dir = pc.clone().sub(gc); if (dir.length() < 1e-3) dir.set(0, 1, 0); dir.normalize();
         dir.y += 0.25; dir.normalize();
         this.explodeOff.set(o, dir.multiplyScalar(dist * (o.userData.internal ? 1.6 : 1)));
       }

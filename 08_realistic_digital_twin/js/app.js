@@ -316,4 +316,4 @@ viewer.start();
 applyLang(); syncUI();
 
 // test hook
-window.__twin = { ready: false, get rig() { return rig; }, get sim() { return sim; }, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
+window.__twin = { ready: false, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
