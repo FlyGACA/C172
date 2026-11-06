@@ -117,10 +117,9 @@ try {
     await page.evaluate(() => window.__twin.startScenario('runup'));
     await settle(page, 500);
     await page.click('#fuelsel button[data-v="BOTH"]');
-    await settle(page, 800);
-    const done = await page.evaluate(() => (window.__twin.ctx.done || []).filter(Boolean).length);
-    assert.ok(done >= 2, `steps done ${done}`);
+    await page.waitForFunction(() => (window.__twin.ctx.done || []).filter(Boolean).length >= 2, null, { timeout: 60000 });
     await page.evaluate(() => window.__twin.startScenario(''));
+    await page.close();   // stop this page's render loop before the next pages load (software GL shares the CPU)
   });
 
   await check('Arabic RTL default', async () => {
