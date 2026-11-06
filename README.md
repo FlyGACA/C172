@@ -49,6 +49,9 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm test` | Unit tests: kinematics, POH-referenced simulation behaviour, scenarios |
 | `npm run test:e2e` | Browser test with Playwright (`npm ci && npx playwright install chromium` first) |
 
+The Phase 7 and Phase 8 viewers share their simulation, scenarios, and SVG gauges from
+[`shared/js/`](shared/js/); the phase-local modules are compatibility entry points.
+
 GitHub Actions runs all of the above on every pull request and push to `main`, and a second job
 rebuilds the Phase 8 model with the pinned Blender and compares it with the committed files.
 For a dedicated runner, follow [the self-hosted runner guide](docs/SELF_HOSTED_RUNNER.md).

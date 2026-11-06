@@ -74,7 +74,8 @@ blender/c172/export.py      LOD settings, Draco export, model index
 blender/render_preview.py   Cycles reference renders
 models/                     C172N_realistic.blend, *_high/medium/low.glb, model_index_*.json
 assets/textures, assets/hdri generated textures (2048 + 1024/512 copies) and sky.hdr
-js/                         viewer.js (renderer), rig.js (parts + animation), app.js (UI), Phase 7 sim/scenarios/gauges/i18n
+js/                         viewer.js (renderer), rig.js (parts + animation), app.js (UI), compatibility imports
+../shared/js/                canonical Phase 7/8 simulation, scenarios and SVG gauges
 data/                       instruments.json, parts_catalog.json (69 bilingual entries), poh_references.json
 tests/, scripts/            Python tests, node tests, Playwright test, GLB validator, build comparison
 docs/                       audit, architecture, validation report, renders

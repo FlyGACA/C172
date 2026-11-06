@@ -39,5 +39,16 @@ class ReleaseSmokeTests(unittest.TestCase):
             entries += 1
         self.assertGreaterEqual(entries, 50)
 
+    def test_phase7_and_phase8_use_shared_learning_modules(self):
+        for module in ("sim", "scenarios", "gauges"):
+            canonical = ROOT / "shared" / "js" / f"{module}.js"
+            self.assertTrue(canonical.is_file(), canonical)
+            self.assertGreater(canonical.stat().st_size, 1000, canonical)
+            for phase in ("07_kinematic_twin", "08_realistic_digital_twin"):
+                wrapper = ROOT / phase / "js" / f"{module}.js"
+                source = wrapper.read_text(encoding="utf-8")
+                self.assertIn(f"../../shared/js/{module}.js", source)
+                self.assertLess(len(source), 300, f"{wrapper} should remain a compatibility wrapper")
+
 if __name__ == "__main__":
     unittest.main()

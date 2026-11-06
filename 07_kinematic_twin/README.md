@@ -52,7 +52,7 @@ corner switches to English.
 | Vacuum failure | 7-34 | suction low, partial panel with the turn coordinator |
 | Engine failure (fuel) | 3-4 | empty tank, 65 KIAS, POH restart checklist |
 
-## How the simulation is built (`js/sim.js`)
+## How the simulation is built (`shared/js/sim.js`)
 
 Every number that comes from the handbook is in the `POH` object and in
 [`data/poh_references.json`](data/poh_references.json) with its page. Tests assert
@@ -76,9 +76,9 @@ labelled as such in the code.
 
 ```
 index.html, css/, js/          viewer (ES modules, no build step)
-js/sim.js                      systems simulation (DOM-free)
+js/sim.js                      compatibility import for shared/js/sim.js
 js/kinematics.js               engine kinematics (shared with tests)
-js/scenarios.js                guided POH scenarios
+js/scenarios.js                compatibility import for shared/js/scenarios.js
 data/instruments.json          dial scales/markings used by both the GLB builder and the SVG panel
 data/parts_catalog.json        bilingual part descriptions
 data/poh_references.json       page-referenced handbook values
