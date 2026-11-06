@@ -1,0 +1,90 @@
+{
+  "project": "FlyGACA Cessna 172 Classic Analog",
+  "status": "educational prototype",
+  "warning": "Training demonstration only. Aircraft-specific POH/AFM and instructor guidance take precedence.",
+  "lessons": [
+    {
+      "id": "pitot_static",
+      "title_ar": "نظام Pitot-Static",
+      "components": "Airspeed Indicator / Altimeter / VSI",
+      "objective_ar": "فهم الضغط الكلي والثابت وتأثير الانسداد",
+      "outcomes_ar": [
+        "تمييز مصادر الضغط",
+        "شرح آثار انسداد pitot/static",
+        "حل أسئلة الأعطال"
+      ]
+    },
+    {
+      "id": "attitude",
+      "title_ar": "عداد الوضعية والاتجاه",
+      "components": "Attitude Indicator / Heading Indicator / Turn Coordinator",
+      "objective_ar": "فهم الميل والانعطاف وأساسيات الجيروسكوب",
+      "outcomes_ar": [
+        "قراءة pitch وbank",
+        "التمييز بين heading وturn rate"
+      ]
+    },
+    {
+      "id": "engine",
+      "title_ar": "المحرك المكبسي",
+      "components": "Piston Engine / Oil / Ignition / Fuel / Cooling",
+      "objective_ar": "فهم دورة الأربع أشواط ومسار الوقود والزيت والتبريد",
+      "outcomes_ar": [
+        "تحديد الأجزاء",
+        "شرح دورة المحرك",
+        "مقارنة أسباب فقدان القدرة"
+      ]
+    },
+    {
+      "id": "electrical",
+      "title_ar": "النظام الكهربائي",
+      "components": "Battery / Alternator / Circuit Breakers",
+      "objective_ar": "فهم مصادر الطاقة والأحمال والحماية",
+      "outcomes_ar": [
+        "تتبع دائرة الطاقة",
+        "شرح أعطال alternator"
+      ]
+    },
+    {
+      "id": "flight_controls",
+      "title_ar": "أسطح التحكم",
+      "components": "Ailerons / Elevator / Rudder / Flaps",
+      "objective_ar": "ربط المدخلات بحركة الطائرة",
+      "outcomes_ar": [
+        "تحديد المحاور",
+        "شرح adverse yaw",
+        "فهم أثر flaps"
+      ]
+    },
+    {
+      "id": "landing_gear",
+      "title_ar": "معدات الهبوط",
+      "components": "Nosewheel / Main Gear / Brakes",
+      "objective_ar": "تمييز المكونات والفحص قبل الطيران",
+      "outcomes_ar": [
+        "تحديد الأجزاء",
+        "فهم steering/brakes"
+      ]
+    },
+    {
+      "id": "navigation",
+      "title_ar": "الملاحة التقليدية",
+      "components": "VOR / CDI / OBS / ADF (if equipped)",
+      "objective_ar": "قراءة مؤشرات الملاحة والتمييز بين الأنظمة",
+      "outcomes_ar": [
+        "شرح CDI",
+        "تفسير TO/FROM"
+      ]
+    },
+    {
+      "id": "preflight",
+      "title_ar": "الفحص الأرضي",
+      "components": "Walkaround / POH / Checklists",
+      "objective_ar": "التعرف على نقاط الفحص وربطها بقوائم الطائرة",
+      "outcomes_ar": [
+        "تحديد عناصر الفحص",
+        "تمييز مصادر البيانات المعتمدة"
+      ]
+    }
+  ]
+}

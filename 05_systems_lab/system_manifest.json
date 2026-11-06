@@ -1,0 +1,59 @@
+{
+  "model": "Cessna 172N",
+  "reference_year": 1979,
+  "systems": {
+    "engine": {
+      "ar": "المحرك والإشعال",
+      "components": [
+        "ENGINE__crankcase",
+        "ENGINE__crankshaft",
+        "ENGINE__cylinder_1__barrel",
+        "ENGINE__alternator",
+        "ENGINE__starter"
+      ],
+      "reference": "POH Section 1: O-320-H2AD, 160 BHP @ 2700 RPM",
+      "status": "manufacturer_reference_for_1979; geometry_illustrative"
+    },
+    "fuel": {
+      "ar": "الوقود",
+      "components": [
+        "FUEL__left_wing_tank",
+        "FUEL__right_wing_tank",
+        "FUEL__selector",
+        "FUEL__strainer"
+      ],
+      "reference": "POH Section 1: standard 43 total / 40 usable US gal; long range 54 total / 50 usable",
+      "status": "manufacturer_reference_for_1979; routing_illustrative"
+    },
+    "electrical": {
+      "ar": "الكهرباء",
+      "components": [
+        "ELECTRICAL__battery",
+        "ELECTRICAL__master_contactor",
+        "ELECTRICAL__alternator_bus"
+      ],
+      "reference": "POH Section 7; exact installation and supplements require checking",
+      "status": "conceptual_only"
+    },
+    "instruments": {
+      "ar": "العدادات",
+      "components": [
+        "PANEL__AIRSPEED__housing",
+        "PANEL__ALTIMETER__housing",
+        "PANEL__ATTITUDE__housing",
+        "PANEL__VSI__housing",
+        "PANEL__HEADING__housing",
+        "PANEL__TURN_COORDINATOR__housing"
+      ],
+      "reference": "POH Section 7; installed instruments are configuration-dependent",
+      "status": "conceptual_only"
+    },
+    "airframe": {
+      "ar": "الهيكل والتحكم",
+      "components": [],
+      "reference": "POH Section 1 figure 1-1; exact CAD requires engineering drawings",
+      "status": "illustrative"
+    }
+  },
+  "disclaimer": "Educational prototype only; not approved flight instruction or maintenance data"
+}

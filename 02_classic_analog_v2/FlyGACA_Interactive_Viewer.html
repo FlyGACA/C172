@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FlyGACA — Cessna 172 Interactive Lab</title><style>
+*{box-sizing:border-box}body{margin:0;background:#071522;color:#f1f6fc;font:15px system-ui,Arial}header{padding:14px 20px;background:#10283a;display:flex;justify-content:space-between;align-items:center;gap:10px}main{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 65px)}aside{padding:18px;background:#102030;overflow:auto;max-height:calc(100vh - 65px)}#scene{position:relative;min-height:65vh}button,input,select{accent-color:#43b5e5}button{background:#245b7a;color:white;border:1px solid #487d98;border-radius:8px;padding:9px;cursor:pointer}button:hover{background:#327ba3}.group{border-bottom:1px solid #284052;padding:12px 0}label{display:block;margin:10px 0 4px}input[type=range]{width:100%}.small{color:#9fb4c2;font-size:12px}#status{position:absolute;bottom:15px;left:15px;background:#10283bd9;padding:10px;border-radius:8px;max-width:420px}#scene canvas{display:block}input[type=file]{width:100%}@media(max-width:750px){main{grid-template-columns:1fr}aside{max-height:none}#scene{min-height:65vh;order:-1}}
+</style></head><body><header><strong>✈ FlyGACA · Cessna 172 Classic Analog</strong><span class="small">Interactive training prototype · not for flight operations</span></header><main><aside>
+<div class="group"><b>تحميل النموذج</b><p class="small">اختر ملف GLB من الحزمة. يعمل العرض من المتصفح عند توفر اتصال لتحميل مكتبة Three.js.</p><input id="file" type="file" accept=".glb,.gltf"></div>
+<div class="group"><b>الكاميرا</b><p><button id="exterior">خارجية</button> <button id="cockpit">قمرة القيادة</button> <button id="reset">إعادة ضبط</button></p></div>
+<div class="group"><b>أسطح التحكم (عرض توضيحي)</b>
+<label>Flaps <output id="flapsValue">0°</output></label><input id="flaps" type="range" min="0" max="30" value="0">
+<label>Ailerons <output id="aileronValue">0°</output></label><input id="aileron" type="range" min="-15" max="15" value="0">
+<label>Elevator <output id="elevatorValue">0°</output></label><input id="elevator" type="range" min="-20" max="20" value="0">
+<label>Rudder <output id="rudderValue">0°</output></label><input id="rudder" type="range" min="-25" max="25" value="0">
+<p class="small">هذه حركات تعليمية تقريبية وليست نموذجًا معتمدًا لديناميكا الطيران.</p></div>
+<div class="group"><b>إظهار الأجزاء</b>
+<label><input id="gear" type="checkbox" checked> عجلات الهبوط</label>
+<label><input id="instruments" type="checkbox" checked> العدادات والأجهزة</label>
+<label><input id="struts" type="checkbox" checked> دعامات الأجنحة</label>
+<label><input id="doors" type="checkbox" checked> الأبواب</label></div>
+<div class="group"><b>المروحة</b> <label><input id="prop" type="checkbox"> تدوير المروحة</label></div>
+<div class="group"><b>معلومات</b><div id="stats" class="small">بانتظار النموذج...</div></div>
+</aside><section id="scene"><div id="status">اختر ملف Cessna_172_Classic_Analog_V2.glb للبدء</div></section></main>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js';
+import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
+const host=document.getElementById('scene'),status=document.getElementById('status');
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setSize(host.clientWidth,host.clientHeight);host.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#91b7d0');scene.add(new THREE.HemisphereLight(0xe6f4ff,0x526174,2.2));
+const sun=new THREE.DirectionalLight(0xffffff,3.0);sun.position.set(4,8,10);scene.add(sun);
+const camera=new THREE.PerspectiveCamera(50,host.clientWidth/host.clientHeight,.01,300);camera.position.set(11,8,7);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(0,0,0);
+const grid=new THREE.GridHelper(24,24,0x547184,0x7290a3);grid.position.y=-2.1;scene.add(grid);
+let aircraft=null,parts=[],originals=new Map(),propOn=false;
+function fit(){if(!aircraft)return;const b=new THREE.Box3().setFromObject(aircraft),size=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());controls.target.copy(center);camera.position.copy(center).add(new THREE.Vector3(size.length()*.9,size.length()*.7,size.length()*.65));controls.update();}
+function groupName(n){return n.toLowerCase().replaceAll('_',' ')}
+function adjust(id,keywords,axis,signs=()=>1){const deg=+document.getElementById(id).value;document.getElementById(id+'Value').textContent=deg+'°';for(const p of parts){const name=groupName(p.name);if(!keywords.some(k=>name.includes(k)))continue;const start=originals.get(p);p.rotation.copy(start);p.rotation[axis]=start[axis]+THREE.MathUtils.degToRad(deg*signs(name));}}
+function refresh(){adjust('flaps',['flap'],'y');adjust('aileron',['aileron'],'y',n=>n.includes('left')?-1:1);adjust('elevator',['elevator'],'y');adjust('rudder',['rudder'],'z');}
+function visibility(id,terms){const checked=document.getElementById(id).checked;for(const p of parts){if(terms.some(t=>groupName(p.name).includes(t)))p.visible=checked;}}
+document.getElementById('file').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const url=URL.createObjectURL(f);new GLTFLoader().load(url,g=>{if(aircraft)scene.remove(aircraft);aircraft=g.scene;
+// Source geometry uses X forward, Y span, Z up; rotate into Three.js Y-up coordinates
+aircraft.rotation.x=-Math.PI/2;scene.add(aircraft);parts=[];originals=new Map();aircraft.traverse(o=>{if(o.isMesh){parts.push(o);originals.set(o,o.rotation.clone());if(o.material){o.material.side=THREE.DoubleSide;}}});fit();refresh();document.getElementById('stats').textContent=parts.length+' editable mesh objects';status.textContent='تم تحميل '+f.name;URL.revokeObjectURL(url)},undefined,err=>{status.textContent='خطأ تحميل: '+err.message;URL.revokeObjectURL(url)})});
+['flaps','aileron','elevator','rudder'].forEach(id=>document.getElementById(id).addEventListener('input',refresh));
+[['gear',['landing gear','wheel','axle','nose gear']],['instruments',['gauge','instrument','radio','avionics']],['struts',['wing strut','strut rear']],['doors',['cabin door','door hinge','door handle']]].forEach(([id,terms])=>document.getElementById(id).addEventListener('change',()=>visibility(id,terms)));
+document.getElementById('prop').addEventListener('change',e=>propOn=e.target.checked);
+document.getElementById('exterior').onclick=fit;
+document.getElementById('cockpit').onclick=()=>{camera.position.set(.3,1.1,1.1);controls.target.set(0,.2,0);controls.update();status.textContent='منظر تقريبي للقمرة؛ استخدم السحب والتكبير'};
+document.getElementById('reset').onclick=()=>{for(const id of ['flaps','aileron','elevator','rudder'])document.getElementById(id).value=0;refresh();fit()};
+let previous=performance.now();function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-previous)/1000,.1);previous=now;if(propOn){for(const p of parts)if(groupName(p.name).includes('propeller blade'))p.rotation.x+=dt*16;}controls.update();renderer.render(scene,camera)}requestAnimationFrame(animate);
+new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}).observe(host);
+</script></body></html>
