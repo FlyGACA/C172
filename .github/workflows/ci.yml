@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify archived phase packages (SHA256SUMS.txt)
+        run: sed 's#  README.md$#  docs/archive/UPLOAD_PACKAGE_README.md#' SHA256SUMS.txt | sha256sum -c --quiet
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Rebuild the Phase 7 GLB and compare with the committed file
+        run: |
+          python -m pip install --quiet "numpy>=1.26"
+          python 07_kinematic_twin/build/verify_model.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Unit tests (kinematics, systems simulation, scenarios)
+        run: npm test
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Browser smoke test
+        run: npm run test:e2e
+        env:
+          E2E_SHOTS: e2e-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-screenshots
+          path: e2e-screenshots
+          if-no-files-found: ignore

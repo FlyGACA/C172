@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlyGACA C172N Digital Twin</title>
+<meta name="description" content="FlyGACA Cessna 172N digital twin, Phase 7: kinematic engine, POH-referenced systems simulation and guided scenarios (educational).">
+<link rel="stylesheet" href="css/app.css">
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.min.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1 data-i18n="title">FlyGACA · Cessna 172N Digital Twin</h1>
+    <p class="sub" data-i18n="subtitle"></p>
+  </div>
+  <button id="lang" class="chip" type="button">English</button>
+</header>
+
+<div class="app">
+  <!-- ======================= cockpit + flight + faults -->
+  <aside class="col col-controls" aria-label="controls">
+    <section class="panel">
+      <h2 data-i18n="cockpit">Cockpit controls</h2>
+      <div class="row"><span class="lbl" data-i18n="master"></span>
+        <div class="seg">
+          <button type="button" id="masterAlt" class="tog" aria-pressed="false">ALT</button>
+          <button type="button" id="masterBat" class="tog" aria-pressed="false">BAT</button>
+        </div>
+      </div>
+      <div class="row"><span class="lbl" data-i18n="avionics"></span><button type="button" id="avionics" class="tog" aria-pressed="false">ON</button></div>
+      <div class="row col"><span class="lbl" data-i18n="ignition"></span>
+        <div class="seg" id="ignition" role="radiogroup">
+          <button type="button" data-v="OFF" role="radio">OFF</button><button type="button" data-v="R" role="radio">R</button><button type="button" data-v="L" role="radio">L</button><button type="button" data-v="BOTH" role="radio">BOTH</button>
+        </div>
+        <button type="button" id="startBtn" class="start" data-i18n="startHold">START</button>
+      </div>
+      <label class="slider"><span><span data-i18n="throttle"></span> <output id="throttleOut"></output></span><input id="throttle" type="range" min="0" max="100" value="0"></label>
+      <label class="slider mix"><span><span data-i18n="mixture"></span> <output id="mixtureOut"></output></span><input id="mixture" type="range" min="0" max="100" value="100"></label>
+      <label class="slider"><span><span data-i18n="carbHeat"></span> <output id="carbHeatOut"></output></span><input id="carbHeat" type="range" min="0" max="100" value="0"></label>
+      <div class="row"><button type="button" id="primer" class="btn" data-i18n="primer"></button><span class="muted"><output id="primeCount">0</output> <span data-i18n="primes"></span></span></div>
+      <div class="row col"><span class="lbl" data-i18n="fuelSelector"></span>
+        <div class="seg" id="fuelSelector" role="radiogroup">
+          <button type="button" data-v="LEFT" role="radio">LEFT</button><button type="button" data-v="BOTH" role="radio">BOTH</button><button type="button" data-v="RIGHT" role="radio">RIGHT</button><button type="button" data-v="OFF" role="radio">OFF</button>
+        </div>
+      </div>
+      <div class="toggles">
+        <button type="button" class="tog" id="altStatic" aria-pressed="false" data-i18n="altStatic"></button>
+        <button type="button" class="tog" id="pitotHeat" aria-pressed="false" data-i18n="pitotHeat"></button>
+        <button type="button" class="tog" id="beacon" aria-pressed="false" data-i18n="beacon"></button>
+        <button type="button" class="tog" id="navLights" aria-pressed="false" data-i18n="navLights"></button>
+        <button type="button" class="tog" id="landingLight" aria-pressed="false" data-i18n="landingLight"></button>
+      </div>
+      <label class="slider"><span><span data-i18n="kollsman"></span> <output id="kollsmanOut"></output></span><input id="kollsman" type="range" min="2850" max="3100" value="2992"></label>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="flight">Flight state</h2>
+      <label class="check"><input type="checkbox" id="onGround" checked> <span data-i18n="onGround"></span></label>
+      <label class="slider"><span><span data-i18n="iasTarget"></span> <output id="iasOut"></output></span><input id="iasTarget" type="range" min="0" max="170" value="0"></label>
+      <label class="slider"><span><span data-i18n="altTarget"></span> <output id="altOut"></output></span><input id="altTarget" type="range" min="0" max="12000" step="100" value="0"></label>
+      <label class="slider"><span><span data-i18n="bank"></span> <output id="bankOut"></output></span><input id="bank" type="range" min="-30" max="30" value="0"></label>
+      <label class="slider"><span><span data-i18n="pitch"></span> <output id="pitchOut"></output></span><input id="pitch" type="range" min="-10" max="15" value="0"></label>
+      <div class="row">
+        <label class="inline"><span data-i18n="timeScale"></span>
+          <select id="timeScale"><option value="1">1×</option><option value="5">5×</option><option value="20">20×</option><option value="60">60×</option></select></label>
+        <button type="button" id="pause" class="btn" data-i18n="pause"></button>
+        <button type="button" id="reset" class="btn" data-i18n="resetSim"></button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="faults">Faults</h2>
+      <label class="inline"><span data-i18n="f_pitot"></span>
+        <select id="f_pitot"><option value="none" data-i18n="f_pitot_none"></option><option value="ram" data-i18n="f_pitot_ram"></option><option value="ram_and_drain" data-i18n="f_pitot_both"></option></select></label>
+      <label class="check"><input type="checkbox" id="f_static"> <span data-i18n="f_static"></span></label>
+      <label class="inline"><span data-i18n="f_alt"></span>
+        <select id="f_alt"><option value="none" data-i18n="f_alt_none"></option><option value="failed" data-i18n="f_alt_failed"></option><option value="overvoltage" data-i18n="f_alt_ov"></option></select></label>
+      <label class="check"><input type="checkbox" id="f_vac"> <span data-i18n="f_vac"></span></label>
+      <label class="check"><input type="checkbox" id="f_ice"> <span data-i18n="f_ice"></span></label>
+      <label class="inline"><span><span data-i18n="f_mag"></span> L</span>
+        <select id="f_magL"><option value="ok" data-i18n="f_mag_ok"></option><option value="weak" data-i18n="f_mag_weak"></option><option value="dead" data-i18n="f_mag_dead"></option><option value="ungrounded" data-i18n="f_mag_ung"></option></select></label>
+      <label class="inline"><span><span data-i18n="f_mag"></span> R</span>
+        <select id="f_magR"><option value="ok" data-i18n="f_mag_ok"></option><option value="weak" data-i18n="f_mag_weak"></option><option value="dead" data-i18n="f_mag_dead"></option><option value="ungrounded" data-i18n="f_mag_ung"></option></select></label>
+      <label class="slider"><span><span data-i18n="f_fuelL"></span> <output id="fuelLOut"></output></span><input id="f_fuelL" type="range" min="0" max="215" value="215"></label>
+      <label class="slider"><span><span data-i18n="f_fuelR"></span> <output id="fuelROut"></output></span><input id="f_fuelR" type="range" min="0" max="215" value="215"></label>
+    </section>
+  </aside>
+
+  <!-- ======================= 3D + panel -->
+  <main class="col col-main">
+    <section class="panel viewer-panel">
+      <div class="toolbar">
+        <div class="seg" id="views" role="group">
+          <button type="button" data-view="aircraft" data-i18n="v_aircraft"></button><button type="button" data-view="engine" data-i18n="v_engine"></button><button type="button" data-view="panel" data-i18n="v_panel"></button><button type="button" data-view="fuel" data-i18n="v_fuel"></button><button type="button" data-view="electrical" data-i18n="v_electrical"></button><button type="button" data-view="pitot" data-i18n="v_pitot"></button>
+        </div>
+        <div class="toolbar-row">
+          <button type="button" class="tog" id="xray" aria-pressed="true" data-i18n="xray"></button>
+          <button type="button" class="tog" id="labels" aria-pressed="true" data-i18n="labels"></button>
+          <button type="button" class="tog" id="airframe" aria-pressed="true" data-i18n="airframe"></button>
+          <label class="inline"><span data-i18n="isolate"></span> <select id="isolate"><option value="" data-i18n="all"></option></select></label>
+          <label class="inline grow"><span data-i18n="explode"></span> <input id="explode" type="range" min="0" max="100" value="0"></label>
+        </div>
+        <div class="toolbar-row">
+          <label class="inline"><span data-i18n="animSpeed"></span>
+            <select id="animSpeed"><option value="0.01">1/100</option><option value="0.025" selected>1/40</option><option value="0.1">1/10</option><option value="1">1/1</option></select></label>
+          <label class="inline grow"><span data-i18n="manualCrank"></span> <input id="crank" type="range" min="0" max="720" value="0"></label>
+          <output id="crankOut" class="mono"></output>
+        </div>
+      </div>
+      <div id="viewport" tabindex="0" aria-label="3D model">
+        <div id="viewstatus" class="notice" role="status" data-i18n="loading"></div>
+        <div id="annunciators" class="annunciators" aria-live="polite"></div>
+      </div>
+      <div class="status" id="status"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="panel">Instrument panel</h2>
+      <div class="gauges" id="gauges"></div>
+      <div class="lamp-row"><span id="lvLamp" class="lamp" aria-live="polite">LOW VOLTAGE</span><span id="events" class="events" aria-live="polite"></span></div>
+    </section>
+  </main>
+
+  <!-- ======================= scenario + part + cycle -->
+  <aside class="col col-info">
+    <section class="panel">
+      <h2 data-i18n="scenario">Scenario</h2>
+      <div class="row"><select id="scenarioSel" class="grow"></select><button type="button" id="scenarioStart" class="btn primary" data-i18n="start"></button></div>
+      <div id="scenarioBody"></div>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="part">Selected part</h2>
+      <div id="partInfo" class="muted" data-i18n="clickPart"></div>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="cycle">Four-stroke cycle</h2>
+      <table class="cycle" id="cycle"></table>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="sources">Sources</h2>
+      <p class="tiny" data-i18n="disclaimer"></p>
+      <p class="tiny">Cessna Model 172N Pilot's Operating Handbook, 1 July 1978 (1979 model) — page references are shown as “POH x-y”. Engine bore/stroke: public O-320 type data, verify against TCDS E-274.</p>
+    </section>
+  </aside>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
