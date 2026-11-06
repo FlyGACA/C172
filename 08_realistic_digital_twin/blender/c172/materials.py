@@ -119,6 +119,8 @@ def build_library(tex_dir):
     M["woodgrain"] = pbr("woodgrain", color=(0.30, 0.17, 0.08, 1), rough=0.45, clearcoat=0.3)
     M["bezel_black"] = pbr("bezel_black", color=(0.05, 0.05, 0.05, 1), rough=0.4)
     M["knob_red"] = pbr("knob_red", color=(0.8, 0.05, 0.05, 1), rough=0.4)
+    M["prop_black"] = pbr("prop_black", color=(0.02, 0.02, 0.02, 1), rough=0.45, metal=0.1)
+    M["prop_tip"] = pbr("prop_tip_yellow", color=(0.95, 0.75, 0.05, 1), rough=0.45)
     M["belt"] = pbr("seatbelt_webbing", color=(0.25, 0.27, 0.32, 1), rough=0.9)
     M["dials"] = pbr("instrument_dials", T("dials.png"), rough=0.6)
     M["dials_alpha"] = pbr("instrument_dials_alpha", T("dials.png"), rough=0.6, alpha=0.999, double_sided=True)

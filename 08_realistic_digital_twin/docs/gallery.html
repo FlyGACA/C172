@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlyGACA C172N — gallery</title>
+<style>
+  :root { --bg:#0f1420; --card:#161d2c; --line:#263048; --fg:#e8ecf3; --mute:#9aa6bb; --gold:#d4a63c; }
+  html { background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif; }
+  body { margin:0; padding:20px 16px 40px; max-width:1100px; margin-inline:auto; }
+  h1 { font-size:1.6rem; margin:6px 0 2px; } h2 { font-size:1.2rem; margin:28px 0 8px; }
+  .sub { color:var(--mute); margin:0 0 18px; line-height:1.5; }
+  .en { font-weight:600; } .ar { color:var(--mute); margin-inline-start:8px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; margin:14px 0; }
+  .card img { display:block; width:100%; height:auto; border-radius:8px; background:transparent; }
+  figcaption { margin-top:8px; }
+  .meta { color:var(--mute); font-size:.85rem; }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+  .bar a, .bar button { color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; text-decoration:none; font:inherit; cursor:pointer; }
+  .logo { color:var(--gold); font-weight:800; }
+  .note { border-inline-start:3px solid var(--gold); padding:8px 12px; color:var(--mute); background:var(--card); border-radius:8px; }
+  [data-lang=en] .ar, [data-lang=ar] .en-only { display:none; }
+</style>
+</head>
+<body data-lang="ar">
+<div class="bar"><span class="logo">FlyGACA</span><a href="../index.html">← العارض التفاعلي · Interactive viewer</a><button id="lang">English</button></div>
+<h1><span class="en">Cessna 172N (1979) — renders for the book</span><span class="ar">سيسنا 172N (1979) — صور للكتاب</span></h1>
+<p class="sub"><span class="en">Every view is a transparent PNG at print size (1800 × 1000, Cycles, 96 samples) with a shadow catcher, so it can sit on any page colour. Labels are live text, not baked into the image — changing a word never means re-rendering. Built from <code>models/C172N_realistic.blend</code> with <code>npm run gallery8</code>.</span><span class="ar">كل صورة PNG شفافة بحجم الطباعة (1800 × 1000، Cycles، 96 عينة) مع التقاط الظل، فتناسب أي لون صفحة. التسميات نص حي وليست مدمجة في الصورة، فتغيير كلمة لا يعني إعادة التصيير. مبنية من <code>models/C172N_realistic.blend</code> بالأمر <code>npm run gallery8</code>.</span></p>
+<p class="note"><span class="en">Educational model: overall dimensions from the 1979 POH Figure 1-1; sections, windows, cowl and panel estimated from photographs. Not Cessna drawings.</span><span class="ar">نموذج تعليمي: الأبعاد الكلية من الشكل 1-1 في POH 1979؛ المقاطع والنوافذ والغطاء واللوحة تقديرية من الصور. ليست رسومات Cessna.</span></p>
+
+<h2><span class="en">Exterior</span><span class="ar">الخارج</span></h2>
+<figure class="card"><img src="gallery/c172n_hero.png" alt="three-quarter front view"><figcaption><span class="en">Three-quarter front</span><span class="ar">منظر أمامي جانبي</span><div class="meta">hero · 30° lens</div></figcaption></figure>
+<figure class="card"><img src="gallery/c172n_side_long.png" alt="side profile"><figcaption><span class="en">Side profile — long lens, wings read as thin lines</span><span class="ar">المنظر الجانبي — عدسة طويلة فتبدو الأجنحة خطوطًا رفيعة</span><div class="meta">13° lens at 42 m</div></figcaption></figure>
+<figure class="card"><img src="gallery/c172n_front_long.png" alt="front view"><figcaption><span class="en">Front — 1° 44′ dihedral, strut-braced wing, 8 ft 3½ in track</span><span class="ar">الأمام — زاوية ميل 1° 44′، جناح مدعوم، مسافة العجلات 8 أقدام و3½ بوصة</span></figcaption></figure>
+<figure class="card"><img src="gallery/c172n_top_long.png" alt="plan view"><figcaption><span class="en">Plan — 35 ft 10 in span, constant-chord inboard panel, tapered tips, flaps and ailerons</span><span class="ar">المسقط العلوي — باع 35 قدمًا و10 بوصات، جزء داخلي ثابت الوتر، أطراف مستدقة، قلابات وجنيحات</span></figcaption></figure>
+<figure class="card"><img src="gallery/c172n_rear_long.png" alt="rear three-quarter"><figcaption><span class="en">Rear three-quarter — swept fin with dorsal fillet, elevator horns, trim tab</span><span class="ar">منظر خلفي جانبي — مثبت مائل بزعنفة ظهرية، أذرع موازنة الرافع، لسان الموازنة</span></figcaption></figure>
+
+<h2><span class="en">Cockpit and engine</span><span class="ar">المقصورة والمحرك</span></h2>
+<figure class="card"><img src="gallery/c172n_cockpit_pilot.png" alt="pilot's view of the panel"><figcaption><span class="en">Pilot's view — six-pack, engine cluster, ARC-style radio stack, wood-grain lower panel</span><span class="ar">منظر الطيار — العدادات الستة، مجموعة المحرك، أجهزة الراديو، اللوحة السفلية الخشبية</span></figcaption></figure>
+<figure class="card"><img src="gallery/c172n_engine.png" alt="engine with the upper cowl removed"><figcaption><span class="en">Lycoming O-320-H2AD with the upper cowl removed — cylinders 1-3 right, 2-4 left, dual magneto, baffles</span><span class="ar">محرك لايكومنغ O-320-H2AD مع إزالة الغطاء العلوي — الأسطوانات 1-3 يمينًا و2-4 يسارًا، مغناطيس مزدوج، حواجز</span></figcaption></figure>
+
+<h2><span class="en">Before and after</span><span class="ar">قبل وبعد</span></h2>
+<figure class="card"><img src="renders/phase7_front_quarter.png" alt="Phase 7"><figcaption><span class="en">Phase 7 — numpy primitives</span><span class="ar">المرحلة 7 — أشكال أولية</span></figcaption></figure>
+<figure class="card"><img src="renders/phase8_front_quarter.png" alt="Phase 8"><figcaption><span class="en">Phase 8 — Blender-built model, same camera</span><span class="ar">المرحلة 8 — نموذج Blender، الكاميرا نفسها</span></figcaption></figure>
+<script>
+  const b = document.body, btn = document.getElementById('lang');
+  btn.onclick = () => { const en = b.dataset.lang !== 'en'; b.dataset.lang = en ? 'en' : 'ar'; document.documentElement.dir = en ? 'ltr' : 'rtl'; document.documentElement.lang = en ? 'en' : 'ar'; btn.textContent = en ? 'العربية' : 'English'; };
+</script>
+</body>
+</html>

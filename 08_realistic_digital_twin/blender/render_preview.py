@@ -19,6 +19,12 @@ VIEWS = {
     "cockpit_side": dict(pos=(1.4, 0.3, 1.5), target=(-0.2, -0.2, 1.3), fov=60),
     "engine": dict(pos=(-2.2, -3.6, 1.9), target=(0, -0.5, 1.35), fov=40),
     "engine_right": dict(pos=(2.4, -2.6, 1.6), target=(0, -0.55, 1.35), fov=40),
+    # gallery views: long lens so wings read as lines in profile, hero three-quarter
+    "side_long": dict(pos=(-42.0, 1.4, 1.8), target=(0, 1.9, 1.35), fov=13),
+    "hero": dict(pos=(-9.0, -8.6, 3.4), target=(0, 1.0, 1.25), fov=30),
+    "rear_long": dict(pos=(30.0, 32.0, 6.0), target=(0, 1.4, 1.3), fov=12),
+    "front_long": dict(pos=(0.3, -42.0, 2.2), target=(0, 0.5, 1.35), fov=16),
+    "top_long": dict(pos=(0.0, 1.6, 48.0), target=(0, 1.6, 1.0), fov=15),
 }
 
 def setup_world(hdr):
@@ -33,12 +39,13 @@ def setup_world(hdr):
     bg.inputs["Strength"].default_value = 1.0
     nt.links.new(env.outputs["Color"], bg.inputs["Color"]); nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
 
-def ground(mat_apron):
+def ground(mat_apron, shadow_catcher=False):
     bpy.ops.mesh.primitive_plane_add(size=80, location=(0, 0, 0))
     g = bpy.context.active_object; g.name = "_ground"
-    if mat_apron:
+    if shadow_catcher:
+        g.is_shadow_catcher = True
+    elif mat_apron:
         g.data.materials.append(mat_apron)
-        uv = g.data.uv_layers.active
     return g
 
 def main():
@@ -46,19 +53,29 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default="docs/renders"); ap.add_argument("--samples", type=int, default=64)
     ap.add_argument("--views", default="front_quarter,rear_quarter,side"); ap.add_argument("--res", default="1280x720"); ap.add_argument("--prefix", default="phase8_")
     ap.add_argument("--hdr", default=None); ap.add_argument("--hide", default="")
+    ap.add_argument("--transparent", action="store_true", help="transparent background with a shadow catcher (print/gallery)")
+    ap.add_argument("--fill", type=float, default=0.0, help="soft fill light strength (W) from the camera side")
     a = ap.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"; sc.cycles.samples = a.samples; sc.cycles.device = "CPU"; sc.cycles.use_denoising = True
     sc.render.resolution_x, sc.render.resolution_y = [int(v) for v in a.res.split("x")]
-    sc.render.film_transparent = False
+    sc.render.film_transparent = bool(a.transparent)
+    sc.render.image_settings.color_mode = "RGBA" if a.transparent else "RGB"
     sc.view_settings.view_transform = "AgX"; sc.view_settings.look = "AgX - Medium High Contrast"
     hdr = a.hdr or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "hdri", "sky.hdr")
     setup_world(hdr)
     sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 4.0; sun.angle = math.radians(1.5)
     so = bpy.data.objects.new("sun", sun); sc.collection.objects.link(so)
     so.rotation_euler = (math.radians(48), 0, math.radians(35))
-    ground(bpy.data.materials.get("apron_asphalt"))
+    ground(bpy.data.materials.get("apron_asphalt"), shadow_catcher=a.transparent)
+    if a.fill > 0:
+        fl = bpy.data.lights.new("fill", "AREA"); fl.energy = a.fill; fl.size = 12; fl.color = (0.9, 0.95, 1.0)
+        fo = bpy.data.objects.new("fill", fl); sc.collection.objects.link(fo)
+        fo.location = (-12, -10, 9); fo.rotation_euler = (Vector((12, 10, -9)).to_track_quat("-Z", "Y").to_euler())
+        fl2 = bpy.data.lights.new("rim", "AREA"); fl2.energy = a.fill * 0.6; fl2.size = 10
+        fo2 = bpy.data.objects.new("rim", fl2); sc.collection.objects.link(fo2)
+        fo2.location = (10, 12, 7); fo2.rotation_euler = (Vector((-10, -12, -7)).to_track_quat("-Z", "Y").to_euler())
     for n in a.hide.split(","):
         if n and bpy.data.objects.get(n):
             bpy.data.objects[n].hide_render = True

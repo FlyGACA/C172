@@ -4,6 +4,7 @@ html, body { height:100%; margin:0; background:var(--bg); color:var(--fg); font-
 button, select, input { font: inherit; color: inherit; }
 button { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:4px 9px; cursor:pointer; }
 button:hover { border-color:var(--acc); }
+.btnlink { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:4px 9px; color:var(--fg); text-decoration:none; }
 button.on, .seg button.on { background:var(--acc); border-color:var(--acc); color:#fff; }
 button.tog.on { background:var(--green); border-color:var(--green); color:#07240f; }
 select { background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:3px 6px; max-width:100%; }

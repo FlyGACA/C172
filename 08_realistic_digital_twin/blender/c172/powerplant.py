@@ -126,9 +126,9 @@ def build_spinner_prop(ctx):
                 c = 0.085; prof = resample_loop(ellipse(0.5, 0.42, 24), 24); beta = math.radians(58)
                 prof = [(x + 0.5, y) for x, y in prof]
             else:
-                c = interp_table([(0.12, 0.09), (0.3, 0.15), (0.5, 0.155), (0.75, 0.135), (0.92, 0.10), (1.0, 0.03)], rt)[0]
+                c = interp_table([(0.12, 0.085), (0.3, 0.135), (0.5, 0.14), (0.75, 0.125), (0.92, 0.095), (1.0, 0.028)], rt)[0]
                 beta = math.radians(interp_table([(0.12, 52), (0.3, 36), (0.5, 26), (0.75, 18), (1.0, 13)], rt)[0])
-                thick = interp_table([(0.12, 0.26), (0.3, 0.14), (0.6, 0.09), (1.0, 0.06)], rt)[0]
+                thick = interp_table([(0.12, 0.20), (0.3, 0.10), (0.6, 0.07), (1.0, 0.05)], rt)[0]
                 base = naca4("44%02d" % int(round(thick * 100)), 24)
                 prof = resample_loop(base, 24)
             ec = Vector((0, math.sin(beta), math.cos(beta)))       # chord LE->TE (TE aft & up for the +x blade)
@@ -142,7 +142,16 @@ def build_spinner_prop(ctx):
     blade(1); blade(-1)
     # hub barrel
     revolve(bm, [(0.0, fs(-38.5)), (0.075, fs(-38.5)), (0.075, fs(-33.5)), (0.0, fs(-33.5))], axis="Y", origin=(0, 0, U.PROP_Z), segs=24)
-    prop = obj_from_bm("POWERPLANT.propeller", bm, ctx.col, pivot=hub, mat=M["bare_alu"])
+    prop = obj_from_bm("POWERPLANT.propeller", bm, ctx.col, pivot=hub, mat=M["prop_black"])
+    # painted tips (yellow) on the outer 12 % of each blade, polished hub
+    prop.data.materials.append(M["prop_tip"]); prop.data.materials.append(M["bare_alu"])
+    R = U.PROP_R
+    for poly in prop.data.polygons:
+        xs = [abs(prop.data.vertices[v].co.x) for v in poly.vertices]
+        if max(xs) > 0.88 * R:
+            poly.material_index = 1
+        elif max(xs) < 0.08:
+            poly.material_index = 2
     add_subsurf(prop, 1)
     parent_keep(prop, sp)
     ctx.tag(prop, "POWERPLANT", "McCauley two-blade fixed-pitch propeller, 75 in", "مروحة ماكولي ثابتة الخطوة ذات شفرتين", status="poh", ref="p.1-3", spin_axis="y", spin_sign=-1, animate="prop",

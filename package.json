@@ -15,7 +15,8 @@
     "render8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/render_preview.py -- --out 08_realistic_digital_twin/docs/renders --samples 96 --views all --res 1600x900",
     "validate:glb8": "python3 08_realistic_digital_twin/scripts/validate_glb.py",
     "test:py8": "python3 08_realistic_digital_twin/tests/test_profiles.py",
-    "test:e2e8": "node 08_realistic_digital_twin/tests/e2e.mjs"
+    "test:e2e8": "node 08_realistic_digital_twin/tests/e2e.mjs",
+    "gallery8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/render_preview.py -- --out 08_realistic_digital_twin/docs/gallery --prefix c172n_ --samples 96 --views hero,side_long,front_long,top_long,rear_long,cockpit_pilot,engine --res 1800x1000 --transparent --fill 600 --hide POWERPLANT.cowl_upper"
   },
   "devDependencies": {
     "playwright": "1.63.0"

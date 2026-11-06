@@ -79,7 +79,7 @@ export const STRINGS = {
 // ---- Phase 8 additions (realistic digital twin viewer)
 const P8 = {
   ar: {
-    title8: 'FlyGACA · التوأم الرقمي الواقعي لطائرة سيسنا 172N (1979)',
+    title8: 'FlyGACA · التوأم الرقمي الواقعي لطائرة سيسنا 172N (1979)', gallery: 'المعرض',
     m_exterior: 'الخارج', m_cockpit: 'قمرة القيادة', m_engine: 'المحرك', m_systems: 'الأنظمة',
     controls: 'أدوات القيادة', parts: 'الأجزاء', tools: 'أدوات العرض', flightctl: 'أسطح التحكم', hint: 'اسحب للتدوير · عجلة/قرص للتقريب · انقر جزءًا لعرض شرحه',
     start_hold: 'START (اضغط مطولًا)', prime_stroke: 'ضخة', flaps: 'القلابات', lights: 'الأضواء',
@@ -96,7 +96,7 @@ const P8 = {
     groups8: { AIRFRAME: 'الهيكل', WING_L: 'الجناح الأيسر', WING_R: 'الجناح الأيمن', EMPENNAGE: 'الذيل', GEAR: 'عجلات الهبوط', POWERPLANT: 'مجموعة القدرة', ENGINE: 'المحرك', INTERIOR: 'المقصورة', PANEL: 'لوحة العدادات', SYSTEMS: 'الأنظمة' },
   },
   en: {
-    title8: 'FlyGACA · Cessna 172N (1979) realistic digital twin',
+    title8: 'FlyGACA · Cessna 172N (1979) realistic digital twin', gallery: 'Gallery',
     m_exterior: 'Exterior', m_cockpit: 'Cockpit', m_engine: 'Engine', m_systems: 'Systems',
     controls: 'Cockpit controls', parts: 'Parts', tools: 'View tools', flightctl: 'Flight controls', hint: 'Drag to orbit · wheel/pinch to zoom · click a part for its description',
     start_hold: 'START (hold)', prime_stroke: 'Stroke', flaps: 'Flaps', lights: 'Lights',
