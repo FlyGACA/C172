@@ -14,8 +14,8 @@ permissions:
 
 jobs:
   verify:
-    # CI_RUNNER_LABEL routes trusted work to a dedicated runner. Fork PRs stay hosted.
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.CI_RUNNER_LABEL || 'ubuntu-latest' }}
+    # Trusted work uses the isolated C172 runner. Fork PRs stay GitHub-hosted.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'c172-ci' || 'ubuntu-latest' }}
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
   blender-rebuild:
     # Rebuilds the Phase 8 model from the scripts with the pinned Blender LTS and checks that the
     # result has the same parts and triangle counts as the committed GLBs (deterministic build).
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.CI_RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'c172-ci' || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

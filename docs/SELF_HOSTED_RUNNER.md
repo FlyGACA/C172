@@ -13,10 +13,8 @@ code must not run on a private server.
 4. Install Git, Python 3.12, Node 22, and the system libraries listed in
    `.github/workflows/ci.yml`. Docker or a disposable VM is recommended.
 5. Install the runner as a service using the `svc.sh` commands shown by GitHub.
-6. Add the Actions repository variable `CI_RUNNER_LABEL` with value `c172-ci` under
-   **Settings → Secrets and variables → Actions → Variables**.
-
-Delete `CI_RUNNER_LABEL` to send trusted jobs back to `ubuntu-latest`.
+6. Confirm the runner appears online with the `c172-ci` label. Trusted jobs select that label
+   directly; no repository variable is required.
 
 ## Security and maintenance
 
