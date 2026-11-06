@@ -25,6 +25,8 @@ VIEWS = {
     "rear_long": dict(pos=(30.0, 32.0, 6.0), target=(0, 1.4, 1.3), fov=12),
     "front_long": dict(pos=(0.3, -42.0, 2.2), target=(0, 0.5, 1.35), fov=16),
     "top_long": dict(pos=(0.0, 1.6, 48.0), target=(0, 1.6, 1.0), fov=15),
+    "exploded": dict(pos=(-16.0, -13.0, 7.0), target=(0.3, 1.0, 1.6), fov=36),
+    "exploded_side": dict(pos=(-46.0, 2.0, 4.0), target=(0, 1.8, 1.8), fov=15),
 }
 
 def setup_world(hdr):
@@ -48,11 +50,53 @@ def ground(mat_apron, shadow_catcher=False):
         g.data.materials.append(mat_apron)
     return g
 
+EXPLODE = {"AIRFRAME": 0.9, "WING_L": 1.0, "WING_R": 1.0, "EMPENNAGE": 1.0, "GEAR": 0.8, "POWERPLANT": 1.1, "ENGINE": 0.8, "INTERIOR": 0.6, "PANEL": 0.25}
+
+def explode(f):
+    """Move each direct child of a system group away from the group centre (viewer rule)."""
+    deps = bpy.context.evaluated_depsgraph_get()
+    def centre(obs):
+        pts = []
+        for o in obs:
+            for ob in [o] + [c for c in o.children_recursive]:
+                if ob.type == "MESH" and not ob.hide_render:
+                    ev = ob.evaluated_get(deps)
+                    pts += [ev.matrix_world @ Vector(c) for c in ev.bound_box]
+        if not pts:
+            return None
+        mn = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
+        mx = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+        return (mn + mx) / 2
+    for g in [o for o in bpy.data.objects if o.type == "EMPTY" and o.get("group")]:
+        gc = centre(g.children)
+        if gc is None:
+            continue
+        dist = EXPLODE.get(g["system"], 0.6)
+        for o in g.children:
+            pc = centre([o])
+            if pc is None:
+                continue
+            d = pc - gc
+            if d.length < 1e-3:
+                d = Vector((0, 0, 1))
+            d.normalize(); d.z += 0.25; d.normalize()
+            o.matrix_world.translation += d * dist * f * (1.6 if o.get("internal") else 1.0)
+
+def white_world():
+    w = bpy.context.scene.world
+    bg = w.node_tree.nodes.get("Background")
+    env = [n for n in w.node_tree.nodes if n.type == "TEX_ENVIRONMENT"]
+    if bg and env:
+        w.node_tree.links.remove(env[0].outputs["Color"].links[0]) if env[0].outputs["Color"].links else None
+        bg.inputs["Color"].default_value = (1, 1, 1, 1); bg.inputs["Strength"].default_value = 1.2
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default="docs/renders"); ap.add_argument("--samples", type=int, default=64)
     ap.add_argument("--views", default="front_quarter,rear_quarter,side"); ap.add_argument("--res", default="1280x720"); ap.add_argument("--prefix", default="phase8_")
     ap.add_argument("--hdr", default=None); ap.add_argument("--hide", default="")
+    ap.add_argument("--explode", type=float, default=0.0, help="exploded-assembly factor 0..1 (same rule as the viewer)")
+    ap.add_argument("--white", action="store_true", help="plain white studio background")
     ap.add_argument("--transparent", action="store_true", help="transparent background with a shadow catcher (print/gallery)")
     ap.add_argument("--fill", type=float, default=0.0, help="soft fill light strength (W) from the camera side")
     a = ap.parse_args(argv)
@@ -76,6 +120,11 @@ def main():
         fl2 = bpy.data.lights.new("rim", "AREA"); fl2.energy = a.fill * 0.6; fl2.size = 10
         fo2 = bpy.data.objects.new("rim", fl2); sc.collection.objects.link(fo2)
         fo2.location = (10, 12, 7); fo2.rotation_euler = (Vector((-10, -12, -7)).to_track_quat("-Z", "Y").to_euler())
+    if a.explode > 0:
+        explode(a.explode)
+    if a.white:
+        white_world()
+        sc.view_settings.look = "AgX - Base"
     for n in a.hide.split(","):
         if n and bpy.data.objects.get(n):
             bpy.data.objects[n].hide_render = True
