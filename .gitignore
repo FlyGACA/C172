@@ -1,0 +1,7 @@
+# Local tooling and generated junk
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+dist/
+.cache/
