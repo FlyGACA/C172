@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 import re
 import sys
 from pathlib import Path
@@ -14,7 +15,7 @@ P8 = ROOT / "08_realistic_digital_twin"
 LODS = ("high", "medium", "low")
 MODEL_BUDGETS = {"high": 5_000_000, "medium": 3_600_000, "low": 2_300_000}
 IMAGE_BUDGET = 3_000_000
-STATUS = {"poh", "type_data", "estimated"}
+STATUS = {"measured", "poh", "type_data", "estimated"}
 
 
 class Gate:
@@ -98,6 +99,7 @@ def validate_models(gate: Gate) -> None:
         gate.check(index.get("triangles") == sum(part.get("triangles", 0) for part in parts), f"{lod}: triangle total does not match parts")
         for part in parts:
             gate.check(part.get("status") in STATUS, f"{lod}: {part.get('name')}: invalid status")
+            gate.check(part.get("status") != "measured" or bool(part.get("measurement_id")), f"{lod}: {part.get('name')}: measured part lacks measurement_id")
             gate.check(bool(part.get("label_en")), f"{lod}: {part.get('name')}: missing English label")
             gate.check(bool(part.get("label_ar")), f"{lod}: {part.get('name')}: missing Arabic label")
         part_sets[lod] = set(names)
@@ -108,6 +110,7 @@ def validate_models(gate: Gate) -> None:
 def validate_manifest_and_assets(gate: Gate) -> None:
     manifest = gate.json("phase8_manifest.json")
     gate.check(manifest.get("phase") == 8, "manifest phase must be 8")
+    gate.check(set(manifest.get("reference", {}).get("status_vocabulary", {})) == STATUS, "manifest status vocabulary is incomplete")
     gate.check((P8 / manifest.get("entry_point", "")).is_file(), "manifest entry point is missing")
     for lod, relative in manifest.get("model", {}).get("quality_levels", {}).items():
         gate.check(lod in LODS, f"manifest has unknown LOD {lod!r}")
@@ -117,6 +120,17 @@ def validate_manifest_and_assets(gate: Gate) -> None:
             gate.check(image.stat().st_size <= IMAGE_BUDGET, f"{image.relative_to(ROOT)} exceeds {IMAGE_BUDGET / 1e6:.1f} MB budget")
 
 
+def validate_measurements(gate: Gate) -> None:
+    path = P8 / "scripts" / "measurements.py"
+    spec = importlib.util.spec_from_file_location("quality_measurements", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    errors = module.validate_dataset(gate.json("data/aircraft_measurements.json"))
+    gate.errors.extend(f"aircraft measurements: {error}" for error in errors)
+    gate.check((P8 / "data" / "measurement_schema.json").is_file(), "measurement schema is missing")
+    gate.check((P8 / "data" / "measurement_template.csv").is_file(), "measurement CSV template is missing")
+
+
 def main() -> int:
     gate = Gate()
     validate_catalog(gate)
@@ -124,6 +138,7 @@ def main() -> int:
     validate_instruments(gate)
     validate_models(gate)
     validate_manifest_and_assets(gate)
+    validate_measurements(gate)
     if gate.errors:
         print(f"Quality gate failed with {len(gate.errors)} problem(s):")
         for error in gate.errors:

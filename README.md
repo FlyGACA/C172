@@ -43,6 +43,7 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
 | `npm run validate:geometry8` | Check mesh health, aircraft bounds, fairing normals and critical skin attachments |
 | `npm run quality` | Validate bilingual metadata, provenance, generated indexes and asset budgets |
+| `npm run measurements:validate` / `npm run measurements:report` | Validate the aircraft survey and compare it with model references |
 | `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
 | `npm run render8` | Cycles reference renders of the Phase 8 model |
 | `npm run verify:model` | Rebuild in a temp dir and compare with the committed GLB |

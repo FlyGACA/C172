@@ -17,7 +17,7 @@ All three are far inside the budgets set in `02_modeling_architecture.md` (25 / 
 
 `scripts/validate_glb.py` — all levels **OK**: glTF 2.0 binary, Draco required, every primitive has
 NORMAL + TEXCOORD_0 and a PBR material (37 materials, 23 images), every mesh node carries
-`system`, `label_en`, `label_ar`, `status ∈ {poh, type_data, estimated}` extras.
+`system`, `label_en`, `label_ar`, `status ∈ {measured, poh, type_data, estimated}` extras.
 
 Determinism: two consecutive builds produced identical object lists and triangle counts
 (`scripts/compare_builds.py`), which is what the CI `blender-rebuild` job checks.

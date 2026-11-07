@@ -6,7 +6,8 @@
 to English. `?q=high|medium|low` forces a quality level; `?lang=en` forces the language.
 
 [النسخة العربية](README_AR.md) · [Audit & asset-gap report](docs/01_audit_and_asset_gap_report.md) ·
-[Architecture & milestones](docs/02_modeling_architecture.md) · [Validation report](docs/03_validation_report.md)
+[Architecture & milestones](docs/02_modeling_architecture.md) · [Validation report](docs/03_validation_report.md) ·
+[Aircraft measurement workflow](docs/04_aircraft_measurements.md)
 
 ## What this phase is
 
@@ -40,7 +41,7 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
   fairings, AO, displayed motion speed, hand-crank angle, camera presets, parts tree
   (show/hide/isolate per system or part), selected-part information, 2D gauges, sources.
 - **Click/tap any part** for its bilingual name, a description tied to the POH, and a status badge:
-  green = POH (page cited), gold = type data, grey = estimated.
+  green = measured aircraft, blue = POH (page cited), gold = type data, grey = estimated.
 
 ## Rebuilding the model
 
@@ -61,7 +62,7 @@ triangle counts and sizes with the committed files (`scripts/compare_builds.py`)
 
 ```
 blender/build.py            entry point (run inside Blender)
-blender/c172/units.py       every dimension with its status (poh / type_data / estimated) and reference
+blender/c172/units.py       every dimension with its status (measured / poh / type_data / estimated) and reference
 blender/c172/profiles.py    NACA airfoils, superellipses, resampling (pure Python, unit tested)
 blender/c172/shapes.py      bmesh lofts, revolves, tubes, modifiers, frames, parenting
 blender/c172/textures.py    albedo / ORM / normal sets, livery, rivets, sky HDR
@@ -78,6 +79,7 @@ assets/textures, assets/hdri generated textures (2048 + 1024/512 copies) and sky
 js/                         viewer.js (renderer), rig.js (parts + animation), app.js (UI), compatibility imports
 ../shared/js/                canonical Phase 7/8 simulation, scenarios and SVG gauges
 data/                       instruments.json, parts_catalog.json (69 bilingual entries), poh_references.json
+data/measurement_schema.json, aircraft_measurements.json, measurement_template.csv
 tests/, scripts/            Python tests, node tests, Playwright test, GLB validator, build comparison
 docs/                       audit, architecture, validation report, renders
 ```

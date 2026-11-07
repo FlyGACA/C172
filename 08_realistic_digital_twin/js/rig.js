@@ -222,6 +222,30 @@ export class Rig {
   hide(o) { o.visible = false; }
   setFairings(on) { for (const [n, o] of this.parts) if (/wheel_fairing|leg_fairing/.test(n)) o.visible = on; }
 
+  setConfidence(on) {
+    const colours = { measured: 0x22c55e, poh: 0x3b82f6, type_data: 0xf59e0b, estimated: 0x6b7280 };
+    for (const [, o] of this.parts) {
+      const colour = colours[o.userData.status] ?? colours.estimated;
+      o.traverse((m) => {
+        if (!m.isMesh || !m.material) return;
+        if (on) {
+          if (!m.__confidenceOrig) m.__confidenceOrig = m.material;
+          const decorate = (source) => {
+            const material = source.clone();
+            material.color = new THREE.Color(colour);
+            material.emissive = new THREE.Color(colour);
+            material.emissiveIntensity = 0.18;
+            return material;
+          };
+          m.material = Array.isArray(m.__confidenceOrig) ? m.__confidenceOrig.map(decorate) : decorate(m.__confidenceOrig);
+        } else if (m.__confidenceOrig) {
+          m.material = m.__confidenceOrig;
+          delete m.__confidenceOrig;
+        }
+      });
+    }
+  }
+
   highlight(o) {
     if (this.sel) this.sel.traverse((m) => { if (m.isMesh && m.__orig) { m.material = m.__orig; delete m.__orig; } });
     this.sel = o;

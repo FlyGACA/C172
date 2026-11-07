@@ -78,7 +78,7 @@ test('spark happens once per 720° per cylinder, in firing order', () => {
 test('every exported part carries bilingual labels and a documentation status', () => {
   for (const p of index.parts) {
     assert.ok(p.label_en && p.label_ar, p.name);
-    assert.ok(['poh', 'type_data', 'estimated'].includes(p.status), `${p.name}: ${p.status}`);
+    assert.ok(['measured', 'poh', 'type_data', 'estimated'].includes(p.status), `${p.name}: ${p.status}`);
   }
   assert.ok(index.parts.length > 300);
   assert.ok(index.triangles < 600000);

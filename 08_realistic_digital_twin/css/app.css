@@ -53,7 +53,7 @@ output { color:var(--gold); font-variant-numeric: tabular-nums; min-width:3em; }
 .info { font-size:.9rem; line-height:1.45; }
 .info h3 { margin:4px 0 6px; font-size:1rem; }
 .badge { display:inline-block; padding:1px 7px; border-radius:6px; font-size:.75rem; font-weight:700; margin-inline-end:6px; }
-.badge.poh { background:var(--green); color:#07240f; } .badge.type_data { background:var(--gold); color:#2a1d00; } .badge.estimated { background:#6b7280; color:#fff; }
+.badge.measured { background:var(--green); color:#07240f; } .badge.poh { background:#3b82f6; color:#fff; } .badge.type_data { background:var(--gold); color:#2a1d00; } .badge.estimated { background:#6b7280; color:#fff; }
 .gauges { display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; }
 .gauges svg { width:100%; height:auto; }
 .steps { list-style:none; padding:0; margin:6px 0; }

@@ -79,6 +79,16 @@ try {
     await page.evaluate(() => window.__twin.select(null));
   });
 
+  await check('confidence overlay colours parts by provenance and restores materials', async () => {
+    const before = await page.evaluate(() => window.__twin.rig.part('AIRFRAME.fuselage').material.color.getHex());
+    await page.click('#confidence');
+    const during = await page.evaluate(() => window.__twin.rig.part('AIRFRAME.fuselage').material.color.getHex());
+    assert.notEqual(during, before);
+    await page.click('#confidence');
+    const after = await page.evaluate(() => window.__twin.rig.part('AIRFRAME.fuselage').material.color.getHex());
+    assert.equal(after, before);
+  });
+
   await check('explode animation moves parts away from their system centres', async () => {
     await page.click('#playExplode');
     await page.waitForFunction(() => !window.__twin.exploding, null, { timeout: 120000 });

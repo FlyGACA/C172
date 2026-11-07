@@ -60,7 +60,7 @@ class UnitsTests(unittest.TestCase):
 
     def test_every_reference_has_status(self):
         for k, v in units.REF.items():
-            self.assertIn(v["status"], ("poh", "type_data", "estimated"), k)
+            self.assertIn(v["status"], ("measured", "poh", "type_data", "estimated"), k)
             self.assertTrue(v["ref"], k)
 
     def test_wing_area_from_planform(self):
