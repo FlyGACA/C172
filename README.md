@@ -41,6 +41,7 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm run build:model8` | Rebuild the Phase 8 `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
 | `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
+| `npm run validate:geometry8` | Check mesh health, aircraft bounds, fairing normals and critical skin attachments |
 | `npm run quality` | Validate bilingual metadata, provenance, generated indexes and asset budgets |
 | `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
 | `npm run render8` | Cycles reference renders of the Phase 8 model |

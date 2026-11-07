@@ -89,3 +89,24 @@ jobs:
           "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b --python 08_realistic_digital_twin/blender/build.py -- --lod all --skip-textures --out /tmp/p8models
       - name: Compare the rebuilt model with the committed one
         run: python 08_realistic_digital_twin/scripts/compare_builds.py 08_realistic_digital_twin/models /tmp/p8models
+      - name: Validate geometry and critical fuselage attachments
+        run: |
+          "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b /tmp/p8models/C172N_realistic.blend \
+            --python 08_realistic_digital_twin/blender/validate_geometry.py
+      - name: Render visual-regression views
+        run: |
+          "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b /tmp/p8models/C172N_realistic.blend \
+            --python 08_realistic_digital_twin/blender/render_preview.py -- \
+            --out /tmp/p8renders --samples 16 --views front_quarter,gear_detail,top --res 800x450 --no-denoise
+      - name: Compare canonical renders
+        run: |
+          python 08_realistic_digital_twin/scripts/compare_renders.py \
+            08_realistic_digital_twin/docs/renders /tmp/p8renders \
+            phase8_front_quarter.png phase8_gear_detail.png phase8_top.png \
+            --diff-dir /tmp/p8render-diffs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: phase8-render-diffs
+          path: /tmp/p8render-diffs
+          if-no-files-found: ignore

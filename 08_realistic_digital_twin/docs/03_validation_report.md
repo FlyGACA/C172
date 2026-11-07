@@ -22,6 +22,16 @@ NORMAL + TEXCOORD_0 and a PBR material (37 materials, 23 images), every mesh nod
 Determinism: two consecutive builds produced identical object lists and triangle counts
 (`scripts/compare_builds.py`), which is what the CI `blender-rebuild` job checks.
 
+Spatial regression: `blender/validate_geometry.py` rejects non-finite or newly degenerate mesh
+data, aircraft-envelope violations, downward wing-root-fairing normals, missing critical objects,
+and gaps over 80 mm between nine critical attachments and the evaluated fuselage skin. The
+current attachment distances are 0–1.6 mm. Existing generator debt is explicitly capped at 56
+degenerate faces per crankcase half and one in the lower cowl, so it cannot silently increase.
+
+Visual regression: the rebuild job renders the front-quarter, landing-gear detail, and top views
+at 800 × 450 and 16 samples, then compares luminance, RGB RMS, and edge differences against the
+committed reference renders. Failure diffs are uploaded as a CI artifact.
+
 ## 2. Proportion checks against the POH (Figure 1-1)
 
 | Quantity | POH | Model (from `units.py`) | Check |
@@ -46,6 +56,8 @@ fit was attempted — fuselage sections remain **estimated**.
 | `tests/sim.test.mjs`, `tests/scenarios.test.mjs` (Phase 7 behaviour, re-run on the Phase 8 copies) | 35 / 35 pass |
 | Phase 7 suites (`07_kinematic_twin/tests`) | unchanged, 41 / 41 pass |
 | `scripts/validate_glb.py` | 3 / 3 levels OK |
+| `blender/validate_geometry.py` | 10 critical objects, 9 skin contacts, fairing normals OK |
+| `scripts/compare_renders.py` | 3 canonical render views within perceptual thresholds |
 
 ## 4. Browser test (`tests/e2e.mjs`, Playwright Chromium + SwiftShader)
 

@@ -14,6 +14,7 @@
     "textures8": "cd 08_realistic_digital_twin/blender && python3 -m c172.textures ../assets",
     "render8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/render_preview.py -- --out 08_realistic_digital_twin/docs/renders --samples 96 --views all --res 1600x900",
     "validate:glb8": "python3 08_realistic_digital_twin/scripts/validate_glb.py",
+    "validate:geometry8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/validate_geometry.py",
     "quality": "python3 08_realistic_digital_twin/scripts/quality_gate.py",
     "test:py8": "python3 08_realistic_digital_twin/tests/test_profiles.py",
     "test:e2e8": "node 08_realistic_digital_twin/tests/e2e.mjs",

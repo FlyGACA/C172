@@ -49,6 +49,7 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
 npm run textures8                                             # procedural textures + sky HDR (numpy, Pillow)
 npm run build:model8                                          # .blend + high/medium/low GLBs + model indexes
 npm run validate:glb8 && npm run test:py8 && npm test         # structure, Python tests, node tests
+npm run validate:geometry8                                    # bounds, normals, mesh and attachment checks
 npm run test:e2e8                                             # Playwright browser test (needs Chromium)
 npm run render8                                               # Cycles reference renders into docs/renders
 ```

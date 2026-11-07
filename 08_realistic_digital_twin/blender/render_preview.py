@@ -99,10 +99,11 @@ def main():
     ap.add_argument("--white", action="store_true", help="plain white studio background")
     ap.add_argument("--transparent", action="store_true", help="transparent background with a shadow catcher (print/gallery)")
     ap.add_argument("--fill", type=float, default=0.0, help="soft fill light strength (W) from the camera side")
+    ap.add_argument("--no-denoise", action="store_true", help="disable optional OpenImageDenoise (portable CI smoke renders)")
     a = ap.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     sc = bpy.context.scene
-    sc.render.engine = "CYCLES"; sc.cycles.samples = a.samples; sc.cycles.device = "CPU"; sc.cycles.use_denoising = True
+    sc.render.engine = "CYCLES"; sc.cycles.samples = a.samples; sc.cycles.device = "CPU"; sc.cycles.use_denoising = not a.no_denoise
     sc.render.resolution_x, sc.render.resolution_y = [int(v) for v in a.res.split("x")]
     sc.render.film_transparent = bool(a.transparent)
     sc.render.image_settings.color_mode = "RGBA" if a.transparent else "RGB"
