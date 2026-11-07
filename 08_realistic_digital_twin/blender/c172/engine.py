@@ -308,7 +308,7 @@ def build_accessories(ctx, grp):
     ctx.tag(muf, "ENGINE", "Muffler with heat shroud (source of cabin and carburetor heat)", "كاتم الصوت مع غلاف التسخين", status="poh", ref="p.7-24/35")
     # engine mount: tubular truss from four firewall points to the accessory housing lugs
     bm = new_bm()
-    fw = [Vector((sx * 0.40, fs(0.5), z)) for sx in (-1, 1) for z in (1.02, 1.72)]
+    fw = [Vector((sx * 0.36, fs(0.5), z)) for sx in (-1, 1) for z in (1.14, 1.66)]
     lugs = [Vector((sx * 0.16, fs(-4.2), zc + sz * 0.15)) for sx in (-1, 1) for sz in (-1, 1)]
     for f_ in fw:
         for l in lugs:

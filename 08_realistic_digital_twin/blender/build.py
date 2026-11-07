@@ -40,6 +40,8 @@ class Ctx:
         return g
 
     def tag(self, ob, system, label_en, label_ar, status="estimated", **kw):
+        if status == "measured" and not kw.get("measurement_id"):
+            raise ValueError(f"{ob.name}: measured geometry requires measurement_id")
         ob["system"] = system; ob["label_en"] = label_en; ob["label_ar"] = label_ar; ob["status"] = status
         for k, v in kw.items():
             if k in ("hinge_axis", "spin_axis"):

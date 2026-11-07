@@ -2,15 +2,20 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "claude/**", "codex/**"]
   pull_request:
+
+concurrency:
+  group: c172-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Trusted work uses the isolated C172 runner. Fork PRs stay GitHub-hosted.
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'c172-ci' || 'ubuntu-latest' }}
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +34,10 @@ jobs:
         run: |
           python 08_realistic_digital_twin/tests/test_profiles.py
           python 08_realistic_digital_twin/scripts/validate_glb.py
+          python 08_realistic_digital_twin/scripts/quality_gate.py
+
+      - name: Verify release archive and checksums
+        run: python -m unittest discover -s tests -v
 
       - uses: actions/setup-node@v4
         with:
@@ -58,7 +67,7 @@ jobs:
   blender-rebuild:
     # Rebuilds the Phase 8 model from the scripts with the pinned Blender LTS and checks that the
     # result has the same parts and triangle counts as the committed GLBs (deterministic build).
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'c172-ci' || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -80,3 +89,24 @@ jobs:
           "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b --python 08_realistic_digital_twin/blender/build.py -- --lod all --skip-textures --out /tmp/p8models
       - name: Compare the rebuilt model with the committed one
         run: python 08_realistic_digital_twin/scripts/compare_builds.py 08_realistic_digital_twin/models /tmp/p8models
+      - name: Validate geometry and critical fuselage attachments
+        run: |
+          "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b /tmp/p8models/C172N_realistic.blend \
+            --python 08_realistic_digital_twin/blender/validate_geometry.py
+      - name: Render visual-regression views
+        run: |
+          "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b /tmp/p8models/C172N_realistic.blend \
+            --python 08_realistic_digital_twin/blender/render_preview.py -- \
+            --out /tmp/p8renders --samples 16 --views front_quarter,gear_detail,top --res 800x450 --no-denoise
+      - name: Compare canonical renders
+        run: |
+          python 08_realistic_digital_twin/scripts/compare_renders.py \
+            08_realistic_digital_twin/docs/renders /tmp/p8renders \
+            phase8_front_quarter.png phase8_gear_detail.png phase8_top.png \
+            --diff-dir /tmp/p8render-diffs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: phase8-render-diffs
+          path: /tmp/p8render-diffs
+          if-no-files-found: ignore

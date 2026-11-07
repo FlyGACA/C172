@@ -398,7 +398,7 @@ def build_seats(ctx):
         return pan
     seat("INTERIOR.seat_pilot", 0.30, fs(42), 0.42, "Pilot seat (adjustable)", "مقعد الطيار")
     seat("INTERIOR.seat_copilot", -0.30, fs(42), 0.42, "Co-pilot seat (adjustable)", "مقعد مساعد الطيار")
-    seat("INTERIOR.seat_rear", 0.0, fs(80), 0.96, "Rear bench seat", "المقعد الخلفي")
+    seat("INTERIOR.seat_rear", 0.0, fs(80), 0.84, "Rear bench seat", "المقعد الخلفي")
     # shoulder harnesses for the front seats, from the roof rail behind the door
     for side, x in (("L", 0.30), ("R", -0.30)):
         bm = new_bm()
@@ -426,8 +426,8 @@ def build_seats(ctx):
         ctx.tag(ih, "INTERIOR", "Door inner handle", "مقبض الباب الداخلي", status="estimated")
     # baggage shelf / rear bulkhead
     bm = new_bm()
-    box(bm, (0.96, 0.02, 0.9), center=(0, fs(112), 1.33))
-    bh = obj_from_bm("INTERIOR.baggage_bulkhead", bm, ctx.col, pivot=(0, fs(112), 0.9), mat=M["interior_tan"], smooth=False)
+    box(bm, (0.84, 0.02, 0.8), center=(0, fs(112), 1.42))
+    bh = obj_from_bm("INTERIOR.baggage_bulkhead", bm, ctx.col, pivot=(0, fs(112), 1.0), mat=M["interior_tan"], smooth=False)
     parent_keep(bh, grp)
     ctx.tag(bh, "INTERIOR", "Baggage compartment aft bulkhead (120 lb area)", "الحاجز الخلفي لمقصورة الأمتعة", status="poh", ref="p.6-x baggage")
 

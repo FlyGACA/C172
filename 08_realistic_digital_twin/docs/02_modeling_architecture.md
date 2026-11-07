@@ -5,7 +5,7 @@
 ```
 blender/build.py  ──(bpy, headless Blender 4.5 LTS)──►  models/C172N_realistic.blend
        │                                                 models/C172N_realistic_{high,medium,low}.glb
-       │  c172/units.py      reference dimensions with status (poh / type_data / estimated)
+       │  c172/units.py      reference dimensions with status (measured / poh / type_data / estimated)
        │  c172/shapes.py     airfoils, cross-sections, lofts, bmesh helpers, UV projection
        │  c172/textures.py   numpy/PIL texture generation (atlases, normal maps, dials, sky HDR)
        │  c172/materials.py  Principled BSDF materials wired to the generated textures

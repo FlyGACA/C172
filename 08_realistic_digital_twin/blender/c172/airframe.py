@@ -20,10 +20,10 @@ FUS_TABLE = [
     (0,   0.490, 0.900, 1.740, 1.38, 2.4, 2.2),
     (6,   0.515, 0.860, 1.860, 1.38, 2.5, 2.3),
     (14,  0.535, 0.830, 1.980, 1.36, 2.6, 2.4),
-    (25,  0.540, 0.810, 2.000, 1.34, 2.7, 2.4),
-    (60,  0.540, 0.800, 2.000, 1.32, 2.7, 2.4),
-    (100, 0.535, 0.800, 1.990, 1.32, 2.6, 2.4),
-    (108, 0.520, 0.805, 1.965, 1.32, 2.5, 2.3),
+    (25,  0.540, 0.810, 2.000, 1.34, 4.5, 2.4),
+    (60,  0.540, 0.800, 2.000, 1.32, 5.0, 2.4),
+    (100, 0.535, 0.800, 1.990, 1.32, 4.5, 2.4),
+    (108, 0.520, 0.805, 1.965, 1.32, 3.2, 2.3),
     (120, 0.470, 0.830, 1.860, 1.31, 2.3, 2.2),
     (135, 0.385, 0.880, 1.720, 1.29, 2.2, 2.1),
     (160, 0.290, 0.975, 1.560, 1.26, 2.1, 2.1),
@@ -44,6 +44,14 @@ def fus_top_z(s):
 
 def fus_half_width(s):
     return interp_table(FUS_TABLE, s)[0]
+
+def fus_surface_z(s, x, top=False):
+    """Skin height at station s (in) and lateral x (m): bottom of the section, or top."""
+    w, zb, zt, zc, nt, nb = interp_table(FUS_TABLE, s)
+    t = min(1.0, abs(x) / w)
+    if top:
+        return zc + (zt - zc) * (1 - t ** nt) ** (1 / nt)
+    return zc - (zc - zb) * (1 - t ** nb) ** (1 / nb)
 
 # ----------------------------------------------------------------------------- cutters
 
@@ -178,7 +186,7 @@ AF_ROOT = naca4("2412", 36)
 AF_TIP = naca4("0012", 36)
 FLAP_XC = 0.75
 AIL_XC = 0.76
-ROOT_X = 0.50
+ROOT_X = 0.0
 FLAP_SPAN = (0.56, 2.52)
 AIL_SPAN = (2.60, 5.24)
 TIP_START = 5.30
@@ -192,7 +200,7 @@ def wing_chord(x):
 
 def wing_section(xabs, side, cut=None, k=K_WING):
     """World-space ring for the wing at |x| = xabs. cut: None (full airfoil), ('box', xc) or ('surf', xc)."""
-    t = min(1.0, max(0.0, (xabs - ROOT_X) / (U.SEMISPAN - ROOT_X)))
+    t = min(1.0, max(0.0, (xabs - 0.5) / (U.SEMISPAN - 0.5)))
     af = airfoil_interp(AF_ROOT, AF_TIP, t)
     if cut is None:
         prof = resample_loop(af, k)
@@ -202,7 +210,7 @@ def wing_section(xabs, side, cut=None, k=K_WING):
     c = wing_chord(xabs)
     inc = math.radians(1.5) - WASHOUT * t
     y_le = U.WING_LE_Y
-    z_le = U.WING_Z + (xabs - ROOT_X) * math.tan(DIH)
+    z_le = U.WING_Z + max(0.0, xabs - 0.5) * math.tan(DIH)
     ring = []
     for xc, yc in prof:
         # chord along +y (aft), thickness along +z, incidence rotates nose-up about the LE
@@ -214,7 +222,7 @@ def wing_section(xabs, side, cut=None, k=K_WING):
 
 def wing_hinge_point(xabs, side, xc):
     c = wing_chord(xabs)
-    t = min(1.0, max(0.0, (xabs - ROOT_X) / (U.SEMISPAN - ROOT_X)))
+    t = min(1.0, max(0.0, (xabs - 0.5) / (U.SEMISPAN - 0.5)))
     inc = math.radians(1.5) - WASHOUT * t
     af = airfoil_interp(AF_ROOT, AF_TIP, t)
     n = len(af); upper = af[: n // 2 + 1]; lower = [af[0]] + list(reversed(af[n // 2:]))
@@ -227,7 +235,7 @@ def wing_hinge_point(xabs, side, xc):
     zc = 0.5 * (y_at(upper, xc) + y_at(lower, xc)) * c
     yy = xc * c
     y = U.WING_LE_Y + yy * math.cos(inc) + zc * math.sin(inc)
-    z = U.WING_Z + (xabs - ROOT_X) * math.tan(DIH) - yy * math.sin(inc) + zc * math.cos(inc)
+    z = U.WING_Z + max(0.0, xabs - 0.5) * math.tan(DIH) - yy * math.sin(inc) + zc * math.cos(inc)
     return Vector((side * xabs, y, z))
 
 def _stations(a, b, step):
@@ -243,7 +251,7 @@ def build_wing(ctx, side):
     xs = []
     def add(x, cut):
         rings.append(wing_section(x, side, cut)); xs.append(x)
-    for x in _stations(ROOT_X, FLAP_SPAN[0] - 0.01, 0.06): add(x, None)
+    for x in _stations(ROOT_X, FLAP_SPAN[0] - 0.01, 0.14): add(x, None)
     for x in _stations(FLAP_SPAN[0], FLAP_SPAN[1], 0.2): add(x, ("box", FLAP_XC))
     for x in _stations(AIL_SPAN[0], AIL_SPAN[1], 0.2): add(x, ("box", AIL_XC))
     for x in _stations(AIL_SPAN[1] + 0.04, TIP_START, 0.03): add(x, None)
@@ -261,8 +269,8 @@ def build_wing(ctx, side):
         rings.append(rr); xs.append(x)
     uv_v = [(x - ROOT_X) / (U.SEMISPAN - ROOT_X) for x in xs]
     bm = new_bm()
-    loft(bm, rings, close=True, cap_start=True, cap_end=True, uv_v=uv_v, flip=(side < 0))
-    wing = obj_from_bm(f"WING_{name}.wing", bm, ctx.col, pivot=(side * ROOT_X, U.WING_LE_Y, U.WING_Z), mat=M["wing"])
+    loft(bm, rings, close=True, cap_start=False, cap_end=True, uv_v=uv_v, flip=(side < 0))
+    wing = obj_from_bm(f"WING_{name}.wing", bm, ctx.col, pivot=(side * 0.5, U.WING_LE_Y, U.WING_Z), mat=M["wing"])
     parent_keep(wing, grp)
     ctx.tag(wing, "WING_" + name, f"{'Left' if side > 0 else 'Right'} wing", "الجناح " + ("الأيسر" if side > 0 else "الأيمن"),
             status="type_data", note="NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout (type data); planform estimated")
@@ -285,7 +293,7 @@ def build_wing(ctx, side):
     # ---- strut (streamlined section) from the lower fuselage longeron to the wing underside
     lower = wing_section(2.44, side, None)
     zlow = min(v.z for v in lower)
-    p0 = Vector((side * 0.50, fs(46), 0.86))
+    p0 = Vector((side * 0.42, fs(46), fus_surface_z(46, 0.42) + 0.02))
     p1 = Vector((side * 2.44, U.WING_LE_Y + 0.33 * wing_chord(2.44), zlow + 0.015))
     d = (p1 - p0).normalized()
     # section: ellipse 0.11 × 0.040, long axis along the flight direction
@@ -305,6 +313,32 @@ def build_wing(ctx, side):
     add_subsurf(strut, 1)
     parent_keep(strut, grp)
     ctx.tag(strut, "WING_" + name, "Wing strut", "دعامة الجناح", status="estimated")
+    # ---- wing root fairing (fillet between the wing lower surface and the cabin roof)
+    rings = []
+    c_root = wing_chord(0.5)
+    for i in range(0, 15):
+        t = i / 14
+        y = U.WING_LE_Y - 0.08 + t * (c_root + 0.18)
+        s_in = (y / IN) + U.FS_ORIGIN
+        xr = 0.60 if 0.03 < t < 0.97 else 0.50
+        lower = wing_section(xr, side, None)
+        zw = min(v.z for v in lower if abs(v.y - y) < 0.12) if any(abs(v.y - y) < 0.12 for v in lower) else min(v.z for v in lower)
+        zr = fus_surface_z(s_in, 0.36, top=True) if 0 <= s_in <= 283 else 1.9
+        pts = []
+        for j in range(7):
+            a = math.pi / 2 * j / 6
+            pts.append(Vector((side * (0.36 + (xr - 0.36) * math.sin(a)), y, zr + (zw + 0.01 - zr) * (1 - math.cos(a)))))
+        rings.append(pts)
+    bm = new_bm()
+    loft(bm, rings, close=False, cap_start=False, cap_end=False, flip=(side < 0))   # exterior faces up/outward
+    fair = obj_from_bm(f"WING_{name}.root_fairing", bm, ctx.col, pivot=(side * 0.5, U.WING_LE_Y, U.WING_Z), mat=M["paint_white"])
+    # recalc_face_normals picks an arbitrary side for an open strip: force the exterior (up/outward) side,
+    # otherwise the single-sided paint material is back-face culled in the web viewer
+    if sum(p.normal.z for p in fair.data.polygons) < 0:
+        fair.data.flip_normals()
+    add_subsurf(fair, 1)
+    parent_keep(fair, grp)
+    ctx.tag(fair, "WING_" + name, "Wing root fairing", "غطاء جذر الجناح الانسيابي", status="estimated")
     # ---- details: fuel cap, nav light, strobe, tie-down, pitot (left), stall vane (left), fuel vent (left)
     xcap = 1.17
     topz = max(v.z for v in wing_section(xcap, side, None) if abs(v.y - (U.WING_LE_Y + 0.33 * U.ROOT_CHORD)) < 0.08)
@@ -549,8 +583,9 @@ def build_details(ctx):
     ctx.tag(sp, "PITOT_STATIC", "Static port (left fuselage)", "منفذ الضغط الساكن", status="poh", ref="p.7-31")
     # step and handhold on the left for refuelling
     bm = new_bm()
-    tube(bm, [Vector((0.50, fs(60), 0.70)), Vector((0.62, fs(60), 0.56)), Vector((0.62, fs(60), 0.52)), Vector((0.78, fs(60), 0.52)), Vector((0.78, fs(68), 0.52)), Vector((0.62, fs(68), 0.52)), Vector((0.62, fs(68), 0.56)), Vector((0.50, fs(68), 0.70))], 0.012, segs=10)
-    step = obj_from_bm("AIRFRAME.step_L", bm, ctx.col, pivot=(0.5, fs(64), 0.7), mat=M["steel"])
+    zs = fus_surface_z(64, 0.42)
+    tube(bm, [Vector((0.42, fs(60), zs + 0.02)), Vector((0.62, fs(60), zs - 0.22)), Vector((0.62, fs(60), zs - 0.26)), Vector((0.78, fs(60), zs - 0.26)), Vector((0.78, fs(68), zs - 0.26)), Vector((0.62, fs(68), zs - 0.26)), Vector((0.62, fs(68), zs - 0.22)), Vector((0.42, fs(68), zs + 0.02))], 0.012, segs=10)
+    step = obj_from_bm("AIRFRAME.step_L", bm, ctx.col, pivot=(0.42, fs(64), zs), mat=M["steel"])
     parent_keep(step, grp)
     ctx.tag(step, "AIRFRAME", "Refuelling step (left)", "درجة التزود بالوقود", status="estimated")
     bm = new_bm()
@@ -561,8 +596,9 @@ def build_details(ctx):
     # cabin air vent inlets at the wing roots (small scoops) and the wing root fairing
     for side in (-1, 1):
         bm = new_bm()
-        box(bm, (0.06, 0.10, 0.03), center=(side * 0.50, U.WING_LE_Y - 0.03, U.WING_Z - 0.04))
-        v = obj_from_bm(f"AIRFRAME.cabin_vent_{'L' if side > 0 else 'R'}", bm, ctx.col, pivot=(side * 0.5, U.WING_LE_Y, U.WING_Z), mat=M["paint_white"])
+        zroof = fus_surface_z(22, 0.30, top=True)
+        box(bm, (0.06, 0.10, 0.03), center=(side * 0.30, fs(22), zroof + 0.012))
+        v = obj_from_bm(f"AIRFRAME.cabin_vent_{'L' if side > 0 else 'R'}", bm, ctx.col, pivot=(side * 0.3, fs(22), zroof), mat=M["paint_white"])
         parent_keep(v, grp)
         ctx.tag(v, "AIRFRAME", "Cabin ventilation air inlet", "فتحة تهوية المقصورة", status="estimated")
     # ---- cabin interior liner (dark) so windows show a cabin, not the outside through the shell
@@ -583,7 +619,7 @@ def build_details(ctx):
     ctx.tag(liner, "INTERIOR", "Cabin interior liner", "بطانة المقصورة الداخلية", status="estimated")
     # cabin floor
     bm = new_bm()
-    box(bm, (1.0, fs(112) - fs(4), 0.03), center=(0, (fs(4) + fs(112)) / 2, 0.86))
+    box(bm, (0.78, fs(112) - fs(4), 0.03), center=(0, (fs(4) + fs(112)) / 2, 0.93))   # inside the rounded belly
     floor = obj_from_bm("INTERIOR.floor", bm, ctx.col, mat=M["carpet"])
     parent_keep(floor, ctx.groups["INTERIOR"])
     ctx.tag(floor, "INTERIOR", "Cabin floor", "أرضية المقصورة", status="estimated")

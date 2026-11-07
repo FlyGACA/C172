@@ -41,6 +41,9 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm run build:model8` | Rebuild the Phase 8 `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
 | `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
+| `npm run validate:geometry8` | Check mesh health, aircraft bounds, fairing normals and critical skin attachments |
+| `npm run quality` | Validate bilingual metadata, provenance, generated indexes and asset budgets |
+| `npm run measurements:validate` / `npm run measurements:report` | Validate the aircraft survey and compare it with model references |
 | `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
 | `npm run render8` | Cycles reference renders of the Phase 8 model |
 | `npm run verify:model` | Rebuild in a temp dir and compare with the committed GLB |
@@ -48,8 +51,12 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm test` | Unit tests: kinematics, POH-referenced simulation behaviour, scenarios |
 | `npm run test:e2e` | Browser test with Playwright (`npm ci && npx playwright install chromium` first) |
 
+The Phase 7 and Phase 8 viewers share their simulation, scenarios, and SVG gauges from
+[`shared/js/`](shared/js/); the phase-local modules are compatibility entry points.
+
 GitHub Actions runs all of the above on every pull request and push to `main`, and a second job
 rebuilds the Phase 8 model with the pinned Blender and compares it with the committed files.
+For a dedicated runner, follow [the self-hosted runner guide](docs/SELF_HOSTED_RUNNER.md).
 
 ## Safety
 

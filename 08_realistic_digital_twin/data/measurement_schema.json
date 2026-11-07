@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flygaca.com/schemas/c172-measurements-v1.json",
+  "title": "FlyGACA C172 aircraft measurements",
+  "type": "object",
+  "required": ["schema_version", "aircraft", "records"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "aircraft": {
+      "type": "object",
+      "required": ["manufacturer", "model", "year", "tail_number", "serial_number", "configuration"],
+      "properties": {
+        "manufacturer": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "year": { "type": "integer", "minimum": 1955, "maximum": 2100 },
+        "tail_number": { "type": ["string", "null"] },
+        "serial_number": { "type": ["string", "null"] },
+        "configuration": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "parameter", "value", "unit", "tolerance", "provenance", "method", "source", "recorded_at", "recorded_by", "verification_status", "notes"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+          "parameter": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "value": { "type": "number" },
+          "unit": { "enum": ["mm", "cm", "m", "in", "ft", "deg", "lb", "gal_us", "ft2"] },
+          "tolerance": { "type": "number", "minimum": 0 },
+          "provenance": { "enum": ["aircraft_measurement", "document_reference", "type_data"] },
+          "method": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 },
+          "recorded_at": { "type": "string", "format": "date" },
+          "recorded_by": { "type": "string", "minLength": 1 },
+          "verification_status": { "enum": ["raw", "verified", "rejected"] },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

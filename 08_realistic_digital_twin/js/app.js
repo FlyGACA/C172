@@ -167,6 +167,7 @@ $('playExplode').onclick = () => { explodeAnim = { t: 0, from: Number($('explode
 const tog = (id, fn) => { $(id).onclick = () => { $(id).classList.toggle('on'); fn($(id).classList.contains('on')); }; };
 tog('xray', (on) => rig && rig.setXray(on));
 tog('labels', (on) => rig && rig.setLabels(on));
+tog('confidence', (on) => { if (rig) { select(null); rig.setConfidence(on); } });
 tog('cowl', (on) => { if (rig) rig.state.cowlOff = on ? 1 : 0; });
 tog('doors', (on) => { if (rig) { rig.state.doorL = on ? 1 : 0; rig.state.doorR = on ? 1 : 0; } });
 tog('fairings', (on) => rig && rig.setFairings(on));

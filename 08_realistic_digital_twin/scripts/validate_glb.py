@@ -49,8 +49,10 @@ def main(models_dir):
                 parts += 1
                 for k in ("system", "label_en", "label_ar", "status"):
                     if k not in ex: missing.append(f"{n.get('name')}:{k}")
-                if ex.get("status") not in ("poh", "type_data", "estimated"):
+                if ex.get("status") not in ("measured", "poh", "type_data", "estimated"):
                     missing.append(f"{n.get('name')}:status={ex.get('status')}")
+                if ex.get("status") == "measured" and not ex.get("measurement_id"):
+                    missing.append(f"{n.get('name')}:measurement_id")
         if missing: probs.append(f"{len(missing)} nodes with missing/invalid extras, e.g. {missing[:3]}")
         idx_path = os.path.join(models_dir, f"model_index_{lod}.json")
         tris = None

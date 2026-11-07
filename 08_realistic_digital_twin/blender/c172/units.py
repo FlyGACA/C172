@@ -1,6 +1,7 @@
 """Reference dimensions used by the Phase 8 model.
 
 Every value carries a status:
+  measured   — verified measurement from the identified aircraft (record ID cited)
   poh        — 1979 Cessna 172N Pilot's Operating Handbook (page cited)
   type_data  — published type data, not from the POH; confirm against TCDS 3A12 / E-274
   estimated  — proportions estimated from photographs / general arrangement; not manufacturer data
