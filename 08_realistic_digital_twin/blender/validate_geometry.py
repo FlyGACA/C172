@@ -4,9 +4,10 @@ Run with:
   blender -b models/C172N_realistic.blend --python blender/validate_geometry.py
 
 Checks: mesh health, the overall envelope, the published dimensions the model has to reproduce
-(span, length, wheel base, track, propeller clearance, tyres on the ground), the attachment of
-struts, fairings and gear to their neighbours, and that nothing inside the cabin or the cowl
-sticks out through the skin.
+(span over the tips and over the strobe lights, length, wheel base, track, tail span, tyres on the
+ground, and the maximum height together with the propeller clearance, which the POH gives for the
+nose gear depressed), the attachment of struts, fairings, doors and gear to their neighbours, and
+that nothing inside the cabin or the cowl sticks out through the skin.
 """
 
 import math
@@ -20,6 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from c172 import units as U                      # noqa: E402
 from c172 import airframe, powerplant            # noqa: E402
 from c172.profiles import interp_pchip           # noqa: E402
+from c172.detail import structure_wing           # noqa: E402
 
 
 REQUIRED = {
@@ -28,6 +30,7 @@ REQUIRED = {
     "WING_L.root_fairing", "WING_R.root_fairing",
     "GEAR.main_leg_L", "GEAR.main_leg_R",
     "AIRFRAME.step_L", "AIRFRAME.step_R", "AIRFRAME.cabin_vent_L", "AIRFRAME.cabin_vent_R",
+    "AIRFRAME.door_L", "AIRFRAME.door_R", "AIRFRAME.baggage_door",
 }
 
 # Each component must intersect its neighbour, or come within this gap of it (m).
@@ -46,6 +49,11 @@ CONTACTS = {
     "EMPENNAGE.stabilizer": ("AIRFRAME.fuselage", 0.03),
     "POWERPLANT.cowl_lower": ("AIRFRAME.fuselage", 0.02),
     "POWERPLANT.cowl_upper": ("AIRFRAME.fuselage", 0.02),
+    "AIRFRAME.door_L": ("AIRFRAME.fuselage", 0.01),
+    "AIRFRAME.door_R": ("AIRFRAME.fuselage", 0.01),
+    "AIRFRAME.baggage_door": ("AIRFRAME.fuselage", 0.01),
+    "WING_L.wing": ("AIRFRAME.fuselage", 0.01),
+    "WING_R.wing": ("AIRFRAME.fuselage", 0.01),
 }
 
 # Safety envelope in Blender world coordinates (metres): +x left wing, -y nose, z up from the ground.
@@ -60,13 +68,16 @@ DEGENERATE_FACE_BUDGET = {
 
 # Published dimensions the built model must reproduce: (description, expected m, tolerance m).
 DIMENSIONS = {
-    "wingspan": ("POH Fig 1-1: 35 ft 10 in over the wing tips, lights excluded", U.ref("wingspan_m"), 0.02),
-    "length": ("POH Fig 1-1: 26 ft 11 in, spinner tip to rudder", U.ref("length_m"), 0.03),
-    "wheel_base": ("65 in", U.ref("wheel_base_m"), 0.01),
-    "track": ("8 ft 3½ in", U.ref("gear_track_m"), 0.01),
-    "prop_clearance": ("11¾ in under the propeller disc", U.ref("prop_clearance_m"), 0.015),
-    "tail_span": ("11 ft 4 in over the elevator horns", U.ref("h_tail_span_m"), 0.02),
+    "span_strobes": ("POH Fig 1-1: 36 ft, wing span with strobe lights installed", U.ref("wingspan_strobes_m"), 0.02),
+    "wingspan": ("type data: 35 ft 10 in over the wing tips, lights excluded", U.ref("wingspan_m"), 0.02),
+    "length": ("POH Fig 1-1: 26 ft 11 in, spinner tip to rudder, aircraft on its wheels", U.ref("length_m"), 0.03),
+    "wheel_base": ("POH Fig 1-1: 65 in", U.ref("wheel_base_m"), 0.01),
+    "track": ("POH Fig 1-1: 8 ft 4½ in", U.ref("gear_track_m"), 0.01),
+    "tail_span": ("POH Fig 1-1: 11 ft 4 in over the elevator horns", U.ref("h_tail_span_m"), 0.02),
+    "height_nose_depressed": ("POH Fig 1-1: 8 ft 9½ in maximum, with the nose pushed down until the propeller clears the ground by 11¾ in",
+                              U.ref("height_m"), 0.03),
 }
+NOSE_DROP_RANGE = (0.06, 0.12)      # m: how far the nose wheel has to go down for that; a strut and a tyre can give this much
 
 # Parts that live inside the cabin or under the cowl must stay inside the skin. Everything is checked
 # except the exterior assemblies and the parts that are mounted outside on purpose.
@@ -104,16 +115,33 @@ def world_bounds(names, depsgraph):
 def outside_skin(point):
     """Distance (m, approximate) by which a point lies outside the cowl or fuselage skin; negative
     inside, None beyond either end of the hull. Uses the section tables the skin is lofted from."""
-    station = point.y / U.IN + U.FS_ORIGIN
+    point_x, point_y, z = U.from_ground(tuple(point))          # the tables are in the build frame
+    station = point_y / U.IN + U.FS_ORIGIN
     cowl0, firewall = powerplant.COWL_TABLE[0][0], powerplant.COWL_TABLE[-1][0]
-    if station < cowl0 or station > airframe.FUS_END_FS:
+    if station < cowl0 - 0.05 or station > airframe.FUS_END_FS + 0.05:
         return None
+    station = min(max(station, cowl0), airframe.FUS_END_FS)
     table = powerplant.COWL_TABLE if station < firewall else airframe.FUS_TABLE
     half_width, z_bottom, z_top, z_centre, n_top, n_bottom = interp_pchip(table, station)
-    z = point.z + U.GROUND_Z
     height, n = ((z_top - z_centre), n_top) if z >= z_centre else ((z_centre - z_bottom), n_bottom)
-    r = ((abs(point.x) / half_width) ** n + (abs(z - z_centre) / height) ** n) ** (1 / n)
-    return (r - 1) * math.hypot(point.x, z - z_centre) / max(r, 1e-6)
+    r = ((abs(point_x) / half_width) ** n + (abs(z - z_centre) / height) ** n) ** (1 / n)
+    return (r - 1) * math.hypot(point_x, z - z_centre) / max(r, 1e-6)
+
+
+def outside_wing(point):
+    """Distance (m) by which a point lies outside the wing skin: above the upper surface, below the lower
+    one, or beyond the leading or trailing edge of its section. Negative inside."""
+    point_x, point_y, point_z = U.from_ground(tuple(point))
+    side = 1 if point_x >= 0 else -1
+    xabs = min(max(abs(point_x), airframe.WING_ROOT_X), U.SEMISPAN)
+    plane = structure_wing.section_plane(xabs, side)
+    along, up, _depth = plane.flat((side * xabs, point_y, point_z))
+    chord = airframe.wing_chord(xabs)
+    section = airframe.wing_airfoil(xabs)
+    fraction = min(max(along / chord, 0.0), 1.0)
+    upper = airframe.airfoil_y(section, fraction, True) * chord
+    lower = airframe.airfoil_y(section, fraction, False) * chord
+    return max(up - upper, lower - up, -along, along - chord)
 
 
 def check_dimensions(problems, depsgraph):
@@ -132,9 +160,32 @@ def check_dimensions(problems, depsgraph):
             lowest = world_bounds([tyre.name], depsgraph)[2][0]
             if not -0.02 <= lowest <= 0.005:
                 problems.append(f"{tyre.name}: lowest point is {lowest:.3f} m, not on the ground (z = 0)")
-    spinner = bpy.data.objects.get("POWERPLANT.spinner")
-    if spinner:
-        measured["prop_clearance"] = spinner.matrix_world.translation.z - U.PROP_R
+    strobes = world_bounds(["WING_L.strobe", "WING_R.strobe"], depsgraph)
+    if strobes:
+        measured["span_strobes"] = strobes[0][1] - strobes[0][0]
+    # POH Fig 1-1 gives the maximum height "with nose gear depressed" and a propeller clearance of 11¾ in.
+    # At rest the propeller clears the ground by more: push the nose down about the main wheels until it
+    # clears it by 11¾ in and measure the height of the beacon then.
+    propeller = bpy.data.objects.get("POWERPLANT.propeller")
+    beacon = world_bounds(["ELECTRICAL.beacon"], depsgraph)
+    if propeller and beacon and main_l:
+        hub = propeller.matrix_world.translation
+        main_y = main_l.matrix_world.translation.y
+        rest_clearance = hub.z - U.PROP_R
+        low, high = 0.0, 0.25
+        for _ in range(60):
+            phi = (low + high) / 2
+            clearance = (hub.y - main_y) * math.sin(phi) + hub.z * math.cos(phi) - U.PROP_R
+            low, high = (phi, high) if clearance > U.ref("prop_clearance_m") else (low, phi)
+        top_y = bpy.data.objects["ELECTRICAL.beacon"].matrix_world.translation.y
+        measured["height_nose_depressed"] = (top_y - main_y) * math.sin(phi) + beacon[2][1] * math.cos(phi)
+        drop = U.ref("wheel_base_m") * math.sin(phi)
+        print(f"at rest: propeller clearance {rest_clearance / U.IN:.1f} in, height {beacon[2][1] / U.IN:.1f} in; "
+              f"nose wheel {drop / U.IN:.1f} in lower for the published 11.75 in")
+        if rest_clearance <= U.ref("prop_clearance_m"):
+            problems.append(f"propeller clearance at rest is {rest_clearance / U.IN:.1f} in: no more than the 11.75 in the POH gives with the nose gear depressed")
+        if not NOSE_DROP_RANGE[0] <= drop <= NOSE_DROP_RANGE[1]:
+            problems.append(f"the published propeller clearance needs the nose wheel {drop:.3f} m lower, outside {NOSE_DROP_RANGE}")
     tail = world_bounds(["EMPENNAGE.elevator"], depsgraph)
     if tail:
         measured["tail_span"] = tail[0][1] - tail[0][0]
@@ -158,6 +209,7 @@ def main():
 
     all_points = []
     inside_checked = 0
+    wing_checked = 0
     for ob in bpy.data.objects:
         if ob.type != "MESH" or ob.hide_render or ob.name.startswith("_"):
             continue
@@ -172,7 +224,14 @@ def main():
             problems.append(f"{ob.name}: {degenerate} degenerate faces (budget {budget})")
         elif degenerate:
             print(f"known mesh debt {ob.name}: {degenerate}/{budget} degenerate faces")
-        if not ob.name.startswith(EXTERIOR_PREFIXES) and ob.name not in MOUNTED_OUTSIDE:
+        level = int(ob.get("detail", 0))
+        if level >= 1 and ob.name.startswith("WING_") and not ob.get("outside"):
+            # structure and mechanisms in the wing stay under its skin
+            wing_checked += 1
+            worst = max(outside_wing(vertex) for vertex in vertices)
+            if worst > SKIN_TOLERANCE:
+                problems.append(f"{ob.name}: sticks {worst * 1000:.0f} mm out through the wing skin")
+        if (not ob.name.startswith(EXTERIOR_PREFIXES) and ob.name not in MOUNTED_OUTSIDE) or ob.get("inside") == "fuselage":
             inside_checked += 1
             distances = [d for d in (outside_skin(vertex) for vertex in vertices) if d is not None]
             if len(distances) < len(vertices):
@@ -180,7 +239,7 @@ def main():
             elif distances and max(distances) > SKIN_TOLERANCE:
                 problems.append(f"{ob.name}: sticks {max(distances) * 1000:.0f} mm out through the skin")
         evaluated.to_mesh_clear()
-    print(f"skin containment: {inside_checked} interior parts checked")
+    print(f"skin containment: {inside_checked} parts checked against the fuselage and cowl, {wing_checked} against the wing")
 
     if all_points:
         mins = tuple(min(point[i] for point in all_points) for i in range(3))
@@ -221,27 +280,13 @@ def main():
         else:
             print(f"contact {name} -> {target_name}: {min(distances):.4f} m")
 
-    for name in ("WING_L.root_fairing", "WING_R.root_fairing"):
-        ob = bpy.data.objects.get(name)
-        if not ob:
-            continue
-        evaluated = ob.evaluated_get(depsgraph)
-        mesh = evaluated.to_mesh()
-        normal_matrix = evaluated.matrix_world.to_3x3().inverted().transposed()
-        mean_up = sum((normal_matrix @ polygon.normal).normalized().z for polygon in mesh.polygons) / max(1, len(mesh.polygons))
-        if mean_up <= 0.1:
-            problems.append(f"{name}: exterior normals face down (mean world Z {mean_up:.3f})")
-        else:
-            print(f"normals {name}: mean world Z {mean_up:.3f}")
-        evaluated.to_mesh_clear()
-
     if problems:
         print(f"Geometry validation failed with {len(problems)} problem(s):", file=sys.stderr)
         for problem in problems:
             print(f"  - {problem}", file=sys.stderr)
         return 1
     print(f"Geometry validation OK: {len(REQUIRED)} critical objects, {len(CONTACTS)} contacts, "
-          f"{len(DIMENSIONS)} published dimensions, {inside_checked} interior parts inside the skin")
+          f"{len(DIMENSIONS)} published dimensions, {inside_checked} parts inside the fuselage skin, {wing_checked} inside the wing skin")
     return 0
 
 

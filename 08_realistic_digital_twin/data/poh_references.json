@@ -4,7 +4,8 @@
     "edition": "1 July 1978",
     "publisher": "Cessna Aircraft Company",
     "copy_reviewed": "Public scan cited in 04b_poh_reference/poh_1979_reference_data.json (teensinflight.org); the scan also contains an operator supplement for one UK-registered aircraft, which Phase 7 does not use.",
-    "method": "Values below were read from the OCR text of that scan on 2026-11-06 and cross-checked against the page footer. Page numbers are POH page numbers (section-page)."
+    "method": "Values below were read from the OCR text of that scan on 2026-11-06 and cross-checked against the page footer. Page numbers are POH page numbers (section-page).",
+    "second_copy": "Entries marked \"copy\": \"1978 handbook\" were read on 2026-11-10 from the page images of a scan of the 1978 Model 172N handbook supplied by the author (no text layer: each value was read from the page itself). The two model years share these pages; where a later entry repeats an earlier one, the later one is the one that was read from the figure."
   },
   "values": [
     {"key": "engine.model", "value": "Lycoming O-320-H2AD", "page": "1-3, 2-5"},
@@ -47,7 +48,15 @@
     {"key": "pitot_static", "value": "pitot tube on lower surface of left wing; static port lower left side of forward fuselage; optional heated pitot; optional alternate static valve below the throttle", "page": "7-31"},
     {"key": "carb_icing", "value": "gradual RPM loss; full throttle and full carb heat until smooth, then remove heat", "page": "3-16"},
     {"key": "vacuum", "value": "engine-driven vacuum pump powers attitude and directional indicators; below 4.5 inHg indicators not reliable", "page": "7-32, 7-34"},
-    {"key": "geometry.overall", "value": "span 36 ft, length 26 ft 11 in (envelope only)", "page": "1-2 Fig 1-1"}
+    {"key": "geometry.overall", "value": "span 36 ft, length 26 ft 11 in (envelope only)", "page": "1-2 Fig 1-1"},
+    {"key": "geometry.three_view", "value": "wing span 36 ft (note 1: shown with strobe lights installed); length 26 ft 11 in; height 8 ft 9½ in maximum (note 2: nose gear depressed, all tires and nose strut properly inflated, flashing beacon installed); horizontal tail span 11 ft 4 in; main wheel track 8 ft 4½ in; propeller arc 6 ft 3 in maximum; note 3: wheel base 65 in; note 4: propeller ground clearance 11¾ in; note 5: wing area 174 sq ft; note 6: minimum turning radius, pivot point to outboard wing tip, 27 ft 5½ in", "page": "1-2 Fig 1-1", "copy": "1978 handbook"},
+    {"key": "geometry.cabin_stations", "value": "firewall station 0; rear doorpost bulkhead station 65.3 (65¼ in aft of the firewall); 48¾ in from the instrument panel to that bulkhead; 42¾ in further to the aft cabin wall (station 108); aft baggage area 34 in long, to station 142", "page": "6-8 Fig 6-4", "copy": "1978 handbook"},
+    {"key": "geometry.cabin_heights_in", "value": "41 ahead of the front seats, 48 at the front seats, 43 at the rear seat, 33 in the baggage area, 10¼ in the aft baggage area", "page": "6-8 Fig 6-4", "copy": "1978 handbook"},
+    {"key": "geometry.cabin_widths_in", "value": "at the lower window line / at the cabin floor: 39½ / 34 at the front seats; 37½ / 29½ between the rear door posts; 38½ / 36 behind them; 35 / 25 and 33½ / 28 in the baggage area; 21½ at the aft end of the aft baggage area", "page": "6-8 Fig 6-4", "copy": "1978 handbook"},
+    {"key": "geometry.door_openings_in", "value": "cabin door: 32 wide at the top, 37 at the bottom, 40 high in front, 41 high at the rear; baggage door: 15¼ wide at top and bottom, 22 high in front, 21 high at the rear", "page": "6-8 Fig 6-4", "copy": "1978 handbook"},
+    {"key": "flaps.system", "value": "single-slot type; electrically driven; switch lever on the instrument panel in a slotted panel with mechanical stops at 10° and 20°; scale and pointer beside the lever show flap travel in degrees; 15-ampere FLAP circuit breaker", "page": "7-10 (Fig 7-3)", "copy": "1978 handbook"},
+    {"key": "landing_gear.system", "value": "tricycle; steerable nose wheel, two main wheels, wheel fairings; tubular spring-steel main gear struts; air/oil nose gear shock strut; hydraulically actuated disc brake on the inboard side of each main wheel, with a fairing over each brake", "page": "7-10", "copy": "1978 handbook"},
+    {"key": "baggage.compartment", "value": "two areas: from the back of the rear seats to the aft cabin bulkhead, and one aft of that bulkhead; lockable baggage door on the left side; baggage net with tie-down straps", "page": "7-10", "copy": "1978 handbook"}
   ],
   "not_from_poh": [
     "Bore 5.125 in / stroke 3.875 in (O-320 type data; verify against FAA TCDS E-274)",

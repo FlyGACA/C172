@@ -13,7 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 P8 = ROOT / "08_realistic_digital_twin"
 LODS = ("high", "medium", "low")
-MODEL_BUDGETS = {"high": 5_000_000, "medium": 3_600_000, "low": 2_300_000}
+LOD_DETAIL = {"high": 1, "medium": 1, "low": 0}      # highest detail level each quality level carries (blender/c172/export.py)
+# Download size ceilings. High and medium carry the structure and mechanisms under the skin (detail level 1);
+# low is the basic model for phones.
+MODEL_BUDGETS = {"high": 9_000_000, "medium": 6_500_000, "low": 2_300_000}
 IMAGE_BUDGET = 3_000_000
 STATUS = {"measured", "poh", "type_data", "estimated"}
 
@@ -86,6 +89,7 @@ def validate_instruments(gate: Gate) -> None:
 
 def validate_models(gate: Gate) -> None:
     part_sets: dict[str, set[str]] = {}
+    details: dict[str, dict[str, int]] = {}
     for lod in LODS:
         model = P8 / "models" / f"C172N_realistic_{lod}.glb"
         index = gate.json(f"models/model_index_{lod}.json")
@@ -102,9 +106,13 @@ def validate_models(gate: Gate) -> None:
             gate.check(part.get("status") != "measured" or bool(part.get("measurement_id")), f"{lod}: {part.get('name')}: measured part lacks measurement_id")
             gate.check(bool(part.get("label_en")), f"{lod}: {part.get('name')}: missing English label")
             gate.check(bool(part.get("label_ar")), f"{lod}: {part.get('name')}: missing Arabic label")
+        for part in parts:
+            gate.check(part.get("detail", 0) <= LOD_DETAIL[lod], f"{lod}: {part.get('name')}: detail level {part.get('detail')} does not belong in this quality level")
         part_sets[lod] = set(names)
+        details[lod] = {part.get("name"): part.get("detail", 0) for part in parts}
     for lod in LODS[1:]:
-        gate.check(part_sets.get(lod) == part_sets.get("high"), f"{lod}: part set differs from high LOD")
+        expected = {name for name, level in details.get("high", {}).items() if level <= LOD_DETAIL[lod]}
+        gate.check(part_sets.get(lod) == expected, f"{lod}: part set differs from the high model's parts of detail level <= {LOD_DETAIL[lod]}")
 
 
 def validate_manifest_and_assets(gate: Gate) -> None:

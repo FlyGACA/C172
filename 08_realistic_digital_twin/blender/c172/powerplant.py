@@ -7,22 +7,23 @@ from .units import fs
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, box, bezier, obj_from_bm, add_subsurf, add_boolean, add_solidify,
                      add_edge_split, superellipse, ellipse, rounded_rect, naca4, resample_loop, interp_table, extrude_profile)
 from .profiles import interp_pchip
-from .airframe import K_RING
+from .airframe import K_RING, FUS_TABLE
 
 # FS -> half width, z bottom, z top, ring centre z, n_top, n_bottom   (build frame). Status: estimated.
 # Top and bottom lines follow the photo-profile side elevation: an almost straight top falling 6 in
 # from the firewall to the nose, and an underside that sweeps up from the firewall to the spinner.
-# The section is widest at crank height with square shoulders, to clear the cylinder heads.
+# The section is widest at crank height with square shoulders, to clear the cylinder heads; the widths
+# follow the plan view of the manufacturer's three-view (20.3 in half width at the firewall).
 COWL_TABLE = [
     (-33.6, 0.335, 1.468, 1.726, 1.612, 2.6, 2.0),
     (-32,   0.385, 1.405, 1.734, 1.610, 3.0, 2.0),
-    (-30,   0.428, 1.330, 1.742, 1.608, 3.6, 2.0),
-    (-27,   0.455, 1.205, 1.760, 1.605, 4.4, 2.05),
-    (-23,   0.466, 1.075, 1.783, 1.600, 4.6, 2.2),
-    (-19,   0.472, 0.988, 1.795, 1.590, 4.6, 2.4),
-    (-10,   0.482, 0.913, 1.823, 1.540, 3.8, 2.7),
-    (-4,    0.487, 0.890, 1.836, 1.470, 3.0, 2.9),
-    (0,     0.490, 0.878, 1.843, 1.420, 2.6, 3.0),
+    (-30,   0.426, 1.330, 1.742, 1.608, 3.6, 2.0),
+    (-27,   0.446, 1.205, 1.760, 1.605, 4.4, 2.05),
+    (-23,   0.460, 1.075, 1.783, 1.600, 4.6, 2.2),
+    (-19,   0.474, 0.988, 1.795, 1.590, 4.6, 2.4),
+    (-10,   0.498, 0.913, 1.823, 1.540, 3.8, 2.7),
+    (-4,    0.510, 0.890, 1.836, 1.470, 3.0, 2.9),
+    FUS_TABLE[0],                 # the cowl meets the fuselage section at the firewall exactly
 ]
 COWL_STATIONS = [-33.6, -33, -32, -30.5, -28.5, -26, -23, -19.5, -15, -10, -5, 0]
 NOSE_Y = fs(-34.3)

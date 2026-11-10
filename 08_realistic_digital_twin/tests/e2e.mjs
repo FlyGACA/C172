@@ -57,9 +57,9 @@ try {
   });
   await shot(page, 'p8_exterior');
 
-  await check('exterior: doors open, flaps 30, control surfaces follow the inputs', async () => {
+  await check('exterior: doors open, flaps 40, control surfaces follow the inputs', async () => {
     await page.click('#doors');
-    await page.click('#flapsel button[data-v="30"]');
+    await page.click('#flapsel button[data-v="40"]');
     await page.$eval('#aileron', (el) => { el.value = '1'; el.dispatchEvent(new Event('input')); });
     await settle(page, 800);
     const q = await page.evaluate(() => {

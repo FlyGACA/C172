@@ -24,6 +24,7 @@ Outputs, next to each other in --out (default: renders/):
     <id>.anchors.json   image size + one visible anchor point per labelled part (pixel units)
 """
 import argparse
+import fnmatch
 import json
 import math
 import os
@@ -41,6 +42,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from ink import draw_ink, halve          # noqa: E402  (the line drawing itself: numpy only, tested outside Blender)
+
+GHOST_INK = dict(outer_px=2.6, part_px=1.5, fine_px=1.0, fine_strength=0.0)     # phantom outlines: lighter and thinner
+GHOST_VEIL = ("#9DB8D4", 0.10)                                                 # a faint tint where the phantom skin lies
 
 # Neutral drawing tones. Everything that is not highlighted falls into one of these roles.
 TONES = {
@@ -90,17 +94,25 @@ def flat_material(name, rgb, rough=0.6, alpha=1.0):
     return mat
 
 
-def mesh_objects(ids):
-    """Objects named in ids plus everything parented below them."""
+def resolve(ids, hidden=False):
+    """Mesh objects named in ids, plus everything parented below them. An id is a part or group name,
+    or a shell-style pattern such as "WING_L.rib_*". Parts that are hidden from the render are left
+    out unless `hidden` is set."""
     found = []
     for name in ids:
         ob = bpy.data.objects.get(name)
-        if ob is None:
+        matches = [ob] if ob is not None else [o for o in bpy.data.objects if fnmatch.fnmatchcase(o.name, name)]
+        if not matches:
             raise SystemExit(f"render_figure: unknown part id {name!r}")
-        for candidate in [ob, *ob.children_recursive]:
-            if candidate.type == "MESH" and not candidate.hide_render and candidate not in found:
-                found.append(candidate)
+        for match in matches:
+            for candidate in [match, *match.children_recursive]:
+                if candidate.type == "MESH" and (hidden or not candidate.hide_render) and candidate not in found:
+                    found.append(candidate)
     return found
+
+
+def mesh_objects(ids):
+    return resolve(ids)
 
 
 def apply_style(spec):
@@ -172,19 +184,80 @@ def setup_scene(spec, quick):
         ground = bpy.context.active_object
         ground.name = GROUND
         ground.is_shadow_catcher = True
-    for name in spec.get("hide", []):
-        for ob in mesh_objects([name]):
-            ob.hide_render = True
-            ob.hide_viewport = True
+    if "detail" in spec:                                 # 0 basic model only ... 2 with the fasteners (hidden in the saved scene)
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and "detail" in ob and ob.name != GROUND:
+                ob.hide_render = ob.hide_viewport = int(ob["detail"]) > int(spec["detail"])
+    for ob in resolve(spec.get("hide", [])):
+        ob.hide_render = True
+        ob.hide_viewport = True
+    if spec.get("only"):
+        keep = set(resolve(spec["only"])) | set(resolve(spec.get("ghost", [])))
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and ob.name != GROUND and ob not in keep:
+                ob.hide_render = True
+                ob.hide_viewport = True
+    apply_cuts(spec)
     return sc
 
 
+def apply_cuts(spec):
+    """Cut-aways: {"ids": [...], "box": [[x0, y0, z0], [x1, y1, z1]]} removes what lies inside the box
+    from the listed parts (scene coordinates, metres)."""
+    for number, cut in enumerate(spec.get("cut", [])):
+        low, high = (Vector(v) for v in cut["box"])
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(low + high) / 2)
+        cutter = bpy.context.active_object
+        cutter.name = f"_figure_cut_{number}"
+        cutter.scale = [max(1e-4, abs(h - l)) for l, h in zip(low, high)]
+        if "rotation_deg" in cut:
+            cutter.rotation_euler = [math.radians(v) for v in cut["rotation_deg"]]
+        cutter.hide_render = True
+        cutter.display_type = "WIRE"
+        for ob in resolve(cut["ids"]):
+            modifier = ob.modifiers.new(cutter.name, "BOOLEAN")
+            modifier.operation = "DIFFERENCE"
+            modifier.solver = "EXACT"
+            modifier.object = cutter
+
+
+def scene_bounds(objects):
+    """Centre and radius of the sphere round the given objects (evaluated, world space)."""
+    deps = bpy.context.evaluated_depsgraph_get()
+    corners = []
+    for ob in objects:
+        ev = ob.evaluated_get(deps)
+        corners.extend(ev.matrix_world @ Vector(c) for c in ev.bound_box)
+    if not corners:
+        raise SystemExit("render_figure: nothing to frame")
+    low = Vector([min(c[i] for c in corners) for i in range(3)])
+    high = Vector([max(c[i] for c in corners) for i in range(3)])
+    centre = (low + high) / 2
+    return centre, max((c - centre).length for c in corners)
+
+
 def setup_camera(sc, spec):
-    cam_spec = spec["camera"]
+    cam_spec = dict(spec["camera"])
     cam = bpy.data.cameras.new("figure_cam")
     ob = bpy.data.objects.new("figure_cam", cam)
     sc.collection.objects.link(ob)
     sc.camera = ob
+    if cam_spec.get("type") == "auto":
+        # frame the listed parts (default: everything drawn) from a direction given as azimuth
+        # (0 = from ahead, 90 = from the aircraft's left, 180 = from behind) and elevation
+        bpy.context.view_layer.update()
+        subjects = resolve(cam_spec["of"]) if cam_spec.get("of") else [o for o in bpy.data.objects if o.type == "MESH" and not o.hide_render and o.name != GROUND]
+        centre, radius = scene_bounds(subjects)
+        azimuth, elevation = math.radians(cam_spec.get("azimuth_deg", 35)), math.radians(cam_spec.get("elevation_deg", 22))
+        direction = Vector((math.sin(azimuth) * math.cos(elevation), -math.cos(azimuth) * math.cos(elevation), math.sin(elevation)))
+        margin = cam_spec.get("margin", 1.12)
+        aspect = sc.render.resolution_x / sc.render.resolution_y
+        if cam_spec.get("ortho"):
+            cam_spec.update(type="ortho", ortho_scale=2 * radius * margin * max(1.0, aspect), pos=centre + direction * (radius * 4 + 5), target=centre)
+        else:
+            fov = cam_spec.get("fov", 24)
+            narrow = math.radians(fov) / 2 / max(1.0, 1 / aspect)          # the half angle across the short side
+            cam_spec.update(type="persp", fov=fov, pos=centre + direction * (radius * margin / math.sin(narrow)), target=centre)
     ob.location = cam_spec["pos"]
     direction = Vector(cam_spec["target"]) - Vector(cam_spec["pos"])
     ob.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
@@ -280,10 +353,12 @@ def render_drawing_data(sc, work):
     return part, depth, facing, inside, [ob.name for ob in meshes]
 
 
-def compose(shade_path, coverage, colour, out_path, inside=None, shadow_strength=1.0, shadow_feather=0):
+def compose(shade_path, coverage, colour, out_path, inside=None, shadow_strength=1.0, shadow_feather=0, ghost=None):
     """Lay the ink over the shaded picture and save a straight-alpha PNG. Outside the aircraft the
     shaded picture holds only the cast shadow, which is lightened to `shadow_strength` and faded
-    out over `shadow_feather` pixels at the edges of the picture so that it never ends in a cut."""
+    out over `shadow_feather` pixels at the edges of the picture so that it never ends in a cut.
+    `ghost` = (line coverage, silhouette, line colour) of the parts drawn as a phantom: a faint veil
+    and light outlines over the picture, under the ink of the parts that are really shown."""
     shade = _read_float_image(shade_path)                             # display-referred values, straight alpha
     h = min(shade.shape[0], coverage.shape[0]); w = min(shade.shape[1], coverage.shape[1])
     shade = shade[:h, :w]; ink = coverage[:h, :w, None]
@@ -297,15 +372,44 @@ def compose(shade_path, coverage, colour, out_path, inside=None, shadow_strength
             ramp = np.clip(np.minimum(x, y) / shadow_feather, 0, 1)
             fade = (ramp * ramp * (3 - 2 * ramp)).astype(np.float32)
         shade_alpha = shade_alpha * (solid + (1 - solid) * shadow_strength * fade)
-    alpha = ink + shade_alpha * (1 - ink)
-    rgb = (np.array(colour, dtype=np.float32) * ink + shade[..., :3] * shade_alpha * (1 - ink)) / np.maximum(alpha, 1e-6)
-    picture = np.concatenate([rgb, alpha], axis=-1)[::-1].astype(np.float32)
+    rgb = shade[..., :3] * shade_alpha                                # premultiplied from here on
+    alpha = shade_alpha
+
+    def over(layer_colour, layer_coverage):
+        nonlocal rgb, alpha
+        rgb = np.array(layer_colour, dtype=np.float32) * layer_coverage + rgb * (1 - layer_coverage)
+        alpha = layer_coverage + alpha * (1 - layer_coverage)
+
+    if ghost is not None:
+        ghost_lines, ghost_inside, ghost_colour = ghost
+        over(hex_srgb(GHOST_VEIL[0]), halve(ghost_inside)[:h, :w, None] * GHOST_VEIL[1])
+        over(ghost_colour, ghost_lines[:h, :w, None])
+    over(colour, ink)
+    picture = np.concatenate([rgb / np.maximum(alpha, 1e-6), alpha], axis=-1)[::-1].astype(np.float32)
     image = bpy.data.images.new("figure_out", w, h, alpha=True)
     image.pixels.foreach_set(np.clip(picture, 0, 1).ravel())
     image.filepath_raw = out_path
     image.file_format = "PNG"
     image.save()
     bpy.data.images.remove(image)
+
+
+def render_ghost(sc, spec, ghosts, work):
+    """Outline of the phantom parts alone: (line coverage, silhouette, colour)."""
+    others = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob not in ghosts]
+    saved = {ob.name: ob.hide_render for ob in others + ghosts}
+    for ob in others:
+        ob.hide_render = True
+    for ob in ghosts:
+        ob.hide_render = False
+    folder = os.path.join(work, "ghost")
+    os.makedirs(folder, exist_ok=True)
+    part, depth, facing, inside, names = render_drawing_data(sc, folder)
+    lines = draw_ink(part, depth, facing, inside, names, dict(GHOST_INK, **spec.get("ghost_ink", {})), sc.render.resolution_x)
+    for ob in others + ghosts:
+        ob.hide_render = saved[ob.name]
+    base = np.array(hex_srgb(spec.get("ink", {}).get("color", "#1D2733")))
+    return lines, inside, tuple(base * 0.5 + 0.5)
 
 
 # ----------------------------------------------------------------------------- label anchors
@@ -358,14 +462,15 @@ def visible_anchor(sc, cam, deps, objects, ignore, at=(0.5, 0.5)):
     return dict(x=ax, y=ay, cx=cx, cy=cy, x0=x0, x1=x1, y0=y0, y1=y1, samples=len(visible))
 
 
-def export_anchors(sc, cam, spec, path):
+def export_anchors(sc, cam, spec, path, see_through=()):
     deps = bpy.context.evaluated_depsgraph_get()
     deps.update()
     width, height = sc.render.resolution_x, sc.render.resolution_y
     anchors = {}
+    ignore = {GROUND} | {ob.name for ob in see_through}              # a label may point at a part behind a phantom skin
     for entry in spec.get("anchors", []):
-        objects = mesh_objects(entry["ids"])
-        point = visible_anchor(sc, cam, deps, objects, ignore={GROUND}, at=entry.get("at", (0.5, 0.5)))
+        objects = resolve(entry["ids"], hidden=True)
+        point = visible_anchor(sc, cam, deps, objects, ignore=ignore - {ob.name for ob in objects}, at=entry.get("at", (0.5, 0.5)))
         first = bpy.data.objects[entry["ids"][0]]
         record = dict(ids=entry["ids"], visible=point is not None, label_en=first.get("label_en", ""), label_ar=first.get("label_ar", ""),
                       system=first.get("system", ""), status=first.get("status", ""))
@@ -391,12 +496,15 @@ def render_one(spec, args):
     cam = setup_camera(sc, spec)
     bpy.context.view_layer.update()
     stem = os.path.join(args.out, spec["id"] + ("_quick" if args.quick else ""))
-    export_anchors(sc, cam, spec, stem + ".anchors.json")
+    ghosts = resolve(spec.get("ghost", [])) if spec.get("ghost") else []
+    export_anchors(sc, cam, spec, stem + ".anchors.json", see_through=ghosts)
     if args.anchors_only:
         return
     started = time.time()
     work = tempfile.mkdtemp(prefix="figure_")
     try:
+        for ob in ghosts:                                             # phantom parts are not shaded: they are drawn over the picture
+            ob.hide_render = True
         shade_path = os.path.join(work, "shade.png")
         sc.render.filepath = shade_path
         bpy.ops.render.render(write_still=True)
@@ -405,7 +513,8 @@ def render_one(spec, args):
             part, depth, facing, inside, names = render_drawing_data(sc, work)
             coverage = draw_ink(part, depth, facing, inside, names, ink, sc.render.resolution_x)
             feather = spec.get("shadow_feather_px", 0) * sc.render.resolution_x / 2400
-            compose(shade_path, coverage, hex_srgb(ink.get("color", "#1D2733")), stem + ".png", inside, spec.get("shadow_strength", 0.45), feather)
+            ghost = render_ghost(sc, spec, ghosts, work) if ghosts else None
+            compose(shade_path, coverage, hex_srgb(ink.get("color", "#1D2733")), stem + ".png", inside, spec.get("shadow_strength", 0.45), feather, ghost)
         else:
             shutil.copyfile(shade_path, stem + ".png")
         if args.keep:
@@ -440,4 +549,5 @@ def main():
             render_one(json.load(stream), args)
 
 
-main()
+if __name__ == "__main__":
+    main()

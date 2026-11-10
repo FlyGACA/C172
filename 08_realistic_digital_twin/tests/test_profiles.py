@@ -87,17 +87,49 @@ class UnitsTests(unittest.TestCase):
         self.assertAlmostEqual(units.SPAN, 10.922, places=3)            # 35 ft 10 in
         self.assertAlmostEqual(units.ref("length_m"), 8.204, places=3)  # 26 ft 11 in
         self.assertAlmostEqual(units.PROP_R * 2, 1.905, places=3)       # 75 in
-        self.assertAlmostEqual(units.TAIL_END_Y - units.SPINNER_TIP_Y, units.ref("length_m"), places=3)
+        self.assertAlmostEqual(units.ref("wingspan_strobes_m"), 10.973, places=3)   # 36 ft over the strobe lights
+        self.assertAlmostEqual(units.TRACK, 2.553, places=3)            # 8 ft 4½ in
+        # the overall length is measured with the aircraft on its wheels: spinner tip to the top of the rudder
+        nose = units.to_ground((0.0, units.SPINNER_TIP_Y, units.PROP_Z))
+        tail = units.to_ground((0.0, units.TAIL_END_Y, units.wl(91.0)))
+        self.assertAlmostEqual(tail[1] - nose[1], units.ref("length_m"), delta=0.02)
 
     def test_stance_and_ground_frame(self):
         self.assertAlmostEqual(units.wl(0), units.GROUND_Z)
         self.assertAlmostEqual(units.wl(10) - units.wl(0), 0.254)
-        # the crank axis is one propeller radius plus the published clearance above the ground
-        self.assertAlmostEqual((units.PROP_Z - units.GROUND_Z - units.PROP_R) / units.IN, 11.75, places=6)
         # the axle stations reproduce the published wheel base
         self.assertAlmostEqual(units.MAIN_AXLE_Y - units.NOSE_AXLE_Y, units.ref("wheel_base_m"), places=6)
-        # at rest the aircraft is lower than the POH maximum height (nose strut depressed)
-        self.assertLess(units.ref("static_height_m"), units.ref("height_m"))
+        # the ground passes under the main wheels where the tables say, and rises aft in the build frame
+        self.assertAlmostEqual(units.ground_wl(units.GROUND_PIVOT_FS), -units.GROUND_DROP_IN)
+        self.assertGreater(units.ground_wl(200.0), units.ground_wl(0.0))
+        # build frame <-> scene: a round trip, the ground on z = 0, the main wheel station unchanged
+        point = (0.7, units.fs(120.0), units.wl(55.0))
+        back = units.from_ground(units.to_ground(point))
+        for a, b in zip(point, back):
+            self.assertAlmostEqual(a, b, places=9)
+        for station in (-7.0, 58.0, 230.0):
+            self.assertAlmostEqual(units.to_ground((0.0, units.fs(station), units.ground_z(units.fs(station))))[2], 0.0, places=9)
+        self.assertAlmostEqual(units.to_ground((0.0, units.MAIN_AXLE_Y, units.ground_z(units.MAIN_AXLE_Y)))[1], units.MAIN_AXLE_Y, places=9)
+
+    def test_published_height_and_propeller_clearance_belong_together(self):
+        """POH Fig 1-1 gives the maximum height "with nose gear depressed" and a propeller clearance of
+        11¾ in. At rest the model has more clearance and less height; pushing the nose down until the
+        clearance is 11¾ in must bring the tail up to the published 8 ft 9½ in."""
+        hub = units.to_ground((0.0, units.fs(-36.4), units.PROP_Z))
+        top = units.to_ground((0.0, units.fs(253.2), units.wl(95.2) + 0.065))        # top of the beacon
+        main = units.MAIN_AXLE_Y
+        clearance = hub[2] - units.PROP_R
+        self.assertGreater(clearance, units.ref("prop_clearance_m") + 0.08)           # at rest: about 17 in
+        self.assertLess(top[2], units.ref("height_m") - 0.15)                         # at rest: about 7 ft 10 in
+        lo, hi = 0.0, 0.2
+        for _ in range(60):                                                           # nose-down angle that leaves 11¾ in
+            phi = (lo + hi) / 2
+            z = (hub[1] - main) * math.sin(phi) + hub[2] * math.cos(phi)
+            lo, hi = (phi, hi) if z - units.PROP_R > units.ref("prop_clearance_m") else (lo, phi)
+        height = (top[1] - main) * math.sin(phi) + top[2] * math.cos(phi)
+        self.assertAlmostEqual(height, units.ref("height_m"), delta=0.03)
+        drop = units.ref("wheel_base_m") * math.sin(phi)                              # how far the nose wheel has to go down
+        self.assertTrue(0.06 < drop < 0.12, drop)
 
     def test_every_reference_has_status(self):
         for k, v in units.REF.items():
@@ -108,7 +140,10 @@ class UnitsTests(unittest.TestCase):
         # root chord constant to the taper start then linear to the tip: should solve ~174 ft²
         s1 = units.TAPER_START; s2 = units.SEMISPAN
         area = 2 * (units.ROOT_CHORD * s1 + (units.ROOT_CHORD + units.TIP_CHORD) / 2 * (s2 - s1))
-        self.assertAlmostEqual(area / 0.09290304, 174, delta=4)
+        self.assertAlmostEqual(area / 0.09290304, 174, delta=1)
+        # published chords: 64 in at the root, 44.5 in at the tip rib
+        self.assertAlmostEqual(units.ROOT_CHORD / units.IN, 64.0, places=6)
+        self.assertAlmostEqual((units.ROOT_CHORD - units.TAPER_PER_M * (units.TIP_RIB - units.TAPER_START)) / units.IN, 44.5, places=6)
 
 
 if __name__ == "__main__":

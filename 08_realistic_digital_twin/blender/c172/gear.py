@@ -76,18 +76,24 @@ def fairing(ctx, name, axle, r, w, length, height, width, parent, label_en, labe
     ctx.tag(f, "GEAR", label_en, label_ar, status="estimated", optional=True, note="Wheel fairings were optional equipment")
     return f
 
-# Main gear, build frame (ground line at z = GROUND_Z). Status: estimated (photo-profile and ramp
-# photographs): the tubular spring leg leaves the belly at the main-gear bulkhead and runs outboard
-# with only a shallow drop, so the fuselage sits low between the wheels.
-MAIN_AXLE_Z = U.GROUND_Z + U.MAIN_TYRE_R * 0.96      # tyre slightly flattened under load
-NOSE_AXLE_Z = U.GROUND_Z + U.NOSE_TYRE_R * 0.96
+# Landing gear, build frame. The ground is not level in this frame (units.ground_z): the wheels stand
+# on it where it passes under their stations, so that the aircraft sits in the "normal ground attitude"
+# of the manufacturer's side view once build.py has turned it. Status: estimated: the tubular spring
+# leg leaves the belly at the main-gear bulkhead and runs outboard and down to a track of 8 ft 4½ in.
+MAIN_AXLE_Z = U.ground_z(U.MAIN_AXLE_Y) + U.MAIN_TYRE_R * 0.96      # tyre slightly flattened under load
+NOSE_AXLE_Z = U.ground_z(U.NOSE_AXLE_Y) + U.NOSE_TYRE_R * 0.96
+
+MAIN_LEG_ROOT_FS = 65.0      # the gear bulkhead at the foot of the rear door posts (handbook station 65.3)
 
 def main_leg_points(side, n=16):
+    """Tubular spring leg: from the gear bulkhead inside the belly straight down and outboard to the
+    axle, sweeping forward to the wheel station (manufacturer's front and side views)."""
     axle = Vector((side * U.TRACK / 2, U.MAIN_AXLE_Y, MAIN_AXLE_Z))
-    attach = Vector((side * 0.20, fs(57.2), fus_surface_z(57.2, 0.20) + 0.045))
-    mid1 = Vector((side * 0.50, fs(57.4), fus_surface_z(57.2, 0.45) - 0.005))
-    mid2 = Vector((side * 0.92, fs(57.8), MAIN_AXLE_Z + 0.10))
-    return bezier(attach, mid1, mid2, axle + Vector((-side * 0.085, 0, 0.012)), n), axle, attach
+    attach = Vector((side * 0.20, fs(MAIN_LEG_ROOT_FS), fus_surface_z(MAIN_LEG_ROOT_FS, 0.20) + 0.045))
+    end = axle + Vector((-side * 0.085, 0, 0.012))
+    mid1 = attach.lerp(end, 0.33) + Vector((0, 0, 0.022))
+    mid2 = attach.lerp(end, 0.66) + Vector((0, 0, 0.012))
+    return bezier(attach, mid1, mid2, end, n), axle, attach
 
 def build_main_gear(ctx, side):
     M = ctx.mats
@@ -138,8 +144,8 @@ def build_nose_gear(ctx):
     M = ctx.mats
     grp = ctx.groups["GEAR"]
     axle = Vector((0, U.NOSE_AXLE_Y, NOSE_AXLE_Z))
-    top = Vector((0, fs(-2.2), fus_surface_z(0, 0.0) + 0.13))          # inside the lower cowl, on the firewall bracket
-    piston_top = Vector((0, fs(-4.6), axle.z + 0.27))
+    top = Vector((0, fs(-1.4), fus_surface_z(0, 0.0) + 0.16))          # inside the lower cowl, on the firewall bracket
+    piston_top = Vector((0, fs(-5.0), axle.z + 0.20))                  # about 3 in of chromed piston show at rest
     bottom = Vector((0, fs(-6.2), axle.z + 0.125))
     # strut housing (outer cylinder) with a taper to the fuselage mount
     bm = new_bm()

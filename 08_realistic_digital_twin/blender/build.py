@@ -6,11 +6,13 @@ Builds the scene procedurally with the c172 package, saves the editable .blend (
 modifiers live) and exports Draco-compressed GLBs per quality level.
 """
 import argparse
+import math
 import os
 import sys
 import time
 
 import bpy
+from mathutils import Matrix
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -55,7 +57,7 @@ class Ctx:
                 ob[k] = v
 
 
-def build_scene(subsurf, assets):
+def build_scene(subsurf, assets, detail=0):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc = bpy.context.scene
     sc.unit_settings.system = "METRIC"; sc.unit_settings.length_unit = "METERS"
@@ -76,6 +78,8 @@ def build_scene(subsurf, assets):
     from c172 import cockpit, engine
     cockpit.build(ctx); print("cockpit", round(time.time() - t, 1)); t = time.time()
     engine.build(ctx); print("engine", round(time.time() - t, 1)); t = time.time()
+    from c172 import detail as detail_packs
+    detail_packs.build_all(ctx, detail); print("detail packs", round(time.time() - t, 1)); t = time.time()
     # helper meshes created without an explicit tag inherit their parent's system/label
     for ob in ctx.col.objects:
         if ob.type == "MESH" and "system" not in ob:
@@ -90,14 +94,21 @@ def build_scene(subsurf, assets):
     # three.js' GLTFLoader strips '.' from node names, so keep the canonical id in the extras
     for ob in ctx.col.objects:
         ob["id"] = ob.name
+        if ob.type == "MESH" and "detail" not in ob:
+            ob["detail"] = 0
     export.hide_cutters(ctx)
-    # The parts above are laid out with the ground line at z = GROUND_Z (see units.py). Lower every
-    # root object, cutters included so the booleans stay valid, to put the tyres on z = 0.
+    # The parts above are laid out in the build frame (see units.py). Turn the finished aircraft into
+    # its attitude at rest, with the tyres on z = 0 and the main wheels at their station: every root
+    # object, cutters included so the booleans stay valid. units.to_ground() is the same transform.
     bpy.context.view_layer.update()
+    pivot_y, pivot_z = U.fs(U.GROUND_PIVOT_FS), U.wl(-U.GROUND_DROP_IN)
+    at_rest = (Matrix.Translation((0, pivot_y, 0)) @ Matrix.Rotation(-math.radians(U.GROUND_PITCH_DEG), 4, "X")
+               @ Matrix.Translation((0, -pivot_y, -pivot_z)))
     for ob in bpy.data.objects:
         if ob.parent is None:
-            ob.location.z -= U.GROUND_Z
+            ob.matrix_world = at_rest @ ob.matrix_world
     bpy.context.view_layer.update()
+    bpy.context.scene["ground_pitch_deg"] = U.GROUND_PITCH_DEG
     return ctx
 
 
@@ -110,6 +121,8 @@ def main():
     ap.add_argument("--no-draco", action="store_true")
     ap.add_argument("--skip-textures", action="store_true")
     ap.add_argument("--blend", default=None, help="path for the editable .blend (default <out>/C172N_realistic.blend)")
+    ap.add_argument("--detail", type=int, default=None, help="highest detail level to build (0 basic, 1 structure and mechanisms, 2 fasteners); "
+                                                             "default: what each quality level carries, everything in the .blend")
     args = ap.parse_args(argv)
     os.makedirs(args.out, exist_ok=True)
     tex_dir = os.path.join(args.assets, "textures")
@@ -121,13 +134,27 @@ def main():
     for lod in lods:
         spec = export.LODS[lod]
         t0 = time.time()
-        ctx = build_scene(spec["subsurf"], args.assets)
         if lod == "high":
+            # the editable scene carries every detail level; the exported model may carry fewer
+            top = export.BLEND_DETAIL if args.detail is None else args.detail
+            ctx = build_scene(spec["subsurf"], args.assets, top)
+            # fasteners stay in the editable scene but out of sight: a picture asks for them (render_figure "detail")
+            for ob in ctx.col.objects:
+                if ob.get("detail", 0) > export.SHOWN_DETAIL:
+                    ob.hide_render = True
+                    ob.hide_viewport = True
             blend = args.blend or os.path.join(args.out, "C172N_realistic.blend")
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             bpy.ops.file.make_paths_relative()
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             print("saved", blend)
+            keep = min(top, spec["detail"])
+            if keep < top:
+                for ob in list(ctx.col.objects):
+                    if ob.get("detail", 0) > keep:
+                        bpy.data.objects.remove(ob, do_unlink=True)
+        else:
+            ctx = build_scene(spec["subsurf"], args.assets, spec["detail"] if args.detail is None else min(args.detail, spec["detail"]))
         if spec["decimate"]:
             export.apply_decimate(ctx, spec["decimate"])
         export.retarget_textures(tex_dir, spec["tex"])

@@ -3,11 +3,15 @@ import json
 import os
 import bpy
 
+# detail: the highest detail level built into this quality level (see c172/detail/__init__.py):
+# 0 basic model, 1 structure and mechanisms, 2 fasteners. The editable .blend always has everything.
 LODS = {
-    "high":   dict(subsurf=2, tex=2048, decimate=None),
-    "medium": dict(subsurf=1, tex=1024, decimate=None),
-    "low":    dict(subsurf=1, tex=512, decimate=0.5),
+    "high":   dict(subsurf=2, tex=2048, decimate=None, detail=1),
+    "medium": dict(subsurf=1, tex=1024, decimate=None, detail=1),
+    "low":    dict(subsurf=1, tex=512, decimate=0.5, detail=0),
 }
+BLEND_DETAIL = 2
+SHOWN_DETAIL = 1             # parts above this level are hidden in the saved scene until a picture asks for them
 
 def hide_cutters(ctx):
     for ob in ctx.cutters.objects:
@@ -16,7 +20,7 @@ def hide_cutters(ctx):
 
 def apply_decimate(ctx, ratio):
     for ob in ctx.col.objects:
-        if ob.type != "MESH":
+        if ob.type != "MESH" or ob.get("detail", 0) > 0:      # detail parts are already drawn with few faces
             continue
         m = ob.modifiers.new("decimate", "DECIMATE")
         m.ratio = ratio

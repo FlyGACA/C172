@@ -10,7 +10,7 @@ from .units import fs, wl
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf,
                      add_bevel, extrude_profile, rounded_rect, ellipse)
 from .dials import cell_uv, MISC, CELLS
-from .airframe import fus_half_width_at, REAR_WINDOW
+from .airframe import fus_half_width_at
 
 CABIN_LIFT = 0.10         # applied by build() to everything not fixed to the floor (estimated)
 FLOOR_MOUNTED = ("INTERIOR.pedal_", "FUEL.selector_", "INTERIOR.baggage_bulkhead")
@@ -270,11 +270,11 @@ def build_panel(ctx):
             cb = obj_from_bm(f"PANEL.breaker_{row}_{i}", bm, ctx.col, pivot=(-0.29 - i * 0.022, PANEL_Y, z), mat=M["paint_white"])
             parent_keep(cb, grp)
             ctx.tag(cb, "ELECTRICAL", "Push-to-reset circuit breaker", "قاطع دائرة", status="poh", ref="p.7-27")
-    # magnetic compass on the windshield centre post
+    # magnetic compass on top of the glareshield, on the centreline (position from the manufacturer's side view)
     bm = new_bm()
-    box(bm, (0.07, 0.07, 0.06), center=(0, fs(13.5), 1.80))
-    quad_face(bm, (0, fs(13.5) + 0.038, 1.80), 0.05, 0.02, MISC["COMPASS"])
-    comp = obj_from_bm("PANEL.magnetic_compass", bm, ctx.col, pivot=(0, fs(13.5), 1.80), mat=M["black_plastic"], smooth=False)
+    box(bm, (0.07, 0.07, 0.06), center=(0, fs(21.0), 1.705))
+    quad_face(bm, (0, fs(21.0) + 0.038, 1.705), 0.05, 0.02, MISC["COMPASS"])
+    comp = obj_from_bm("PANEL.magnetic_compass", bm, ctx.col, pivot=(0, fs(21.0), 1.705), mat=M["black_plastic"], smooth=False)
     comp.data.materials.append(misc); comp.data.polygons[-1].material_index = 1
     parent_keep(comp, grp)
     ctx.tag(comp, "PANEL", "Magnetic compass", "البوصلة المغناطيسية", status="poh", ref="p.7-x")
@@ -422,7 +422,7 @@ def build_seats(ctx):
     for side, x in (("L", 0.30), ("R", -0.30)):
         bm = new_bm()
         o = 1 if side == "L" else -1   # harness comes from the roof rail on the door side
-        pts = bezier(Vector((x + o * 0.10, fs(55), 1.80)), Vector((x + o * 0.09, fs(52), 1.68)), Vector((x + o * 0.07, fs(50), 1.45)), Vector((x - o * 0.06, fs(50), 1.13)), 18)
+        pts = bezier(Vector((x + o * 0.12, fs(64), 1.82)), Vector((x + o * 0.10, fs(57), 1.70)), Vector((x + o * 0.07, fs(51), 1.45)), Vector((x - o * 0.06, fs(50), 1.13)), 18)
         strap(bm, pts, 0.048)
         sh = obj_from_bm(f"INTERIOR.shoulder_harness_{side}", bm, ctx.col, pivot=pts[0], mat=M["belt"])
         parent_keep(sh, grp)
@@ -433,18 +433,18 @@ def build_seats(ctx):
         if not door:
             continue
         bm = new_bm()
-        box(bm, (0.05, 0.30, 0.05), center=(sgn * 0.47, fs(34), 1.16))
-        arm = obj_from_bm(f"INTERIOR.armrest_{side}", bm, ctx.col, pivot=(sgn * 0.47, fs(34), 1.16), mat=M["leather_tan"], smooth=False)
+        box(bm, (0.05, 0.34, 0.05), center=(sgn * 0.47, fs(51), 1.16))
+        arm = obj_from_bm(f"INTERIOR.armrest_{side}", bm, ctx.col, pivot=(sgn * 0.47, fs(51), 1.16), mat=M["leather_tan"], smooth=False)
         add_bevel(arm, 0.012, 3)
         parent_keep(arm, door)
         ctx.tag(arm, "INTERIOR", "Door armrest", "مسند ذراع الباب", status="estimated")
         bm = new_bm()
-        box(bm, (0.015, 0.09, 0.02), center=(sgn * 0.49, fs(44), 1.24))
-        ih = obj_from_bm(f"INTERIOR.door_inner_handle_{side}", bm, ctx.col, pivot=(sgn * 0.49, fs(44), 1.24), mat=M["chrome"], smooth=False)
+        box(bm, (0.015, 0.09, 0.02), center=(sgn * 0.49, fs(59), 1.24))
+        ih = obj_from_bm(f"INTERIOR.door_inner_handle_{side}", bm, ctx.col, pivot=(sgn * 0.49, fs(59), 1.24), mat=M["chrome"], smooth=False)
         parent_keep(ih, door)
         ctx.tag(ih, "INTERIOR", "Door inner handle", "مقبض الباب الداخلي", status="estimated")
     # baggage shelf / rear bulkhead
-    top = wl(REAR_WINDOW[0][1]) - 0.03
+    top = wl(51.5) - 0.03          # lower edge of the rear window at this station
     heights = [FLOOR_TOP + (top - FLOOR_TOP) * i / 8 for i in range(9)]
     half = [max(0.05, fus_half_width_at(112, z) - 0.04) for z in heights]
     outline = [(h, z) for h, z in zip(half, heights)] + [(-h, z) for h, z in zip(reversed(half), reversed(heights))]
