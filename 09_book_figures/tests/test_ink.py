@@ -1,5 +1,6 @@
 """Tests for the ink-line rules of the book illustrations (numpy only, no Blender).
 Run: python3 09_book_figures/tests/test_ink.py"""
+import math
 import os
 import sys
 import unittest
@@ -120,6 +121,37 @@ class Strokes(unittest.TestCase):
         self.assertGreater(fold, 0.5)
         half = ink.draw_ink(part, depth, facing, part > 0, ["body", "door"], {"outer_px": 4.6, "part_px": 2.4, "fine_px": 1.5}, width=1200)
         self.assertLess(half[50, 20:40].sum(), outline, "a smaller picture gets proportionally thinner lines")
+
+
+class Framing(unittest.TestCase):
+    """The automatic camera has to fit a subject into the shorter side of the picture."""
+
+    def setUp(self):
+        import framing
+        self.f = framing
+
+    def fits(self, radius, fov, aspect, distance):
+        """Does a sphere at `distance` fit both sides of a perspective picture?"""
+        long_half = math.radians(fov) / 2
+        short_half = math.atan(math.tan(long_half) * min(aspect, 1 / aspect))
+        return distance * math.sin(long_half) >= radius - 1e-9 and distance * math.sin(short_half) >= radius - 1e-9
+
+    def test_square_picture_uses_the_field_of_view_as_given(self):
+        self.assertAlmostEqual(self.f.perspective_distance(1.0, 24, 1.0), 1 / math.sin(math.radians(12)), places=9)
+
+    def test_tall_subject_fits_a_wide_picture_and_a_wide_subject_a_tall_one(self):
+        for aspect in (4.0, 16 / 9, 4 / 3, 1.0, 3 / 4, 0.25):
+            distance = self.f.perspective_distance(1.0, 24, aspect)
+            self.assertTrue(self.fits(1.0, 24, aspect, distance), aspect)
+            self.assertFalse(self.fits(1.0, 24, aspect, distance * 0.98), aspect)      # and no further away than needed
+
+    def test_margin_moves_the_camera_back_in_proportion(self):
+        self.assertAlmostEqual(self.f.perspective_distance(2.0, 30, 1.5, 1.2), 1.2 * self.f.perspective_distance(2.0, 30, 1.5), places=9)
+
+    def test_orthographic_scale_covers_the_sphere_on_the_short_side(self):
+        for aspect in (4.0, 1.5, 1.0, 0.5):
+            scale = self.f.orthographic_scale(1.0, aspect)
+            self.assertAlmostEqual(scale * min(aspect, 1 / aspect), 2.0, places=9)     # the short side is exactly the diameter
 
 
 if __name__ == "__main__":

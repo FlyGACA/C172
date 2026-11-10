@@ -1,7 +1,7 @@
 {
  "lod": "medium",
- "objects": 339,
- "triangles": 191488,
+ "objects": 340,
+ "triangles": 191628,
  "systems": {
   "AIRFRAME": 22,
   "WING_L": 5,
@@ -10,7 +10,7 @@
   "PITOT_STATIC": 2,
   "WING_R": 5,
   "EMPENNAGE": 5,
-  "INTERIOR": 38,
+  "INTERIOR": 39,
   "GEAR": 24,
   "POWERPLANT": 8,
   "INDUCTION": 9,
@@ -684,6 +684,18 @@
    "name": "INTERIOR.door_panel_R",
    "triangles": 722,
    "parent": "AIRFRAME.door_R"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Headliner (cabin ceiling)",
+   "label_ar": "بطانة السقف",
+   "status": "estimated",
+   "note": "Level with the underside of the wing root; the carry-through spars lie above it",
+   "id": "INTERIOR.headliner",
+   "detail": 0,
+   "name": "INTERIOR.headliner",
+   "triangles": 140,
+   "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
@@ -4465,6 +4477,6 @@
   }
  ],
  "file": "C172N_realistic_medium.glb",
- "bytes": 3308792,
- "build_seconds": 14.9
+ "bytes": 3310664,
+ "build_seconds": 14.7
 }

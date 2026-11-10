@@ -156,7 +156,7 @@ def main():
     render.add_argument("--azimuth", type=float, default=35.0)
     render.add_argument("--elevation", type=float, default=22.0)
     render.add_argument("--fov", type=float, default=24.0)
-    render.add_argument("--margin", type=float, default=1.12)
+    render.add_argument("--margin", type=float, default=1.05, help="room round the parts: 1 fits their bounding sphere to the shorter side of the picture")
     render.add_argument("--tint", help="colour for the part, e.g. #8DB7E2")
     render.add_argument("--grow", type=float, help="draw the parts this much thicker (m), for cables and pipes seen from far away")
     render.add_argument("--focus", nargs="+", metavar="ID", help="fit the picture to these parts (default: to all the parts drawn)")

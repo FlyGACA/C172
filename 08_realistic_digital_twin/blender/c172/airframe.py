@@ -802,6 +802,13 @@ FLOOR_Z = 0.93                 # centre plane of the cabin floor panel, 30 mm th
 FLOOR_STEP_FS = (94.0, 97.0)   # behind the rear seat the floor steps up to the baggage floor ...
 BAGGAGE_FLOOR_RISE = 0.045     # ... by this much (estimated: the belly rises aft, the baggage floor rides on it)
 
+HEADLINER_STATIONS = [37.0, 40.0, 45.0, 50.0, 55.0, 60.0, 66.0, 71.0, 76.0, 82.0, 88.0, 92.0]
+
+def headliner_z(station):
+    """Underside of the cabin ceiling at a station (in): 12 mm below the lower surface of the wing root."""
+    xc = (fs(station) - U.WING_LE_Y) / (U.ROOT_CHORD * math.cos(INC_ROOT))
+    return wing_surface_point(CABIN_SIDE_X, 1, min(max(xc, 0.02), 0.98), upper=False).z - 0.012
+
 def floor_z(station):
     """Centre plane of the floor panel at a station (in)."""
     t = (station - FLOOR_STEP_FS[0]) / (FLOOR_STEP_FS[1] - FLOOR_STEP_FS[0])
@@ -879,6 +886,20 @@ def build_details(ctx):
         add_boolean(panel, ctx.cutter_objects["door_win_" + side], "DIFFERENCE", "win")
         parent_keep(panel, door)
         ctx.tag(panel, "INTERIOR", f"{'Left' if side == 'L' else 'Right'} door trim panel", "بطانة الباب " + ("الأيسر" if side == "L" else "الأيمن"), status="estimated")
+    # headliner: the cabin ceiling lies level with the underside of the wing root, not under the top
+    # skin; the space above it holds the two carry-through spars, the cables and the tank vent line
+    bm = new_bm()
+    rings = []
+    for st in HEADLINER_STATIONS:
+        z = headliner_z(st)
+        half = fus_half_width_at(st, z) - 0.034
+        rings.append([Vector((half, fs(st), z)), Vector((half * 0.5, fs(st), z + 0.004)), Vector((-half * 0.5, fs(st), z + 0.004)), Vector((-half, fs(st), z)),
+                      Vector((-half, fs(st), z + 0.006)), Vector((half, fs(st), z + 0.006))])
+    loft(bm, rings, close=True, cap_start=True, cap_end=True)
+    headliner = obj_from_bm("INTERIOR.headliner", bm, ctx.col, mat=M["interior_tan"], smooth=False)
+    parent_keep(headliner, ctx.groups["INTERIOR"])
+    ctx.tag(headliner, "INTERIOR", "Headliner (cabin ceiling)", "بطانة السقف", status="estimated",
+            note="Level with the underside of the wing root; the carry-through spars lie above it")
     # cabin floor: a panel that narrows with the hull so its edges stay inside the skin; the baggage
     # floor behind the rear seat is higher, as the belly rises there (floor_z)
     floor_stations = [4, 12, 20, 30, 45, 60, 75, 88, FLOOR_STEP_FS[0], FLOOR_STEP_FS[1], 104, 112]

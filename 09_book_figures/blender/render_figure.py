@@ -42,6 +42,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from ink import draw_ink, halve          # noqa: E402  (the line drawing itself: numpy only, tested outside Blender)
+from framing import perspective_distance, orthographic_scale          # noqa: E402
 
 GHOST_INK = dict(outer_px=2.6, part_px=1.5, fine_px=1.0, fine_strength=0.0)     # phantom outlines: lighter and thinner
 GHOST_VEIL = ("#9DB8D4", 0.10)                                                 # a faint tint where the phantom skin lies
@@ -271,11 +272,10 @@ def setup_camera(sc, spec):
         margin = cam_spec.get("margin", 1.12)
         aspect = sc.render.resolution_x / sc.render.resolution_y
         if cam_spec.get("ortho"):
-            cam_spec.update(type="ortho", ortho_scale=2 * radius * margin * max(1.0, aspect), pos=centre + direction * (radius * 4 + 5), target=centre)
+            cam_spec.update(type="ortho", ortho_scale=orthographic_scale(radius, aspect, margin), pos=centre + direction * (radius * 4 + 5), target=centre)
         else:
             fov = cam_spec.get("fov", 24)
-            narrow = math.radians(fov) / 2 / max(1.0, 1 / aspect)          # the half angle across the short side
-            distance = cam_spec.get("distance", radius * margin / math.sin(narrow))      # ... from a chosen distance
+            distance = cam_spec.get("distance", perspective_distance(radius, fov, aspect, margin))      # ... from a chosen distance
             cam_spec.update(type="persp", fov=fov, pos=centre + direction * distance, target=centre)
     ob.location = cam_spec["pos"]
     direction = Vector(cam_spec["target"]) - Vector(cam_spec["pos"])
