@@ -1,0 +1,104 @@
+{
+  "_doc": "Figure manifest. One entry per book figure: what it is, how it is made, where its facts come from and whether it has been reviewed. build.mjs builds every entry in every language; tests/figures.test.mjs checks the entries. A figure may only move from draft to reviewed once an instructor has checked it against the aircraft's own POH.",
+  "aircraft": "Cessna 172N, 1979 model (factory-standard educational baseline; serial-specific configuration not verified)",
+  "languages": [
+    "en",
+    "ar"
+  ],
+  "status_labels": {
+    "draft": {
+      "en": "DRAFT · not reviewed",
+      "ar": "مسودة · لم تُراجَع"
+    },
+    "reviewed": {
+      "en": "Reviewed",
+      "ar": "تمت المراجعة"
+    },
+    "approved": {
+      "en": "Approved for print",
+      "ar": "معتمد للطباعة"
+    }
+  },
+  "figures": [
+    {
+      "id": "asi-markings",
+      "number": "S-1",
+      "module": "asi_markings.js",
+      "kind": "instrument",
+      "method": "vector-data",
+      "width_mm": 160,
+      "title": {
+        "en": "Airspeed indicator colour markings",
+        "ar": "العلامات اللونية لمؤشر السرعة الجوية"
+      },
+      "data": "data/asi_markings.json",
+      "sources": [
+        {
+          "poh": "2-5",
+          "what": "Airspeed indicator markings (Figure 2-2), via 08_realistic_digital_twin/data/instruments.json"
+        },
+        {
+          "poh": "2-4",
+          "what": "Airspeed limitations (Figure 2-1): manoeuvring speed"
+        }
+      ],
+      "notes": "Arc limits and the red line are POH values; the dial face layout is illustrative.",
+      "status": "draft"
+    },
+    {
+      "id": "fuel-system",
+      "number": "S-2",
+      "module": "fuel_system.js",
+      "kind": "schematic",
+      "method": "vector-authored",
+      "width_mm": 160,
+      "title": {
+        "en": "Fuel system schematic",
+        "ar": "مخطط نظام الوقود"
+      },
+      "data": "data/fuel_system.json",
+      "sources": [
+        {
+          "poh": "7-20",
+          "what": "Fuel system description: gravity feed, selector positions, strainer, primer, carburetor"
+        },
+        {
+          "poh": "7-21",
+          "what": "Fuel quantity data: standard tanks 21.5 gal each, 43 total, 40 usable"
+        },
+        {
+          "poh": "7-28",
+          "what": "Venting and filler caps, as cited in 08_realistic_digital_twin/data/parts_catalog.json"
+        }
+      ],
+      "notes": "Venting arrangement (crossover line, left overboard vent with check valve, vented right cap) is Cessna's standard description for this fuel system; confirm wording and page against the aircraft's own POH during review.",
+      "status": "draft"
+    },
+    {
+      "id": "flight-controls",
+      "number": "S-3",
+      "module": "flight_controls.js",
+      "kind": "illustration",
+      "method": "render-3d",
+      "width_mm": 160,
+      "title": {
+        "en": "Flight control surfaces",
+        "ar": "أسطح التحكم في الطيران"
+      },
+      "data": "data/flight_controls.json",
+      "render": "data/flight_controls.render.json",
+      "sources": [
+        {
+          "poh": "Section 7",
+          "what": "Flight controls, wing flap system and trim system descriptions (page numbers to be confirmed in review)"
+        },
+        {
+          "model": "08_realistic_digital_twin/models/C172N_realistic.blend",
+          "what": "Planform and part names; geometry status 'estimated' except the POH span and length"
+        }
+      ],
+      "notes": "Plan view chosen because the planform is the most accurate part of the current model. Perspective views of the exterior wait for the geometry correction described in PLAN.md.",
+      "status": "draft"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "_doc": "Text for the flight-controls figure. The picture and the label positions come from the 3D model (see flight_controls.render.json). A label uses the model's own bilingual part name unless a name_<anchor> string overrides it here; the two ailerons deliberately have no override to show the default path.",
+  "render": "renders/flight-controls.anchors.json",
+  "poh_keys": [],
+  "callouts": [
+    {
+      "anchor": "aileron_L",
+      "side": "left"
+    },
+    {
+      "anchor": "flap_L",
+      "side": "left"
+    },
+    {
+      "anchor": "elevator",
+      "side": "left"
+    },
+    {
+      "anchor": "aileron_R",
+      "side": "right"
+    },
+    {
+      "anchor": "flap_R",
+      "side": "right"
+    },
+    {
+      "anchor": "trim_tab",
+      "side": "right"
+    },
+    {
+      "anchor": "rudder",
+      "side": "right"
+    }
+  ],
+  "table": [
+    {
+      "key": "ailerons",
+      "color": "#D9622B"
+    },
+    {
+      "key": "elevator",
+      "color": "#2F7FC1"
+    },
+    {
+      "key": "rudder",
+      "color": "#2E9E6B"
+    },
+    {
+      "key": "flaps",
+      "color": "#D8A31A"
+    },
+    {
+      "key": "trim",
+      "color": "#8A5BB5"
+    }
+  ],
+  "strings": {
+    "en": {
+      "name_flap_L": "Left flap",
+      "name_flap_R": "Right flap",
+      "name_elevator": "Elevator",
+      "name_rudder": "Rudder",
+      "name_trim_tab": "Elevator trim tab",
+      "head_surface": "CONTROL SURFACE",
+      "head_effect": "WHAT IT DOES",
+      "head_control": "MOVED FROM THE COCKPIT BY",
+      "ailerons": "Ailerons",
+      "ailerons_effect": "Roll — bank left or right",
+      "ailerons_control": "Control wheel, turned",
+      "elevator": "Elevator",
+      "elevator_effect": "Pitch — nose up or down",
+      "elevator_control": "Control wheel, pushed or pulled",
+      "rudder": "Rudder",
+      "rudder_effect": "Yaw — nose left or right",
+      "rudder_control": "Rudder pedals",
+      "flaps": "Flaps",
+      "flaps_effect": "More lift and drag for slow flight",
+      "flaps_control": "Flap switch lever",
+      "trim": "Elevator trim tab",
+      "trim_effect": "Relieves steady control pressure",
+      "trim_control": "Trim wheel"
+    },
+    "ar": {
+      "name_flap_L": "القلاب الأيسر",
+      "name_flap_R": "القلاب الأيمن",
+      "name_elevator": "الرافع",
+      "name_rudder": "الدفة",
+      "name_trim_tab": "لسان موازنة الرافع",
+      "head_surface": "سطح التحكم",
+      "head_effect": "وظيفته",
+      "head_control": "يُحرَّك من المقصورة بواسطة",
+      "ailerons": "الجنيحان",
+      "ailerons_effect": "الدحرجة (Roll) — الميل يمينًا أو يسارًا",
+      "ailerons_control": "عجلة التحكم بتدويرها",
+      "elevator": "الرافع",
+      "elevator_effect": "الانحدار (Pitch) — رفع المقدمة أو خفضها",
+      "elevator_control": "عجلة التحكم بدفعها أو سحبها",
+      "rudder": "الدفة",
+      "rudder_effect": "الانعراج (Yaw) — المقدمة يمينًا أو يسارًا",
+      "rudder_control": "دواسات الدفة",
+      "flaps": "القلابات",
+      "flaps_effect": "رفع ومقاومة إضافيان للطيران البطيء",
+      "flaps_control": "ذراع مفتاح القلابات",
+      "trim": "لسان موازنة الرافع",
+      "trim_effect": "يخفف ضغط التحكم المستمر",
+      "trim_control": "عجلة الموازنة"
+    }
+  }
+}

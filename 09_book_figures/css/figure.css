@@ -1,0 +1,76 @@
+/* Shared visual language for every book figure.
+   One user unit = 0.1 mm on paper, so "font-size: 30" is 3.0 mm (8.5 pt) and "stroke-width: 4" is 0.4 mm.
+   Colours are chosen to survive conversion to CMYK: no saturated screen-only blues or greens. */
+
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 400; src: url("../vendor/fonts/IBMPlexSansArabic-Regular.ttf") format("truetype"); }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 600; src: url("../vendor/fonts/IBMPlexSansArabic-SemiBold.ttf") format("truetype"); }
+
+:root {
+  --ink: #1d2733;          /* lines and text */
+  --ink-soft: #55616f;     /* secondary text, leaders */
+  --hair: #aab4bf;         /* hairlines, inactive outlines */
+  --paper: #ffffff;
+  --wash: #eef1f4;         /* neutral component fill */
+  --fuel: #2f7fc1;         /* 100LL is dyed blue */
+  --fuel-wash: #cfe3f3;
+  --normal: #2e9e6b;       /* green arc / normal */
+  --caution: #e0a100;      /* yellow arc / caution */
+  --limit: #cf3a2f;        /* red line / limit */
+  --dial: #15181c;         /* instrument face */
+  --bezel: #3a4048;
+}
+
+html, body { margin: 0; background: var(--paper); }
+body { font-family: "IBM Plex Sans Arabic", sans-serif; color: var(--ink); }
+#sheet { display: block; }
+#art { display: block; width: 100%; height: auto; }
+
+/* review sheet only (never part of the print master) */
+#caption { display: flex; gap: 3mm; align-items: baseline; justify-content: space-between; padding: 2.5mm 1mm 1mm; border-top: 0.25mm solid var(--hair); margin-top: 2mm; font-size: 9pt; line-height: 1.35; }
+#caption b { font-weight: 600; }
+#caption .status { font-size: 7pt; letter-spacing: .04em; color: var(--limit); border: 0.25mm solid currentColor; border-radius: 1mm; padding: .3mm 1.6mm; white-space: nowrap; }
+#caption .status.approved { color: var(--normal); }
+
+/* ---------- inside the artwork ---------- */
+svg text { font-family: "IBM Plex Sans Arabic", sans-serif; fill: var(--ink); }
+.label { font-size: 30px; font-weight: 400; }
+.label-strong { font-weight: 600; }
+.label-small { font-size: 24px; fill: var(--ink-soft); }
+.label-tiny { font-size: 21px; fill: var(--ink-soft); }
+.label-inverse { fill: #ffffff; }
+.heading { font-size: 25px; font-weight: 600; letter-spacing: .06em; fill: var(--ink-soft); }
+
+.leader-halo { fill: none; stroke: var(--paper); stroke-width: 8; stroke-linejoin: round; stroke-linecap: round; }
+.leader { fill: none; stroke: var(--ink-soft); stroke-width: 2.6; stroke-linejoin: round; }
+.leader-dot { fill: var(--ink); stroke: var(--paper); stroke-width: 2.5; }
+.outline { fill: var(--wash); stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
+.outline-thin { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.hairline { fill: none; stroke: var(--hair); stroke-width: 2.4; }
+.arrow { fill: var(--ink); }
+/* fill modifiers: used with .outline (they come later, so they win over its default wash) */
+.f-none { fill: none; } .f-paper { fill: var(--paper); } .f-fuel { fill: var(--fuel-wash); } .f-ink { fill: var(--ink); } .f-limit { fill: var(--limit); }
+
+/* schematic line codes */
+.pipe-fuel { fill: none; stroke: var(--fuel); stroke-width: 15; stroke-linejoin: round; stroke-linecap: butt; }
+.pipe-fuel-thin { fill: none; stroke: var(--fuel); stroke-width: 7; stroke-linejoin: round; }
+.pipe-vent { fill: none; stroke: var(--ink-soft); stroke-width: 13; stroke-linejoin: round; }
+.pipe-vent-core { fill: none; stroke: var(--paper); stroke-width: 7.5; stroke-linejoin: round; }
+.wire { fill: none; stroke: var(--ink-soft); stroke-width: 2.8; stroke-dasharray: 11 8; }
+.linkage { fill: none; stroke: var(--ink-soft); stroke-width: 2.8; stroke-dasharray: 22 7 4 7; }
+.fuel-fill { fill: var(--fuel-wash); }
+.arrow-fuel { fill: #ffffff; }
+.note-box { fill: #f6f8fa; stroke: var(--hair); stroke-width: 2.4; }
+
+/* instrument faces */
+.dial-bezel { fill: var(--bezel); stroke: var(--ink); stroke-width: 3; }
+.dial-face { fill: var(--dial); }
+.dial-tick { stroke: #f2f3f4; stroke-width: 3.2; }
+.dial-tick-major { stroke: #f2f3f4; stroke-width: 5.5; }
+.dial-number { fill: #f2f3f4; font-size: 37px; font-weight: 600; }
+.dial-caption { fill: #c9ced4; font-size: 18px; letter-spacing: .14em; }
+.dial-needle { fill: #f2f3f4; stroke: #0b0d10; stroke-width: 1.5; }
+.dial-hub { fill: #23272d; stroke: #5b626b; stroke-width: 2.5; }
+.arc-white { stroke: #f4f5f6; } .arc-green { stroke: var(--normal); } .arc-yellow { stroke: var(--caution); } .arc-red { stroke: var(--limit); }
+.speed-tag rect { fill: var(--paper); stroke: var(--ink); stroke-width: 2.4; }
+.speed-tag text { font-size: 23px; font-weight: 600; }
+.swatch { stroke: var(--ink); stroke-width: 2.4; }

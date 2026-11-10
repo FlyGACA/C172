@@ -25,4 +25,11 @@
 - Tests: Python profile tests, node tests (GLB ↔ kinematics ↔ plug map), GLB validator, Playwright browser test, CI job that rebuilds the model in Blender and compares it.
 - Every dimension carries a status (POH page / type data / estimated); geometry remains representative, not manufacturer drawings.
 
+09 — Book figures (2026-11-10):
+- Figure plan (`09_book_figures/PLAN.md`): photographs for recognition, vector diagrams for understanding, the 3D twin as a technical-illustration engine; why the generated airframe does not read as a 172 (estimated shape tables) and how to correct it from reference photographs of the real aircraft.
+- Figure build: one module per figure drawn as SVG in Chromium, exported as vector PDF (exact size, fonts embedded), SVG and review PNG, in English and Arabic from the same source; reproducible output.
+- Illustration renderer for the Phase 8 model (flat tones, ink outlines, tinted subject) that also exports label anchor points, and automatic callout placement.
+- Three draft samples: airspeed indicator markings (from `instruments.json`), fuel system schematic, flight control surfaces. Not yet reviewed against the aircraft's POH.
+- Tests: manifest, bilingual text, POH provenance keys, agreement between instrument data, simulation constants and the POH table.
+
 **Status:** Phases 01–06 are stored exactly as delivered (verify with `npm run verify:checksums`). No flight-certified or maintenance-grade simulation is claimed.

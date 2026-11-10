@@ -1,0 +1,132 @@
+{
+  "_doc": "Render recipe for blender/render_figure.py. Plan view, nose up, so the aircraft's left wing is on the left of the page. 'highlights' tint the parts the figure is about; 'anchors' are the parts that get a label (their image positions are written to renders/flight-controls.anchors.json). An anchor may carry 'at': [across, down] (0..1) to move its label point within the part.",
+  "id": "flight-controls",
+  "camera": {
+    "type": "ortho",
+    "pos": [
+      0,
+      2.14,
+      60
+    ],
+    "target": [
+      0,
+      2.14,
+      1
+    ],
+    "ortho_scale": 11.5,
+    "roll_deg": 180
+  },
+  "resolution": [
+    1800,
+    1395
+  ],
+  "samples": 96,
+  "ambient": 0.55,
+  "key": 1.25,
+  "key_rotation": [
+    38,
+    0,
+    150
+  ],
+  "ground_shadow": false,
+  "ink": {
+    "inner_px": 2.6,
+    "outer_px": 5.0,
+    "crease_deg": 132
+  },
+  "highlights": [
+    {
+      "key": "ailerons",
+      "ids": [
+        "WING_L.aileron",
+        "WING_R.aileron"
+      ],
+      "color": "#D9622B"
+    },
+    {
+      "key": "flaps",
+      "ids": [
+        "WING_L.flap",
+        "WING_R.flap"
+      ],
+      "color": "#D8A31A"
+    },
+    {
+      "key": "elevator",
+      "ids": [
+        "EMPENNAGE.elevator"
+      ],
+      "color": "#2F7FC1"
+    },
+    {
+      "key": "rudder",
+      "ids": [
+        "EMPENNAGE.rudder"
+      ],
+      "color": "#2E9E6B"
+    },
+    {
+      "key": "trim_tab",
+      "ids": [
+        "EMPENNAGE.trim_tab"
+      ],
+      "color": "#8A5BB5"
+    }
+  ],
+  "anchors": [
+    {
+      "key": "aileron_L",
+      "ids": [
+        "WING_L.aileron"
+      ]
+    },
+    {
+      "key": "aileron_R",
+      "ids": [
+        "WING_R.aileron"
+      ]
+    },
+    {
+      "key": "flap_L",
+      "ids": [
+        "WING_L.flap"
+      ]
+    },
+    {
+      "key": "flap_R",
+      "ids": [
+        "WING_R.flap"
+      ]
+    },
+    {
+      "key": "elevator",
+      "ids": [
+        "EMPENNAGE.elevator"
+      ],
+      "at": [
+        0.2,
+        0.62
+      ]
+    },
+    {
+      "key": "rudder",
+      "ids": [
+        "EMPENNAGE.rudder"
+      ],
+      "at": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "key": "trim_tab",
+      "ids": [
+        "EMPENNAGE.trim_tab"
+      ],
+      "at": [
+        0.8,
+        0.5
+      ]
+    }
+  ]
+}
