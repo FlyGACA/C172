@@ -35,6 +35,8 @@ jobs:
           python 08_realistic_digital_twin/tests/test_profiles.py
           python 08_realistic_digital_twin/scripts/validate_glb.py
           python 08_realistic_digital_twin/scripts/quality_gate.py
+      - name: Book figures — ink-line rules (numpy only)
+        run: python 09_book_figures/tests/test_ink.py
 
       - name: Verify release archive and checksums
         run: python -m unittest discover -s tests -v
@@ -49,6 +51,8 @@ jobs:
 
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
+      - name: Book figures — build every figure in both languages (fails if any text runs off a figure)
+        run: node 09_book_figures/build.mjs --out "$RUNNER_TEMP/book-figures"
       - name: Browser test — Phase 7 viewer
         run: npm run test:e2e
         env:
