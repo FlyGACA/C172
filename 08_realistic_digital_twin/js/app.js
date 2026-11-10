@@ -9,6 +9,7 @@ import { dialGauge, altimeter, attitude, heading, turnCoordinator } from './gaug
 import { FlightMode, readySystems } from './flightmode.js';
 import { cgStation } from './flight.js';
 import { FM_NOTES_AR } from './flight_notes_ar.js';
+import { LESSONS } from './lessons.js';
 
 const $ = (id) => document.getElementById(id);
 const qs = new URLSearchParams(location.search);
@@ -239,6 +240,7 @@ $('f_pitot').onchange = (e) => { sim.faults.pitot = e.target.value; };
 $('f_static').onclick = () => { sim.faults.staticBlocked = !sim.faults.staticBlocked; $('f_static').classList.toggle('on', sim.faults.staticBlocked); };
 $('f_alt').onchange = (e) => { sim.faults.alternator = e.target.value; };
 $('f_vac').onclick = () => { sim.faults.vacuum = !sim.faults.vacuum; $('f_vac').classList.toggle('on', sim.faults.vacuum); };
+$('f_engine').onclick = () => { sim.faults.engineFailure = !sim.faults.engineFailure; $('f_engine').classList.toggle('on', sim.faults.engineFailure); };
 $('f_ice').onclick = () => { sim.faults.carbIce = !sim.faults.carbIce; $('f_ice').classList.toggle('on', sim.faults.carbIce); };
 $('f_magR').onchange = (e) => { sim.faults.magneto.R = e.target.value; };
 $('f_magL').onchange = (e) => { sim.faults.magneto.L = e.target.value; };
@@ -254,18 +256,22 @@ function syncUI() {
   $('iasTarget').value = sim.flight.iasTarget; $('iasOut').value = sim.flight.iasTarget; $('altTarget').value = sim.flight.altTarget; $('altOut').value = sim.flight.altTarget;
   $('f_pitot').value = sim.faults.pitot; $('f_alt').value = sim.faults.alternator; $('f_magR').value = sim.faults.magneto.R; $('f_magL').value = sim.faults.magneto.L;
   $('f_static').classList.toggle('on', sim.faults.staticBlocked); $('f_vac').classList.toggle('on', sim.faults.vacuum); $('f_ice').classList.toggle('on', sim.faults.carbIce);
+  $('f_engine').classList.toggle('on', !!sim.faults.engineFailure);
   $('fuelL').value = sim.fuel.left; $('fuelR').value = sim.fuel.right; $('primes').value = ctx.primes || 0;
 }
 
 // ------------------------------------------------------------------ scenarios
 function fillScenarios() {
   const sel = $('scenarioSel');
-  sel.innerHTML = `<option value="">${T().freePlay}</option>` + SCENARIOS.map((s) => `<option value="${s.id}">${tx(s.title)} — ${s.poh}</option>`).join('');
+  const option = (s) => `<option value="${s.id}">${tx(s.title)} — ${s.poh}</option>`;
+  sel.innerHTML = `<option value="">${T().freePlay}</option>${SCENARIOS.map(option).join('')}<optgroup label="${T().lessons}">${LESSONS.map(option).join('')}</optgroup>`;
   sel.value = scenario ? scenario.id : '';
   renderScenario();
 }
 $('scenarioSel').onchange = (e) => startScenario(e.target.value);
-function startScenario(id) {
+function startScenario(id, demo = false) {
+  const lesson = LESSONS.find((l) => l.id === id);
+  if (lesson) { startLesson(lesson, demo); return; }
   if (flight && flight.active) { endFlight(); if (mode === 'flight') setMode('exterior'); }      // a scenario sets its own flight state
   scenario = SCENARIOS.find((s) => s.id === id) || null; ctx = {};
   sim = createState(scenario ? JSON.parse(JSON.stringify(scenario.setup || {})) : {});
@@ -273,11 +279,26 @@ function startScenario(id) {
   syncUI(); renderScenario();
   if (scenario && scenario.focus === 'ENGINE' && mode !== 'engine') setMode('engine');
 }
+/** A flight lesson: the flight model flies from the lesson's start; with `demo` the scripted pilot flies it. */
+function startLesson(lesson, demo) {
+  if (!flight) return;
+  scenario = lesson; ctx = {}; lastStepState = '';
+  sim = readySystems();
+  mode = 'flight'; document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.mode === 'flight'));
+  rig.state.cowlOff = 0; $('cowl').classList.remove('on'); rig.showAll(); rig.isolate(null);
+  flight.start(lesson.flight, sim);
+  for (const [group, values] of Object.entries(lesson.setup || {})) Object.assign(sim[group], values);
+  flight.autopilot = demo ? (deck, dt) => lesson.demo(deck, ctx, dt) : null;
+  $('scenarioBox').open = true; $('left').classList.add('open');
+  syncUI(); syncFlightUI(); renderScenario(); $('scenarioSel').value = lesson.id;
+}
 function renderScenario() {
   const body = $('scenarioBody');
   if (!scenario) { body.innerHTML = ''; return; }
   const cur = evaluateSteps(scenario, sim, ctx);
-  let html = `<p><b>${T().briefing}:</b> ${tx(scenario.brief)}</p><ol class="steps">`;
+  let html = `<p><b>${T().briefing}:</b> ${tx(scenario.brief)}</p>`;
+  if (scenario.lesson) html += `<p class="pair wrap"><button id="lessonDemo">${T().demonstrate}</button><button id="lessonFly">${T().flyIt}</button></p>${flight && flight.autopilot ? `<p style="color:var(--gold)">${T().demoRunning}</p>` : ''}`;
+  html += '<ol class="steps">';
   scenario.steps.forEach((st, i) => {
     const cls = ctx.done[i] ? 'done' : i === cur ? 'cur' : '';
     html += `<li class="${cls}">${i + 1}. ${tx(st)}${i === cur && st.ack ? ` <button data-ack="${i}">${T().ack}</button>` : ''}${i === cur && st.choice ? st.choice.options.map((o, j) => ` <button data-choice="${i}" data-j="${j}">${tx(o)}</button>`).join('') : ''}</li>`;
@@ -291,12 +312,14 @@ function renderScenario() {
       if (ctx.quiz !== undefined) html += `<p>${ctx.quiz === scenario.quiz.answer ? T().correct : T().wrong} (${scenario.quiz.ref})</p>`;
     }
   }
+  if (scenario.lesson) { const lines = scenario.report(ctx); if (lines.length) html += `<p><b>${T().report}:</b></p><ul>${lines.map((l) => `<li>${tx(l)}</li>`).join('')}</ul>`; }
   html += `<p><button id="restartSc">${T().restart}</button></p>`;
   body.innerHTML = html;
+  if (scenario.lesson) { $('lessonDemo').onclick = () => startScenario(scenario.id, true); $('lessonFly').onclick = () => startScenario(scenario.id, false); }
   body.querySelectorAll('[data-ack]').forEach((b) => (b.onclick = () => { ctx.done[Number(b.dataset.ack)] = true; renderScenario(); }));
   body.querySelectorAll('[data-choice]').forEach((b) => (b.onclick = () => { const st = scenario.steps[Number(b.dataset.choice)]; if (Number(b.dataset.j) === st.choice.answer) { ctx.done[Number(b.dataset.choice)] = true; } else { ctx.wrong = (ctx.wrong || 0) + 1; } renderScenario(); }));
   body.querySelectorAll('[data-quiz]').forEach((b) => (b.onclick = () => { ctx.quiz = Number(b.dataset.quiz); renderScenario(); }));
-  const rs = $('restartSc'); if (rs) rs.onclick = () => startScenario(scenario.id);
+  const rs = $('restartSc'); if (rs) rs.onclick = () => startScenario(scenario.id, !!(flight && flight.autopilot));
 }
 let lastStepState = '';
 
@@ -330,6 +353,7 @@ function beginFlight(preset) {
   syncUI(); renderScenario(); $('scenarioSel').value = '';
 }
 function endFlight() {
+  if (scenario && scenario.lesson) { scenario = null; ctx = {}; $('scenarioSel').value = ''; renderScenario(); }
   flight.stop();
   sim = createState(); syncUI();
   document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', x.dataset.v === '0'));
@@ -361,7 +385,7 @@ $('flLevel').onclick = () => { flight.assist.level = !flight.assist.level; syncF
 $('flParking').onclick = () => { flight.parking = !flight.parking; syncFlightUI(); };
 for (const id of ['flWeight', 'flCg']) $(id).oninput = syncFlightUI;
 for (const id of ['flWindDir', 'flWindKt']) $(id).onchange = () => { if (flight) { flight.conditions.windFromDeg = Number($('flWindDir').value) || 0; flight.conditions.windKt = Number($('flWindKt').value) || 0; flight.applyWind(); } };
-$('fmsgAgain').onclick = () => beginFlight(flight.preset);
+$('fmsgAgain').onclick = () => { if (scenario && scenario.lesson) startScenario(scenario.id, !!flight.autopilot); else beginFlight(flight.preset); };
 // the buttons beside the on-screen wheel: a press acts once, holding repeats (throttle, trim) or holds (brakes)
 document.querySelectorAll('#fbar button').forEach((b) => {
   const act = b.dataset.act; let timer = null;
@@ -401,15 +425,19 @@ $('coefClose').onclick = () => $('coefDialog').close();
 
 // ------------------------------------------------------------------ main loop
 let gaugeTimer = 0, statTimer = 0;
+/** Everything that moves in time, advanced by dt seconds: the systems (and the flight, when one is flown) and the scenario or lesson. */
+function advance(dt) {
+  if (flight && flight.active) flight.step(dt); else step(sim, dt);
+  if (!scenario) return;
+  if (scenario.tick) scenario.tick(sim, ctx, dt);
+  // a lesson's record goes on changing for a while after its last step: show it as it settles
+  if (scenario.lesson && (ctx.done || []).filter(Boolean).length >= scenario.steps.length) ctx.reportClock = Math.min(8, (ctx.reportClock || 0) + dt);
+  const key = JSON.stringify(ctx.done || []) + (ctx.magResult ? 'm' : '') + (scenario.lesson ? `${scenario.report(ctx).length}:${Math.floor((ctx.reportClock || 0) / 2)}` : '');
+  if (key !== lastStepState) { lastStepState = key; renderScenario(); } else evaluateSteps(scenario, sim, ctx);
+}
 viewer.onFrame.push((dt) => {
-  if (!paused) {
-    if (flight && flight.active) flight.step(dt * timeScale); else step(sim, dt * timeScale);
-    if (scenario) {
-      if (scenario.tick) scenario.tick(sim, ctx, dt * timeScale);
-      const key = JSON.stringify(ctx.done || []) + (ctx.magResult ? 'm' : '');
-      if (key !== lastStepState) { lastStepState = key; renderScenario(); } else evaluateSteps(scenario, sim, ctx);
-    }
-  }
+  // in steps of a thirtieth of a second at most: a slow frame or a fast clock must not coarsen the controls
+  if (!paused) for (let left = dt * timeScale; left > 1e-6; left -= 1 / 30) advance(Math.min(1 / 30, left));
   viewer.tickCamera(dt);
   if (explodeAnim) { explodeAnim.t = Math.min(1, explodeAnim.t + dt / 1.6); const k = 1 - Math.pow(1 - explodeAnim.t, 3); const v = explodeAnim.from + (explodeAnim.to - explodeAnim.from) * k; $('explode').value = v; rig && rig.setExplode(v); if (explodeAnim.t >= 1) explodeAnim = null; }
   if (flight && flight.active) flight.place();
@@ -425,6 +453,7 @@ viewer.onFrame.push((dt) => {
   gaugeTimer += dt;
   if (gaugeTimer > 0.1) {
     gaugeTimer = 0; updateGauges();
+    if (flight && flight.active && (flight.autopilot || (scenario && scenario.lesson))) syncUI();
     if (flight && flight.active) { const c = flight.deck.controls; $('aileron').value = c.aileron; $('elevator').value = c.elevator; $('rudder').value = c.rudder; $('trim').value = flight.trim; $('throttle').value = sim.controls.throttle; } const a = annunciations(sim); $('annun').innerHTML = a.map((k) => `<span class="${k === 'low_voltage' || k === 'oil_pressure_low' ? '' : 'warn'}">${(T().annun || {})[k] || k}</span>`).join('');
   }
   statTimer += dt;
@@ -434,4 +463,6 @@ viewer.start();
 applyLang(); syncUI();
 
 // test hook
-window.__twin = { ready: false, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
+window.__twin = { ready: false, get lessons() { return LESSONS; },
+  /** test hook: advance the whole viewer by a number of seconds without waiting for frames */
+  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };

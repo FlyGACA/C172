@@ -4,32 +4,17 @@
 // module gives it a world to fly in (ground, runway, haze), places the model where the flight is, follows it
 // with the camera, reads the pilot's hands and feet (keys, the on-screen yoke) and shows the numbers.
 import * as THREE from 'three';
-import { createDeck, stepDeck, deckInFlight, deckOnGround } from './flightdeck.js';
-import { createFlight, setWind, FM, gearGeometry, cgStation, coefficientTable, trim as trimFor, kcasFromKias, fullThrottleTorque, chargeAt } from './flight.js';
+import { stepDeck, beginFlight, STARTS, readySystems } from './flightdeck.js';
+import { setWind, FM, gearGeometry, cgStation, coefficientTable, propellerBalance } from './flight.js';
 import { createPilot, pilotStep } from './pilot.js';
-import { propellerBalance } from './flight.js';
-import { createState } from './sim.js';
 
-const D2R = Math.PI / 180, FT = 0.3048, NM = 1852;
+export { readySystems };
+const D2R = Math.PI / 180, FT = 0.3048;
 const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 const Y = new THREE.Vector3(0, 1, 0);
 
-/** Where a flight can begin. */
-export const PRESETS = {
-  runway: { kind: 'ground' },
-  cruise: { kind: 'air', kias: 100, aglFt: 3000, flapDeg: 0, north: 0 },
-  approach: { kind: 'air', kias: 70, aglFt: 600, flapDeg: 20, climbFpm: -450, north: -1.25 * NM },
-};
+export const PRESETS = STARTS;
 export const RUNWAY = { length: 1500, width: 23, start: -40 };     // metres; the aircraft starts at the origin, heading north along it
-
-/** The systems as they are just before takeoff: engine warm and running, electrics on. */
-export function readySystems() {
-  return createState({
-    controls: { masterBat: true, masterAlt: true, avionics: true, ignition: 'BOTH', mixture: 1, throttle: 0, fuelSelector: 'BOTH', beacon: true, navLights: true },
-    engine: { running: true, rpm: 700, oilTempF: 170, oilPress: 60 },
-    vac: { suction: 4.9, gyro: 1 },
-  });
-}
 
 // ---------------------------------------------------------------------------------------------- the world
 function seeded(seed) { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
@@ -132,23 +117,12 @@ export class FlightMode {
       if (v.ground) v.ground.visible = false;
       this.world.visible = true;
     }
-    this.active = true; this.preset = preset; this.crashed = null;
-    const p = PRESETS[preset] || PRESETS.runway;
-    const flight = createFlight({ weightLb: c.weightLb, cgFrac: c.cgFrac, isaDevC: c.isaDevC, windFromDeg: c.windFromDeg, windKt: c.windKt, flapDeg: p.flapDeg ?? 0 });
-    this.deck = createDeck(sim, flight);
-    this.pilot = createPilot();
+    this.active = true; this.preset = preset; this.crashed = null; this.autopilot = null;
+    // `preset` is the name of a start, or a start itself (a lesson brings its own)
+    const begun = beginFlight(sim, typeof preset === 'string' ? PRESETS[preset] || PRESETS.runway : preset, c);
+    this.deck = begun.deck; this.trim = begun.trim; this.parking = begun.parking; this.flapCommand = this.deck.flight.flapDeg;
+    this.pilot = createPilot(); this._leveller = null;
     this.stick.x = this.stick.y = this.stick.rudder = 0;
-    if (p.kind === 'air') {
-      flight.north = p.north ?? 0;
-      const tr = deckInFlight(this.deck, { kias: p.kias, altFt: flight.fieldElevFt + p.aglFt, flapDeg: p.flapDeg ?? 0, climbFpm: p.climbFpm ?? 0, headingDeg: 0 });
-      this.trim = tr.trim; this.flapCommand = p.flapDeg ?? 0; this.parking = false;
-    } else {
-      deckOnGround(this.deck, 0);
-      // takeoff trim: where the trim holds the climb at 73 KIAS with full throttle (the TAKEOFF mark of the trim wheel)
-      const charge = chargeAt(flight.fieldElevFt, c.isaDevC);
-      this.trim = trimFor({ kcas: kcasFromKias(73), altFt: flight.fieldElevFt, isaDevC: c.isaDevC, weightLb: c.weightLb, cgFrac: c.cgFrac, torque: fullThrottleTorque(charge) }).trim;
-      this.flapCommand = 0; this.parking = true;
-    }
     this.place();
     this._lastHeading = this.deck.flight.out.headingDeg || 0; this._lastPos.copy(this.pivot.position);
     this.setCamera(this.camera, true);
@@ -180,7 +154,7 @@ export class FlightMode {
 
   // ---- the pilot's hands and feet
   _bindKeys() {
-    const flightKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyZ', 'KeyX', 'KeyB', 'Space', 'KeyF', 'KeyV', 'PageUp', 'PageDown', 'Equal', 'Minus', 'BracketLeft', 'BracketRight', 'KeyP', 'KeyC']);
+    const flightKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyZ', 'KeyX', 'KeyB', 'Space', 'KeyF', 'KeyV', 'PageUp', 'PageDown', 'Equal', 'Minus', 'BracketLeft', 'BracketRight', 'KeyP', 'KeyC', 'KeyH']);
     addEventListener('keydown', (e) => {
       if (!this.active || !flightKeys.has(e.code) || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
@@ -193,6 +167,7 @@ export class FlightMode {
       if (e.code === 'KeyV') this.setFlaps(Math.max(0, this.flapCommand - 10));
       if (e.code === 'KeyP') { this.parking = !this.parking; this.onChange(); }
       if (e.code === 'KeyC') this.setCamera(this.camera === 'chase' ? 'cockpit' : 'chase');
+      if (e.code === 'KeyH') { const c = this.deck.sim.controls; c.carbHeat = c.carbHeat > 0.5 ? 0 : 1; this.onChange(); }
     });
     addEventListener('keyup', (e) => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());
@@ -218,6 +193,12 @@ export class FlightMode {
   _controls(dt) {
     const k = this.keys, s = this.stick, f = this.deck.flight, o = f.out;
     const sim = this.deck.sim;
+    if (this.autopilot) {      // a demonstration: the scripted pilot of a lesson has the controls
+      const c = this.autopilot(this.deck, dt);
+      if (c.flapCommandDeg != null) this.flapCommand = c.flapCommandDeg;
+      s.x = c.aileron; s.y = c.elevator; s.rudder = 0; this.parking = false;
+      return { aileron: c.aileron, elevator: c.elevator, rudder: c.rudder, trim: this.trim, flapCommandDeg: this.flapCommand, brake: c.brake ?? 0 };
+    }
     // the wheel: the keys push it toward a position, it springs back; the pad holds it where the finger is
     if (!s.dragging) {
       // a held key moves the wheel steadily, up to less than half its travel; released, the wheel comes back faster

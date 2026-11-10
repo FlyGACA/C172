@@ -229,6 +229,24 @@ try {
     await pf.click('#lang'); await pf.click('#flCoef');
     assert.match(await pf.$eval('#coefTable tbody tr td:nth-child(4)', (el) => el.textContent), /[\u0600-\u06FF]{4}/);
     await pf.click('#coefClose'); await pf.click('#lang');
+    // a flight lesson from the scenario list, flown by its demonstration pilot: the steps latch, the record is shown
+    await pf.evaluate(() => { document.getElementById('scenarioBox').open = true; });
+    await pf.selectOption('#scenarioSel', 'go_around');
+    const began = await pf.evaluate(() => { const t = window.__twin, o = t.flight.deck.flight.out; return { lesson: !!t.scenario.lesson, flap: o.flapDeg, agl: o.aglFt, heat: t.sim.controls.carbHeat, demoButton: !!document.getElementById('lessonDemo') }; });
+    assert.ok(began.lesson && began.demoButton && began.flap === 40 && began.agl > 100 && began.heat === 1, JSON.stringify(began));
+    await pf.click('#lessonDemo');
+    const goAround = await pf.evaluate(() => { const t = window.__twin; t.advance(40); return { done: (t.ctx.done || []).filter(Boolean).length, steps: t.scenario.steps.length, flap: t.flight.deck.flight.flapDeg, agl: t.flight.deck.flight.out.aglFt,
+      throttle: Number(document.getElementById('throttle').value), report: document.querySelectorAll('#scenarioBody ul li').length, completed: /lesson|Scenario complete/i.test(document.getElementById('scenarioBody').textContent) }; });
+    assert.equal(goAround.done, goAround.steps, JSON.stringify(goAround));
+    assert.ok(goAround.flap === 0 && goAround.agl > 300 && goAround.report === 3 && goAround.completed, JSON.stringify(goAround));
+    // the engine failure of the fault panel ends the pull, from a lesson or by hand
+    await pf.selectOption('#scenarioSel', 'engine_failure_after_takeoff');
+    await pf.click('#lessonDemo');
+    const failure = await pf.evaluate(() => { const t = window.__twin; t.advance(60); const o = t.flight.deck.flight.out; return { done: (t.ctx.done || []).filter(Boolean).length, steps: t.scenario.steps.length, fault: t.sim.faults.engineFailure, lamp: document.getElementById('f_engine').classList.contains('on'),
+      running: t.sim.engine.running, onGround: o.onGround, crashed: t.flight.crashed, master: t.sim.controls.masterBat, selector: t.sim.controls.fuelSelector }; });
+    assert.deepEqual(failure, { done: failure.steps, steps: failure.steps, fault: true, lamp: true, running: false, onGround: true, crashed: null, master: false, selector: 'OFF' });
+    await shot(pf, 'p8_flight_lesson');
+    await pf.selectOption('#scenarioSel', '');
     // leaving the mode puts the aircraft back on the apron
     await pf.click('#modes button[data-mode=exterior]');
     const end = await pf.evaluate(() => { const t = window.__twin; return { active: t.flight.active, parent: t.viewer.model.parent.type, pos: t.viewer.model.position.toArray(), dynamic: !!t.sim.flight.dynamic, far: t.viewer.camera.far, manual: !!t.viewer.manualCamera, hud: document.getElementById('fhud').hidden, fov: t.viewer.camera.fov }; });

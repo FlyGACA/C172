@@ -124,6 +124,7 @@ export function createState(overrides = {}) {
       vacuum: false,
       carbIce: false,            // icing conditions present
       magneto: { L: 'ok', R: 'ok' }, // ok | weak | dead | ungrounded
+      engineFailure: false,      // the engine stops and will not restart (a training fault: no cause is modelled)
     },
     truth: { ias: 0, alt: 0, vs: 0, heading: 360, turnRate: 0 },
     engine: { running: false, rpm: 0, oilTempF: 59, oilPress: 0, ice: 0, cranking: false, startTimer: 0,
@@ -274,7 +275,7 @@ function stepOnce(s, dt) {
   else e.carbBowl = clamp(e.carbBowl - (ffDemand / 3600) * dt / 0.02 - (e.cranking ? dt / 20 : 0), 0, 1);
   const fuelOk = e.carbBowl > 0.02;
   const mixP = mixturePower(e.phi);
-  const canFire = fuelOk && mixP > 0 && ignitionFactor > 0;
+  const canFire = fuelOk && mixP > 0 && ignitionFactor > 0 && !s.faults.engineFailure;
 
   // starter, priming and flooding (POH p.4-7, p.4-11)
   e.cranking = starterEngaged && el.busVolts > 16.8; // a flat battery cannot crank
@@ -295,7 +296,7 @@ function stepOnce(s, dt) {
 
   if (e.running && !canFire) {
     e.running = false;
-    emit(s, !fuelOk ? 'engine_stopped_fuel' : ignitionFactor === 0 ? 'engine_stopped_ignition' : 'engine_stopped_mixture');
+    emit(s, s.faults.engineFailure ? 'engine_failed' : !fuelOk ? 'engine_stopped_fuel' : ignitionFactor === 0 ? 'engine_stopped_ignition' : 'engine_stopped_mixture');
   }
   // windmilling restart in flight when fuel returns
   if (!e.running && canFire && !e.flooded && e.rpm > 350 && tr.ias > 50) { e.running = true; emit(s, 'engine_restarted'); }

@@ -166,10 +166,10 @@ Handbook: about 9.1 to 1 at 65 KIAS, propeller windmilling. Model: 9.10 to 1, si
 
 | Field ft | °C | Handbook ground roll / over 50 ft | Model | Difference |
 |---|---|---|---|---|
-| 0 | 0 | 495 / 1205 ft | 491 / 1263 ft | −1 % / +5 % |
-| 0 | 20 | 530 / 1265 ft | 526 / 1318 ft | −1 % / +4 % |
-| 0 | 40 | 565 / 1330 ft | 560 / 1372 ft | −1 % / +3 % |
-| 4000 | 20 | 615 / 1410 ft | 604 / 1441 ft | −2 % / +2 % |
+| 0 | 0 | 495 / 1205 ft | 491 / 1262 ft | −1 % / +5 % |
+| 0 | 20 | 530 / 1265 ft | 525 / 1318 ft | −1 % / +4 % |
+| 0 | 40 | 565 / 1330 ft | 560 / 1373 ft | −1 % / +3 % |
+| 4000 | 20 | 615 / 1410 ft | 604 / 1440 ft | −2 % / +2 % |
 | 8000 | 20 | 710 / 1580 ft | 698 / 1589 ft | −2 % / +1 % |
 <!-- validation:end -->
 
@@ -205,6 +205,28 @@ Handbook: about 9.1 to 1 at 65 KIAS, propeller windmilling. Model: 9.10 to 1, si
   altimeter. The airspeed indicator shows the indicated airspeed of the handbook's calibration table
   (Figure 5-1).
 
+## Flight lessons
+
+Three exercises in the scenario list (**Training scenario → Flight lessons**), built like the Phase 7
+scenarios: a briefing, steps that are checked live against the flight, a debrief and a review question. Each
+lesson also records how it was flown and can be **demonstrated**: the scripted pilot flies it with the
+handbook's procedure while the controls, the switches and the instruments move.
+
+| Lesson | Handbook | What is checked | What is recorded |
+|---|---|---|---|
+| Stall and recovery (power off) | p.4-17, p.5-11 | carburetor heat on, throttle idle, the horn, the stall, wheel forward, full throttle and carburetor heat cold, climbing away | speeds of the horn and of the stall, height lost (the handbook: as much as 180 ft), altitude held on the way in, a second stall |
+| Go-around (balked landing) | p.4-9, p.4-20 | throttle full open, carburetor heat cold, flaps 20° immediately, 55 KIAS, flaps 10°, flaps up at a safe altitude and 60 KIAS | lowest height, lowest speed, highest nose attitude, the stall warning, how soon the flaps came to 20° |
+| Engine failure after takeoff | p.3-4, p.3-11 | the glide at 65 KIAS, mixture idle cut-off, fuel selector off, ignition off, flaps, master switch off, the landing straight ahead | speeds in the glide, the largest change of heading, the touchdown |
+
+The engine failure comes from the fault panel: **Training faults → Engine** stops the engine for good, in a
+lesson or at any moment of a free flight. The flaps are electric, so they no longer move once the master
+switch is off: the lesson's checklist sets them first, as the handbook's does.
+
+`tests/lessons.test.mjs` flies each demonstration and holds it to the handbook, and flies the mistakes too:
+held in the stall the aircraft goes on sinking; pulling up at once stalls it a second time; with the flaps
+left at 40° it hardly climbs; and the turn back after the engine failure comes out low and well to the side
+of the runway, with the stall warning sounding, as the handbook says it will.
+
 ## With the systems simulation
 
 `shared/js/flightdeck.js` flies the flight model and the systems simulation of Phase 7 together. The engine
@@ -220,9 +242,11 @@ lines, the vacuum gyros and the electrical system with their faults. Scenarios t
 | `shared/js/flight_notes_ar.js` | the notes of the numbers in Arabic |
 | `shared/js/poh_tables.js` | the handbook's performance figures, as numbers with their pages |
 | `shared/js/pilot.js` | the scripted pilot; the handbook's takeoff, landing and stall as procedures |
-| `shared/js/flightdeck.js` | the flight model with the systems simulation |
+| `shared/js/flightdeck.js` | the flight model with the systems simulation; where a flight can begin |
+| `shared/js/lessons.js` | the flight lessons and their demonstrations |
 | `js/flightmode.js` | the flight mode of the viewer: world, camera, keys, on-screen wheel |
 | `tests/flight.test.mjs` | the model against the handbook (`npm test`) |
+| `tests/lessons.test.mjs` | the lessons, demonstrated and flown wrongly (`npm test`) |
 | `tests/e2e.mjs` | the flight mode in a browser (`npm run test:e2e8`) |
 | `scripts/flight_doc.mjs` | writes the generated tables of this document (`npm run flight:doc`) |
 

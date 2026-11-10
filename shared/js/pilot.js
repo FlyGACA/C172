@@ -56,8 +56,8 @@ export function pilotStep(p, f, target, dt) {
       if (p.lastKias != null && dt > 0) p.accel += ((o.kias - p.lastKias) / dt - p.accel) * Math.min(1, dt / 0.5);
       p.lastKias = o.kias;
       const err = o.kias - target.kias;
-      p.speedInt = clamp(p.speedInt + 0.06 * err * dt, -12, 12);
-      cmd = p.thetaCmd + 0.45 * err + 1.2 * p.accel + p.speedInt;
+      p.speedInt = clamp(p.speedInt + 0.4 * err * dt, -30, 30);
+      cmd = p.thetaCmd + 1.0 * err + 1.2 * p.accel + p.speedInt;
       cmd = clamp(cmd, lo, hi);
       out.thetaCmd = cmd;
     } else {
