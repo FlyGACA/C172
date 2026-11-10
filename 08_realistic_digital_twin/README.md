@@ -7,7 +7,8 @@ to English. `?q=high|medium|low` forces a quality level; `?lang=en` forces the l
 
 [النسخة العربية](README_AR.md) · [Audit & asset-gap report](docs/01_audit_and_asset_gap_report.md) ·
 [Architecture & milestones](docs/02_modeling_architecture.md) · [Validation report](docs/03_validation_report.md) ·
-[Aircraft measurement workflow](docs/04_aircraft_measurements.md)
+[Aircraft measurement workflow](docs/04_aircraft_measurements.md) ·
+[Shape reference](docs/05_shape_reference.md)
 
 ## What this phase is
 
@@ -73,7 +74,8 @@ blender/c172/powerplant.py  cowl halves, nose bowl, inlets, landing light, spinn
 blender/c172/cockpit.py     panel, instruments, radio stack, controls, yokes, pedals, seats, belts
 blender/c172/engine.py      O-320 assembly, internals, accessories, mount, baffles
 blender/c172/export.py      LOD settings, Draco export, model index
-blender/render_preview.py   Cycles reference renders
+blender/render_preview.py   Cycles reference renders (`npm run render8`, `npm run gallery8`)
+blender/validate_geometry.py published dimensions, attachments and skin containment of the built scene
 models/                     C172N_realistic.blend, *_high/medium/low.glb, model_index_*.json
 assets/textures, assets/hdri generated textures (2048 + 1024/512 copies) and sky.hdr
 js/                         viewer.js (renderer), rig.js (parts + animation), app.js (UI), compatibility imports
@@ -81,14 +83,17 @@ js/                         viewer.js (renderer), rig.js (parts + animation), ap
 data/                       instruments.json, parts_catalog.json (69 bilingual entries), poh_references.json
 data/measurement_schema.json, aircraft_measurements.json, measurement_template.csv
 tests/, scripts/            Python tests, node tests, Playwright test, GLB validator, build comparison
-docs/                       audit, architecture, validation report, renders
+docs/                       audit, architecture, validation report, shape reference, renders
 ```
 
 ## Limits (read before using this for instruction)
 
-- Geometry is **representative**, built from POH overall dimensions and photographs — not from
-  Cessna drawings, the IPC or Lycoming engineering data. Fuselage sections, window outlines, cowl
-  shape, panel layout, engine accessory placement, strut and gear details are estimates.
+- Geometry is **representative**, built from published overall dimensions and photographs — not
+  from Cessna drawings, the IPC or Lycoming engineering data. The outline of the airframe follows
+  a side-on photograph of a Cessna 172 and reproduces the published span, length, wheel base,
+  track, tail span and propeller clearance ([how and how well](docs/05_shape_reference.md));
+  cross-sections, the nose cap, panel layout, engine accessory placement and gear details are
+  estimates, and nothing has been measured on the FlyGACA aircraft yet.
 - Installed equipment (avionics, wheel fairings, placards) varies by serial number.
 - The simulation is Phase 7's teaching model, calibrated only to the POH figures listed in
   `data/poh_references.json`.
@@ -97,7 +102,8 @@ docs/                       audit, architecture, validation report, renders
 
 ## Next steps
 
-1. Replace estimated sections with measurements of the FlyGACA aircraft (photogrammetry or tape).
+1. Check the outline against square-on photographs of the FlyGACA aircraft and replace estimated
+   sections with measurements (the list of the most useful readings is in the shape reference).
 2. Equipment list of the actual aircraft → panel and avionics.
 3. Flight-dynamics layer (POH Section 5 performance) so the control surfaces fly the aircraft.
 4. Instructor/student progress tracking and integration on FlyGACA.com.

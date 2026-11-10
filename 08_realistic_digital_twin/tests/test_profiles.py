@@ -51,12 +51,53 @@ class ProfileTests(unittest.TestCase):
         self.assertAlmostEqual(mid[0], 1.5); self.assertAlmostEqual(mid[1], 15.0)
 
 
+    def test_interp_linear(self):
+        t = [(0, 0.0), (10, 5.0), (20, 5.0)]
+        self.assertEqual(profiles.interp_linear(t, -3), [0.0])
+        self.assertEqual(profiles.interp_linear(t, 25), [5.0])
+        self.assertAlmostEqual(profiles.interp_linear(t, 4)[0], 2.0)
+        self.assertAlmostEqual(profiles.interp_linear(t, 15)[0], 5.0)
+
+    def test_interp_pchip_passes_through_rows_and_never_overshoots(self):
+        # an outline with a ramp and a flat: a smoothstep or a natural spline would either flatten at
+        # every row or overshoot the flat; the outline of the hull must do neither
+        t = [(0, 0.0, 9.0), (10, 10.0, 9.0), (20, 20.0, 7.0), (30, 20.0, 2.0), (40, 20.0, 1.0)]
+        for row in t:
+            got = profiles.interp_pchip(t, row[0])
+            self.assertAlmostEqual(got[0], row[1]); self.assertAlmostEqual(got[1], row[2])
+        samples = [profiles.interp_pchip(t, x / 4) for x in range(0, 161)]
+        first = [v[0] for v in samples]; second = [v[1] for v in samples]
+        self.assertTrue(all(b >= a - 1e-9 for a, b in zip(first, first[1:])), "rising column must stay monotonic")
+        self.assertTrue(all(b <= a + 1e-9 for a, b in zip(second, second[1:])), "falling column must stay monotonic")
+        self.assertLessEqual(max(first), 20.0 + 1e-9)
+        self.assertAlmostEqual(profiles.interp_pchip(t, 5)[0], 5.0, delta=0.05)      # straight where the rows are in line
+        self.assertEqual(profiles.interp_pchip(t, -5), [0.0, 9.0])
+        self.assertEqual(profiles.interp_pchip(t, 99), [20.0, 1.0])
+
+    def test_interp_pchip_is_smooth_through_a_row(self):
+        t = [(0, 0.0), (10, 4.0), (20, 12.0), (30, 14.0)]
+        before = (profiles.interp_pchip(t, 10)[0] - profiles.interp_pchip(t, 9.99)[0]) / 0.01
+        after = (profiles.interp_pchip(t, 10.01)[0] - profiles.interp_pchip(t, 10)[0]) / 0.01
+        self.assertAlmostEqual(before, after, delta=0.02)                          # no kink, unlike straight segments
+        self.assertGreater(before, 0.3)                                            # and no flat spot, unlike smoothstep
+
+
 class UnitsTests(unittest.TestCase):
     def test_poh_dimensions(self):
         self.assertAlmostEqual(units.SPAN, 10.922, places=3)            # 35 ft 10 in
         self.assertAlmostEqual(units.ref("length_m"), 8.204, places=3)  # 26 ft 11 in
         self.assertAlmostEqual(units.PROP_R * 2, 1.905, places=3)       # 75 in
         self.assertAlmostEqual(units.TAIL_END_Y - units.SPINNER_TIP_Y, units.ref("length_m"), places=3)
+
+    def test_stance_and_ground_frame(self):
+        self.assertAlmostEqual(units.wl(0), units.GROUND_Z)
+        self.assertAlmostEqual(units.wl(10) - units.wl(0), 0.254)
+        # the crank axis is one propeller radius plus the published clearance above the ground
+        self.assertAlmostEqual((units.PROP_Z - units.GROUND_Z - units.PROP_R) / units.IN, 11.75, places=6)
+        # the axle stations reproduce the published wheel base
+        self.assertAlmostEqual(units.MAIN_AXLE_Y - units.NOSE_AXLE_Y, units.ref("wheel_base_m"), places=6)
+        # at rest the aircraft is lower than the POH maximum height (nose strut depressed)
+        self.assertLess(units.ref("static_height_m"), units.ref("height_m"))
 
     def test_every_reference_has_status(self):
         for k, v in units.REF.items():

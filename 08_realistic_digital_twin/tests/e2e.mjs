@@ -121,7 +121,7 @@ try {
     await settle(page, 1500);
     const n = await page.evaluate(() => { const r = window.__twin.rig; const t = r.part('PANEL.TACH.needle_TACH'); const cam = window.__twin.viewer.camera.position; return { q: t.quaternion.toArray(), base: r.base.get(t).q.toArray(), cam: [cam.x, cam.y, cam.z], rpm: window.__twin.sim.ind.rpm }; });
     assert.ok(n.q.some((v, i) => Math.abs(v - n.base[i]) > 0.02), 'tach needle rotated');
-    assert.ok(n.cam[1] > 1.5 && n.cam[1] < 2.0, `camera y ${n.cam[1]}`);
+    assert.ok(n.cam[1] > 1.3 && n.cam[1] < 1.7, `camera y ${n.cam[1]}`);   // pilot eye: just below the top of the side window
     await shot(page, 'p8_cockpit');
   });
 

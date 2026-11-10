@@ -1,62 +1,90 @@
 # Phase 8 — Validation report
 
-Date: 2026-11-06. Environment: Linux x64 container, 4 CPU, no GPU (Blender Cycles on CPU; browser
-tests on Chromium with SwiftShader software WebGL). Real-GPU numbers must be measured on target devices.
+Date: 2026-11-06; sections 1–4 updated 2026-11-10 after the outline of the airframe was corrected
+(see [05_shape_reference.md](05_shape_reference.md)). Environment: Linux x64 container, 4 CPU, no
+GPU (Blender Cycles on CPU; browser tests on Chromium with SwiftShader software WebGL). Real-GPU
+numbers must be measured on target devices.
 
 ## 1. Build and model
 
 | Level | Objects | Triangles | GLB size | Build time | Subdivision | Textures |
 |---|---|---|---|---|---|---|
-| high | 331 | 310 530 | 4.5 MB | 28–38 s | 2 | 2048 px |
-| medium | 331 | 171 026 | 3.2 MB | 13–16 s | 1 | 1024 px |
-| low | 331 | 85 818 | 2.0 MB | 17 s (incl. decimation) | 1 + decimate 0.5 | 512 px |
+| high | 337 | 355 948 | 4.6 MB | 26–28 s | 2 | 2048 px |
+| medium | 337 | 186 566 | 3.3 MB | 12–13 s | 1 | 1024 px |
+| low | 337 | 93 589 | 2.1 MB | 13–14 s (incl. decimation) | 1 + decimate 0.5 | 512 px |
 
 All three are far inside the budgets set in `02_modeling_architecture.md` (25 / 12 / 5 MB,
 600 k / 250 k / 100 k triangles). Editable source `models/C172N_realistic.blend`: 1.1 MB
 (compressed, modifiers live, cutters in a hidden collection, textures relative).
 
 `scripts/validate_glb.py` — all levels **OK**: glTF 2.0 binary, Draco required, every primitive has
-NORMAL + TEXCOORD_0 and a PBR material (37 materials, 23 images), every mesh node carries
+NORMAL + TEXCOORD_0 and a PBR material (39 materials, 23 images), every mesh node carries
 `system`, `label_en`, `label_ar`, `status ∈ {measured, poh, type_data, estimated}` extras.
 
-Determinism: two consecutive builds produced identical object lists and triangle counts
-(`scripts/compare_builds.py`), which is what the CI `blender-rebuild` job checks.
+Determinism: two consecutive builds produced identical object lists, triangle counts and file
+sizes (`scripts/compare_builds.py`), which is what the CI `blender-rebuild` job checks.
 
-Spatial regression: `blender/validate_geometry.py` rejects non-finite or newly degenerate mesh
-data, aircraft-envelope violations, downward wing-root-fairing normals, missing critical objects,
-and gaps over 80 mm between nine critical attachments and the evaluated fuselage skin. The
-current attachment distances are 0–1.6 mm. Existing generator debt is explicitly capped at 56
-degenerate faces per crankcase half and one in the lower cowl, so it cannot silently increase.
+Spatial regression: `blender/validate_geometry.py` measures the built scene and rejects
+
+- non-finite or newly degenerate mesh data (existing generator debt is capped at 56 degenerate
+  faces per crankcase half, so it cannot silently increase) and aircraft-envelope violations;
+- a built dimension that differs from the published one: wing span, length, wheel base, track,
+  propeller ground clearance, tail span, tyres on the ground (table in section 2);
+- a strut, fairing, gear leg, step, fin, stabiliser or cowl half that neither intersects its
+  neighbour nor comes within 2–3 cm of it (14 attachments), and downward wing-root-fairing normals;
+- any of the 255 parts of the engine, panel and cabin that reaches more than 3 mm outside the skin,
+  tested against the section tables the skin is lofted from.
+
+The last check exists because the first corrected build had rudder pedals, harness anchors and
+engine baffles showing through the new, lower fuselage; it found all of them.
 
 Visual regression: the rebuild job renders the front-quarter, landing-gear detail, and top views
 at 800 × 450 and 16 samples, then compares luminance, RGB RMS, and edge differences against the
 committed reference renders. Failure diffs are uploaded as a CI artifact.
 
-## 2. Proportion checks against the POH (Figure 1-1)
+## 2. Proportion checks
 
-| Quantity | POH | Model (from `units.py`) | Check |
+Published dimensions, measured on the built scene by `validate_geometry.py` (not read back from
+the constants the model was built with):
+
+| Quantity | Published | Built model | Tolerance |
 |---|---|---|---|
-| Wingspan | 35 ft 10 in = 10.922 m | 10.922 m | unit test `test_poh_dimensions` |
-| Length | 26 ft 11 in = 8.204 m | spinner tip to tail end 8.204 m | unit test |
-| Height | 8 ft 9½ in = 2.680 m | fin tip 2.68 m + rudder horn 2.80 m (rudder horn is above the POH datum height; estimated) | visual |
-| Propeller | 75 in = 1.905 m | 1.905 m | unit test |
-| Wing area | 174 ft² (type data) | 174.5 ft² from the root/taper/tip planform | unit test `test_wing_area_from_planform` (±4 ft²) |
-| Gear track | 8 ft 3½ in | 2.527 m | from `units.py` |
+| Wing span over the tips (lights excluded) | 35 ft 10 in = 10.922 m | 10.922 m | 2 cm |
+| Length, spinner tip to rudder | 26 ft 11 in = 8.204 m (POH Fig 1-1) | 8.203 m | 3 cm |
+| Wheel base | 65 in = 1.651 m | 1.651 m | 1 cm |
+| Gear track | 8 ft 3½ in = 2.527 m | 2.527 m | 1 cm |
+| Propeller ground clearance | 11¾ in = 0.298 m | 0.298 m | 1.5 cm |
+| Span of the horizontal tail | 11 ft 4 in = 3.454 m | 3.454 m | 2 cm |
+| Propeller diameter | 75 in = 1.905 m (POH 1-3) | 1.905 m | unit test |
+| Wing area | 174 ft² (type data) | 174.5 ft² from the planform | unit test (±4 ft²) |
 
-Visual comparison with the in-flight reference photographs (planform, strut position, tail shape,
-window outlines) was done by eye on the Cycles renders in `docs/renders/`; no photogrammetric
-fit was attempted — fuselage sections remain **estimated**.
+Height: the POH gives 8 ft 9½ in as the maximum, with the nose gear depressed. At rest the top of
+the beacon is 96.5 in (2.45 m) above the ground in the reference photograph, and that is what the
+model reproduces.
+
+One inconsistency in the repository's own data is left for the POH check: `units.py` carries the
+span as 35 ft 10 in "Fig 1-1", while `data/poh_references.json` records "span 36 ft" from the same
+figure. The model measures 10.92 m over the wing tips and 11.00 m (36 ft 1 in) over the navigation
+lights, so the two figures may simply be the span without and with the tip lights.
+
+Outline: the side elevation follows a photograph of a Cessna 172 taken almost exactly side-on and
+scaled by the POH length. The model's silhouette, rendered from the direction of the photograph,
+overlaps it by 0.90 (0.78 for the first Phase 8 model); the remaining difference is the wings and
+wheels of an aircraft in flight. Method, readings and limits are in
+[05_shape_reference.md](05_shape_reference.md). Cross-sections, the nose cap and the wheel fairings
+come from two further photographs read by eye. The geometry status therefore remains
+**estimated**: it follows the type, not a survey of the FlyGACA aircraft.
 
 ## 3. Automated tests
 
 | Suite | Result |
 |---|---|
-| `tests/test_profiles.py` (airfoil, superellipse, resampling, units) | 9 / 9 pass |
+| `tests/test_profiles.py` (airfoil, superellipse, resampling, shape-preserving interpolation, units, stance) | 13 / 13 pass |
 | `tests/kinematics.test.mjs` (GLB ↔ kinematics ↔ POH plug map ↔ labels) | 8 / 8 pass |
 | `tests/sim.test.mjs`, `tests/scenarios.test.mjs` (Phase 7 behaviour, re-run on the Phase 8 copies) | 35 / 35 pass |
 | Phase 7 suites (`07_kinematic_twin/tests`) | unchanged, 41 / 41 pass |
 | `scripts/validate_glb.py` | 3 / 3 levels OK |
-| `blender/validate_geometry.py` | 10 critical objects, 9 skin contacts, fairing normals OK |
+| `blender/validate_geometry.py` | 11 critical objects, 14 attachments, 6 published dimensions, 255 interior parts inside the skin, fairing normals OK |
 | `scripts/compare_renders.py` | 3 canonical render views within perceptual thresholds |
 
 ## 4. Browser test (`tests/e2e.mjs`, Playwright Chromium + SwiftShader)
@@ -65,7 +93,7 @@ Final run: **10 / 10 checks passed** (`?test=1` disables the GTAO pass; everythi
 
 | Check | Result |
 |---|---|
-| high level loads: 10 system groups, 331 parts, no console errors | ok |
+| high level loads: 10 system groups, 337 parts, no console errors | ok |
 | doors open, flaps 30°, aileron input moves the surfaces | ok |
 | part selection shows bilingual info and the status badge (propeller → POH) | ok |
 | exploded assembly animation displaces parts from their system centres | ok |
@@ -98,6 +126,11 @@ Screenshots from the run are uploaded as the `e2e-screenshots` artifact in CI
 views (`docs/gallery/*.png`, 1800 × 1000, Cycles 96 samples, shadow catcher, soft fill), with
 live EN/AR captions. Before/after images of the same camera on the Phase 7 and Phase 8 models
 are in `docs/renders/phase7_*.png` and `phase8_*.png`.
+
+`npm run render8` and `npm run gallery8` regenerate both sets. Two faults in the earlier sets are
+fixed: the upper cowl was hidden in every gallery view and in the front-quarter reference image
+(only the engine views leave it off now), and the apron material was not saved with the scene, so
+the aircraft stood on a blank white floor.
 
 ## 5. Known limitations (technical)
 

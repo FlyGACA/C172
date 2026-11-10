@@ -1,7 +1,7 @@
 {
  "lod": "medium",
- "objects": 333,
- "triangles": 173182,
+ "objects": 337,
+ "triangles": 186566,
  "systems": {
   "AIRFRAME": 20,
   "WING_L": 5,
@@ -10,14 +10,14 @@
   "PITOT_STATIC": 2,
   "WING_R": 5,
   "EMPENNAGE": 5,
-  "INTERIOR": 36,
+  "INTERIOR": 38,
   "GEAR": 24,
-  "POWERPLANT": 7,
+  "POWERPLANT": 8,
+  "INDUCTION": 9,
   "ENGINE": 47,
   "PANEL": 112,
   "IGNITION": 18,
   "OIL": 4,
-  "INDUCTION": 8,
   "VACUUM": 1
  },
  "parts": [
@@ -29,7 +29,7 @@
    "note": "Envelope from POH Fig 1-1; cross-sections estimated from photographs",
    "id": "AIRFRAME.fuselage",
    "name": "AIRFRAME.fuselage",
-   "triangles": 20568,
+   "triangles": 22694,
    "parent": "AIRFRAME"
   },
   {
@@ -40,7 +40,7 @@
    "kind": "glass",
    "id": "AIRFRAME.windshield",
    "name": "AIRFRAME.windshield",
-   "triangles": 1594,
+   "triangles": 2120,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -51,7 +51,7 @@
    "kind": "glass",
    "id": "AIRFRAME.rear_window",
    "name": "AIRFRAME.rear_window",
-   "triangles": 964,
+   "triangles": 1642,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -62,7 +62,7 @@
    "kind": "glass",
    "id": "AIRFRAME.window_rear_R",
    "name": "AIRFRAME.window_rear_R",
-   "triangles": 658,
+   "triangles": 568,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -73,7 +73,7 @@
    "kind": "glass",
    "id": "AIRFRAME.window_rear_L",
    "name": "AIRFRAME.window_rear_L",
-   "triangles": 658,
+   "triangles": 568,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -90,7 +90,7 @@
    "animate": "door",
    "id": "AIRFRAME.door_L",
    "name": "AIRFRAME.door_L",
-   "triangles": 1194,
+   "triangles": 1748,
    "parent": "AIRFRAME"
   },
   {
@@ -101,7 +101,7 @@
    "kind": "glass",
    "id": "AIRFRAME.door_window_L",
    "name": "AIRFRAME.door_window_L",
-   "triangles": 576,
+   "triangles": 640,
    "parent": "AIRFRAME.door_L"
   },
   {
@@ -128,7 +128,7 @@
    "animate": "door",
    "id": "AIRFRAME.door_R",
    "name": "AIRFRAME.door_R",
-   "triangles": 1228,
+   "triangles": 1764,
    "parent": "AIRFRAME"
   },
   {
@@ -139,7 +139,7 @@
    "kind": "glass",
    "id": "AIRFRAME.door_window_R",
    "name": "AIRFRAME.door_window_R",
-   "triangles": 584,
+   "triangles": 640,
    "parent": "AIRFRAME.door_R"
   },
   {
@@ -406,7 +406,7 @@
    "label_en": "Horizontal stabilizer",
    "label_ar": "المثبت الأفقي",
    "status": "type_data",
-   "note": "span 11 ft 4 in (type data); chord/sweep estimated",
+   "note": "span 11 ft 4 in (type data); chord, sweep and position estimated (photo-profile)",
    "id": "EMPENNAGE.stabilizer",
    "name": "EMPENNAGE.stabilizer",
    "triangles": 3884,
@@ -427,7 +427,7 @@
    "ref": "p.2-x travel",
    "id": "EMPENNAGE.elevator",
    "name": "EMPENNAGE.elevator",
-   "triangles": 2876,
+   "triangles": 3836,
    "parent": "EMPENNAGE"
   },
   {
@@ -445,23 +445,24 @@
    "animate": "trim_tab",
    "id": "EMPENNAGE.trim_tab",
    "name": "EMPENNAGE.trim_tab",
-   "triangles": 444,
+   "triangles": 380,
    "parent": "EMPENNAGE.elevator"
   },
   {
    "system": "EMPENNAGE",
-   "label_en": "Vertical fin with dorsal fillet",
+   "label_en": "Vertical fin with dorsal fin",
    "label_ar": "المثبت الرأسي مع الزعنفة الظهرية",
    "status": "estimated",
+   "note": "Outline from the photo-profile side elevation; section thickness estimated",
    "id": "EMPENNAGE.fin",
    "name": "EMPENNAGE.fin",
-   "triangles": 3164,
+   "triangles": 3948,
    "parent": "EMPENNAGE"
   },
   {
    "system": "EMPENNAGE",
-   "label_en": "Rudder (with balance horn)",
-   "label_ar": "الدفة (مع ذراع الموازنة)",
+   "label_en": "Rudder",
+   "label_ar": "الدفة",
    "status": "estimated",
    "hinge_axis": "y",
    "hinge_sign": 1,
@@ -470,9 +471,10 @@
     16
    ],
    "animate": "rudder",
+   "note": "Outline from the photo-profile side elevation; hinge line estimated",
    "id": "EMPENNAGE.rudder",
    "name": "EMPENNAGE.rudder",
-   "triangles": 2108,
+   "triangles": 1244,
    "parent": "EMPENNAGE"
   },
   {
@@ -550,43 +552,23 @@
   },
   {
    "system": "AIRFRAME",
-   "label_en": "Refuelling step (left)",
-   "label_ar": "درجة التزود بالوقود",
-   "status": "estimated",
-   "id": "AIRFRAME.step_L",
-   "name": "AIRFRAME.step_L",
-   "triangles": 156,
-   "parent": "AIRFRAME"
-  },
-  {
-   "system": "AIRFRAME",
-   "label_en": "Handhold (left)",
-   "label_ar": "مقبض اليد",
-   "status": "estimated",
-   "id": "AIRFRAME.handhold_L",
-   "name": "AIRFRAME.handhold_L",
-   "triangles": 76,
-   "parent": "AIRFRAME"
-  },
-  {
-   "system": "AIRFRAME",
-   "label_en": "Cabin ventilation air inlet",
-   "label_ar": "فتحة تهوية المقصورة",
+   "label_en": "Cabin ventilation air inlet (wing root leading edge)",
+   "label_ar": "فتحة تهوية المقصورة (مقدمة جذر الجناح)",
    "status": "estimated",
    "id": "AIRFRAME.cabin_vent_R",
    "name": "AIRFRAME.cabin_vent_R",
-   "triangles": 12,
-   "parent": "AIRFRAME"
+   "triangles": 80,
+   "parent": "WING_R"
   },
   {
    "system": "AIRFRAME",
-   "label_en": "Cabin ventilation air inlet",
-   "label_ar": "فتحة تهوية المقصورة",
+   "label_en": "Cabin ventilation air inlet (wing root leading edge)",
+   "label_ar": "فتحة تهوية المقصورة (مقدمة جذر الجناح)",
    "status": "estimated",
    "id": "AIRFRAME.cabin_vent_L",
    "name": "AIRFRAME.cabin_vent_L",
-   "triangles": 12,
-   "parent": "AIRFRAME"
+   "triangles": 80,
+   "parent": "WING_L"
   },
   {
    "system": "INTERIOR",
@@ -595,8 +577,28 @@
    "status": "estimated",
    "id": "INTERIOR.cabin_liner",
    "name": "INTERIOR.cabin_liner",
-   "triangles": 6696,
+   "triangles": 6544,
    "parent": "INTERIOR"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Left door trim panel",
+   "label_ar": "بطانة الباب الأيسر",
+   "status": "estimated",
+   "id": "INTERIOR.door_panel_L",
+   "name": "INTERIOR.door_panel_L",
+   "triangles": 1130,
+   "parent": "AIRFRAME.door_L"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Right door trim panel",
+   "label_ar": "بطانة الباب الأيمن",
+   "status": "estimated",
+   "id": "INTERIOR.door_panel_R",
+   "name": "INTERIOR.door_panel_R",
+   "triangles": 1102,
+   "parent": "AIRFRAME.door_R"
   },
   {
    "system": "INTERIOR",
@@ -605,7 +607,7 @@
    "status": "estimated",
    "id": "INTERIOR.floor",
    "name": "INTERIOR.floor",
-   "triangles": 12,
+   "triangles": 84,
    "parent": "INTERIOR"
   },
   {
@@ -627,7 +629,7 @@
    "optional": true,
    "id": "GEAR.main_leg_fairing_L",
    "name": "GEAR.main_leg_fairing_L",
-   "triangles": 1680,
+   "triangles": 1520,
    "parent": "GEAR"
   },
   {
@@ -682,7 +684,7 @@
    "note": "Wheel fairings were optional equipment",
    "id": "GEAR.main_wheel_fairing_L",
    "name": "GEAR.main_wheel_fairing_L",
-   "triangles": 5280,
+   "triangles": 6332,
    "parent": "GEAR"
   },
   {
@@ -694,6 +696,16 @@
    "name": "GEAR.brake_line_L",
    "triangles": 204,
    "parent": "GEAR"
+  },
+  {
+   "system": "AIRFRAME",
+   "label_en": "Cabin entry step (left main gear leg)",
+   "label_ar": "درجة الصعود إلى المقصورة (ساق العجلة اليسرى)",
+   "status": "estimated",
+   "id": "AIRFRAME.step_L",
+   "name": "AIRFRAME.step_L",
+   "triangles": 40,
+   "parent": "AIRFRAME"
   },
   {
    "system": "GEAR",
@@ -714,7 +726,7 @@
    "optional": true,
    "id": "GEAR.main_leg_fairing_R",
    "name": "GEAR.main_leg_fairing_R",
-   "triangles": 1680,
+   "triangles": 1520,
    "parent": "GEAR"
   },
   {
@@ -769,7 +781,7 @@
    "note": "Wheel fairings were optional equipment",
    "id": "GEAR.main_wheel_fairing_R",
    "name": "GEAR.main_wheel_fairing_R",
-   "triangles": 5280,
+   "triangles": 6332,
    "parent": "GEAR"
   },
   {
@@ -781,6 +793,16 @@
    "name": "GEAR.brake_line_R",
    "triangles": 204,
    "parent": "GEAR"
+  },
+  {
+   "system": "AIRFRAME",
+   "label_en": "Cabin entry step (right main gear leg)",
+   "label_ar": "درجة الصعود إلى المقصورة (ساق العجلة اليمنى)",
+   "status": "estimated",
+   "id": "AIRFRAME.step_R",
+   "name": "AIRFRAME.step_R",
+   "triangles": 40,
+   "parent": "AIRFRAME"
   },
   {
    "system": "GEAR",
@@ -861,7 +883,7 @@
    "note": "Wheel fairings were optional equipment",
    "id": "GEAR.nose_wheel_fairing",
    "name": "GEAR.nose_wheel_fairing",
-   "triangles": 5260,
+   "triangles": 6352,
    "parent": "GEAR.nose_strut"
   },
   {
@@ -882,17 +904,17 @@
    "removable": true,
    "id": "POWERPLANT.cowl_upper",
    "name": "POWERPLANT.cowl_upper",
-   "triangles": 3468,
+   "triangles": 4286,
    "parent": "POWERPLANT"
   },
   {
    "system": "POWERPLANT",
-   "label_en": "Lower engine cowl (inlets, landing/taxi light)",
-   "label_ar": "غطاء المحرك السفلي (فتحات الهواء وضوء الهبوط)",
+   "label_en": "Lower engine cowl (cooling inlets, landing light, carburetor air inlet)",
+   "label_ar": "غطاء المحرك السفلي (فتحات التبريد وضوء الهبوط ومدخل هواء المكربن)",
    "status": "estimated",
    "id": "POWERPLANT.cowl_lower",
    "name": "POWERPLANT.cowl_lower",
-   "triangles": 3576,
+   "triangles": 4700,
    "parent": "POWERPLANT"
   },
   {
@@ -916,14 +938,25 @@
    "parent": "POWERPLANT"
   },
   {
+   "system": "POWERPLANT",
+   "label_en": "Landing light recess",
+   "label_ar": "تجويف ضوء الهبوط",
+   "status": "estimated",
+   "id": "POWERPLANT.landing_light_recess",
+   "name": "POWERPLANT.landing_light_recess",
+   "triangles": 82,
+   "parent": "POWERPLANT.cowl_lower"
+  },
+  {
    "system": "ELECTRICAL",
-   "label_en": "Landing / taxi light (nose cowl)",
-   "label_ar": "ضوء الهبوط والتدرج",
+   "label_en": "Landing light (cowl nose cap)",
+   "label_ar": "ضوء الهبوط (مقدمة غطاء المحرك)",
    "status": "poh",
    "ref": "p.7-27",
+   "note": "A single landing light is standard; dual landing/taxi lights were an option",
    "id": "ELECTRICAL.landing_light",
    "name": "ELECTRICAL.landing_light",
-   "triangles": 80,
+   "triangles": 144,
    "parent": "POWERPLANT"
   },
   {
@@ -933,8 +966,19 @@
    "status": "estimated",
    "id": "ELECTRICAL.landing_light_lens",
    "name": "ELECTRICAL.landing_light_lens",
-   "triangles": 108,
+   "triangles": 96,
    "parent": "POWERPLANT"
+  },
+  {
+   "system": "INDUCTION",
+   "label_en": "Carburetor air inlet (lower cowl)",
+   "label_ar": "مدخل هواء المكربن (غطاء المحرك السفلي)",
+   "status": "poh",
+   "ref": "p.7-24",
+   "id": "INDUCTION.air_inlet_duct",
+   "name": "INDUCTION.air_inlet_duct",
+   "triangles": 40,
+   "parent": "POWERPLANT.cowl_lower"
   },
   {
    "system": "AIRFRAME",
@@ -957,7 +1001,7 @@
    "animate": "prop",
    "id": "POWERPLANT.spinner",
    "name": "POWERPLANT.spinner",
-   "triangles": 4720,
+   "triangles": 5360,
    "parent": "POWERPLANT"
   },
   {
@@ -1002,7 +1046,7 @@
    "status": "estimated",
    "id": "PANEL.upper_panel",
    "name": "PANEL.upper_panel",
-   "triangles": 108,
+   "triangles": 228,
    "parent": "PANEL"
   },
   {
@@ -2608,7 +2652,7 @@
    "status": "estimated",
    "id": "INTERIOR.glareshield",
    "name": "INTERIOR.glareshield",
-   "triangles": 138,
+   "triangles": 150,
    "parent": "INTERIOR"
   },
   {
@@ -3053,7 +3097,7 @@
    "ref": "p.6-x baggage",
    "id": "INTERIOR.baggage_bulkhead",
    "name": "INTERIOR.baggage_bulkhead",
-   "triangles": 12,
+   "triangles": 68,
    "parent": "INTERIOR"
   },
   {
@@ -3957,7 +4001,7 @@
    "status": "estimated",
    "id": "INDUCTION.filter_duct",
    "name": "INDUCTION.filter_duct",
-   "triangles": 52,
+   "triangles": 304,
    "parent": "ENGINE"
   },
   {
@@ -4048,6 +4092,6 @@
   }
  ],
  "file": "C172N_realistic_medium.glb",
- "bytes": 3231276,
- "build_seconds": 15.4
+ "bytes": 3287408,
+ "build_seconds": 13.0
 }

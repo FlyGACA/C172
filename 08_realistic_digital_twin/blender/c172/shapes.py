@@ -13,9 +13,9 @@ def new_bm():
     bm.loops.layers.uv.new("UVMap")
     return bm
 
-def loft(bm, rings, close=True, cap_start=False, cap_end=False, uv_u_scale=1.0, uv_v=None, flip=False):
+def loft(bm, rings, close=True, cap_start=False, cap_end=False, uv_u_scale=1.0, uv_v=None, flip=False, uv_u_offset=0.0):
     """Connect successive rings (lists of Vector) with quads. Rings must have equal length.
-    Adds UVs: u around the ring, v along the loft. Returns the created faces."""
+    Adds UVs: u around the ring (offset + scale * position), v along the loft. Returns the created faces."""
     uv = bm.loops.layers.uv.active
     k = len(rings[0]); m = len(rings)
     verts = [[bm.verts.new(p) for p in ring] for ring in rings]
@@ -35,7 +35,7 @@ def loft(bm, rings, close=True, cap_start=False, cap_end=False, uv_u_scale=1.0, 
                 continue
             f.smooth = True
             faces.append(f)
-            u0, u1 = i / k * uv_u_scale, (i + 1) / k * uv_u_scale
+            u0, u1 = uv_u_offset + i / k * uv_u_scale, uv_u_offset + (i + 1) / k * uv_u_scale
             coords = [(u0, uv_v[j]), (u1, uv_v[j]), (u1, uv_v[j + 1]), (u0, uv_v[j + 1])]
             if flip:
                 coords.reverse()

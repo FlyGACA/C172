@@ -130,7 +130,6 @@ def fuselage_set(out_dir, size=2048, length_m=7.2, circ_m=3.6, wordmark="FlyGACA
         return np.clip(1 - np.abs(U - uc) / hw, 0, 1) ** 0.25
     right_c = 0.205 + sweep; left_c = 0.795 - sweep
     navy = np.maximum(band(right_c, 0.022), band(left_c, 0.022))
-    navy = np.where(V < 0.03, 0, navy)
     gold = np.maximum(band(right_c + 0.030, 0.004), band(left_c - 0.030, 0.004))
     skyb = np.maximum(band(right_c - 0.032, 0.006), band(left_c + 0.032, 0.006))
     base = blend(base, NAVY, navy); base = blend(base, GOLD, gold); base = blend(base, SKY_BLUE, skyb)
@@ -272,6 +271,8 @@ def cowl_set(out_dir, size=1024):
     base = blend(base, NAVY, band)
     gold = np.maximum(np.clip(1 - np.abs(U - 0.235) / 0.004, 0, 1), np.clip(1 - np.abs(U - 0.765) / 0.004, 0, 1)) * np.vectorize(smoothstep)(0.25, 0.45, V)
     base = blend(base, GOLD, gold)
+    skyb = np.maximum(np.clip(1 - np.abs(U - 0.173) / 0.006, 0, 1), np.clip(1 - np.abs(U - 0.827) / 0.006, 0, 1)) * np.vectorize(smoothstep)(0.25, 0.45, V)
+    base = blend(base, SKY_BLUE, skyb)
     height = np.zeros((H, W), np.float32)
     # split line (u = 0.25 and 0.75), fastener dots along it and around the aft edge
     for uc in (0.25, 0.75):
@@ -386,11 +387,6 @@ def generate_all(tex_dir, hdri_dir, size=2048, wordmark="FlyGACA", registration=
     apron_set(tex_dir, size=1024)
     sky_hdr(os.path.join(hdri_dir, "sky.hdr"))
 
-if __name__ == "__main__":
-    import sys
-    out = sys.argv[1] if len(sys.argv) > 1 else "assets"
-    generate_all(os.path.join(out, "textures"), os.path.join(out, "hdri"))
-
 def downscale_sets(tex_dir, sizes=(1024, 512)):
     """Write <tex_dir>/<size>/<name> copies of every texture for the lower quality levels."""
     for size in sizes:
@@ -406,3 +402,9 @@ def downscale_sets(tex_dir, sizes=(1024, 512)):
             sc = size / max(im.size)
             im2 = im.resize((max(1, int(im.size[0] * sc)), max(1, int(im.size[1] * sc))), Image.LANCZOS)
             im2.save(os.path.join(d, fn), quality=88) if fn.endswith(".jpg") else im2.save(os.path.join(d, fn))
+
+if __name__ == "__main__":
+    import sys
+    out = sys.argv[1] if len(sys.argv) > 1 else "assets"
+    generate_all(os.path.join(out, "textures"), os.path.join(out, "hdri"))
+    downscale_sets(os.path.join(out, "textures"))      # the medium and low quality levels use these copies

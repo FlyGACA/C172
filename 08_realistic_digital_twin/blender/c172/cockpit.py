@@ -6,11 +6,17 @@ import bpy
 from mathutils import Vector
 
 from . import units as U
-from .units import fs
+from .units import fs, wl
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf,
                      add_bevel, extrude_profile, rounded_rect, ellipse)
 from .dials import cell_uv, MISC, CELLS
+from .airframe import fus_half_width_at, REAR_WINDOW
 
+CABIN_LIFT = 0.10         # applied by build() to everything not fixed to the floor (estimated)
+FLOOR_MOUNTED = ("INTERIOR.pedal_", "FUEL.selector_", "INTERIOR.baggage_bulkhead")
+PANEL_SQUEEZE = 0.945     # the panel layout is drawn 1.06 m wide; build() closes it up to fit between the cabin walls
+PANEL_HALF = 0.50         # half width of the panel plates (m)
+FLOOR_TOP = 0.945         # top of the cabin floor panel (airframe.build_details)
 PANEL_Y = fs(19)          # instrument panel face (aft side), facing the pilot (+y)
 PANEL_Z0, PANEL_Z1 = 1.37, 1.64
 LOWER_Z0, LOWER_Z1 = 1.22, 1.37
@@ -87,15 +93,20 @@ def build_panel(ctx):
     grp = ctx.groups["PANEL"]
     dials = ctx.mats["dials"]; misc = ctx.mats["panel_misc"]
     # ---- upper panel plate (grey/black crinkle) and lower wood-grain panel
+    # the upper plate follows the inside of the skin where the cabin narrows toward the roof
+    def plate_half(z):
+        return min(PANEL_HALF, fus_half_width_at(19, z + CABIN_LIFT) - 0.034)
+    heights = [PANEL_Z0 + (PANEL_Z1 - PANEL_Z0) * i / 6 for i in range(7)]
+    outline = [(plate_half(z), z) for z in heights] + [(-plate_half(z), z) for z in reversed(heights)]
     bm = new_bm()
-    box(bm, (1.06, 0.012, PANEL_Z1 - PANEL_Z0), center=(0, PANEL_Y - 0.006, (PANEL_Z0 + PANEL_Z1) / 2))
+    extrude_profile(bm, outline, Vector((1, 0, 0)), Vector((0, 0, 1)), (0, 0, 0), Vector((0, 1, 0)), PANEL_Y - 0.012, PANEL_Y, smooth_sides=False)
     panel = obj_from_bm("PANEL.upper_panel", bm, ctx.col, pivot=(0, PANEL_Y, PANEL_Z0), mat=M["panel_grey"], smooth=False)
     add_bevel(panel, 0.004, 2)
     parent_keep(panel, grp)
     ctx.tag(panel, "PANEL", "Instrument panel (upper, flight & engine instruments)", "لوحة العدادات العلوية", status="estimated")
     bm = new_bm()
-    box(bm, (1.06, 0.03, LOWER_Z1 - LOWER_Z0), center=(0, PANEL_Y - 0.0, (LOWER_Z0 + LOWER_Z1) / 2))
-    quad_face(bm, (0, PANEL_Y + 0.018, (LOWER_Z0 + LOWER_Z1) / 2), 1.06, LOWER_Z1 - LOWER_Z0, MISC["WOOD"])
+    box(bm, (2 * PANEL_HALF, 0.03, LOWER_Z1 - LOWER_Z0), center=(0, PANEL_Y - 0.0, (LOWER_Z0 + LOWER_Z1) / 2))
+    quad_face(bm, (0, PANEL_Y + 0.018, (LOWER_Z0 + LOWER_Z1) / 2), 2 * PANEL_HALF, LOWER_Z1 - LOWER_Z0, MISC["WOOD"])
     lower = obj_from_bm("PANEL.lower_panel", bm, ctx.col, pivot=(0, PANEL_Y, LOWER_Z0), mat=M["woodgrain"], smooth=False)
     lower.data.materials.append(misc)
     lower.data.polygons[-1].material_index = 1
@@ -261,21 +272,28 @@ def build_panel(ctx):
             ctx.tag(cb, "ELECTRICAL", "Push-to-reset circuit breaker", "قاطع دائرة", status="poh", ref="p.7-27")
     # magnetic compass on the windshield centre post
     bm = new_bm()
-    box(bm, (0.07, 0.07, 0.06), center=(0, fs(10), 1.86))
-    quad_face(bm, (0, fs(10) + 0.038, 1.86), 0.05, 0.02, MISC["COMPASS"])
-    comp = obj_from_bm("PANEL.magnetic_compass", bm, ctx.col, pivot=(0, fs(10), 1.86), mat=M["black_plastic"], smooth=False)
+    box(bm, (0.07, 0.07, 0.06), center=(0, fs(13.5), 1.80))
+    quad_face(bm, (0, fs(13.5) + 0.038, 1.80), 0.05, 0.02, MISC["COMPASS"])
+    comp = obj_from_bm("PANEL.magnetic_compass", bm, ctx.col, pivot=(0, fs(13.5), 1.80), mat=M["black_plastic"], smooth=False)
     comp.data.materials.append(misc); comp.data.polygons[-1].material_index = 1
     parent_keep(comp, grp)
     ctx.tag(comp, "PANEL", "Magnetic compass", "البوصلة المغناطيسية", status="poh", ref="p.7-x")
-    # glareshield: padded roll along the aft edge and a sloping top
+    # glareshield: padded roll along the aft edge and a top that rises to the foot of the windshield,
+    # trimmed to the inside of the skin at every station (heights here are before CABIN_LIFT)
+    def inside(station, z):
+        return max(0.10, fus_half_width_at(station, z + CABIN_LIFT) - 0.04)
+    roll_z = PANEL_Z1 + 0.03; roll_half = inside(18.6, roll_z)
     bm = new_bm()
-    tube(bm, [Vector((-0.53, PANEL_Y - 0.01, PANEL_Z1 + 0.02)), Vector((-0.3, PANEL_Y - 0.03, PANEL_Z1 + 0.03)), Vector((0, PANEL_Y - 0.035, PANEL_Z1 + 0.035)), Vector((0.3, PANEL_Y - 0.03, PANEL_Z1 + 0.03)), Vector((0.53, PANEL_Y - 0.01, PANEL_Z1 + 0.02))], 0.028, segs=14)
-    rings = []
-    for t in (0.0, 1.0):
-        y = PANEL_Y - 0.02 - t * 0.40; z = PANEL_Z1 + 0.03 - t * 0.0 + t * 0.07
-        rings.append([Vector((-0.52, y, z)), Vector((0.52, y, z))])
-    verts = [[bm.verts.new(p) for p in r] for r in rings]
-    f = bm.faces.new([verts[0][0], verts[0][1], verts[1][1], verts[1][0]]); f.smooth = True
+    tube(bm, [Vector((-roll_half, PANEL_Y - 0.01, roll_z - 0.01)), Vector((-0.3, PANEL_Y - 0.03, roll_z)), Vector((0, PANEL_Y - 0.035, roll_z + 0.005)), Vector((0.3, PANEL_Y - 0.03, roll_z)), Vector((roll_half, PANEL_Y - 0.01, roll_z - 0.01))], 0.028, segs=14)
+    strip = []
+    for i in range(8):
+        t = i / 7
+        station = 18.3 - t * 13.3                       # FS 18.3 at the panel to FS 5 at the windshield foot
+        z = roll_z + t * 0.07
+        half = inside(station, z)
+        strip.append((bm.verts.new(Vector((-half, fs(station), z))), bm.verts.new(Vector((half, fs(station), z)))))
+    for (a0, a1), (b0, b1) in zip(strip, strip[1:]):
+        f = bm.faces.new([a0, a1, b1, b0]); f.smooth = True
     gs = obj_from_bm("INTERIOR.glareshield", bm, ctx.col, pivot=(0, PANEL_Y, PANEL_Z1), mat=M["vinyl_black"])
     parent_keep(gs, ctx.groups["INTERIOR"])
     ctx.tag(gs, "INTERIOR", "Glareshield (padded)", "واقي الوهج", status="estimated")
@@ -284,7 +302,7 @@ def build_controls(ctx):
     M = ctx.mats
     grp = ctx.groups["INTERIOR"]
     # yokes (ram's horn) on push-pull shafts through the panel
-    for side, x in (("L", 0.305), ("R", -0.305)):
+    for side, x in (("L", 0.305 * PANEL_SQUEEZE), ("R", -0.305 * PANEL_SQUEEZE)):
         hub = Vector((x, PANEL_Y + 0.26, 1.27))
         bm = new_bm()
         tube(bm, [Vector((x, PANEL_Y - 0.1, 1.27)), hub - Vector((0, 0.03, 0))], 0.013, segs=14)
@@ -300,18 +318,18 @@ def build_controls(ctx):
         add_subsurf(yoke, 1)
         parent_keep(yoke, shaft)
         ctx.tag(yoke, "INTERIOR", f"Control yoke ({'pilot' if side == 'L' else 'co-pilot'}) — ailerons by rotation, elevator by push/pull", "عجلة القيادة " + ("(الطيار)" if side == "L" else "(مساعد الطيار)"), status="poh", ref="p.7-6", animate="yoke", spin_axis="y", spin_sign=-1, range_deg=[-90, 90])
-        # rudder pedals with toe brakes
-        for px in (-0.13, 0.13):
+        # rudder pedals with toe brakes: just aft of the firewall, where the floor is still narrow
+        for px in (-0.075, 0.075):
             bm = new_bm()
-            box(bm, (0.09, 0.012, 0.13), center=(x + px, fs(6), 1.0))
-            tube(bm, [Vector((x + px, fs(6), 0.93)), Vector((x + px, fs(14), 0.90))], 0.008, segs=8)
-            ped = obj_from_bm(f"INTERIOR.pedal_{side}_{'R' if px > 0 else 'L'}", bm, ctx.col, pivot=(x + px, fs(6), 0.93), mat=M["steel"], smooth=False)
+            box(bm, (0.07, 0.012, 0.13), center=(x + px, fs(9), FLOOR_TOP + 0.11))
+            tube(bm, [Vector((x + px, fs(9), FLOOR_TOP + 0.045)), Vector((x + px, fs(15), FLOOR_TOP + 0.008))], 0.008, segs=8)
+            ped = obj_from_bm(f"INTERIOR.pedal_{side}_{'R' if px > 0 else 'L'}", bm, ctx.col, pivot=(x + px, fs(9), FLOOR_TOP + 0.045), mat=M["steel"], smooth=False)
             parent_keep(ped, grp)
             ctx.tag(ped, "INTERIOR", "Rudder pedal with toe brake", "دواسة الدفة مع فرامل", status="poh", ref="p.7-6", animate="pedal", hinge_axis="x", hinge_sign=1, range_deg=[-12, 12])
     # trim wheel on the pedestal below the panel
     bm = new_bm()
-    box(bm, (0.16, 0.20, 0.32), center=(-0.05, PANEL_Y + 0.06, 1.06))
-    ped = obj_from_bm("INTERIOR.pedestal", bm, ctx.col, pivot=(-0.05, PANEL_Y, 0.9), mat=M["panel_grey"], smooth=False)
+    box(bm, (0.16, 0.20, 0.32 + CABIN_LIFT), center=(-0.05, PANEL_Y + 0.06, 1.06 - CABIN_LIFT / 2))
+    ped = obj_from_bm("INTERIOR.pedestal", bm, ctx.col, pivot=(-0.05, PANEL_Y, 0.9 - CABIN_LIFT), mat=M["panel_grey"], smooth=False)
     add_bevel(ped, 0.01, 2)
     parent_keep(ped, grp)
     ctx.tag(ped, "INTERIOR", "Control pedestal", "قاعدة أدوات التحكم", status="estimated")
@@ -322,14 +340,14 @@ def build_controls(ctx):
     ctx.tag(tw, "INTERIOR", "Elevator trim wheel (nose up / nose down) with position indicator", "عجلة موازنة الرافع", status="poh", ref="p.7-6", animate="trim_wheel", spin_axis="x", spin_sign=1)
     # fuel selector on the floor between the seats
     bm = new_bm()
-    box(bm, (0.17, 0.15, 0.012), center=(0, fs(44), 0.886))
-    sel_base = obj_from_bm("FUEL.selector_plate", bm, ctx.col, pivot=(0, fs(44), 0.88), mat=M["panel_grey"], smooth=False)
+    box(bm, (0.17, 0.15, 0.012), center=(0, fs(44), FLOOR_TOP + 0.006))
+    sel_base = obj_from_bm("FUEL.selector_plate", bm, ctx.col, pivot=(0, fs(44), FLOOR_TOP), mat=M["panel_grey"], smooth=False)
     parent_keep(sel_base, grp)
     ctx.tag(sel_base, "FUEL", "Fuel selector placard plate (LEFT · BOTH · RIGHT · OFF)", "لوحة محدد الوقود", status="poh", ref="p.7-28")
     bm = new_bm()
-    box(bm, (0.028, 0.10, 0.012), center=(0, fs(44) - 0.02, 0.90))
-    revolve(bm, [(0.0, 0.0), (0.02, 0.0), (0.02, 0.025), (0.0, 0.025)], axis="Z", origin=(0, fs(44), 0.892), segs=20)
-    sel = obj_from_bm("FUEL.selector_handle", bm, ctx.col, pivot=(0, fs(44), 0.892), mat=M["knob_red"], smooth=False)
+    box(bm, (0.028, 0.10, 0.012), center=(0, fs(44) - 0.02, FLOOR_TOP + 0.02))
+    revolve(bm, [(0.0, 0.0), (0.02, 0.0), (0.02, 0.025), (0.0, 0.025)], axis="Z", origin=(0, fs(44), FLOOR_TOP + 0.012), segs=20)
+    sel = obj_from_bm("FUEL.selector_handle", bm, ctx.col, pivot=(0, fs(44), FLOOR_TOP + 0.012), mat=M["knob_red"], smooth=False)
     parent_keep(sel, grp)
     ctx.tag(sel, "FUEL", "Fuel selector valve handle (shown on BOTH)", "مقبض صمام اختيار الوقود", status="poh", ref="p.7-28", animate="fuel_selector", spin_axis="z", spin_sign=1, positions={"LEFT": -90, "BOTH": 0, "RIGHT": 90, "OFF": 180})
     # parking brake handle under the panel, left
@@ -376,11 +394,12 @@ def build_seats(ctx):
         parent_keep(back, grp)
         ctx.tag(back, "INTERIOR", en + " — seat back", ar + " — ظهر المقعد", status="estimated", animate="seat_back", hinge_axis="x", hinge_sign=1, range_deg=[-25, 0])
         bm = new_bm()
-        for sx in (-w / 2 + 0.05, w / 2 - 0.05):
-            tube(bm, [Vector((x + sx, y0 + 0.08, 0.90)), Vector((x + sx, y0 + 0.08, 1.0))], 0.012, segs=8)
-            tube(bm, [Vector((x + sx, y0 + 0.40, 0.90)), Vector((x + sx, y0 + 0.40, 1.0))], 0.012, segs=8)
-            tube(bm, [Vector((x + sx, y0 + 0.02, 0.905)), Vector((x + sx, y0 + 0.46, 0.905))], 0.010, segs=8)
-        legs = obj_from_bm(name + ".frame", bm, ctx.col, pivot=(x, y0, 0.9), mat=M["steel"])
+        floor_top = FLOOR_TOP - CABIN_LIFT               # the frame is lifted with the seat, so start it at the floor
+        for sx in (-w / 2 + 0.09, w / 2 - 0.09):
+            tube(bm, [Vector((x + sx, y0 + 0.08, floor_top)), Vector((x + sx, y0 + 0.08, 1.0))], 0.012, segs=8)
+            tube(bm, [Vector((x + sx, y0 + 0.40, floor_top)), Vector((x + sx, y0 + 0.40, 1.0))], 0.012, segs=8)
+            tube(bm, [Vector((x + sx, y0 + 0.02, floor_top + 0.012)), Vector((x + sx, y0 + 0.46, floor_top + 0.012))], 0.010, segs=8)
+        legs = obj_from_bm(name + ".frame", bm, ctx.col, pivot=(x, y0, floor_top), mat=M["steel"])
         parent_keep(legs, grp)
         ctx.tag(legs, "INTERIOR", en + " — seat frame and rails", ar + " — إطار المقعد", status="estimated")
         # lap belt and shoulder harness
@@ -396,14 +415,14 @@ def build_seats(ctx):
         parent_keep(buckle, grp)
         ctx.tag(buckle, "INTERIOR", "Seat belt buckle", "مشبك حزام الأمان", status="estimated")
         return pan
-    seat("INTERIOR.seat_pilot", 0.30, fs(42), 0.42, "Pilot seat (adjustable)", "مقعد الطيار")
-    seat("INTERIOR.seat_copilot", -0.30, fs(42), 0.42, "Co-pilot seat (adjustable)", "مقعد مساعد الطيار")
-    seat("INTERIOR.seat_rear", 0.0, fs(80), 0.84, "Rear bench seat", "المقعد الخلفي")
+    seat("INTERIOR.seat_pilot", 0.28, fs(42), 0.40, "Pilot seat (adjustable)", "مقعد الطيار")
+    seat("INTERIOR.seat_copilot", -0.28, fs(42), 0.40, "Co-pilot seat (adjustable)", "مقعد مساعد الطيار")
+    seat("INTERIOR.seat_rear", 0.0, fs(80), 0.76, "Rear bench seat", "المقعد الخلفي")
     # shoulder harnesses for the front seats, from the roof rail behind the door
     for side, x in (("L", 0.30), ("R", -0.30)):
         bm = new_bm()
         o = 1 if side == "L" else -1   # harness comes from the roof rail on the door side
-        pts = bezier(Vector((x + o * 0.2, fs(55), 1.90)), Vector((x + o * 0.15, fs(52), 1.70)), Vector((x + o * 0.1, fs(50), 1.45)), Vector((x - o * 0.06, fs(50), 1.13)), 18)
+        pts = bezier(Vector((x + o * 0.10, fs(55), 1.80)), Vector((x + o * 0.09, fs(52), 1.68)), Vector((x + o * 0.07, fs(50), 1.45)), Vector((x - o * 0.06, fs(50), 1.13)), 18)
         strap(bm, pts, 0.048)
         sh = obj_from_bm(f"INTERIOR.shoulder_harness_{side}", bm, ctx.col, pivot=pts[0], mat=M["belt"])
         parent_keep(sh, grp)
@@ -425,13 +444,33 @@ def build_seats(ctx):
         parent_keep(ih, door)
         ctx.tag(ih, "INTERIOR", "Door inner handle", "مقبض الباب الداخلي", status="estimated")
     # baggage shelf / rear bulkhead
+    top = wl(REAR_WINDOW[0][1]) - 0.03
+    heights = [FLOOR_TOP + (top - FLOOR_TOP) * i / 8 for i in range(9)]
+    half = [max(0.05, fus_half_width_at(112, z) - 0.04) for z in heights]
+    outline = [(h, z) for h, z in zip(half, heights)] + [(-h, z) for h, z in zip(reversed(half), reversed(heights))]
     bm = new_bm()
-    box(bm, (0.84, 0.02, 0.8), center=(0, fs(112), 1.42))
+    extrude_profile(bm, outline, Vector((1, 0, 0)), Vector((0, 0, 1)), (0, 0, 0), Vector((0, 1, 0)), fs(112) - 0.01, fs(112) + 0.01, smooth_sides=False)
     bh = obj_from_bm("INTERIOR.baggage_bulkhead", bm, ctx.col, pivot=(0, fs(112), 1.0), mat=M["interior_tan"], smooth=False)
     parent_keep(bh, grp)
     ctx.tag(bh, "INTERIOR", "Baggage compartment aft bulkhead (120 lb area)", "الحاجز الخلفي لمقصورة الأمتعة", status="poh", ref="p.6-x baggage")
 
 def build(ctx):
+    """Build the cockpit, then lift it to the cowl-deck height of the corrected fuselage.
+
+    The panel, controls and seats were laid out against a lower cowl deck. The photo-profile puts the
+    deck and the pilot's eye about 4 in higher above the floor, so everything that is not fixed to
+    the floor is raised by CABIN_LIFT; the floor, pedals and fuel selector stay where they are.
+    """
+    existing = set(bpy.data.objects)
     build_panel(ctx)
+    panel_group = ctx.groups["PANEL"]
+    for ob in bpy.data.objects:
+        if ob not in existing and ob.parent is panel_group:
+            ob.location.x *= PANEL_SQUEEZE          # every panel item has its origin at its own centre
     build_controls(ctx)
     build_seats(ctx)
+    groups = set(ctx.groups.values())
+    for ob in bpy.data.objects:
+        if ob in existing or ob.parent not in groups or ob.name.startswith(FLOOR_MOUNTED):
+            continue
+        ob.location.z += CABIN_LIFT

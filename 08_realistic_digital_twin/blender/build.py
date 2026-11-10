@@ -91,6 +91,13 @@ def build_scene(subsurf, assets):
     for ob in ctx.col.objects:
         ob["id"] = ob.name
     export.hide_cutters(ctx)
+    # The parts above are laid out with the ground line at z = GROUND_Z (see units.py). Lower every
+    # root object, cutters included so the booleans stay valid, to put the tyres on z = 0.
+    bpy.context.view_layer.update()
+    for ob in bpy.data.objects:
+        if ob.parent is None:
+            ob.location.z -= U.GROUND_Z
+    bpy.context.view_layer.update()
     return ctx
 
 

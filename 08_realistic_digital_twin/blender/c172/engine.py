@@ -9,6 +9,7 @@ from . import units as U
 from .units import fs
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf,
                      add_bevel, extrude_profile, rounded_rect, ellipse)
+from .powerplant import AIR_INLET, MUFFLER_Y, MUFFLER_Z, air_filter_y
 
 CRANK_R = 0.0492          # m, half the 3.875 in stroke (type data; verify TCDS E-274)
 ROD_L = 0.162             # m, illustrative
@@ -38,11 +39,11 @@ def _link(ob, grp):
 
 def build_case(ctx, grp):
     M = ctx.mats
-    y0, y1 = fs(-32), fs(-9.5)
+    y0, y1 = fs(-29.6), fs(-9.5)
     for side, nm in ((1, "L"), (-1, "R")):
         bm = new_bm()
         # half crankcase: rounded box with the bearing saddle; split at the vertical centre plane
-        box(bm, (CASE_HALF_W, y1 - y0, 0.30), center=(side * CASE_HALF_W / 2, (y0 + y1) / 2, ORIGIN.z))
+        box(bm, (CASE_HALF_W, y1 - y0, 0.22), center=(side * CASE_HALF_W / 2, (y0 + y1) / 2, ORIGIN.z))
         # cylinder deck pads
         for c in (1, 3) if side < 0 else (2, 4):
             revolve(bm, [(0.0, 0.0), (0.095, 0.0), (0.095, 0.02 * side), (0.0, 0.02 * side)], axis="X", origin=(side * CASE_HALF_W, cyl_center_y(c), ORIGIN.z), segs=28)
@@ -117,18 +118,18 @@ def build_cylinder(ctx, grp, c):
     # spark plugs: top and bottom of the head, with leads to the dual magneto
     for pos, zz in (("top", 0.105), ("bottom", -0.105)):
         bm = new_bm()
-        tube(bm, [Vector((side * (HEAD_X0 + 0.055), yc, zc + zz * 0.9)), Vector((side * (HEAD_X0 + 0.055), yc, zc + zz + 0.03 * (1 if zz > 0 else -1)))], 0.010, segs=12)
-        revolve(bm, [(0.0, 0.0), (0.012, 0.0), (0.012, 0.012), (0.0, 0.012)], axis="Z", origin=(side * (HEAD_X0 + 0.055), yc, zc + zz + (0.03 if zz > 0 else -0.042)), segs=12)
+        tube(bm, [Vector((side * (HEAD_X0 + 0.055), yc, zc + zz * 0.9)), Vector((side * (HEAD_X0 + 0.055), yc, zc + zz + 0.014 * (1 if zz > 0 else -1)))], 0.010, segs=12)
+        revolve(bm, [(0.0, 0.0), (0.012, 0.0), (0.012, 0.012), (0.0, 0.012)], axis="Z", origin=(side * (HEAD_X0 + 0.055), yc, zc + zz + (0.014 if zz > 0 else -0.026)), segs=12)
         # POH p.7-19 plug map: right magneto -> lower right & upper left; left magneto -> lower left & upper right
         mag = "R" if (side < 0 and pos == "bottom") or (side > 0 and pos == "top") else "L"
         plug = obj_from_bm(f"ENGINE.plug_{pos}_{c}", bm, ctx.col, pivot=(side * (HEAD_X0 + 0.055), yc, zc + zz), mat=M["brass"])
         _link(plug, grp)
         ctx.tag(plug, "IGNITION", f"Spark plug cylinder {c} {pos} — fired by the {'right' if mag == 'R' else 'left'} magneto", f"شمعة الإشعال {c} {'العلوية' if pos == 'top' else 'السفلية'}", status="poh", ref="p.7-19", cyl=c, magneto=mag, animate="plug")
         bm = new_bm()
-        start = Vector((side * (HEAD_X0 + 0.055), yc, zc + zz + (0.04 if zz > 0 else -0.052)))
-        mid = Vector((side * 0.22, yc + 0.05, zc + (0.19 if zz > 0 else -0.21)))
-        end = Vector((side * 0.06, fs(-5.2), zc + 0.16 + (0.0 if zz > 0 else -0.03)))
-        tube(bm, bezier(start, mid, (mid + end) / 2 + Vector((0, 0, 0.05)), end, 16), 0.004, segs=8)
+        start = Vector((side * (HEAD_X0 + 0.055), yc, zc + zz + (0.024 if zz > 0 else -0.036)))
+        mid = Vector((side * 0.22, yc + 0.05, zc + (0.138 if zz > 0 else -0.19)))
+        end = Vector((side * 0.06, fs(-5.2), zc + 0.115 + (0.0 if zz > 0 else -0.03)))
+        tube(bm, bezier(start, mid, (mid + end) / 2 + Vector((0, 0, 0.012)), end, 16), 0.004, segs=8)
         lead = obj_from_bm(f"ENGINE.plug_lead_{pos}_{c}", bm, ctx.col, pivot=start, mat=M["hose_black"])
         _link(lead, grp)
         ctx.tag(lead, "IGNITION", f"Ignition lead (shielded) — plug {c} {pos}", f"سلك الإشعال {c}", status="estimated", cyl=c, magneto=mag)
@@ -140,7 +141,7 @@ def build_cylinder(ctx, grp, c):
     _link(ip, grp)
     ctx.tag(ip, "INDUCTION", f"Intake pipe to cylinder {c} (from the sump plenum)", f"أنبوب السحب للأسطوانة {c}", status="poh", ref="p.7-24", cyl=c)
     bm = new_bm()
-    e0 = Vector((side * (HEAD_X0 + 0.06), yc - 0.05, zc - 0.095)); e3 = Vector((side * 0.17, fs(-14), zc - 0.40))
+    e0 = Vector((side * (HEAD_X0 + 0.06), yc - 0.05, zc - 0.095)); e3 = Vector((side * 0.17, MUFFLER_Y - 0.025, MUFFLER_Z + 0.055))
     tube(bm, bezier(e0, e0 + Vector((0, 0, -0.12)), e3 + Vector((side * 0.05, -0.05, 0.08)), e3, 14), 0.021, segs=12)
     ex = obj_from_bm(f"ENGINE.exhaust_stack_{c}", bm, ctx.col, pivot=e0, mat=M["exhaust"])
     _link(ex, grp)
@@ -222,9 +223,9 @@ def build_accessories(ctx, grp):
     zc = ORIGIN.z
     # dual magneto (single drive, two sets of points/coils) on the accessory case top
     bm = new_bm()
-    revolve(bm, [(0.0, 0.0), (0.055, 0.0), (0.055, 0.11), (0.045, 0.13), (0.0, 0.13)], axis="Y", origin=(0.0, fs(-7.5), zc + 0.175), segs=24)
-    box(bm, (0.14, 0.05, 0.06), center=(0, fs(-4.0), zc + 0.175))
-    mag = obj_from_bm("IGNITION.dual_magneto", bm, ctx.col, pivot=(0, fs(-7.5), zc + 0.175), mat=M["black_plastic"])
+    revolve(bm, [(0.0, 0.0), (0.055, 0.0), (0.055, 0.11), (0.045, 0.13), (0.0, 0.13)], axis="Y", origin=(0.0, fs(-7.5), zc + 0.115), segs=24)
+    box(bm, (0.14, 0.05, 0.06), center=(0, fs(-4.0), zc + 0.115))
+    mag = obj_from_bm("IGNITION.dual_magneto", bm, ctx.col, pivot=(0, fs(-7.5), zc + 0.115), mat=M["black_plastic"])
     _link(mag, grp)
     ctx.tag(mag, "IGNITION", "Dual magneto (one housing, two independent magnetos, impulse coupling for starting)", "المغناطيس المزدوج", status="poh", ref="p.7-18/19")
     # starter (rear right lower) and alternator (front left lower, belt driven)
@@ -234,14 +235,16 @@ def build_accessories(ctx, grp):
     _link(st, grp)
     ctx.tag(st, "ELECTRICAL", "Starter motor (key START, engages the ring gear)", "محرك البدء", status="poh", ref="p.7-18")
     bm = new_bm()
-    revolve(bm, [(0.0, 0.0), (0.06, 0.0), (0.062, 0.10), (0.04, 0.12), (0.0, 0.12)], axis="Y", origin=(0.22, fs(-33.5), zc - 0.15), segs=20)
-    revolve(bm, [(0.0, -0.012), (0.045, -0.012), (0.045, -0.002), (0.0, -0.002)], axis="Y", origin=(0.22, fs(-33.5), zc - 0.15), segs=20)
-    alt = obj_from_bm("ELECTRICAL.alternator", bm, ctx.col, pivot=(0.22, fs(-33.5), zc - 0.15), mat=M["cast_alu"])
+    alt_at = (0.20, fs(-31.6), zc - 0.115)
+    revolve(bm, [(0.0, 0.0), (0.06, 0.0), (0.062, 0.10), (0.04, 0.12), (0.0, 0.12)], axis="Y", origin=alt_at, segs=20)
+    revolve(bm, [(0.0, -0.012), (0.045, -0.012), (0.045, -0.002), (0.0, -0.002)], axis="Y", origin=alt_at, segs=20)
+    alt = obj_from_bm("ELECTRICAL.alternator", bm, ctx.col, pivot=alt_at, mat=M["cast_alu"])
     _link(alt, grp)
     ctx.tag(alt, "ELECTRICAL", "60 A alternator (belt driven from the crankshaft pulley)", "المولد 60 أمبير", status="poh", ref="p.7-26")
     # belt: racetrack around the crank pulley (r 0.075) and alternator pulley (r 0.045)
     bm = new_bm()
-    c1 = Vector((0, fs(-33.8), zc)); c2 = Vector((0.22, fs(-33.8), zc - 0.15)); r1, r2 = 0.078, 0.047
+    belt_y = alt_at[1] - 0.007
+    c1 = Vector((0, belt_y, zc)); c2 = Vector((alt_at[0], belt_y, alt_at[2])); r1, r2 = 0.078, 0.047
     d = (c2 - c1); L = d.length; dn = d / L
     a = math.acos((r1 - r2) / L)
     n = Vector((-dn.z, 0, dn.x))
@@ -272,8 +275,8 @@ def build_accessories(ctx, grp):
     _link(oc, grp)
     ctx.tag(oc, "OIL", "Oil cooler (on the right rear baffle, cooling air from the inlet)", "مبرّد الزيت", status="poh", ref="p.7-24")
     bm = new_bm()
-    tube(bm, [Vector((0.05, fs(-10), zc + 0.15)), Vector((0.05, fs(-10.5), zc + 0.29))], 0.012, segs=10)
-    revolve(bm, [(0.0, 0.0), (0.02, 0.0), (0.02, 0.02), (0.0, 0.02)], axis="Z", origin=(0.05, fs(-10.5), zc + 0.29), segs=12)
+    tube(bm, [Vector((0.05, fs(-10), zc + 0.10)), Vector((0.05, fs(-10.5), zc + 0.155))], 0.012, segs=10)
+    revolve(bm, [(0.0, 0.0), (0.02, 0.0), (0.02, 0.02), (0.0, 0.02)], axis="Z", origin=(0.05, fs(-10.5), zc + 0.155), segs=12)
     ds = obj_from_bm("OIL.dipstick_filler", bm, ctx.col, pivot=(0.05, fs(-10), zc + 0.15), mat=M["wire_yellow"])
     _link(ds, grp)
     ctx.tag(ds, "OIL", "Oil filler cap / dipstick (reached through the cowl oil door)", "غطاء تعبئة الزيت ومقياسه", status="poh", ref="p.8-x")
@@ -285,30 +288,33 @@ def build_accessories(ctx, grp):
     _link(carb, grp)
     ctx.tag(carb, "INDUCTION", "Carburetor (updraft, float type) with mixture and throttle arms", "المكربن (سحب علوي)", status="poh", ref="p.7-23")
     bm = new_bm()
-    box(bm, (0.20, 0.18, 0.07), center=(0, fs(-17), zc - 0.405))
+    box(bm, (0.20, 0.15, 0.07), center=(0, fs(-17.6), zc - 0.405))
     ab = obj_from_bm("INDUCTION.airbox", bm, ctx.col, pivot=(0, fs(-17), zc - 0.37), mat=M["bare_alu"], smooth=False)
     _link(ab, grp)
     ctx.tag(ab, "INDUCTION", "Airbox with carburetor heat valve (heated air from the muffler shroud)", "صندوق الهواء مع صمام تسخين المكربن", status="poh", ref="p.7-24")
+    # air filter right behind the inlet in the chin of the lower cowl, short duct to the airbox
+    af_y = air_filter_y(); af_z = AIR_INLET["z"]
     bm = new_bm()
-    box(bm, (0.24, 0.06, 0.12), center=(0, fs(-33), zc - 0.38))
-    af = obj_from_bm("INDUCTION.air_filter", bm, ctx.col, pivot=(0, fs(-33), zc - 0.38), mat=M["grey_plastic"], smooth=False)
+    box(bm, (AIR_INLET["w"] + 0.02, 0.045, AIR_INLET["h"] + 0.012), center=(0, af_y + 0.0225, af_z))
+    af = obj_from_bm("INDUCTION.air_filter", bm, ctx.col, pivot=(0, af_y, af_z), mat=M["grey_plastic"], smooth=False)
     _link(af, grp)
     ctx.tag(af, "INDUCTION", "Induction air filter (behind the lower cowl inlet)", "فلتر هواء السحب", status="poh", ref="p.7-24")
     bm = new_bm()
-    tube(bm, [Vector((0, fs(-30), zc - 0.40)), Vector((0, fs(-20), zc - 0.42))], 0.035, segs=14)
-    duct = obj_from_bm("INDUCTION.filter_duct", bm, ctx.col, pivot=(0, fs(-30), zc - 0.40), mat=M["hose_black"])
+    duct_pts = bezier(Vector((0, af_y + 0.045, af_z)), Vector((0, af_y + 0.07, af_z + 0.012)), Vector((0, fs(-21.6), zc - 0.41)), Vector((0, fs(-20.4), zc - 0.405)), 10)
+    tube(bm, duct_pts, 0.032, segs=14)
+    duct = obj_from_bm("INDUCTION.filter_duct", bm, ctx.col, pivot=duct_pts[0], mat=M["hose_black"])
     _link(duct, grp)
     ctx.tag(duct, "INDUCTION", "Filtered air duct to the airbox", "قناة الهواء المفلتر", status="estimated")
     # muffler with heat shroud (cabin heat / carb heat source)
     bm = new_bm()
-    revolve(bm, [(0.0, -0.19), (0.06, -0.19), (0.06, 0.19), (0.0, 0.19)], axis="X", origin=(0, fs(-13), zc - 0.43), segs=24)
-    revolve(bm, [(0.065, -0.10), (0.08, -0.10), (0.08, 0.10), (0.065, 0.10)], axis="X", origin=(0, fs(-13), zc - 0.43), segs=24)
-    muf = obj_from_bm("ENGINE.muffler", bm, ctx.col, pivot=(0, fs(-13), zc - 0.43), mat=M["exhaust"])
+    revolve(bm, [(0.0, -0.19), (0.06, -0.19), (0.06, 0.19), (0.0, 0.19)], axis="X", origin=(0, MUFFLER_Y, MUFFLER_Z), segs=24)
+    revolve(bm, [(0.065, -0.10), (0.08, -0.10), (0.08, 0.10), (0.065, 0.10)], axis="X", origin=(0, MUFFLER_Y, MUFFLER_Z), segs=24)
+    muf = obj_from_bm("ENGINE.muffler", bm, ctx.col, pivot=(0, MUFFLER_Y, MUFFLER_Z), mat=M["exhaust"])
     _link(muf, grp)
     ctx.tag(muf, "ENGINE", "Muffler with heat shroud (source of cabin and carburetor heat)", "كاتم الصوت مع غلاف التسخين", status="poh", ref="p.7-24/35")
     # engine mount: tubular truss from four firewall points to the accessory housing lugs
     bm = new_bm()
-    fw = [Vector((sx * 0.36, fs(0.5), z)) for sx in (-1, 1) for z in (1.14, 1.66)]
+    fw = [Vector((sx * 0.33, fs(0.5), zc + dz)) for sx in (-1, 1) for dz in (-0.40, 0.12)]
     lugs = [Vector((sx * 0.16, fs(-4.2), zc + sz * 0.15)) for sx in (-1, 1) for sz in (-1, 1)]
     for f_ in fw:
         for l in lugs:
@@ -322,16 +328,16 @@ def build_accessories(ctx, grp):
     # baffles: rear baffle plates with rubber seals, inter-cylinder baffles
     bm = new_bm()
     for sx in (-1, 1):
-        box(bm, (0.33, 0.015, 0.30), center=(sx * 0.29, fs(-9.5), zc + 0.08))
-        box(bm, (0.33, 0.02, 0.05), center=(sx * 0.29, fs(-9.5), zc + 0.255))
-        box(bm, (0.015, 0.30, 0.22), center=(sx * 0.45, fs(-20), zc + 0.06))
+        box(bm, (0.25, 0.015, 0.19), center=(sx * 0.26, fs(-9.5), zc + 0.03))
+        box(bm, (0.25, 0.02, 0.02), center=(sx * 0.26, fs(-9.5), zc + 0.122))
+        box(bm, (0.012, 0.3175, 0.14), center=(sx * 0.40, fs(-18.25), zc + 0.015))
     baf = obj_from_bm("ENGINE.baffles", bm, ctx.col, pivot=(0, fs(-10), zc), mat=M["bare_alu"], smooth=False)
     _link(baf, grp)
     ctx.tag(baf, "ENGINE", "Cooling baffles with rubber seals (pressure cooling from the inlets)", "حواجز هواء التبريد", status="poh", ref="p.7-25")
     bm = new_bm()
     for sx in (-1, 1):
-        box(bm, (0.33, 0.02, 0.05), center=(sx * 0.29, fs(-9.5), zc + 0.255))
-        box(bm, (0.015, 0.30, 0.03), center=(sx * 0.45, fs(-20), zc + 0.185))
+        box(bm, (0.25, 0.02, 0.016), center=(sx * 0.26, fs(-9.5), zc + 0.138))
+        box(bm, (0.012, 0.3175, 0.02), center=(sx * 0.40, fs(-18.25), zc + 0.095))
     seal = obj_from_bm("ENGINE.baffle_seals", bm, ctx.col, pivot=(0, fs(-10), zc), mat=M["hose_black"], smooth=False)
     _link(seal, grp)
     ctx.tag(seal, "ENGINE", "Baffle seals (silicone/rubber strips against the cowl)", "أختام الحواجز المطاطية", status="estimated")
