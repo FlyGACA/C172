@@ -10,14 +10,14 @@ numbers must be measured on target devices.
 
 | Level | Objects | Triangles | GLB size | Build time | Subdivision | Textures |
 |---|---|---|---|---|---|---|
-| high | 843 | 490 454 | 6.2 MB | 55–60 s | 2 | 2048 px |
+| high | 866 | 493 540 | 6.3 MB | 55–60 s | 2 | 2048 px |
 | medium | 340 | 191 756 | 3.3 MB | 15–20 s | 1 | 1024 px |
 | low | 340 | 96 187 | 2.1 MB | 15–22 s (incl. decimation) | 1 + decimate 0.5 | 512 px |
 
 The high level carries detail level 1 (structure, control runs, systems, the insides of the engine
-and of the instruments: 503 parts under the skin);
+and of the instruments, cabin air and lights: 526 parts under the skin);
 medium and low are the basic model of 340 parts. The editable scene also holds detail level 2
-(fasteners and the hardware kit, 241 parts), which is in no web model: 1 084 parts in all, listed in
+(fasteners and the hardware kit, 241 parts), which is in no web model: 1 107 parts in all, listed in
 `models/parts_all.json` and [06_parts_index.md](06_parts_index.md).
 
 All three are far inside the budgets set in `02_modeling_architecture.md` (25 / 12 / 5 MB,
@@ -94,8 +94,8 @@ aircraft.
 | `tests/sim.test.mjs`, `tests/scenarios.test.mjs` (Phase 7 behaviour, re-run on the Phase 8 copies) | 35 / 35 pass |
 | Phase 7 suites (`07_kinematic_twin/tests`) | unchanged, 41 / 41 pass |
 | `scripts/validate_glb.py` | 3 / 3 levels OK |
-| `blender/validate_geometry.py` | 14 critical objects, 19 attachments, 7 published dimensions, 551 parts inside the fuselage skin, 155 inside the wing skin, 51 runs (pipes, hoses, cables, wires) clear of every other part |
-| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 084 parts, bilingual, status, POH page), parts index up to date |
+| `blender/validate_geometry.py` | 14 critical objects, 19 attachments, 7 published dimensions, 566 parts inside the fuselage skin, 155 inside the wing skin, 62 runs (pipes, hoses, ducts, cables, wires) clear of every other part |
+| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 107 parts, bilingual, status, POH page), parts index up to date |
 | `09_book_figures/tests/test_ink.py` (ink-line rules, camera framing) | 12 / 12 pass |
 | `scripts/compare_renders.py` | 3 canonical render views within perceptual thresholds |
 
@@ -105,7 +105,7 @@ Final run: **11 / 11 checks passed** (`?test=1` disables the GTAO pass; everythi
 
 | Check | Result |
 |---|---|
-| high level loads: 10 system groups, 843 parts, no console errors | ok |
+| high level loads: 10 system groups, 866 parts, no console errors | ok |
 | doors open, flaps 40°, aileron input moves the surfaces | ok |
 | part selection shows bilingual info and the status badge (propeller → POH) | ok |
 | confidence overlay colours the parts by provenance and restores the materials | ok |
@@ -122,11 +122,11 @@ of a real GPU; draw calls and triangles are device-independent):
 
 | Level | Load to interactive | Draw calls | Triangles per frame (incl. shadow pass) |
 |---|---|---|---|
-| high | 6.3 s | 1 706 | 978 340 |
-| medium | 1.9 s | 706 | 383 920 |
-| low | 1.8 s | 701 | 191 522 |
+| high | 5.3 s | 1 756 | 984 804 |
+| medium | 1.7 s | 706 | 383 920 |
+| low | 1.7 s | 701 | 191 522 |
 
-Draw calls are dominated by part count (843 selectable objects in the high level); the next optimisation step would
+Draw calls are dominated by part count (866 selectable objects in the high level); the next optimisation step would
 be merging static exterior parts into fewer meshes for the low level while keeping the part
 index for selection.
 

@@ -1,16 +1,17 @@
 {
  "summary": {
-  "parts": 1084,
+  "parts": 1107,
   "by_detail": {
    "0": 340,
-   "1": 503,
+   "1": 526,
    "2": 241
   },
   "by_system": {
-   "AIRFRAME": 65,
+   "AIRFRAME": 69,
    "BRAKES": 8,
+   "CABIN_AIR": 11,
    "CONTROLS": 126,
-   "ELECTRICAL": 50,
+   "ELECTRICAL": 58,
    "EMPENNAGE": 61,
    "ENGINE": 95,
    "FASTENERS": 229,
@@ -36,6 +37,7 @@
    "altimeter": 13,
    "attitude_indicator": 11,
    "brake_system": 15,
+   "cabin_air": 15,
    "carburetor": 15,
    "directional_gyro": 12,
    "electrical_system": 26,
@@ -48,6 +50,7 @@
    "fuel_system": 36,
    "hardware_kit": 12,
    "instrument_cases": 7,
+   "lighting": 14,
    "nose_steering": 5,
    "oil_system": 13,
    "pitot_static": 9,
@@ -98,7 +101,8 @@
    "parent": "WING_L",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 80,
+   "assembly": "cabin_air"
   },
   {
    "id": "AIRFRAME.cabin_vent_R",
@@ -108,7 +112,8 @@
    "parent": "WING_R",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 80,
+   "assembly": "cabin_air"
   },
   {
    "id": "AIRFRAME.carry_through_front",
@@ -175,6 +180,50 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 24
+  },
+  {
+   "id": "AIRFRAME.door_hinge_L_lower",
+   "system": "AIRFRAME",
+   "en": "Lower hinge of the left cabin door",
+   "ar": "المفصلة السفلية لباب المقصورة الأيسر",
+   "parent": "AIRFRAME",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 40,
+   "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
+  },
+  {
+   "id": "AIRFRAME.door_hinge_L_upper",
+   "system": "AIRFRAME",
+   "en": "Upper hinge of the left cabin door",
+   "ar": "المفصلة العلوية لباب المقصورة الأيسر",
+   "parent": "AIRFRAME",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 40,
+   "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
+  },
+  {
+   "id": "AIRFRAME.door_hinge_R_lower",
+   "system": "AIRFRAME",
+   "en": "Lower hinge of the right cabin door",
+   "ar": "المفصلة السفلية لباب المقصورة الأيمن",
+   "parent": "AIRFRAME",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 40,
+   "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
+  },
+  {
+   "id": "AIRFRAME.door_hinge_R_upper",
+   "system": "AIRFRAME",
+   "en": "Upper hinge of the right cabin door",
+   "ar": "المفصلة العلوية لباب المقصورة الأيمن",
+   "parent": "AIRFRAME",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 40,
+   "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
   },
   {
    "id": "AIRFRAME.door_post_aft_L",
@@ -1159,6 +1208,17 @@
    "triangles": 48
   },
   {
+   "id": "AIRFRAME.transponder_antenna",
+   "system": "ELECTRICAL",
+   "en": "Transponder antenna: a short stub under the fuselage",
+   "ar": "هوائي المرسل المجيب: قضيب قصير تحت جسم الطائرة",
+   "parent": "AIRFRAME",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 104,
+   "note": "Not described in the POH; position representative"
+  },
+  {
    "id": "AIRFRAME.window_rear_L",
    "system": "AIRFRAME",
    "en": "Left rear side window",
@@ -1263,6 +1323,149 @@
    "triangles": 12,
    "assembly": "brake_system",
    "note": "Representative"
+  },
+  {
+   "id": "CABIN_AIR.cabin_air_cable",
+   "system": "CABIN_AIR",
+   "en": "Cabin air control cable: CABIN AIR knob to the ventilating air door",
+   "ar": "كابل التحكم بهواء المقصورة: من مقبض CABIN AIR إلى باب هواء التهوية",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 220,
+   "assembly": "cabin_air",
+   "ref": "p.7-29",
+   "note": "Push-pull control; route representative"
+  },
+  {
+   "id": "CABIN_AIR.cabin_heat_cable",
+   "system": "CABIN_AIR",
+   "en": "Cabin heat control cable: CABIN HT knob to the heater valve",
+   "ar": "كابل التحكم بتدفئة المقصورة: من مقبض CABIN HT إلى صمام التدفئة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 220,
+   "assembly": "cabin_air",
+   "ref": "p.7-29",
+   "note": "Push-pull control; route representative"
+  },
+  {
+   "id": "CABIN_AIR.defroster_duct",
+   "system": "CABIN_AIR",
+   "en": "Windshield defroster duct: from the cabin manifold up to the defroster outlet",
+   "ar": "مجرى إزالة الضباب عن الزجاج الأمامي: من مجمّع المقصورة صعودًا إلى فتحة إزالة الضباب",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 92,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "A duct leads from the cabin manifold to the defroster outlet (POH p.7-31); route representative"
+  },
+  {
+   "id": "CABIN_AIR.defroster_outlet",
+   "system": "CABIN_AIR",
+   "en": "Adjustable defroster outlet, with the two knobs of its sliding valves",
+   "ar": "فتحة إزالة الضباب القابلة للضبط، مع مقبضي صماميها المنزلقين",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 140,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Two knobs control sliding valves in the defroster outlet (POH p.7-31); the outlet is drawn under the forward edge of the glareshield"
+  },
+  {
+   "id": "CABIN_AIR.heat_hose",
+   "system": "CABIN_AIR",
+   "en": "Cabin heat hose: heated air from the shroud round the exhaust muffler to the heater valve",
+   "ar": "خرطوم تدفئة المقصورة: هواء ساخن من الغلاف المحيط بكاتم الصوت إلى صمام التدفئة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 92,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Air is heated in a shroud round the exhaust muffler (POH Figure 7-8); route representative"
+  },
+  {
+   "id": "CABIN_AIR.heater_valve",
+   "system": "CABIN_AIR",
+   "en": "Heater valve (on the firewall): lets heated air from the muffler shroud into the cabin manifold",
+   "ar": "صمام التدفئة (على جدار الحريق): يُدخل الهواء الساخن من غلاف كاتم الصوت إلى مجمّع هواء المقصورة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 52,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Worked by the CABIN HT knob: pulled out it opens the valve (POH p.7-29); form and position representative"
+  },
+  {
+   "id": "CABIN_AIR.manifold",
+   "system": "CABIN_AIR",
+   "en": "Cabin manifold with the front cabin air outlets: heated and outside air mix here, just forward of the pilot's and copilot's feet",
+   "ar": "مجمّع هواء المقصورة مع فتحات الهواء الأمامية: يختلط فيه الهواء الساخن والخارجي، أمام قدمي الطيار ومساعده مباشرة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 780,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Outlet holes are spaced across the manifold (POH p.7-31); its form and the number of holes are representative"
+  },
+  {
+   "id": "CABIN_AIR.rear_duct_L",
+   "system": "CABIN_AIR",
+   "en": "Rear cabin air duct, left: from the manifold along the side of the cabin to an outlet at the front door post, at floor level",
+   "ar": "مجرى هواء المقصورة الخلفية الأيسر: من المجمّع بمحاذاة جانب المقصورة إلى فتحة عند قائم الباب الأمامي بمستوى الأرضية",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 332,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Two ducts from the manifold supply the rear cabin, one down each side (POH p.7-31); route representative"
+  },
+  {
+   "id": "CABIN_AIR.rear_duct_R",
+   "system": "CABIN_AIR",
+   "en": "Rear cabin air duct, right: from the manifold along the side of the cabin to an outlet at the front door post, at floor level",
+   "ar": "مجرى هواء المقصورة الخلفية الأيمن: من المجمّع بمحاذاة جانب المقصورة إلى فتحة عند قائم الباب الأمامي بمستوى الأرضية",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 332,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Two ducts from the manifold supply the rear cabin, one down each side (POH p.7-31); route representative"
+  },
+  {
+   "id": "CABIN_AIR.ventilating_air_door",
+   "system": "CABIN_AIR",
+   "en": "Ventilating air door (right side of the forward fuselage): lets outside air into the cabin manifold",
+   "ar": "باب هواء التهوية (الجانب الأيمن من مقدمة جسم الطائرة): يُدخل الهواء الخارجي إلى مجمّع المقصورة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Worked by the CABIN AIR knob: pulled out it opens the door (POH p.7-29, Figure 7-8); size and position representative"
+  },
+  {
+   "id": "CABIN_AIR.ventilating_air_duct",
+   "system": "CABIN_AIR",
+   "en": "Ventilating air duct: from the ventilating air door to the cabin manifold",
+   "ar": "مجرى هواء التهوية: من باب هواء التهوية إلى مجمّع المقصورة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 92,
+   "assembly": "cabin_air",
+   "ref": "p.7-29 to 7-31 (Fig 7-8)",
+   "note": "Route representative"
   },
   {
    "id": "CONTROLS.aileron_cable_L",
@@ -2342,6 +2545,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 128,
+   "assembly": "lighting",
    "ref": "p.7-27"
   },
   {
@@ -2440,6 +2644,33 @@
    "triangles": 216
   },
   {
+   "id": "ELECTRICAL.dome_light",
+   "system": "ELECTRICAL",
+   "en": "Cabin dome light, in the aft part of the overhead console, with its switch",
+   "ar": "ضوء المقصورة في الجزء الخلفي من الكونسول العلوي، مع مفتاحه",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 82,
+   "assembly": "lighting",
+   "ref": "p.7-29",
+   "note": "Operated by a switch near the light; the same switch works the courtesy lights under the wings (POH p.7-28, 7-29)"
+  },
+  {
+   "id": "ELECTRICAL.doorpost_map_light",
+   "system": "ELECTRICAL",
+   "en": "Map light on the left forward door post, with red and white bulbs (optional equipment)",
+   "ar": "ضوء الخرائط على قائم الباب الأمامي الأيسر، بمصباحين أحمر وأبيض (تجهيز اختياري)",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 42,
+   "assembly": "lighting",
+   "ref": "p.7-29",
+   "note": "Its switch below the light selects RED, OFF or WHITE (POH p.7-29); form representative",
+   "optional": true
+  },
+  {
    "id": "ELECTRICAL.elt_antenna",
    "system": "ELECTRICAL",
    "en": "ELT antenna",
@@ -2448,6 +2679,19 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 28
+  },
+  {
+   "id": "ELECTRICAL.flood_light",
+   "system": "ELECTRICAL",
+   "en": "Instrument panel flood light (red), in the forward part of the overhead console",
+   "ar": "ضوء إنارة لوحة العدادات (أحمر)، في الجزء الأمامي من الكونسول العلوي",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 70,
+   "assembly": "lighting",
+   "ref": "p.7-28",
+   "note": "A single red flood light lights the instrument and control panels; its intensity is set with the PANEL LT rheostat (POH p.7-28)"
   },
   {
    "id": "ELECTRICAL.ground_strap",
@@ -2506,6 +2750,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 144,
+   "assembly": "lighting",
    "ref": "p.7-27",
    "note": "A single landing light is standard; dual landing/taxi lights were an option"
   },
@@ -2517,7 +2762,8 @@
    "parent": "POWERPLANT",
    "detail": 0,
    "status": "estimated",
-   "triangles": 96
+   "triangles": 96,
+   "assembly": "lighting"
   },
   {
    "id": "ELECTRICAL.starter",
@@ -2553,6 +2799,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 48,
+   "assembly": "lighting",
    "ref": "p.7-27"
   },
   {
@@ -2867,6 +3114,17 @@
    "triangles": 204,
    "ref": "p.7-3",
    "note": "The vertical stabiliser has one spar (POH); it stands just ahead of the rudder hinge line"
+  },
+  {
+   "id": "EMPENNAGE.nav_antenna",
+   "system": "ELECTRICAL",
+   "en": "Navigation (VOR/LOC) antenna: a V of two rods on the vertical stabiliser",
+   "ar": "هوائي الملاحة (VOR/LOC): قضيبان على شكل V على المثبت الرأسي",
+   "parent": "EMPENNAGE",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 112,
+   "note": "Not described in the POH; where a 172 of this year carries its navigation antenna, drawn representatively"
   },
   {
    "id": "EMPENNAGE.rivets_fin_spar_L",
@@ -6283,6 +6541,19 @@
    "note": "Level with the underside of the wing root; the carry-through spars lie above it"
   },
   {
+   "id": "INTERIOR.overhead_console",
+   "system": "ELECTRICAL",
+   "en": "Overhead console (carries the instrument flood light, the dome light and its switch)",
+   "ar": "الكونسول العلوي (يحمل ضوء إنارة اللوحة وضوء المقصورة ومفتاحه)",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "lighting",
+   "ref": "p.7-28",
+   "note": "Named in the POH lighting description; form representative"
+  },
+  {
    "id": "INTERIOR.parking_brake",
    "system": "INTERIOR",
    "en": "Parking brake handle",
@@ -8369,6 +8640,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 228,
+   "assembly": "cabin_air",
    "ref": "p.7-23"
   },
   {
@@ -8390,6 +8662,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 228,
+   "assembly": "cabin_air",
    "ref": "p.7-23"
   },
   {
@@ -9396,6 +9669,20 @@
    "note": "Light channel closing the wing ahead of the aileron and carrying its hinges, with an opening for the aileron push-pull rod; representative"
   },
   {
+   "id": "WING_L.courtesy_light",
+   "system": "ELECTRICAL",
+   "en": "Courtesy light under the left wing, just outboard of the cabin door (optional equipment)",
+   "ar": "ضوء المجاملة تحت الجناح الأيسر، خارج باب المقصورة مباشرة (تجهيز اختياري)",
+   "parent": "WING_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 70,
+   "assembly": "lighting",
+   "ref": "p.7-28",
+   "note": "Two courtesy lights, one under each wing, are operated by the dome light switch (POH p.7-28); position along the chord representative",
+   "optional": true
+  },
+  {
    "id": "WING_L.flap",
    "system": "WING_L",
    "en": "Left flap (0° to 40°)",
@@ -9730,6 +10017,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 96,
+   "assembly": "lighting",
    "ref": "p.7-27"
   },
   {
@@ -11075,6 +11363,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 84,
+   "assembly": "lighting",
    "ref": "p.1-2 (wing span shown with strobe lights installed), p.7-27"
   },
   {
@@ -11288,6 +11577,20 @@
    "status": "estimated",
    "triangles": 224,
    "note": "Light channel closing the wing ahead of the aileron and carrying its hinges, with an opening for the aileron push-pull rod; representative"
+  },
+  {
+   "id": "WING_R.courtesy_light",
+   "system": "ELECTRICAL",
+   "en": "Courtesy light under the right wing, just outboard of the cabin door (optional equipment)",
+   "ar": "ضوء المجاملة تحت الجناح الأيمن، خارج باب المقصورة مباشرة (تجهيز اختياري)",
+   "parent": "WING_R",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 70,
+   "assembly": "lighting",
+   "ref": "p.7-28",
+   "note": "Two courtesy lights, one under each wing, are operated by the dome light switch (POH p.7-28); position along the chord representative",
+   "optional": true
   },
   {
    "id": "WING_R.flap",
@@ -11663,6 +11966,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 96,
+   "assembly": "lighting",
    "ref": "p.7-27"
   },
   {
@@ -12982,6 +13286,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 84,
+   "assembly": "lighting",
    "ref": "p.1-2 (wing span shown with strobe lights installed), p.7-27"
   },
   {

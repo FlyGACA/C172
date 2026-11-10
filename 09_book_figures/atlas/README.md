@@ -175,6 +175,26 @@ npm run part -- render --part @carburetor --ghost INDUCTION.carburetor INDUCTION
 npm run part -- render --part @engine_controls @carburetor --context --focus PANEL.throttle INDUCTION.carburetor --azimuth 60 --elevation 20 --grow 0.002 --tint '#D9534F' --margin 1.2
 ```
 
+## Cabin heating, ventilating and defrosting: heat hose, heater valve, manifold, defroster, rear ducts, ventilating air door, control cables
+
+<div dir="rtl">تدفئة المقصورة وتهويتها وإزالة الضباب: خرطوم التدفئة وصمامها والمجمّع ومجرى إزالة الضباب والمجريان الخلفيان وباب هواء التهوية وكابلا التحكم</div>
+
+![Cabin heating, ventilating and defrosting: heat hose, heater valve, manifold, defroster, rear ducts, ventilating air door, control cables](cabin_air.png)
+
+```
+npm run part -- render --part @cabin_air --context --focus CABIN_AIR.manifold CABIN_AIR.heat_hose CABIN_AIR.rear_duct_L CABIN_AIR.defroster_outlet --azimuth 215 --elevation 30 --tint '#E0703A' --margin 1.0
+```
+
+## Lights: navigation, strobe, landing, beacon and tail lights; flood and dome lights in the overhead console; courtesy and map lights
+
+<div dir="rtl">الأضواء: أضواء الملاحة والوميض والهبوط والمنارة والذيل؛ ضوءا إنارة اللوحة والمقصورة في الكونسول العلوي؛ أضواء المجاملة والخرائط</div>
+
+![Lights: navigation, strobe, landing, beacon and tail lights; flood and dome lights in the overhead console; courtesy and map lights](lighting.png)
+
+```
+npm run part -- render --part @lighting --context --frame aircraft --azimuth 215 --elevation 28 --grow 0.004 --tint '#E3B020' --margin 0.55
+```
+
 ## Behind the instrument panel: the instrument cases and the pitot, static and vacuum lines joined to them
 
 <div dir="rtl">خلف لوحة العدادات: علب العدادات وخطوط البيتوت والضغط الساكن والتفريغ الموصولة بها</div>

@@ -8,7 +8,7 @@ the configuration of a specific serial number is not verified.
 and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe follows the
 manufacturer's three-view drawing ([how](08_realistic_digital_twin/docs/05_shape_reference.md)), and the
 model goes under the skin: structure, control runs, systems, the insides of the engine and of the
-instruments, and fasteners, as 1,084 separate named parts,
+instruments, cabin air and lights, and fasteners, as 1,107 separate named parts,
 any of which can be drawn or exported on its own ([parts index](08_realistic_digital_twin/docs/06_parts_index.md),
 [atlas](09_book_figures/atlas/README.md)).
 
