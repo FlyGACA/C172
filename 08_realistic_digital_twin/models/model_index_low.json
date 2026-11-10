@@ -1,7 +1,7 @@
 {
  "lod": "low",
  "objects": 339,
- "triangles": 96049,
+ "triangles": 96053,
  "systems": {
   "AIRFRAME": 22,
   "WING_L": 5,
@@ -693,7 +693,7 @@
    "id": "INTERIOR.floor",
    "detail": 0,
    "name": "INTERIOR.floor",
-   "triangles": 42,
+   "triangles": 46,
    "parent": "INTERIOR"
   },
   {
@@ -4465,6 +4465,6 @@
   }
  ],
  "file": "C172N_realistic_low.glb",
- "bytes": 2107872,
- "build_seconds": 16.4
+ "bytes": 2107916,
+ "build_seconds": 15.4
 }

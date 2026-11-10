@@ -14,8 +14,9 @@
     export --part ID [ID ...] --out FILE.glb [--centre]
         Writes the named parts as a GLB, where they are in the aircraft or (--centre) at the origin.
 
-An ID is the name of a part ("ENGINE.piston_1"), of an assembly ("WING_L": the group and everything in
-it), or a pattern ("WING_L.rib_*"). Whatever is parented to a named part comes with it.
+An ID is the name of a part ("ENGINE.piston_1"), of a group ("WING_L": the group and everything in
+it), a pattern ("WING_L.rib_*"), an assembly ("@aileron_control": every part of the aileron control
+run, wherever it is) or a system ("system:FUEL"). Whatever is parented to a named part comes with it.
 """
 import argparse
 import json
@@ -85,6 +86,12 @@ def command_render(args):
                 camera=dict(type="auto", azimuth_deg=args.azimuth, elevation_deg=args.elevation, fov=args.fov, margin=args.margin))
     if args.tint:
         spec["highlights"] = [dict(key="part", ids=chosen_names, color=args.tint)]
+    if args.grow:
+        spec["grow"] = [dict(ids=chosen_names, by=args.grow)]
+    if args.target:
+        spec["camera"]["target"] = args.target
+    if args.distance:
+        spec["camera"]["distance"] = args.distance
     if args.context:
         keep = set(chosen_names)
         spec["ghost"] = [ob.name for ob in bpy.data.objects
@@ -92,6 +99,10 @@ def command_render(args):
                          and ob.get("system") not in ("INTERIOR", "PANEL")]
         if args.frame == "part":
             spec["camera"]["of"] = chosen_names
+    else:
+        spec["camera"]["of"] = chosen_names
+    if args.focus:
+        spec["camera"]["of"] = [ob.name for ob in RF.resolve(args.focus, hidden=True)]
     os.makedirs(args.out, exist_ok=True)
     RF.render_one(spec, argparse.Namespace(out=args.out, quick=args.quick, anchors_only=False, keep=False))
     stem = os.path.join(args.out, name + ("_quick" if args.quick else ""))
@@ -147,6 +158,10 @@ def main():
     render.add_argument("--fov", type=float, default=24.0)
     render.add_argument("--margin", type=float, default=1.12)
     render.add_argument("--tint", help="colour for the part, e.g. #8DB7E2")
+    render.add_argument("--grow", type=float, help="draw the parts this much thicker (m), for cables and pipes seen from far away")
+    render.add_argument("--focus", nargs="+", metavar="ID", help="fit the picture to these parts (default: to all the parts drawn)")
+    render.add_argument("--target", type=float, nargs=3, metavar=("X", "Y", "Z"), help="look at this point (m) instead of the middle of the parts")
+    render.add_argument("--distance", type=float, help="camera distance from the target (m) instead of fitting the parts")
     render.add_argument("--quick", action="store_true")
     export = sub.add_parser("export")
     export.add_argument("--part", nargs="+", required=True)

@@ -4,10 +4,12 @@ import os
 import bpy
 
 # detail: the highest detail level built into this quality level (see c172/detail/__init__.py):
-# 0 basic model, 1 structure and mechanisms, 2 fasteners. The editable .blend always has everything.
+# 0 basic model, 1 structure and mechanisms, 2 fasteners. The editable .blend always has everything;
+# the web model has what lies under the skin in its high quality level only, so that the medium and
+# low levels stay light enough for tablets and phones.
 LODS = {
     "high":   dict(subsurf=2, tex=2048, decimate=None, detail=1),
-    "medium": dict(subsurf=1, tex=1024, decimate=None, detail=1),
+    "medium": dict(subsurf=1, tex=1024, decimate=None, detail=0),
     "low":    dict(subsurf=1, tex=512, decimate=0.5, detail=0),
 }
 BLEND_DETAIL = 2

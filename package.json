@@ -24,6 +24,9 @@
     "figures": "node 09_book_figures/build.mjs",
     "figures:check": "node 09_book_figures/build.mjs --out \"${TMPDIR:-/tmp}/c172-figures-check\"",
     "test:figures:py": "python3 09_book_figures/tests/test_ink.py",
+    "part": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/part.py --",
+    "part:list": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/part.py -- list",
+    "threeview8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/threeview.py --",
     "figures:render": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/render_figure.py -- --all"
   },
   "devDependencies": {

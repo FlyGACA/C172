@@ -798,6 +798,15 @@ def build_empennage(ctx):
 
 # ----------------------------------------------------------------------------- fuselage-mounted details
 
+FLOOR_Z = 0.93                 # centre plane of the cabin floor panel, 30 mm thick (m, build frame)
+FLOOR_STEP_FS = (94.0, 97.0)   # behind the rear seat the floor steps up to the baggage floor ...
+BAGGAGE_FLOOR_RISE = 0.045     # ... by this much (estimated: the belly rises aft, the baggage floor rides on it)
+
+def floor_z(station):
+    """Centre plane of the floor panel at a station (in)."""
+    t = (station - FLOOR_STEP_FS[0]) / (FLOOR_STEP_FS[1] - FLOOR_STEP_FS[0])
+    return FLOOR_Z + BAGGAGE_FLOOR_RISE * min(1.0, max(0.0, t))
+
 def build_details(ctx):
     M = ctx.mats
     grp = ctx.groups["AIRFRAME"]
@@ -870,15 +879,16 @@ def build_details(ctx):
         add_boolean(panel, ctx.cutter_objects["door_win_" + side], "DIFFERENCE", "win")
         parent_keep(panel, door)
         ctx.tag(panel, "INTERIOR", f"{'Left' if side == 'L' else 'Right'} door trim panel", "بطانة الباب " + ("الأيسر" if side == "L" else "الأيمن"), status="estimated")
-    # cabin floor: a flat panel that narrows with the hull so its edges stay inside the skin
-    FLOOR_Z = 0.93
-    floor_stations = [4, 12, 20, 30, 45, 60, 75, 88, 100, 108, 112]
+    # cabin floor: a panel that narrows with the hull so its edges stay inside the skin; the baggage
+    # floor behind the rear seat is higher, as the belly rises there (floor_z)
+    floor_stations = [4, 12, 20, 30, 45, 60, 75, 88, FLOOR_STEP_FS[0], FLOOR_STEP_FS[1], 104, 112]
     bm = new_bm()
     rings = []
     for st in floor_stations:
-        half = max(0.12, fus_half_width_at(st, FLOOR_Z - 0.015) - 0.03)
-        rings.append([Vector((half, fs(st), FLOOR_Z + 0.015)), Vector((-half, fs(st), FLOOR_Z + 0.015)),
-                      Vector((-half, fs(st), FLOOR_Z - 0.015)), Vector((half, fs(st), FLOOR_Z - 0.015))])
+        z = floor_z(st)
+        half = max(0.12, fus_half_width_at(st, z - 0.015) - 0.03)
+        rings.append([Vector((half, fs(st), z + 0.015)), Vector((-half, fs(st), z + 0.015)),
+                      Vector((-half, fs(st), z - 0.015)), Vector((half, fs(st), z - 0.015))])
     loft(bm, rings, close=True, cap_start=True, cap_end=True)
     floor = obj_from_bm("INTERIOR.floor", bm, ctx.col, mat=M["carpet"], smooth=False)
     parent_keep(floor, ctx.groups["INTERIOR"])

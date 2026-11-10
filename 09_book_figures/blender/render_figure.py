@@ -95,13 +95,23 @@ def flat_material(name, rgb, rough=0.6, alpha=1.0):
 
 
 def resolve(ids, hidden=False):
-    """Mesh objects named in ids, plus everything parented below them. An id is a part or group name,
-    or a shell-style pattern such as "WING_L.rib_*". Parts that are hidden from the render are left
-    out unless `hidden` is set."""
+    """Mesh objects named in ids, plus everything parented below them. An id is
+        a part or group name            "ENGINE.piston_1", "WING_L"
+        a shell-style pattern           "WING_L.rib_*"
+        an assembly                     "@aileron_control"   (every part tagged with that assembly)
+        a system                        "system:FUEL"        (every part of that system)
+    Parts that are hidden from the render are left out unless `hidden` is set."""
     found = []
     for name in ids:
         ob = bpy.data.objects.get(name)
-        matches = [ob] if ob is not None else [o for o in bpy.data.objects if fnmatch.fnmatchcase(o.name, name)]
+        if ob is not None:
+            matches = [ob]
+        elif name.startswith("@"):
+            matches = [o for o in bpy.data.objects if name[1:] in str(o.get("assembly", "")).split(",")]
+        elif name.startswith("system:"):
+            matches = [o for o in bpy.data.objects if o.get("system") == name[7:] and not o.get("group")]
+        else:
+            matches = [o for o in bpy.data.objects if fnmatch.fnmatchcase(o.name, name)]
         if not matches:
             raise SystemExit(f"render_figure: unknown part id {name!r}")
         for match in matches:
@@ -198,6 +208,12 @@ def setup_scene(spec, quick):
                 ob.hide_render = True
                 ob.hide_viewport = True
     apply_cuts(spec)
+    # thin parts (cables, pipes, wires) can be drawn thicker than they are, so that they read at the size of the figure
+    for number, entry in enumerate(spec.get("grow", [])):
+        for ob in resolve(entry["ids"]):
+            modifier = ob.modifiers.new(f"figure_grow_{number}", "DISPLACE")
+            modifier.strength = entry.get("by", 0.004)
+            modifier.mid_level = 0.0
     return sc
 
 
@@ -248,6 +264,8 @@ def setup_camera(sc, spec):
         bpy.context.view_layer.update()
         subjects = resolve(cam_spec["of"]) if cam_spec.get("of") else [o for o in bpy.data.objects if o.type == "MESH" and not o.hide_render and o.name != GROUND]
         centre, radius = scene_bounds(subjects)
+        if "target" in cam_spec:                          # look at a chosen point ...
+            centre = Vector(cam_spec["target"])
         azimuth, elevation = math.radians(cam_spec.get("azimuth_deg", 35)), math.radians(cam_spec.get("elevation_deg", 22))
         direction = Vector((math.sin(azimuth) * math.cos(elevation), -math.cos(azimuth) * math.cos(elevation), math.sin(elevation)))
         margin = cam_spec.get("margin", 1.12)
@@ -257,7 +275,8 @@ def setup_camera(sc, spec):
         else:
             fov = cam_spec.get("fov", 24)
             narrow = math.radians(fov) / 2 / max(1.0, 1 / aspect)          # the half angle across the short side
-            cam_spec.update(type="persp", fov=fov, pos=centre + direction * (radius * margin / math.sin(narrow)), target=centre)
+            distance = cam_spec.get("distance", radius * margin / math.sin(narrow))      # ... from a chosen distance
+            cam_spec.update(type="persp", fov=fov, pos=centre + direction * distance, target=centre)
     ob.location = cam_spec["pos"]
     direction = Vector(cam_spec["target"]) - Vector(cam_spec["pos"])
     ob.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
@@ -268,7 +287,7 @@ def setup_camera(sc, spec):
         cam.ortho_scale = cam_spec["ortho_scale"]
     else:
         cam.angle = math.radians(cam_spec["fov"])
-    cam.clip_start = 0.5
+    cam.clip_start = 0.05
     cam.clip_end = 1000
     return ob
 
@@ -497,6 +516,9 @@ def render_one(spec, args):
     bpy.context.view_layer.update()
     stem = os.path.join(args.out, spec["id"] + ("_quick" if args.quick else ""))
     ghosts = resolve(spec.get("ghost", [])) if spec.get("ghost") else []
+    if ghosts and spec.get("only"):                                   # a part named in "only" is drawn solid even if its parent is a phantom
+        solid = set(resolve(spec["only"]))
+        ghosts = [ob for ob in ghosts if ob not in solid]
     export_anchors(sc, cam, spec, stem + ".anchors.json", see_through=ghosts)
     if args.anchors_only:
         return

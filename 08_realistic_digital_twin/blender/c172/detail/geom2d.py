@@ -144,3 +144,40 @@ def spaced(start, end, pitch, margin=0.0):
         return [(start + end) / 2]
     count = max(1, int(round(length / pitch)))
     return [start + margin + length * i / count for i in range(count + 1)]
+
+
+def convex_hull(points):
+    """Convex hull of 2D points, counter-clockwise (monotone chain)."""
+    pts = sorted(set((round(x, 9), round(y, 9)) for x, y in points))
+    if len(pts) <= 2:
+        return pts
+
+    def cross(o, a, b):
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+    lower, upper = [], []
+    for p in pts:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+            lower.pop()
+        lower.append(p)
+    for p in reversed(pts):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+            upper.pop()
+        upper.append(p)
+    return lower[:-1] + upper[:-1]
+
+
+def clear_of(holes, others, gap):
+    """The round holes of `holes` [(cx, cy, r)] that neither touch nor crowd any of `others`: a hole is
+    dropped when it comes within `gap` of another one without containing it."""
+    kept = []
+    for cx, cy, r in holes:
+        ok = True
+        for ox, oy, orad in others:
+            distance = math.hypot(cx - ox, cy - oy)
+            if distance < r + orad + gap and not distance + orad < r - gap * 0.5:
+                ok = False
+                break
+        if ok:
+            kept.append((cx, cy, r))
+    return kept

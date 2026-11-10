@@ -146,5 +146,64 @@ class UnitsTests(unittest.TestCase):
         self.assertAlmostEqual((units.ROOT_CHORD - units.TAPER_PER_M * (units.TIP_RIB - units.TAPER_START)) / units.IN, 44.5, places=6)
 
 
+class SheetGeometryTests(unittest.TestCase):
+    """Plane geometry behind the sheet-metal parts of the detail packs (c172/detail/geom2d.py)."""
+
+    def setUp(self):
+        from c172.detail import geom2d
+        self.g = geom2d
+        self.rib = [(0.0, 0.0), (0.4, -0.02), (0.8, 0.0), (0.8, 0.10), (0.4, 0.14), (0.0, 0.10)]
+
+    def test_area_sign_and_orientation(self):
+        square = [(0, 0), (1, 0), (1, 1), (0, 1)]
+        self.assertAlmostEqual(self.g.area(square), 1.0)
+        self.assertAlmostEqual(self.g.area(list(reversed(square))), -1.0)
+        self.assertGreater(self.g.area(self.g.counter_clockwise(list(reversed(square)))), 0)
+
+    def test_inset_moves_every_edge_inward(self):
+        square = [(0, 0), (1, 0), (1, 1), (0, 1)]
+        inner = self.g.inset(square, 0.1)
+        self.assertAlmostEqual(self.g.area(inner), 0.64, places=6)
+        self.assertAlmostEqual(self.g.area(self.g.inset(square, -0.1)), 1.44, places=6)
+        self.assertAlmostEqual(self.g.area(self.g.inset(list(reversed(square)), 0.1)), 0.64, places=6)   # either winding
+
+    def test_lightening_holes_stay_inside_the_web(self):
+        margin = 0.02
+        holes = self.g.lightening_holes(self.rib, 0.05, 0.75, 4, margin)
+        self.assertEqual(len(holes), 4)
+        for hole in holes:
+            for point in hole:
+                self.assertTrue(self.g.inside(point, self.rib))
+                low, high = self.g.height_at(self.rib, point[0])
+                self.assertGreater(point[1] - low, margin * 0.9)
+                self.assertGreater(high - point[1], margin * 0.9)
+        centres = [sum(p[0] for p in hole) / len(hole) for hole in holes]
+        radii = [max(p[0] for p in hole) - c for hole, c in zip(holes, centres)]
+        for a, b, ra, rb in zip(centres, centres[1:], radii, radii[1:]):
+            self.assertGreater(b - a - ra - rb, margin * 0.9)                    # metal left between two holes
+
+    def test_no_hole_where_the_web_is_too_shallow(self):
+        strip = [(0.0, 0.0), (1.0, 0.0), (1.0, 0.03), (0.0, 0.03)]
+        self.assertEqual(self.g.lightening_holes(strip, 0.05, 0.95, 5, 0.02), [])
+
+    def test_slot_and_rounded_rectangle_extent(self):
+        slot = self.g.slot(0.0, 0.0, 0.10, 0.02)
+        self.assertAlmostEqual(max(p[0] for p in slot) - min(p[0] for p in slot), 0.10, places=6)
+        self.assertAlmostEqual(max(p[1] for p in slot) - min(p[1] for p in slot), 0.02, places=6)
+        box = self.g.rounded_rectangle(1.0, 2.0, 0.3, 0.2, 0.05)
+        self.assertAlmostEqual(max(p[0] for p in box) - min(p[0] for p in box), 0.3, places=6)
+        self.assertAlmostEqual(max(p[1] for p in box) - min(p[1] for p in box), 0.2, places=6)
+
+    def test_resample_and_spacing(self):
+        line = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0)]
+        points = self.g.resample(line, 5)
+        self.assertEqual(points[0], (0.0, 0.0)); self.assertEqual(points[-1], (1.0, 1.0))
+        steps = [math.dist(a, b) for a, b in zip(points, points[1:])]
+        self.assertAlmostEqual(max(steps), 0.5, places=6)
+        row = self.g.spaced(0.0, 1.0, 0.24, margin=0.02)
+        self.assertAlmostEqual(row[0], 0.02); self.assertAlmostEqual(row[-1], 0.98)
+        self.assertEqual(len(row), 5)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -10,7 +10,7 @@ from .units import fs, wl
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf,
                      add_bevel, extrude_profile, rounded_rect, ellipse)
 from .dials import cell_uv, MISC, CELLS
-from .airframe import fus_half_width_at
+from .airframe import fus_half_width_at, floor_z
 
 CABIN_LIFT = 0.10         # applied by build() to everything not fixed to the floor (estimated)
 FLOOR_MOUNTED = ("INTERIOR.pedal_", "FUEL.selector_", "INTERIOR.baggage_bulkhead")
@@ -445,7 +445,8 @@ def build_seats(ctx):
         ctx.tag(ih, "INTERIOR", "Door inner handle", "مقبض الباب الداخلي", status="estimated")
     # baggage shelf / rear bulkhead
     top = wl(51.5) - 0.03          # lower edge of the rear window at this station
-    heights = [FLOOR_TOP + (top - FLOOR_TOP) * i / 8 for i in range(9)]
+    foot = floor_z(112) + 0.015    # it stands on the raised baggage floor
+    heights = [foot + (top - foot) * i / 8 for i in range(9)]
     half = [max(0.05, fus_half_width_at(112, z) - 0.04) for z in heights]
     outline = [(h, z) for h, z in zip(half, heights)] + [(-h, z) for h, z in zip(reversed(half), reversed(heights))]
     bm = new_bm()

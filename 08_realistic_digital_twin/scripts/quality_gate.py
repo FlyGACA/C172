@@ -13,10 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 P8 = ROOT / "08_realistic_digital_twin"
 LODS = ("high", "medium", "low")
-LOD_DETAIL = {"high": 1, "medium": 1, "low": 0}      # highest detail level each quality level carries (blender/c172/export.py)
-# Download size ceilings. High and medium carry the structure and mechanisms under the skin (detail level 1);
-# low is the basic model for phones.
-MODEL_BUDGETS = {"high": 9_000_000, "medium": 6_500_000, "low": 2_300_000}
+LOD_DETAIL = {"high": 1, "medium": 0, "low": 0}      # highest detail level each quality level carries (blender/c172/export.py)
+# Download size ceilings. High carries the structure and mechanisms under the skin (detail level 1);
+# medium and low are the basic model, for tablets and phones.
+MODEL_BUDGETS = {"high": 9_000_000, "medium": 3_600_000, "low": 2_300_000}
 IMAGE_BUDGET = 3_000_000
 STATUS = {"measured", "poh", "type_data", "estimated"}
 

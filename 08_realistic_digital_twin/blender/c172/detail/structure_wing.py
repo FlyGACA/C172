@@ -21,6 +21,7 @@ from .. import units as U
 from ..units import IN
 from .. import airframe as A
 from . import geom2d
+from . import lanes
 from .common import Plane, sheet, wall, strip, extrude_along, angle_section, bolt, hex_prism, part, new_bm, box
 
 # Wing stations of the ribs (inches from the centreline). Status: estimated (see the note above).
@@ -31,6 +32,8 @@ WEB = 0.001                               # rib web gauge as drawn
 FLANGE = 0.014                            # width of a formed rib flange
 SPAR_GAP = 0.006                          # chord fraction kept clear of each spar line by the ribs
 REAR_SPAR_END = 100.5                     # the rear spar is a partial-span spar (POH): it ends where the aileron begins
+AILERON_BELLCRANK_BL = 146.0              # wing station of the aileron bellcrank (controls.py) ...
+AILERON_PUSHROD_BL = 148.0                # ... and of the push-pull rod from it to the aileron
 
 
 def _edge(af, x0, x1, upper):
@@ -77,7 +80,21 @@ def _rib(ctx, grp, name, xabs, side, x0, x1, holes, label_en, label_ar, station)
     outline = rib_outline(xabs, x0, x1)
     c = A.wing_chord(xabs)
     xs = [p[0] for p in outline]
-    cut = geom2d.lightening_holes(outline, min(xs) + 0.012, max(xs) - 0.012, holes, 0.020, segments=18) if holes else []
+    lightening = []
+    for hole in (geom2d.lightening_holes(outline, min(xs) + 0.012, max(xs) - 0.012, holes, 0.020, segments=18) if holes else []):
+        cx = sum(p[0] for p in hole) / len(hole); cy = sum(p[1] for p in hole) / len(hole)
+        lightening.append((cx, cy, max(p[0] for p in hole) - cx))
+    # an opening for every cable, pipe or wire that passes this rib (lanes.py)
+    af = A.wing_airfoil(xabs)
+    runs = []
+    for xc, dz in lanes.wing_crossing(station):
+        middle = 0.5 * (A.airfoil_y(af, xc, True) + A.airfoil_y(af, xc, False)) * c + dz
+        reach = lanes.HOLE + 0.004
+        if all(geom2d.inside((xc * c + dx, middle + dy), outline) for dx, dy in ((reach, 0), (-reach, 0), (0, reach), (0, -reach))):
+            runs.append((xc * c, middle, lanes.HOLE))
+    lightening = geom2d.clear_of(lightening, runs, 0.005)
+    runs = [run for run in runs if not any(math.hypot(run[0] - cx, run[1] - cy) + run[2] < r for cx, cy, r in lightening)]
+    cut = [geom2d.circle(cx, cy, r, 18) for cx, cy, r in lightening] + [geom2d.circle(cx, cy, r, 10) for cx, cy, r in runs]
     bm = new_bm()
     sheet(bm, plane, outline, WEB, cut, offset=-WEB / 2)
     # formed flanges along the two skin edges, turned toward the wing root
@@ -92,8 +109,10 @@ def _rib(ctx, grp, name, xabs, side, x0, x1, holes, label_en, label_ar, station)
                 station_in=station, note="Formed sheet-metal rib (POH p.7-3); station, gauge and lightening holes are representative")
 
 
-def _spar(ctx, grp, name, side, xs, xc_fn, flange_dir, flange, web, label_en, label_ar, **tags):
-    """Channel-section spar along the span: a web between the skins with a flange under each skin."""
+def _spar(ctx, grp, name, side, xs, xc_fn, flange_dir, flange, web, label_en, label_ar, openings=(), **tags):
+    """Channel-section spar along the span: a web between the skins with a flange under each skin.
+    `openings` are (span position, half width, half height) of holes left in the web, e.g. for a push rod."""
+    xs = sorted(set(list(xs) + [x + d for x, half_width, _hh in openings for d in (-half_width, half_width)]))
     tops, bottoms, chord_dirs, ups = [], [], [], []
     for x in xs:
         c = A.wing_chord(x)
@@ -101,8 +120,26 @@ def _spar(ctx, grp, name, side, xs, xc_fn, flange_dir, flange, web, label_en, la
         bottom = A.wing_surface_point(x, side, xc_fn(x), False, inset=(SKIN + 0.0015) / c)
         plane = section_plane(x, side)
         tops.append(top); bottoms.append(bottom); chord_dirs.append(plane.u); ups.append(plane.v)
+    thick = [u * web for u in chord_dirs]
+
+    def opening(xa, xb):
+        return next((o for o in openings if o[0] - o[1] - 1e-6 <= xa and xb <= o[0] + o[1] + 1e-6), None)
+
     bm = new_bm()
-    strip(bm, tops, bottoms, [u * web for u in chord_dirs])
+    i = 0
+    while i < len(xs) - 1:                                  # the web, run by run: whole, or above and below an opening
+        this = opening(xs[i], xs[i + 1])
+        j = i + 1
+        while j < len(xs) - 1 and opening(xs[j], xs[j + 1]) is this:
+            j += 1
+        part_ = slice(i, j + 1)
+        if this is None:
+            strip(bm, tops[part_], bottoms[part_], thick[part_])
+        else:
+            middles = [(t + b) / 2 for t, b in zip(tops[part_], bottoms[part_])]
+            strip(bm, tops[part_], [m + u * this[2] for m, u in zip(middles, ups[part_])], thick[part_])
+            strip(bm, [m - u * this[2] for m, u in zip(middles, ups[part_])], bottoms[part_], thick[part_])
+        i = j
     reach = [u * (flange_dir * flange) for u in chord_dirs]
     strip(bm, tops, [t + r for t, r in zip(tops, reach)], [-v * web * 1.2 for v in ups])
     strip(bm, bottoms, [b + r for b, r in zip(bottoms, reach)], [v * web * 1.2 for v in ups])
@@ -129,7 +166,8 @@ def build_side(ctx, side):
     ail_xs = [x for x in stations if x >= REAR_SPAR_END * IN - 1e-6]
     _spar(ctx, grp, f"{grp}.aileron_spar", side, ail_xs, lambda x: cove_xc(x) - 0.012, -1, 0.02, 0.0015,
           f"Aileron hinge spar, {where_en} wing", f"عارضة مفصلات الجنيح، الجناح {where_ar}", status="estimated",
-          note="Light channel closing the wing ahead of the aileron and carrying its hinges; representative")
+          openings=[(AILERON_PUSHROD_BL * IN, 0.022, 0.016)],
+          note="Light channel closing the wing ahead of the aileron and carrying its hinges, with an opening for the aileron push-pull rod; representative")
 
     # ---- ribs
     for index, (station, x) in enumerate(zip(RIB_STATIONS, stations)):

@@ -40,10 +40,13 @@ def sheet(bm, plane, outline, thickness, holes=(), offset=0.0):
     layers = []
     for depth in (offset, offset + thickness):
         layers.append([bm.verts.new(plane.at(p[0], p[1], depth)) for p in flat])
+    def sliver(a, b, c):                              # a triangle with no area: three points in line
+        (ax, ay), (bx, by), (cx, cy) = flat[a], flat[b], flat[c]
+        return abs((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) < 1e-11
+
+    triangles = [t for t in triangles if len(set(t)) == 3 and not sliver(*t)]
     for layer, flip in ((layers[0], True), (layers[1], False)):
         for a, b, c in triangles:
-            if len({a, b, c}) < 3:
-                continue
             try:
                 bm.faces.new((layer[a], layer[c], layer[b]) if flip else (layer[a], layer[b], layer[c]))
             except ValueError:
@@ -209,6 +212,116 @@ def rod_end(bm, a, b, radius, eye=0.008, segs=10):
     side = axis.cross(helper).normalized()
     for end in (a, b):
         disc(bm, end, side, eye, radius * 1.2, segs=10, bore=eye * 0.4)
+
+
+# ----------------------------------------------------------------------------- mechanisms
+
+def bar(bm, a, b, width, thickness, up):
+    """Rectangular bar from a to b: `thickness` along `up`, `width` across."""
+    extrude_along(bm, [Vector(a), Vector(b)], rect_section(width, thickness), up)
+
+
+def cable_run(corners, radius=0.022, steps=4):
+    """A cable led round pulleys. `corners` are the points where the straight runs would meet (the
+    first and last are the ends of the cable); `radius` is the bend radius of the cable's centre line
+    at each corner (one value, or one per corner). Returns the path, with an arc at every corner, and
+    for each corner (centre, axle direction, bend radius, index of the first point of the arc in the
+    path, index of the last) of its pulley; where the cable hardly bends there is no pulley and the
+    centre is None."""
+    points = [Vector(p) for p in corners]
+    path = [points[0]]
+    pulleys = []
+    for i in range(1, len(points) - 1):
+        corner = points[i]
+        u1 = (points[i - 1] - corner).normalized(); u2 = (points[i + 1] - corner).normalized()
+        phi = math.acos(max(-1.0, min(1.0, u1.dot(u2))))          # angle between the two runs at the corner
+        r = radius[i - 1] if isinstance(radius, (list, tuple)) else radius
+        if phi > math.pi - 0.06 or phi < 0.05:
+            path.append(corner)
+            pulleys.append((None, None, 0.0, len(path) - 1, len(path) - 1))
+            continue
+        tangent = r / math.tan(phi / 2)
+        tangent = min(tangent, 0.45 * (points[i - 1] - corner).length, 0.45 * (points[i + 1] - corner).length)
+        r = tangent * math.tan(phi / 2)
+        centre = corner + (u1 + u2).normalized() * (r / math.sin(phi / 2))
+        a1 = corner + u1 * tangent - centre; a2 = corner + u2 * tangent - centre
+        sweep = math.pi - phi
+        first = len(path)
+        for k in range(steps + 1):
+            t = k / steps
+            path.append(centre + (a1 * math.sin((1 - t) * sweep) + a2 * math.sin(t * sweep)) / math.sin(sweep))
+        pulleys.append((centre, u1.cross(u2).normalized(), r, first, len(path) - 1))
+    path.append(points[-1])
+    return path, pulleys
+
+
+def pulley(bm, centre, axis, bend_radius, cable_radius=0.0016, width=0.009, mount=None, reach=0.012):
+    """Pulley that leads a cable round a bend of `bend_radius` (to the centre line of the cable). With
+    `mount`, a direction toward the structure, it gets a bracket: two cheek plates and a foot."""
+    centre = Vector(centre); axis = Vector(axis).normalized()
+    groove = 0.003 + cable_radius
+    rim = bend_radius - cable_radius + groove
+    disc(bm, centre, axis, rim, width, segs=18, rim=groove)
+    rod(bm, centre - axis * (width * 0.5 + 0.004), centre + axis * (width * 0.5 + 0.004), 0.003, segs=6)
+    if mount is not None:
+        m = Vector(mount); m = m - axis * m.dot(axis)
+        if m.length > 1e-6:
+            m.normalize()
+            for sign in (-1, 1):
+                offset = axis * (sign * (width * 0.5 + 0.002))
+                bar(bm, centre + offset - m * 0.007, centre + offset + m * (rim + reach), 0.014, 0.0016, axis)
+            foot = centre + m * (rim + reach)
+            bar(bm, foot - axis * (width * 0.5 + 0.011), foot + axis * (width * 0.5 + 0.011), 0.02, 0.002, m)
+
+
+def pipe(bm, corners, radius=0.0048, bend=0.02, segs=8):
+    """A rigid pipe or a hose through the given corner points, bent to `bend` radius at each. Returns its path."""
+    path, _pulleys = cable_run(corners, bend, steps=3)
+    tube(bm, path, radius, segs=segs, cap=True)
+    return path
+
+
+def union(bm, point, direction, pipe_radius=0.0048):
+    """The nut of a pipe fitting at the end of a pipe."""
+    direction = Vector(direction).normalized()
+    hex_prism(bm, Vector(point) - direction * (pipe_radius * 1.4), direction, pipe_radius * 3.4, pipe_radius * 2.8)
+
+
+def fairlead(bm, centre, direction, radius=0.007, length=0.012):
+    """A guide block a cable passes straight through."""
+    centre = Vector(centre); direction = Vector(direction).normalized()
+    disc(bm, centre, direction, radius, length, segs=10, bore=0.0024)
+
+
+def turnbuckle(bm, a, b, radius=0.0042):
+    """Turnbuckle on a cable between a and b: a barrel with a threaded end fitting each side."""
+    a, b = Vector(a), Vector(b)
+    axis = (b - a).normalized()
+    rod(bm, a + axis * 0.016, b - axis * 0.016, radius, segs=8)
+    rod(bm, a, a + axis * 0.02, radius * 0.5, segs=6)
+    rod(bm, b - axis * 0.02, b, radius * 0.5, segs=6)
+
+
+def plate_lever(bm, plane, arms, hub=0.014, eye=0.008, thickness=0.004, bore=0.0035):
+    """A flat bellcrank or horn in `plane`, pivoting at the plane's origin: `arms` are the ends of its
+    arms in the plane. The plate is the convex outline round the hub and the arm ends, drilled at each."""
+    points = geom2d.circle(0.0, 0.0, hub, 12)
+    for a, b in arms:
+        points += geom2d.circle(a, b, eye, 10)
+    outline = geom2d.convex_hull(points)
+    holes = [geom2d.circle(0.0, 0.0, bore, 8)] + [geom2d.circle(a, b, bore * 0.8, 8) for a, b in arms]
+    sheet(bm, plane, outline, thickness, holes, offset=-thickness / 2)
+
+
+def chain(bm, path, axle, width=0.008, thickness=0.0045):
+    """A roller chain drawn as a flat band along a path; `axle` is the direction of its sprockets' axles."""
+    extrude_along(bm, [Vector(p) for p in path], rect_section(thickness, width), axle)
+
+
+def arc(centre, a, b, start, end, steps=8):
+    """Points of an arc about `centre` in the plane of the unit vectors a and b, from angle start to end."""
+    centre = Vector(centre)
+    return [centre + a * math.cos(start + (end - start) * i / steps) + b * math.sin(start + (end - start) * i / steps) for i in range(steps + 1)]
 
 
 # ----------------------------------------------------------------------------- hardware
