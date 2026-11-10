@@ -157,7 +157,7 @@ RUNS = (
     "PITOT_STATIC.pitot_line", "PITOT_STATIC.static_line", "WING_?.pitot_line", "WING_?.stall_warning_tube",
     "OIL.hose_*", "OIL.breather_line", "OIL.pressure_gauge_line", "OIL.temperature_sensor",
     "ENGINE.throttle_cable", "ENGINE.mixture_cable", "INDUCTION.carb_heat_cable", "INDUCTION.carb_heat_hose", "PANEL.TACH.drive_cable",
-    "CABIN_AIR.*",
+    "CABIN_AIR.*", "WING_?.ventilator_duct",
 )
 RUN_PASSES = (
     "AIRFRAME.firewall", "AIRFRAME.fuselage", "INTERIOR.cabin_liner", "INTERIOR.headliner", "INTERIOR.floor", "INTERIOR.baggage_bulkhead", "INTERIOR.glareshield",

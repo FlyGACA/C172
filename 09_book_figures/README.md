@@ -58,7 +58,7 @@ To work on one figure, serve the repository root (`npm run serve`) and open
 ## Any part on its own
 
 The model goes under the skin: structure, control runs, system components, the insides of the
-engine and of the instruments, and fasteners are separate, named parts, 1,107 in all. Their ids, with English and Arabic names, are in the
+engine and of the instruments, the cabin fittings and fasteners are separate, named parts, 1,147 in all. Their ids, with English and Arabic names, are in the
 [parts index](../08_realistic_digital_twin/docs/06_parts_index.md); a picture of every assembly, with the
 command that made it, is in the [atlas](atlas/README.md).
 

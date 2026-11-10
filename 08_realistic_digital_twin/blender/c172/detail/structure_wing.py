@@ -87,11 +87,11 @@ def _rib(ctx, grp, name, xabs, side, x0, x1, holes, label_en, label_ar, station)
     # an opening for every cable, pipe or wire that passes this rib (lanes.py)
     af = A.wing_airfoil(xabs)
     runs = []
-    for xc, dz in lanes.wing_crossing(station):
+    for xc, dz, radius in lanes.wing_openings(station):
         middle = 0.5 * (A.airfoil_y(af, xc, True) + A.airfoil_y(af, xc, False)) * c + dz
-        reach = lanes.HOLE + 0.004
+        reach = radius + 0.004
         if all(geom2d.inside((xc * c + dx, middle + dy), outline) for dx, dy in ((reach, 0), (-reach, 0), (0, reach), (0, -reach))):
-            runs.append((xc * c, middle, lanes.HOLE))
+            runs.append((xc * c, middle, radius))
     lightening = geom2d.clear_of(lightening, runs, 0.005)
     runs = [run for run in runs if not any(math.hypot(run[0] - cx, run[1] - cy) + run[2] < r for cx, cy, r in lightening)]
     cut = [geom2d.circle(cx, cy, r, 18) for cx, cy, r in lightening] + [geom2d.circle(cx, cy, r, 10) for cx, cy, r in runs]

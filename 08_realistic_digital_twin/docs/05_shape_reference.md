@@ -110,6 +110,11 @@ The tables in `blender/c172` are written in the **build frame**: FS along the mo
   height. This angle is the least certain number in this note: the wing-root line of the side view
   gives 3.0°, the wheels of the front view 1.7°. The 1978 POH marks 5° between the level reference
   and the ground line on its side view; the model has 4.7° (1.66° + 3.0°).
+* **The seats** stand at the stations of the handbook's loading figure (Figure 6-3, p.6-7): the centre of
+  gravity of the pilot and the front passenger at station 37 with the seat set for an average occupant
+  (the rails allow 34 to 46), that of the rear passengers at station 73, and baggage area 1 behind the
+  rear seat back, from station 82. Where an occupant's centre of gravity lies on a seat is an estimate
+  (about 6 in ahead of the seat back), so the seats may be an inch or two out.
 
 ## What is still uncertain
 

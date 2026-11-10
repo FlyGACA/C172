@@ -34,6 +34,7 @@ MODULES = [
     "engine_detail",
     "instruments",
     "interior",
+    "cabin",
     "fasteners",
 ]
 

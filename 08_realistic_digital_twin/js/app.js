@@ -68,8 +68,8 @@ const CAMS = {
   nose: { pos: [-3.0, 1.81, 4.55], tgt: [0.0, 1.15, 0.87] },
   tail: { pos: [3.5, 2.06, -7.56], tgt: [0.0, 1.35, -4.54] },
   gear: { pos: [-3.2, 0.82, 1.48], tgt: [-0.8, 0.41, -0.41] },
-  pilot: { pos: [0.28, 1.54, -0.34], tgt: [0.1, 1.23, 0.56] },
-  panel: { pos: [0.0, 1.4, -0.59], tgt: [0.0, 1.29, 0.51] },
+  pilot: { pos: [0.28, 1.55, 0.015], tgt: [0.1, 1.23, 0.56] },      // the pilot's eye: the occupant sits at station 37 (POH Figure 6-3)
+  panel: { pos: [0.0, 1.4, -0.24], tgt: [0.0, 1.29, 0.51] },
   engine: { pos: [-2.4, 1.99, 3.74], tgt: [0.0, 1.2, 0.67] },
 };
 function setMode(m, instant = false) {
@@ -114,7 +114,7 @@ function showInfo(o) {
   if (!o) { box.innerHTML = `<p>${T().clickPart}</p>`; return; }
   const u = o.userData;
   const st = u.status || 'estimated';
-  const sysName = (T().groups8 || {})[u.system] || u.system;
+  const sysName = systemName(u.system);
   const extra = [];
   if (u.ref) extra.push(`<div><b>${T().ref}:</b> ${u.ref}</div>`);
   if (u.note) extra.push(`<div><b>${T().note}:</b> ${u.note}</div>`);
@@ -124,19 +124,22 @@ function showInfo(o) {
   box.innerHTML = `<h3>${rig.label(o)}</h3><div><span class="badge ${st}">${T()['st_' + st]}</span><span class="badge" style="background:var(--line)">${sysName}</span></div>
     ${desc ? `<p>${desc}</p>` : ''}${extra.join('')}<div class="pair" style="margin-top:8px"><button id="hidePart">${T().hidePart}</button><button id="isoPart">${T().isolatePart}</button><code style="color:var(--mute);font-size:.75rem">${o.name}</code></div>`;
   $('hidePart').onclick = () => { rig.hide(o); select(null); };
-  $('isoPart').onclick = () => { rig.isolate(u.system); };
+  $('isoPart').onclick = () => { rig.isolate(u.system); buildTree(); };
 }
 
-// ------------------------------------------------------------------ parts tree
+// ------------------------------------------------------------------ parts tree: one row for each system
+const SYSTEM_ORDER = ['AIRFRAME', 'WING_L', 'WING_R', 'EMPENNAGE', 'GEAR', 'POWERPLANT', 'ENGINE', 'IGNITION', 'INDUCTION', 'OIL', 'FUEL', 'ELECTRICAL', 'AVIONICS', 'VACUUM',
+  'PITOT_STATIC', 'STALL_WARNING', 'CONTROLS', 'BRAKES', 'CABIN_AIR', 'INTERIOR', 'PANEL', 'INSTRUMENTS'];
+function systemName(sys) { return (T().systems8 || {})[sys] || (T().groups8 || {})[sys] || sys; }
 function buildTree() {
   const ul = $('tree'); ul.innerHTML = '';
   const by = rig.partsBySystem();
-  for (const [sys, g] of rig.groups) {
-    if (!(by[sys] || []).length) continue;
+  const systems = [...SYSTEM_ORDER.filter((s) => by[s]), ...Object.keys(by).filter((s) => !SYSTEM_ORDER.includes(s)).sort()];
+  for (const sys of systems) {
     const li = document.createElement('li');
-    const name = (T().groups8 || {})[sys] || sys;
-    li.innerHTML = `<input type="checkbox" ${g.visible ? 'checked' : ''}><span class="nm">${name} <small style="color:var(--mute)">(${(by[sys] || []).length})</small></span><button data-iso>${T().isolateSys}</button>`;
-    li.querySelector('input').onchange = (e) => rig.setGroupVisible(sys, e.target.checked);
+    const name = systemName(sys);
+    li.innerHTML = `<input type="checkbox" ${rig.systemVisible(sys) ? 'checked' : ''}><span class="nm">${name} <small style="color:var(--mute)">(${(by[sys] || []).length})</small></span><button data-iso>${T().isolateSys}</button>`;
+    li.querySelector('input').onchange = (e) => rig.setSystemVisible(sys, e.target.checked);
     li.querySelector('[data-iso]').onclick = () => { rig.isolate(sys); buildTree(); };
     li.querySelector('.nm').onclick = () => { li.nextElementSibling?.classList.contains('subs') ? li.nextElementSibling.remove() : expand(li, sys); };
     ul.append(li);

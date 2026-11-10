@@ -19,6 +19,7 @@ export class Rig {
     this.state = { aileron: 0, elevator: 0, rudder: 0, trim: 0, flaps: 0, doorL: 0, doorR: 0, cowlOff: 0, noseSteer: 0,
       theta: 0, propAngle: 0, ind: null, controls: null, truth: null, running: false, cranking: false, magsFiring: [] };
     this.explode = 0; this.xray = false; this.showLabels = false;
+    this.hiddenSystems = new Set();   // systems whose parts are not drawn
     this.tmpQ = new THREE.Quaternion(); this.tmpV = new THREE.Vector3();
     root.traverse((o) => {
       // GLTFLoader sanitises node names (drops '.'), so the build stores the canonical id in extras
@@ -217,7 +218,23 @@ export class Rig {
     }
   }
   setGroupVisible(sys, v) { const g = this.groups.get(sys); if (g) g.visible = v; }
-  isolate(sys) { for (const [n, g] of this.groups) g.visible = (sys == null || n === sys); }
+  // A system (FUEL, CONTROLS, ...) has parts in several groups, and a part may hang on a part of another
+  // system. So a system is hidden through the render layer of each of its parts, which children do not
+  // inherit, and not through the visibility of a group.
+  systemVisible(sys) { return !this.hiddenSystems.has(sys); }
+  setSystemVisible(sys, v) { if (v) this.hiddenSystems.delete(sys); else this.hiddenSystems.add(sys); this.applySystems(); }
+  isolate(sys) {
+    this.hiddenSystems.clear();
+    if (sys != null) for (const [, o] of this.parts) if (o.userData.system !== sys) this.hiddenSystems.add(o.userData.system);
+    this.applySystems();
+  }
+  applySystems() {
+    for (const [, o] of this.parts) {           // parents come before their children, so a child part has the last word on its own meshes
+      const on = !this.hiddenSystems.has(o.userData.system);
+      o.traverse((m) => { if (m !== o && m.userData.system) return; if (on) m.layers.enable(0); else m.layers.disable(0); });
+    }
+  }
+  drawn(o) { return o.layers.isEnabled(0); }
   showAll() { for (const [, g] of this.groups) g.visible = true; for (const [, o] of this.parts) o.visible = o.name !== 'POWERPLANT.cowl_upper' || this.state.cowlOff < 0.98; }
   hide(o) { o.visible = false; }
   setFairings(on) { for (const [n, o] of this.parts) if (/wheel_fairing|leg_fairing/.test(n)) o.visible = on; }

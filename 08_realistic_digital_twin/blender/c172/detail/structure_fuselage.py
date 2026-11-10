@@ -31,6 +31,7 @@ KEEL_X = 0.20                # the two keel beams stand this far from the centre
 POST_HALF_WIDTH = 0.032      # a door post is a channel this wide each way from its centre line, fore and aft
 POST_DEPTH = 0.0135          # and this deep, from the skin to the cabin lining
 POST_SHIFT = 0.85            # runs in a post lie on its centre line and this far (in) ahead of and behind it
+SEAT_RAIL_FS = (23.5, 56.0)  # the front seat rails: long enough for the seat travel of POH Figure 6-3 (occupant at station 34 to 46)
 LEAN = math.tan(math.radians(U.FRL_PITCH_DEG))
 FLOOR_Z = A.FLOOR_Z          # centre plane of the cabin floor panel under the seats (airframe.floor_z)
 
@@ -300,11 +301,12 @@ def build(ctx):
     # ---- seat rails for the front seats, and the two keel beams under the floor
     for index, x in enumerate((0.40, 0.16, -0.16, -0.40), 1):
         bm = new_bm()
-        extrude_along(bm, [Vector((x, fs(27.0), FLOOR_Z + 0.015)), Vector((x, fs(62.0), FLOOR_Z + 0.015))],
+        extrude_along(bm, [Vector((x, fs(SEAT_RAIL_FS[0]), FLOOR_Z + 0.015)), Vector((x, fs(SEAT_RAIL_FS[1]), FLOOR_Z + 0.015))],
                       [(-0.016, 0), (0.016, 0), (0.016, 0.004), (0.005, 0.004), (0.005, 0.014), (0.012, 0.014), (0.012, 0.018), (-0.012, 0.018),
                        (-0.012, 0.014), (-0.005, 0.014), (-0.005, 0.004), (-0.016, 0.004)], Z)
         part(ctx, f"AIRFRAME.seat_rail_{index}", bm, "AIRFRAME", "AIRFRAME", "Front seat rail", "سكة المقعد الأمامي", "bare_alu", status="estimated",
-             inside="fuselage", note="The front seats slide fore and aft on rails (POH p.7-11); length and section representative")
+             inside="fuselage", assembly="seats", note="The front seats may be moved forward or aft (POH p.7-11): they run on two rails each; the rails are long enough for the "
+                                                       "occupant's centre of gravity to range from station 34 to 46 (POH Figure 6-3); section representative")
     for side, S in ((1, "L"), (-1, "R")):
         x = side * KEEL_X
         stations = [4.0 + (104.0 - 4.0) * i / 40 for i in range(41)]

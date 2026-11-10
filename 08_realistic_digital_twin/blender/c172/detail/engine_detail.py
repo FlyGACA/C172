@@ -253,7 +253,7 @@ def build_carburetor(ctx, scene, zc):
     pipe(bm, [muffler + Vector((0.07, -0.06, -0.06)), muffler + Vector((0.07, -0.093, -0.046)), Vector((0.06, airbox.y + 0.073, airbox.z - 0.051)), Vector((0.06, airbox.y + 0.058, airbox.z - 0.041))],
          0.016, bend=0.03)
     part(ctx, "INDUCTION.carb_heat_hose", bm, "ENGINE", "INDUCTION", "Carburetor heat hose: heated air from the muffler shroud to the airbox", "خرطوم تسخين المكربن: هواء ساخن من غلاف كاتم الصوت إلى صندوق الهواء",
-         "hose_black", status="poh", ref=REF_CARB, smooth=True, assembly="carburetor", joins="ENGINE.muffler", note="Route representative")
+         "hose_black", status="poh", ref=REF_CARB, smooth=True, assembly="carburetor", joins="ENGINE.muffler*", note="Route representative")
     for name in ("INDUCTION.carburetor", "INDUCTION.airbox", "INDUCTION.air_filter", "INDUCTION.filter_duct", "PANEL.carb_heat", "PANEL.throttle", "PANEL.mixture"):
         if name in scene:                                  # the carburetor is part of the fuel system as well
             scene[name]["assembly"] = ",".join([a for a in str(scene[name].get("assembly", "")).split(",") if a] + ["carburetor"])

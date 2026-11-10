@@ -17,9 +17,11 @@ What is from where:
   poh        the members above and what joins what
   estimated  every form, size and route; the door hinges and the two antennas, which the handbook
              does not describe, are what a 172 of this year carries, drawn representatively.
-Not modelled: the adjustable ventilators (one near each upper corner of the windshield, fed from the
-inlets in the wing root leading edges, which the basic model has; two more available for the rear
-cabin area): the model has no room for their ducts between the windshield, the door post and the spar.
+  ventilators (p.7-31) separate adjustable ventilators supply additional air, one near each upper
+              corner of the windshield; each is fed through a duct from the inlet in the leading edge
+              of its wing root (basic model). The duct runs in the nose of the wing above the wires and
+              the pitot line and passes the root nose rib through an opening (lanes.py).
+Not modelled: the two ventilators available for the rear cabin area (optional equipment).
 """
 import bpy
 from mathutils import Vector
@@ -36,6 +38,7 @@ AIR = "CABIN_AIR"
 REF_AIR = "p.7-29 to 7-31 (Fig 7-8)"
 DUCT = 0.020                      # radius of a cabin air duct as drawn
 HOSE = 0.022                      # the hose from the muffler shroud
+VENT = 0.014                      # radius of a ventilator duct as drawn
 
 
 def build(ctx):
@@ -80,7 +83,7 @@ def build_cabin_air(ctx, scene):
     bm = new_bm()
     pipe(bm, [muffler + Vector((-0.10, 0.067, 0.054)), Vector((valve.x, front - 0.10, valve.z)), Vector((valve.x, aft + 0.002, valve.z))], HOSE, bend=0.05)
     air("CABIN_AIR.heat_hose", bm, "Cabin heat hose: heated air from the shroud round the exhaust muffler to the heater valve",
-        "خرطوم تدفئة المقصورة: هواء ساخن من الغلاف المحيط بكاتم الصوت إلى صمام التدفئة", "hose_black", joins="ENGINE.muffler",
+        "خرطوم تدفئة المقصورة: هواء ساخن من الغلاف المحيط بكاتم الصوت إلى صمام التدفئة", "hose_black", joins="ENGINE.muffler*",
         note="Air is heated in a shroud round the exhaust muffler (POH Figure 7-8); route representative")
 
     # ---- windshield defroster: duct up the firewall from the manifold, outlet with two sliding valves under the glareshield
@@ -145,8 +148,24 @@ def build_cabin_air(ctx, scene):
     air("CABIN_AIR.cabin_air_cable", bm, "Cabin air control cable: CABIN AIR knob to the ventilating air door", "كابل التحكم بهواء المقصورة: من مقبض CABIN AIR إلى باب هواء التهوية", "hose_black", ref="p.7-29",
         note="Push-pull control; route representative")
 
-    # (the inlets of the two ventilators in the wing root leading edges belong to the basic model)
-    for name in ("PANEL.cabin_heat", "PANEL.cabin_air", "AIRFRAME.cabin_vent_L", "AIRFRAME.cabin_vent_R"):
+    # ---- adjustable ventilators near the upper corners of the windshield, each with its duct from the inlet in the wing root leading edge
+    for sx, S in ((1, "L"), (-1, "R")):
+        where_en, where_ar = ("left", "الأيسر") if sx > 0 else ("right", "الأيمن")
+        inlet = scene[f"AIRFRAME.cabin_vent_{S}"].matrix_world.translation.copy()
+        lane = lanes.wing_point("vent_duct", sx, 21.0)                       # the duct runs inboard along this line, above the wires
+        mouth = Vector((sx * 0.470, lane.y, lane.z - 0.008))                  # inside the cabin, at the upper corner
+        bm = new_bm()
+        pipe(bm, [inlet + Y * 0.018, lanes.wing_point("vent_duct", sx, 26.3), lane, mouth], VENT, bend=0.03)
+        air(f"WING_{S}.ventilator_duct", bm, f"Ventilator duct, {where_en}: from the air inlet in the wing root leading edge to the ventilator",
+            f"مجرى فتحة التهوية {where_ar}: من مدخل الهواء في مقدمة جذر الجناح إلى فتحة التهوية", "hose_black", group=f"WING_{S}", ref="p.7-31",
+            note="Runs in the nose of the wing and through an opening in the root nose rib; route representative")
+        tip = mouth + Vector((-sx * 0.036, 0.0, -0.036))
+        bm = new_bm()
+        rod(bm, mouth + Vector((sx * 0.006, 0.0, 0.006)), tip, VENT + 0.003, segs=16)
+        disc(bm, tip, tip - mouth, VENT + 0.006, 0.006, segs=16, bore=VENT - 0.002)
+        air(f"CABIN_AIR.ventilator_{S}", bm, f"Adjustable ventilator near the upper {where_en} corner of the windshield", f"فتحة تهوية قابلة للضبط قرب الزاوية العلوية {'اليسرى' if sx > 0 else 'اليمنى'} للزجاج الأمامي",
+            "bare_alu", ref="p.7-31", note="Supplies additional outside air to the " + ("pilot" if sx > 0 else "copilot") + "; it is pulled out and turned to regulate and aim the air. Form representative")
+    for name in ("PANEL.cabin_heat", "PANEL.cabin_air", "AIRFRAME.cabin_vent_L", "AIRFRAME.cabin_vent_R", "ENGINE.muffler_shroud"):
         if name in scene:
             scene[name]["assembly"] = "cabin_air"
 

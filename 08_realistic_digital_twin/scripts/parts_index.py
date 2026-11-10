@@ -18,11 +18,11 @@ P8 = Path(__file__).resolve().parents[1]
 SOURCE = P8 / "models" / "parts_all.json"
 TARGET = P8 / "docs" / "06_parts_index.md"
 
-LEVELS = {0: "basic model", 1: "under the skin: structure, mechanisms, systems", 2: "fasteners and the hardware kit"}
+LEVELS = {0: "basic model", 1: "under the skin: structure, mechanisms, systems", 2: "fasteners, the hardware kit and what is fitted only on the ground"}
 SYSTEM_TITLES = {
     "AIRFRAME": "Airframe", "WING_L": "Left wing", "WING_R": "Right wing", "EMPENNAGE": "Empennage", "GEAR": "Landing gear", "POWERPLANT": "Powerplant",
     "ENGINE": "Engine", "IGNITION": "Ignition", "INDUCTION": "Induction", "OIL": "Oil", "FUEL": "Fuel", "ELECTRICAL": "Electrical", "VACUUM": "Vacuum",
-    "PITOT_STATIC": "Pitot-static", "STALL_WARNING": "Stall warning", "CABIN_AIR": "Cabin heating, ventilating and defrosting", "CONTROLS": "Flight controls and flap drive", "BRAKES": "Brakes", "INTERIOR": "Interior",
+    "PITOT_STATIC": "Pitot-static", "STALL_WARNING": "Stall warning", "CABIN_AIR": "Cabin heating, ventilating and defrosting", "AVIONICS": "Avionics", "CONTROLS": "Flight controls and flap drive", "BRAKES": "Brakes", "INTERIOR": "Interior",
     "PANEL": "Instrument panel", "INSTRUMENTS": "Inside the instruments", "FASTENERS": "Fasteners", "HARDWARE": "Standard hardware (kit)", "SYSTEMS": "Systems",
 }
 

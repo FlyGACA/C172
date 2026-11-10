@@ -72,6 +72,22 @@ try {
     await page.click('#doors'); await page.$eval('#aileron', (el) => { el.value = '0'; el.dispatchEvent(new Event('input')); }); await page.click('#flapsel button[data-v="0"]');
   });
 
+  await check('parts tree lists the systems; isolating one draws only its parts', async () => {
+    const r = await page.evaluate(() => {
+      const t = window.__twin; const all = [...t.rig.parts.values()];
+      t.rig.isolate('FUEL');
+      const drawn = all.filter((o) => t.rig.drawn(o));
+      const out = { drawn: drawn.length, systems: [...new Set(drawn.map((o) => o.userData.system))], rows: document.querySelectorAll('#tree > li').length, parts: all.length };
+      t.rig.isolate(null);
+      out.after = all.filter((o) => t.rig.drawn(o)).length;
+      return out;
+    });
+    assert.deepEqual(r.systems, ['FUEL']);
+    assert.ok(r.drawn > 20, `fuel parts drawn ${r.drawn}`);
+    assert.ok(r.rows >= 18, `tree rows ${r.rows}`);
+    assert.equal(r.after, r.parts);
+  });
+
   await check('part selection shows bilingual info with a documentation status', async () => {
     await page.evaluate(() => window.__twin.select(window.__twin.rig.part('POWERPLANT.propeller')));
     const html = await page.$eval('#info', (el) => el.innerHTML);

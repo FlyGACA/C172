@@ -20,8 +20,8 @@ VIEWS = {
     "tail_detail": dict(pos=(4.4, 8.66, 2.03), target=(0.0, 5.24, 1.37), fov=38),
     "gear_detail": dict(pos=(-3.5, -0.98, 0.7), target=(-1.0, 0.51, 0.41), fov=35),
     "cockpit": dict(pos=(0.0, 1.0, 1.55), target=(0.0, -1.57, 1.14), fov=80),
-    "cockpit_pilot": dict(pos=(0.28, 0.34, 1.54), target=(0.12, -1.57, 1.2), fov=68),
-    "cockpit_side": dict(pos=(-0.18, 0.34, 1.41), target=(0.26, -0.47, 1.17), fov=72),      # from the right seat, across to the pilot's side
+    "cockpit_pilot": dict(pos=(0.28, -0.015, 1.55), target=(0.12, -1.57, 1.2), fov=84),     # the pilot's eye: the occupant sits at station 37 (POH Figure 6-3)
+    "cockpit_side": dict(pos=(-0.18, 0.02, 1.42), target=(0.26, -0.47, 1.17), fov=78),      # from the right seat, across to the pilot's side
     "engine": dict(pos=(-2.2, -3.55, 1.88), target=(0.0, -0.46, 1.29), fov=40, hide=("POWERPLANT.cowl_upper",)),
     "engine_right": dict(pos=(2.4, -2.55, 1.6), target=(0.0, -0.51, 1.29), fov=40, hide=("POWERPLANT.cowl_upper",)),
     # gallery views: long lens so wings read as lines in profile, hero three-quarter

@@ -175,14 +175,64 @@ npm run part -- render --part @carburetor --ghost INDUCTION.carburetor INDUCTION
 npm run part -- render --part @engine_controls @carburetor --context --focus PANEL.throttle INDUCTION.carburetor --azimuth 60 --elevation 20 --grow 0.002 --tint '#D9534F' --margin 1.2
 ```
 
-## Cabin heating, ventilating and defrosting: heat hose, heater valve, manifold, defroster, rear ducts, ventilating air door, control cables
+## Cabin heating, ventilating and defrosting: muffler shroud, heat hose, heater valve, manifold, defroster, rear ducts, ventilating air door, control cables, the two ventilators with their ducts
 
-<div dir="rtl">تدفئة المقصورة وتهويتها وإزالة الضباب: خرطوم التدفئة وصمامها والمجمّع ومجرى إزالة الضباب والمجريان الخلفيان وباب هواء التهوية وكابلا التحكم</div>
+<div dir="rtl">تدفئة المقصورة وتهويتها وإزالة الضباب: غلاف كاتم الصوت وخرطوم التدفئة وصمامها والمجمّع ومجرى إزالة الضباب والمجريان الخلفيان وباب هواء التهوية وكابلا التحكم وفتحتا التهوية بمجرييهما</div>
 
-![Cabin heating, ventilating and defrosting: heat hose, heater valve, manifold, defroster, rear ducts, ventilating air door, control cables](cabin_air.png)
+![Cabin heating, ventilating and defrosting: muffler shroud, heat hose, heater valve, manifold, defroster, rear ducts, ventilating air door, control cables, the two ventilators with their ducts](cabin_air.png)
 
 ```
-npm run part -- render --part @cabin_air --context --focus CABIN_AIR.manifold CABIN_AIR.heat_hose CABIN_AIR.rear_duct_L CABIN_AIR.defroster_outlet --azimuth 215 --elevation 30 --tint '#E0703A' --margin 1.0
+npm run part -- render --part @cabin_air --context --focus CABIN_AIR.manifold CABIN_AIR.heat_hose CABIN_AIR.rear_duct_L CABIN_AIR.defroster_outlet CABIN_AIR.ventilator_L AIRFRAME.cabin_vent_R --azimuth 215 --elevation 30 --tint '#E0703A' --margin 1.0
+```
+
+## Seats: the front seats on their rails with rollers, seat lock, seat back levers and seat stops; the split-backed rear seat; belts and their anchors
+
+<div dir="rtl">المقاعد: المقعدان الأماميان على سككهما مع البكرات وقفل المقعد وذراعي الظهر والمصدّات؛ المقعد الخلفي بظهرين؛ الأحزمة ومثبتاتها</div>
+
+![Seats: the front seats on their rails with rollers, seat lock, seat back levers and seat stops; the split-backed rear seat; belts and their anchors](seats.png)
+
+```
+npm run part -- render --part @seats 'INTERIOR.shoulder_harness_*' --ghost 'INTERIOR.seat_*.cushion' 'INTERIOR.seat_*.back*' --azimuth 215 --elevation 14 --margin 1.05
+```
+
+## Seat lock of the pilot's seat: tubular handle, pins in the rails, rollers, seat back lever, seat stops
+
+<div dir="rtl">قفل مقعد الطيار: المقبض الأنبوبي والمسماران في السكّتين والبكرات وذراع الظهر ومصدّات المقعد</div>
+
+![Seat lock of the pilot's seat: tubular handle, pins in the rails, rollers, seat back lever, seat stops](seat_lock.png)
+
+```
+npm run part -- render --part 'INTERIOR.seat_pilot.*' 'AIRFRAME.seat_rail_*' AIRFRAME.seat_stops --ghost INTERIOR.seat_pilot.cushion INTERIOR.seat_pilot.back INTERIOR.seat_pilot.lap_belt AIRFRAME.seat_rail_3 AIRFRAME.seat_rail_4 --focus INTERIOR.seat_pilot.frame INTERIOR.seat_pilot.adjust_handle --azimuth 205 --elevation 10 --margin 1.25
+```
+
+## Cabin doors: hinges, outside and inside handles, latch, lock (left door), door stop; the openable window with its hinge, latch and retaining arm
+
+<div dir="rtl">بابا المقصورة: المفصلات والمقبضان الخارجي والداخلي والمزلاج والقفل (الباب الأيسر) وآلية الإيقاف؛ النافذة القابلة للفتح بمفصلتها ومزلاجها وذراع تثبيتها</div>
+
+![Cabin doors: hinges, outside and inside handles, latch, lock (left door), door stop; the openable window with its hinge, latch and retaining arm](doors.png)
+
+```
+npm run part -- render --part AIRFRAME.door_latch_L AIRFRAME.door_lock_L AIRFRAME.door_stop_L 'AIRFRAME.door_window_*_L' AIRFRAME.door_window_L INTERIOR.door_inner_handle_L INTERIOR.armrest_L AIRFRAME.door_handle_L 'AIRFRAME.door_hinge_L_*' --azimuth 250 --elevation 10 --margin 1.1
+```
+
+## Baggage area 1 behind the rear seat: baggage net with its eight straps and the tie-down rings
+
+<div dir="rtl">منطقة الأمتعة 1 خلف المقعد الخلفي: شبكة الأمتعة بأشرطتها الثمانية وحلقات الربط</div>
+
+![Baggage area 1 behind the rear seat: baggage net with its eight straps and the tie-down rings](baggage.png)
+
+```
+npm run part -- render --part @baggage 'INTERIOR.seat_rear.*' INTERIOR.baggage_bulkhead --azimuth 150 --elevation 35 --margin 1.1
+```
+
+## Control lock: the rod through the pilot's control wheel shaft and its collar, the red flag over the ignition switch
+
+<div dir="rtl">قفل التحكم: القضيب المار عبر عمود عجلة قيادة الطيار وطوقه، والعلم الأحمر فوق مفتاح الإشعال</div>
+
+![Control lock: the rod through the pilot's control wheel shaft and its collar, the red flag over the ignition switch](control_lock.png)
+
+```
+npm run part -- render --part INTERIOR.control_lock PANEL.control_wheel_collars INTERIOR.yoke_L INTERIOR.yoke_shaft_L PANEL.ignition_switch PANEL.lower_panel --detail 2 --focus INTERIOR.control_lock INTERIOR.yoke_L --azimuth 150 --elevation 18 --margin 1.2
 ```
 
 ## Lights: navigation, strobe, landing, beacon and tail lights; flood and dome lights in the overhead console; courtesy and map lights

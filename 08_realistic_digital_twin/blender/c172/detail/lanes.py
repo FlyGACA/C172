@@ -86,7 +86,9 @@ WING = {
     "pitot":          (22.0, 69.5, 0.090, 0.090, -0.012, -0.012),
     "stall_warning":  (22.0, 41.0, 0.098, 0.060, 0.004, 0.012),
     "wiring":         (22.0, 209.6, 0.070, 0.070, 0.000, 0.000),      # through the last rib into the wing tip
+    "vent_duct":      (20.5, 26.5, 0.079, 0.079, 0.034, 0.034),       # cabin ventilator duct: above the wires and the pitot line, through the root nose rib
 }
+WING_HOLES = {"vent_duct": 0.019}      # runs that need a larger opening than HOLE
 
 
 def wing_run(name, station):
@@ -99,6 +101,11 @@ def wing_run(name, station):
 def wing_crossing(station):
     """Runs that pass a rib at this wing station: [(chord fraction, height above the middle of the section)]."""
     return [wing_run(name, station) for name, (first, last, *_rest) in WING.items() if first < station < last]
+
+
+def wing_openings(station):
+    """The same, with the radius of the opening each run needs: [(chord fraction, height, radius)]."""
+    return [wing_run(name, station) + (WING_HOLES.get(name, HOLE),) for name, (first, last, *_rest) in WING.items() if first < station < last]
 
 
 def wing_point(name, side, station, more=0.0):

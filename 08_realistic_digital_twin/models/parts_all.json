@@ -1,19 +1,20 @@
 {
  "summary": {
-  "parts": 1107,
+  "parts": 1147,
   "by_detail": {
-   "0": 340,
-   "1": 526,
-   "2": 241
+   "0": 342,
+   "1": 563,
+   "2": 242
   },
   "by_system": {
-   "AIRFRAME": 69,
+   "AIRFRAME": 81,
+   "AVIONICS": 4,
    "BRAKES": 8,
-   "CABIN_AIR": 11,
+   "CABIN_AIR": 15,
    "CONTROLS": 126,
-   "ELECTRICAL": 58,
+   "ELECTRICAL": 59,
    "EMPENNAGE": 61,
-   "ENGINE": 95,
+   "ENGINE": 96,
    "FASTENERS": 229,
    "FUEL": 34,
    "GEAR": 24,
@@ -21,9 +22,9 @@
    "IGNITION": 18,
    "INDUCTION": 18,
    "INSTRUMENTS": 44,
-   "INTERIOR": 39,
+   "INTERIOR": 55,
    "OIL": 13,
-   "PANEL": 112,
+   "PANEL": 114,
    "PITOT_STATIC": 6,
    "POWERPLANT": 8,
    "STALL_WARNING": 2,
@@ -36,10 +37,14 @@
    "airspeed_indicator": 10,
    "altimeter": 13,
    "attitude_indicator": 11,
+   "avionics": 4,
+   "baggage": 2,
    "brake_system": 15,
-   "cabin_air": 15,
+   "cabin_air": 20,
    "carburetor": 15,
+   "control_lock": 5,
    "directional_gyro": 12,
+   "doors": 25,
    "electrical_system": 26,
    "elevator_control": 22,
    "elevator_trim": 28,
@@ -50,11 +55,12 @@
    "fuel_system": 36,
    "hardware_kit": 12,
    "instrument_cases": 7,
-   "lighting": 14,
+   "lighting": 15,
    "nose_steering": 5,
    "oil_system": 13,
    "pitot_static": 9,
    "rudder_control": 22,
+   "seats": 32,
    "stall_warning": 3,
    "tachometer": 9,
    "turn_coordinator": 10,
@@ -148,6 +154,7 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 2332,
+   "assembly": "doors",
    "note": "Opening 37 in wide at the sill, 32 in at the top, 40-41 in high (POH Fig 6-4); position from the 172S side view"
   },
   {
@@ -159,6 +166,7 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 2328,
+   "assembly": "doors",
    "note": "Opening 37 in wide at the sill, 32 in at the top, 40-41 in high (POH Fig 6-4); position from the 172S side view"
   },
   {
@@ -169,7 +177,8 @@
    "parent": "AIRFRAME.door_L",
    "detail": 0,
    "status": "estimated",
-   "triangles": 24
+   "triangles": 24,
+   "assembly": "doors"
   },
   {
    "id": "AIRFRAME.door_handle_R",
@@ -179,7 +188,8 @@
    "parent": "AIRFRAME.door_R",
    "detail": 0,
    "status": "estimated",
-   "triangles": 24
+   "triangles": 24,
+   "assembly": "doors"
   },
   {
    "id": "AIRFRAME.door_hinge_L_lower",
@@ -190,6 +200,7 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 40,
+   "assembly": "doors",
    "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
   },
   {
@@ -201,6 +212,7 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 40,
+   "assembly": "doors",
    "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
   },
   {
@@ -212,6 +224,7 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 40,
+   "assembly": "doors",
    "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
   },
   {
@@ -223,7 +236,45 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 40,
+   "assembly": "doors",
    "note": "Each cabin door hangs on two hinges on its forward edge; form and height representative"
+  },
+  {
+   "id": "AIRFRAME.door_latch_L",
+   "system": "AIRFRAME",
+   "en": "Latch of the left cabin door, with the rods from the inside and the outside handle",
+   "ar": "مزلاج باب المقصورة الأيسر، مع القضيبين من المقبض الداخلي والخارجي",
+   "parent": "AIRFRAME.door_L",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 80,
+   "assembly": "doors",
+   "note": "The door is pulled shut and latched, then locked with the inside handle (POH p.7-15); the latch and its rods are inside the door and drawn representatively"
+  },
+  {
+   "id": "AIRFRAME.door_latch_R",
+   "system": "AIRFRAME",
+   "en": "Latch of the right cabin door, with the rods from the inside and the outside handle",
+   "ar": "مزلاج باب المقصورة الأيمن، مع القضيبين من المقبض الداخلي والخارجي",
+   "parent": "AIRFRAME.door_R",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 80,
+   "assembly": "doors",
+   "note": "The door is pulled shut and latched, then locked with the inside handle (POH p.7-15); the latch and its rods are inside the door and drawn representatively"
+  },
+  {
+   "id": "AIRFRAME.door_lock_L",
+   "system": "AIRFRAME",
+   "en": "Key-operated lock of the left cabin door",
+   "ar": "قفل بمفتاح لباب المقصورة الأيسر",
+   "parent": "AIRFRAME.door_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 72,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "Left door only: to lock the airplane, lock the right door with the inside handle, close the left door and lock it with the ignition key (POH p.7-15)"
   },
   {
    "id": "AIRFRAME.door_post_aft_L",
@@ -274,6 +325,32 @@
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative"
   },
   {
+   "id": "AIRFRAME.door_stop_L",
+   "system": "AIRFRAME",
+   "en": "Door stop mechanism of the left cabin door",
+   "ar": "آلية إيقاف باب المقصورة الأيسر",
+   "parent": "AIRFRAME.door_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 24,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "The doors incorporate a door stop mechanism (POH p.7-15); its form and place are representative"
+  },
+  {
+   "id": "AIRFRAME.door_stop_R",
+   "system": "AIRFRAME",
+   "en": "Door stop mechanism of the right cabin door",
+   "ar": "آلية إيقاف باب المقصورة الأيمن",
+   "parent": "AIRFRAME.door_R",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 24,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "The doors incorporate a door stop mechanism (POH p.7-15); its form and place are representative"
+  },
+  {
    "id": "AIRFRAME.door_window_L",
    "system": "AIRFRAME",
    "en": "Left door window",
@@ -281,7 +358,8 @@
    "parent": "AIRFRAME.door_L",
    "detail": 0,
    "status": "estimated",
-   "triangles": 560
+   "triangles": 560,
+   "assembly": "doors"
   },
   {
    "id": "AIRFRAME.door_window_R",
@@ -291,7 +369,87 @@
    "parent": "AIRFRAME.door_R",
    "detail": 0,
    "status": "estimated",
-   "triangles": 564
+   "triangles": 564,
+   "assembly": "doors"
+  },
+  {
+   "id": "AIRFRAME.door_window_arm_L",
+   "system": "AIRFRAME",
+   "en": "Spring-loaded retaining arm of the left door window",
+   "ar": "ذراع التثبيت النابضي لنافذة الباب الأيسر",
+   "parent": "AIRFRAME.door_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 48,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "The retaining arm helps rotate the window outward and holds it there; the window may be opened at any speed up to 160 knots (POH p.7-15)."
+  },
+  {
+   "id": "AIRFRAME.door_window_arm_R",
+   "system": "AIRFRAME",
+   "en": "Spring-loaded retaining arm of the right door window",
+   "ar": "ذراع التثبيت النابضي لنافذة الباب الأيمن",
+   "parent": "AIRFRAME.door_R",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 48,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "The retaining arm helps rotate the window outward and holds it there; the window may be opened at any speed up to 160 knots (POH p.7-15). An openable right door window is optional equipment (POH p.7-15).",
+   "optional": true
+  },
+  {
+   "id": "AIRFRAME.door_window_hinge_L",
+   "system": "AIRFRAME",
+   "en": "Hinge of the left door window, along its upper edge",
+   "ar": "مفصلة نافذة الباب الأيسر، بمحاذاة حافتها العلوية",
+   "parent": "AIRFRAME.door_L",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 28,
+   "assembly": "doors",
+   "note": "The window opens outward about its upper edge; the hinge is drawn representatively."
+  },
+  {
+   "id": "AIRFRAME.door_window_hinge_R",
+   "system": "AIRFRAME",
+   "en": "Hinge of the right door window, along its upper edge",
+   "ar": "مفصلة نافذة الباب الأيمن، بمحاذاة حافتها العلوية",
+   "parent": "AIRFRAME.door_R",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 28,
+   "assembly": "doors",
+   "note": "The window opens outward about its upper edge; the hinge is drawn representatively. An openable right door window is optional equipment (POH p.7-15).",
+   "optional": true
+  },
+  {
+   "id": "AIRFRAME.door_window_latch_L",
+   "system": "AIRFRAME",
+   "en": "Latch of the left door window, on the lower edge of the window frame",
+   "ar": "مزلاج نافذة الباب الأيسر، على الحافة السفلية لإطار النافذة",
+   "parent": "AIRFRAME.door_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 24,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "A detent equipped latch holds the window closed; to open the window, rotate the latch upward (POH p.7-15)."
+  },
+  {
+   "id": "AIRFRAME.door_window_latch_R",
+   "system": "AIRFRAME",
+   "en": "Latch of the right door window, on the lower edge of the window frame",
+   "ar": "مزلاج نافذة الباب الأيمن، على الحافة السفلية لإطار النافذة",
+   "parent": "AIRFRAME.door_R",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 24,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "A detent equipped latch holds the window closed; to open the window, rotate the latch upward (POH p.7-15). An openable right door window is optional equipment (POH p.7-15).",
+   "optional": true
   },
   {
    "id": "AIRFRAME.engine_mount_stringer_lower_L",
@@ -1020,7 +1178,8 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 44,
-   "note": "The front seats slide fore and aft on rails (POH p.7-11); length and section representative"
+   "assembly": "seats",
+   "note": "The front seats may be moved forward or aft (POH p.7-11): they run on two rails each; the rails are long enough for the occupant's centre of gravity to range from station 34 to 46 (POH Figure 6-3); section representative"
   },
   {
    "id": "AIRFRAME.seat_rail_2",
@@ -1031,7 +1190,8 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 44,
-   "note": "The front seats slide fore and aft on rails (POH p.7-11); length and section representative"
+   "assembly": "seats",
+   "note": "The front seats may be moved forward or aft (POH p.7-11): they run on two rails each; the rails are long enough for the occupant's centre of gravity to range from station 34 to 46 (POH Figure 6-3); section representative"
   },
   {
    "id": "AIRFRAME.seat_rail_3",
@@ -1042,7 +1202,8 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 44,
-   "note": "The front seats slide fore and aft on rails (POH p.7-11); length and section representative"
+   "assembly": "seats",
+   "note": "The front seats may be moved forward or aft (POH p.7-11): they run on two rails each; the rails are long enough for the occupant's centre of gravity to range from station 34 to 46 (POH Figure 6-3); section representative"
   },
   {
    "id": "AIRFRAME.seat_rail_4",
@@ -1053,7 +1214,21 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 44,
-   "note": "The front seats slide fore and aft on rails (POH p.7-11); length and section representative"
+   "assembly": "seats",
+   "note": "The front seats may be moved forward or aft (POH p.7-11): they run on two rails each; the rails are long enough for the occupant's centre of gravity to range from station 34 to 46 (POH Figure 6-3); section representative"
+  },
+  {
+   "id": "AIRFRAME.seat_stops",
+   "system": "AIRFRAME",
+   "en": "Seat stops: one at each end of each front seat rail",
+   "ar": "مصدّات المقاعد: واحد عند كل طرف من كل سكة مقعد أمامي",
+   "parent": "AIRFRAME",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 288,
+   "assembly": "seats",
+   "note": "They keep a seat from running off its rails; not described in the POH, drawn representatively",
+   "count": 8
   },
   {
    "id": "AIRFRAME.stall_warning",
@@ -1466,6 +1641,32 @@
    "assembly": "cabin_air",
    "ref": "p.7-29 to 7-31 (Fig 7-8)",
    "note": "Route representative"
+  },
+  {
+   "id": "CABIN_AIR.ventilator_L",
+   "system": "CABIN_AIR",
+   "en": "Adjustable ventilator near the upper left corner of the windshield",
+   "ar": "فتحة تهوية قابلة للضبط قرب الزاوية العلوية اليسرى للزجاج الأمامي",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 188,
+   "assembly": "cabin_air",
+   "ref": "p.7-31",
+   "note": "Supplies additional outside air to the pilot; it is pulled out and turned to regulate and aim the air. Form representative"
+  },
+  {
+   "id": "CABIN_AIR.ventilator_R",
+   "system": "CABIN_AIR",
+   "en": "Adjustable ventilator near the upper right corner of the windshield",
+   "ar": "فتحة تهوية قابلة للضبط قرب الزاوية العلوية اليمنى للزجاج الأمامي",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 188,
+   "assembly": "cabin_air",
+   "ref": "p.7-31",
+   "note": "Supplies additional outside air to the copilot; it is pulled out and turned to regulate and aim the air. Form representative"
   },
   {
    "id": "CONTROLS.aileron_cable_L",
@@ -2764,6 +2965,19 @@
    "status": "estimated",
    "triangles": 96,
    "assembly": "lighting"
+  },
+  {
+   "id": "ELECTRICAL.speaker",
+   "system": "AVIONICS",
+   "en": "Airplane speaker, in the cabin ceiling",
+   "ar": "مكبر صوت الطائرة، في سقف المقصورة",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 668,
+   "assembly": "avionics",
+   "ref": "p.7-35 to 7-37",
+   "note": "Receiver audio is heard on the airplane speaker or on a headset, as selected on the audio control panel (POH p.7-35 to 7-37); where the speaker is mounted is representative"
   },
   {
    "id": "ELECTRICAL.starter",
@@ -4430,13 +4644,26 @@
   {
    "id": "ENGINE.muffler",
    "system": "ENGINE",
-   "en": "Muffler with heat shroud (source of cabin and carburetor heat)",
-   "ar": "كاتم الصوت مع غلاف التسخين",
+   "en": "Exhaust muffler",
+   "ar": "كاتم صوت العادم",
    "parent": "ENGINE",
    "detail": 0,
    "status": "poh",
-   "triangles": 284,
-   "ref": "p.7-24/35"
+   "triangles": 96,
+   "ref": "p.7-30 (Fig 7-8)"
+  },
+  {
+   "id": "ENGINE.muffler_shroud",
+   "system": "ENGINE",
+   "en": "Exhaust muffler shroud: the air heated in it goes to the cabin heater valve and to the carburetor heat valve",
+   "ar": "غلاف كاتم صوت العادم: الهواء المسخَّن فيه يذهب إلى صمام تدفئة المقصورة وصمام تسخين المكربن",
+   "parent": "ENGINE",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 188,
+   "assembly": "cabin_air",
+   "ref": "p.7-30 (Fig 7-8)",
+   "note": "Named in the cabin heating figure; form representative"
   },
   {
    "id": "ENGINE.piston_1",
@@ -6431,33 +6658,67 @@
   {
    "id": "INTERIOR.armrest_L",
    "system": "INTERIOR",
-   "en": "Door armrest",
+   "en": "Door arm rest",
    "ar": "مسند ذراع الباب",
    "parent": "AIRFRAME.door_L",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 188
+   "status": "poh",
+   "triangles": 188,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "The inside door handle is combined with the arm rest (POH p.7-15); form representative"
   },
   {
    "id": "INTERIOR.armrest_R",
    "system": "INTERIOR",
-   "en": "Door armrest",
+   "en": "Door arm rest",
    "ar": "مسند ذراع الباب",
    "parent": "AIRFRAME.door_R",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 188
+   "status": "poh",
+   "triangles": 188,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "The inside door handle is combined with the arm rest (POH p.7-15); form representative"
   },
   {
    "id": "INTERIOR.baggage_bulkhead",
    "system": "INTERIOR",
-   "en": "Baggage compartment aft bulkhead (120 lb area)",
-   "ar": "الحاجز الخلفي لمقصورة الأمتعة",
+   "en": "Rear cabin wall: the aft bulkhead of baggage area 1",
+   "ar": "الجدار الخلفي للمقصورة: الحاجز الخلفي لمنطقة الأمتعة 1",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
    "triangles": 68,
-   "ref": "p.6-x baggage"
+   "ref": "p.6-7 (Fig 6-3), 7-11",
+   "note": "Baggage area 1 extends from the back of the rear seats (station 82) to the rear cabin wall (approximately station 108); baggage area 2 lies behind it"
+  },
+  {
+   "id": "INTERIOR.baggage_net",
+   "system": "INTERIOR",
+   "en": "Baggage net with its eight tie-down straps",
+   "ar": "شبكة الأمتعة مع أشرطة ربطها الثمانية",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 376,
+   "assembly": "baggage",
+   "ref": "p.7-11",
+   "note": "The net secures the baggage and is attached by tying its straps to the tie-down rings (POH p.7-11); it is drawn stretched over an empty baggage area 1, station 82 to 108 (POH Figure 6-3)"
+  },
+  {
+   "id": "INTERIOR.baggage_tiedown_rings",
+   "system": "INTERIOR",
+   "en": "Baggage tie-down rings",
+   "ar": "حلقات ربط الأمتعة",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 992,
+   "assembly": "baggage",
+   "ref": "p.7-11",
+   "note": "The straps of the baggage net are tied to tie-down rings provided in the airplane (POH p.7-11); their number and place are representative",
+   "count": 8
   },
   {
    "id": "INTERIOR.cabin_liner",
@@ -6470,24 +6731,43 @@
    "triangles": 12716
   },
   {
+   "id": "INTERIOR.control_lock",
+   "system": "INTERIOR",
+   "en": "Control lock: a steel rod with a red flag, through the pilot's control wheel shaft and its collar",
+   "ar": "قفل التحكم: قضيب فولاذي بعلم أحمر، يمر عبر عمود عجلة قيادة الطيار وطوقه",
+   "parent": "INTERIOR",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 168,
+   "assembly": "control_lock",
+   "ref": "p.7-16",
+   "note": "Locks the ailerons and the elevator in neutral while the airplane is parked. Its flag, labelled CONTROL LOCK, REMOVE BEFORE STARTING ENGINE, covers the ignition switch (POH p.7-16). Fitted only on the ground: shown in the editable scene and by the part tool, not in the web model"
+  },
+  {
    "id": "INTERIOR.door_inner_handle_L",
    "system": "INTERIOR",
-   "en": "Door inner handle",
-   "ar": "مقبض الباب الداخلي",
+   "en": "Inside door handle (OPEN, CLOSE, LOCK)",
+   "ar": "مقبض الباب الداخلي (OPEN ،CLOSE ،LOCK)",
    "parent": "AIRFRAME.door_L",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 12
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "Three positions: spring-loaded to CLOSE (up); rotated forward to LOCK it lies flush with the arm rest; rotated aft it opens the door (POH p.7-15)"
   },
   {
    "id": "INTERIOR.door_inner_handle_R",
    "system": "INTERIOR",
-   "en": "Door inner handle",
-   "ar": "مقبض الباب الداخلي",
+   "en": "Inside door handle (OPEN, CLOSE, LOCK)",
+   "ar": "مقبض الباب الداخلي (OPEN ،CLOSE ،LOCK)",
    "parent": "AIRFRAME.door_R",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 12
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "doors",
+   "ref": "p.7-15",
+   "note": "Three positions: spring-loaded to CLOSE (up); rotated forward to LOCK it lies flush with the arm rest; rotated aft it opens the door (POH p.7-15)"
   },
   {
    "id": "INTERIOR.door_panel_L",
@@ -6530,6 +6810,32 @@
    "triangles": 150
   },
   {
+   "id": "INTERIOR.harness_sheath_L",
+   "system": "INTERIOR",
+   "en": "Stowage sheath of the shoulder harness, above the left cabin door",
+   "ar": "غمد تخزين حزام الكتف، فوق باب المقصورة الأيسر",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "seats",
+   "ref": "p.7-12",
+   "note": "To stow the harness, fold it and place it behind the sheath (POH p.7-12); form representative"
+  },
+  {
+   "id": "INTERIOR.harness_sheath_R",
+   "system": "INTERIOR",
+   "en": "Stowage sheath of the shoulder harness, above the right cabin door",
+   "ar": "غمد تخزين حزام الكتف، فوق باب المقصورة الأيمن",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "seats",
+   "ref": "p.7-12",
+   "note": "To stow the harness, fold it and place it behind the sheath (POH p.7-12); form representative"
+  },
+  {
    "id": "INTERIOR.headliner",
    "system": "INTERIOR",
    "en": "Headliner (cabin ceiling)",
@@ -6539,6 +6845,33 @@
    "status": "estimated",
    "triangles": 140,
    "note": "Level with the underside of the wing root; the carry-through spars lie above it"
+  },
+  {
+   "id": "INTERIOR.microphone",
+   "system": "AVIONICS",
+   "en": "Hand microphone on its bracket on the control pedestal",
+   "ar": "ميكروفون يدوي على حامله في قاعدة التحكم",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 760,
+   "assembly": "avionics",
+   "ref": "p.7-7 (Fig 7-2), 7-9",
+   "note": "The pedestal provides a bracket for the microphone (POH p.7-9); form representative"
+  },
+  {
+   "id": "INTERIOR.microphone_switch",
+   "system": "AVIONICS",
+   "en": "Microphone keying switch, on the left side of the pilot's control wheel",
+   "ar": "مفتاح تشغيل الميكروفون، على الجانب الأيسر من عجلة قيادة الطيار",
+   "parent": "INTERIOR.yoke_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "avionics",
+   "ref": "p.7-37, 7-38",
+   "note": "Part of the microphone-headset combination: the pilot can transmit without taking a hand from the control wheel (POH p.7-37, 7-38)",
+   "optional": true
   },
   {
    "id": "INTERIOR.overhead_console",
@@ -6624,55 +6957,132 @@
    "triangles": 108
   },
   {
+   "id": "INTERIOR.seat_belt_anchors",
+   "system": "INTERIOR",
+   "en": "Seat belt anchors: the ends of the seat belts and their fittings on the floorboard",
+   "ar": "مثبتات أحزمة المقاعد: أطراف الأحزمة ومرابطها على أرضية المقصورة",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 504,
+   "assembly": "seats",
+   "ref": "p.7-12",
+   "note": "All of the seat belts are attached to fittings on the floorboard; the buckle half is inboard of each front seat and the link half outboard (POH p.7-12). Where the fittings stand is representative",
+   "count": 6
+  },
+  {
+   "id": "INTERIOR.seat_copilot.adjust_handle",
+   "system": "INTERIOR",
+   "en": "Seat lock of the front passenger's seat: tubular handle under the centre of the seat, with a pin into each rail",
+   "ar": "قفل مقعد الراكب الأمامي: مقبض أنبوبي تحت منتصف المقعد، مع مسمار يدخل في كل سكة",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 240,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "Lift the handle, slide the seat into position, release the handle and check that the seat is locked in place (POH p.7-11); the mechanism is representative"
+  },
+  {
    "id": "INTERIOR.seat_copilot.back",
    "system": "INTERIOR",
-   "en": "Co-pilot seat (adjustable) — seat back",
-   "ar": "مقعد مساعد الطيار — ظهر المقعد",
+   "en": "Front passenger seat (adjustable) — seat back",
+   "ar": "مقعد الراكب الأمامي — ظهر المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 1200
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_copilot.back_lever",
+   "system": "INTERIOR",
+   "en": "Seat back lever of the front passenger's seat: under the right front corner of the seat",
+   "ar": "ذراع ظهر مقعد الراكب الأمامي: تحت الزاوية الأمامية اليمنى للمقعد",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 56,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "Lift the lever, reposition the seat back, release the lever and check that the back is locked; the back is spring-loaded to the vertical position (POH p.7-11, four-way seat)"
   },
   {
    "id": "INTERIOR.seat_copilot.buckle",
    "system": "INTERIOR",
    "en": "Seat belt buckle",
-   "ar": "مشبك حزام الأمان",
+   "ar": "مشبك حزام المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 12
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "seats",
+   "ref": "p.7-12 (Fig 7-4)"
   },
   {
    "id": "INTERIOR.seat_copilot.cushion",
    "system": "INTERIOR",
-   "en": "Co-pilot seat (adjustable) — seat cushion",
-   "ar": "مقعد مساعد الطيار — وسادة المقعد",
+   "en": "Front passenger seat (adjustable) — seat cushion",
+   "ar": "مقعد الراكب الأمامي — وسادة المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 1200
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.6-7, 7-11",
+   "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative"
   },
   {
    "id": "INTERIOR.seat_copilot.frame",
    "system": "INTERIOR",
-   "en": "Co-pilot seat (adjustable) — seat frame and rails",
-   "ar": "مقعد مساعد الطيار — إطار المقعد",
+   "en": "Front passenger seat (adjustable) — seat frame",
+   "ar": "مقعد الراكب الأمامي — إطار المقعد",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 168
+   "triangles": 168,
+   "assembly": "seats"
   },
   {
    "id": "INTERIOR.seat_copilot.lap_belt",
    "system": "INTERIOR",
-   "en": "Co-pilot seat (adjustable) — lap belt",
-   "ar": "مقعد مساعد الطيار — حزام الحضن",
+   "en": "Front passenger seat (adjustable) — seat belt",
+   "ar": "مقعد الراكب الأمامي — حزام المقعد",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
    "triangles": 132,
-   "ref": "p.7-8"
+   "assembly": "seats",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)"
+  },
+  {
+   "id": "INTERIOR.seat_copilot.rollers",
+   "system": "INTERIOR",
+   "en": "Rollers of the front passenger's seat: the seat runs fore and aft on its two rails",
+   "ar": "بكرات مقعد الراكب الأمامي: ينزلق المقعد إلى الأمام والخلف على سكّتيه",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 320,
+   "assembly": "seats",
+   "note": "The front seats may be moved forward or aft (POH p.7-11); how the seat is carried on its rails is representative",
+   "count": 4
+  },
+  {
+   "id": "INTERIOR.seat_pilot.adjust_handle",
+   "system": "INTERIOR",
+   "en": "Seat lock of the pilot's seat: tubular handle under the centre of the seat, with a pin into each rail",
+   "ar": "قفل مقعد الطيار: مقبض أنبوبي تحت منتصف المقعد، مع مسمار يدخل في كل سكة",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 240,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "Lift the handle, slide the seat into position, release the handle and check that the seat is locked in place (POH p.7-11); the mechanism is representative"
   },
   {
    "id": "INTERIOR.seat_pilot.back",
@@ -6681,18 +7091,36 @@
    "ar": "مقعد الطيار — ظهر المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 1200
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_pilot.back_lever",
+   "system": "INTERIOR",
+   "en": "Seat back lever of the pilot's seat: under the right front corner of the seat",
+   "ar": "ذراع ظهر مقعد الطيار: تحت الزاوية الأمامية اليمنى للمقعد",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 56,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "Lift the lever, reposition the seat back, release the lever and check that the back is locked; the back is spring-loaded to the vertical position (POH p.7-11, four-way seat)"
   },
   {
    "id": "INTERIOR.seat_pilot.buckle",
    "system": "INTERIOR",
    "en": "Seat belt buckle",
-   "ar": "مشبك حزام الأمان",
+   "ar": "مشبك حزام المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 12
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "seats",
+   "ref": "p.7-12 (Fig 7-4)"
   },
   {
    "id": "INTERIOR.seat_pilot.cushion",
@@ -6701,102 +7129,173 @@
    "ar": "مقعد الطيار — وسادة المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 1200
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.6-7, 7-11",
+   "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative"
   },
   {
    "id": "INTERIOR.seat_pilot.frame",
    "system": "INTERIOR",
-   "en": "Pilot seat (adjustable) — seat frame and rails",
+   "en": "Pilot seat (adjustable) — seat frame",
    "ar": "مقعد الطيار — إطار المقعد",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 168
+   "triangles": 168,
+   "assembly": "seats"
   },
   {
    "id": "INTERIOR.seat_pilot.lap_belt",
    "system": "INTERIOR",
-   "en": "Pilot seat (adjustable) — lap belt",
-   "ar": "مقعد الطيار — حزام الحضن",
+   "en": "Pilot seat (adjustable) — seat belt",
+   "ar": "مقعد الطيار — حزام المقعد",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
    "triangles": 132,
-   "ref": "p.7-8"
+   "assembly": "seats",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)"
   },
   {
-   "id": "INTERIOR.seat_rear.back",
+   "id": "INTERIOR.seat_pilot.rollers",
    "system": "INTERIOR",
-   "en": "Rear bench seat — seat back",
-   "ar": "المقعد الخلفي — ظهر المقعد",
+   "en": "Rollers of the pilot's seat: the seat runs fore and aft on its two rails",
+   "ar": "بكرات مقعد الطيار: ينزلق المقعد إلى الأمام والخلف على سكّتيه",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 320,
+   "assembly": "seats",
+   "note": "The front seats may be moved forward or aft (POH p.7-11); how the seat is carried on its rails is representative",
+   "count": 4
+  },
+  {
+   "id": "INTERIOR.seat_rear.back_L",
+   "system": "INTERIOR",
+   "en": "Rear seat (fixed, split-backed) — left seat back",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — ظهر المقعد الأيسر",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 1200
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_rear.back_R",
+   "system": "INTERIOR",
+   "en": "Rear seat (fixed, split-backed) — right seat back",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — ظهر المقعد الأيمن",
+   "parent": "INTERIOR",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.7-11",
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_rear.back_lever_L",
+   "system": "INTERIOR",
+   "en": "Adjustment lever of the left rear seat back: under the left corner of the seat bottom",
+   "ar": "ذراع ضبط ظهر المقعد الخلفي الأيسر: تحت الزاوية اليسرى لقاعدة المقعد",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 56,
+   "assembly": "seats",
+   "ref": "p.7-11, 7-12",
+   "note": "The rear seat has a fixed one-piece bottom and individually adjustable seat backs: lift the lever and reposition the back (POH p.7-11, 7-12)"
+  },
+  {
+   "id": "INTERIOR.seat_rear.back_lever_R",
+   "system": "INTERIOR",
+   "en": "Adjustment lever of the right rear seat back: under the right corner of the seat bottom",
+   "ar": "ذراع ضبط ظهر المقعد الخلفي الأيمن: تحت الزاوية اليمنى لقاعدة المقعد",
+   "parent": "INTERIOR",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 56,
+   "assembly": "seats",
+   "ref": "p.7-11, 7-12",
+   "note": "The rear seat has a fixed one-piece bottom and individually adjustable seat backs: lift the lever and reposition the back (POH p.7-11, 7-12)"
   },
   {
    "id": "INTERIOR.seat_rear.buckle",
    "system": "INTERIOR",
    "en": "Seat belt buckle",
-   "ar": "مشبك حزام الأمان",
+   "ar": "مشبك حزام المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 12
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "seats",
+   "ref": "p.7-12 (Fig 7-4)"
   },
   {
    "id": "INTERIOR.seat_rear.cushion",
    "system": "INTERIOR",
-   "en": "Rear bench seat — seat cushion",
-   "ar": "المقعد الخلفي — وسادة المقعد",
+   "en": "Rear seat (fixed, split-backed) — seat cushion",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — وسادة المقعد",
    "parent": "INTERIOR",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 1200
+   "status": "poh",
+   "triangles": 1200,
+   "assembly": "seats",
+   "ref": "p.6-7, 7-11",
+   "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative"
   },
   {
    "id": "INTERIOR.seat_rear.frame",
    "system": "INTERIOR",
-   "en": "Rear bench seat — seat frame and rails",
-   "ar": "المقعد الخلفي — إطار المقعد",
+   "en": "Rear seat (fixed, split-backed) — seat frame",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — إطار المقعد",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 168
+   "triangles": 168,
+   "assembly": "seats"
   },
   {
    "id": "INTERIOR.seat_rear.lap_belt",
    "system": "INTERIOR",
-   "en": "Rear bench seat — lap belt",
-   "ar": "المقعد الخلفي — حزام الحضن",
+   "en": "Rear seat (fixed, split-backed) — seat belt",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — حزام المقعد",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
    "triangles": 132,
-   "ref": "p.7-8"
+   "assembly": "seats",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)"
   },
   {
    "id": "INTERIOR.shoulder_harness_L",
    "system": "INTERIOR",
-   "en": "Shoulder harness (inertia reel)",
-   "ar": "حزام الكتف",
+   "en": "Shoulder harness of the pilot's seat",
+   "ar": "حزام الكتف لمقعد الطيار",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
    "triangles": 148,
-   "ref": "p.7-8"
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "Attached to the rear door post above the window line; it snaps onto the retaining stud of the seat belt link (POH p.7-12, 7-14)"
   },
   {
    "id": "INTERIOR.shoulder_harness_R",
    "system": "INTERIOR",
-   "en": "Shoulder harness (inertia reel)",
-   "ar": "حزام الكتف",
+   "en": "Shoulder harness of the front passenger's seat",
+   "ar": "حزام الكتف لمقعد الراكب الأمامي",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
    "triangles": 148,
-   "ref": "p.7-8"
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "Attached to the rear door post above the window line; it snaps onto the retaining stud of the seat belt link (POH p.7-12, 7-14)"
   },
   {
    "id": "INTERIOR.trim_wheel",
@@ -6819,7 +7318,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 2832,
-   "assembly": "aileron_control,elevator_control",
+   "assembly": "aileron_control,elevator_control,control_lock",
    "ref": "p.7-6"
   },
   {
@@ -6842,7 +7341,8 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 52
+   "triangles": 52,
+   "assembly": "control_lock"
   },
   {
    "id": "INTERIOR.yoke_shaft_R",
@@ -8698,6 +9198,20 @@
    "triangles": 80
   },
   {
+   "id": "PANEL.control_wheel_collars",
+   "system": "INTERIOR",
+   "en": "Shaft collars of the control wheels, on the instrument panel",
+   "ar": "طوقا عمودي عجلتي القيادة على لوحة العدادات",
+   "parent": "PANEL",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 320,
+   "assembly": "control_lock",
+   "ref": "p.7-16",
+   "note": "The hole in the top of the pilot's shaft collar takes the control lock (POH p.7-16); form representative",
+   "count": 2
+  },
+  {
    "id": "PANEL.flap_ind",
    "system": "PANEL",
    "en": "Wing flap position indicator",
@@ -8750,7 +9264,34 @@
    "detail": 0,
    "status": "poh",
    "triangles": 132,
+   "assembly": "control_lock",
    "ref": "p.7-25"
+  },
+  {
+   "id": "PANEL.light_rheostats",
+   "system": "ELECTRICAL",
+   "en": "Instrument and radio dial light rheostat control knobs (PANEL LT, RADIO LT)",
+   "ar": "مقبضا التحكم بشدة إضاءة العدادات وأقراص الراديو (PANEL LT و RADIO LT)",
+   "parent": "PANEL",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 224,
+   "assembly": "lighting",
+   "ref": "p.7-7 (Fig 7-2), 7-28",
+   "note": "Two rheostat knobs set the intensity of the instrument panel lighting and of the radio lighting (POH p.7-28); their place on the panel is representative",
+   "count": 2
+  },
+  {
+   "id": "PANEL.lighter",
+   "system": "PANEL",
+   "en": "Lighter",
+   "ar": "ولاعة",
+   "parent": "PANEL",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 112,
+   "ref": "p.7-7 (Fig 7-2)",
+   "note": "Named in the instrument panel figure; its place on the panel is representative"
   },
   {
    "id": "PANEL.low_volt",
@@ -8786,6 +9327,18 @@
    "ref": "p.7-x"
   },
   {
+   "id": "PANEL.map_compartment",
+   "system": "PANEL",
+   "en": "Map compartment (door)",
+   "ar": "حجرة الخرائط (الباب)",
+   "parent": "PANEL",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 48,
+   "ref": "p.7-7 (Fig 7-2), 7-9",
+   "note": "The right side of the subpanel contains the map compartment (POH p.7-9); size representative"
+  },
+  {
    "id": "PANEL.master_alt",
    "system": "PANEL",
    "en": "Master switch — ALT half",
@@ -8808,6 +9361,20 @@
    "triangles": 24,
    "assembly": "electrical_system",
    "ref": "p.7-25/27"
+  },
+  {
+   "id": "PANEL.microphone_jacks",
+   "system": "AVIONICS",
+   "en": "Microphone and phone jacks, near the lower left corner of the instrument panel",
+   "ar": "مقبسا الميكروفون والسماعة، قرب الزاوية السفلية اليسرى من لوحة العدادات",
+   "parent": "PANEL",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 192,
+   "assembly": "avionics",
+   "ref": "p.7-7 (Fig 7-2), 7-38",
+   "note": "The microphone and headset jacks are located near the lower left corner of the instrument panel (POH p.7-38)",
+   "count": 2
   },
   {
    "id": "PANEL.mixture",
@@ -10209,7 +10776,7 @@
    "parent": "WING_L",
    "detail": 1,
    "status": "estimated",
-   "triangles": 368,
+   "triangles": 412,
    "note": "Formed sheet-metal rib (POH p.7-3); station, gauge and lightening holes are representative",
    "station_in": 23.62
   },
@@ -11425,6 +11992,19 @@
    "triangles": 48
   },
   {
+   "id": "WING_L.ventilator_duct",
+   "system": "CABIN_AIR",
+   "en": "Ventilator duct, left: from the air inlet in the wing root leading edge to the ventilator",
+   "ar": "مجرى فتحة التهوية الأيسر: من مدخل الهواء في مقدمة جذر الجناح إلى فتحة التهوية",
+   "parent": "WING_L",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 156,
+   "assembly": "cabin_air",
+   "ref": "p.7-31",
+   "note": "Runs in the nose of the wing and through an opening in the root nose rib; route representative"
+  },
+  {
    "id": "WING_L.wing",
    "system": "WING_L",
    "en": "Left wing",
@@ -12145,7 +12725,7 @@
    "parent": "WING_R",
    "detail": 1,
    "status": "estimated",
-   "triangles": 368,
+   "triangles": 412,
    "note": "Formed sheet-metal rib (POH p.7-3); station, gauge and lightening holes are representative",
    "station_in": 23.62
   },
@@ -13346,6 +13926,19 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 48
+  },
+  {
+   "id": "WING_R.ventilator_duct",
+   "system": "CABIN_AIR",
+   "en": "Ventilator duct, right: from the air inlet in the wing root leading edge to the ventilator",
+   "ar": "مجرى فتحة التهوية الأيمن: من مدخل الهواء في مقدمة جذر الجناح إلى فتحة التهوية",
+   "parent": "WING_R",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 156,
+   "assembly": "cabin_air",
+   "ref": "p.7-31",
+   "note": "Runs in the nose of the wing and through an opening in the root nose rib; route representative"
   },
   {
    "id": "WING_R.wing",

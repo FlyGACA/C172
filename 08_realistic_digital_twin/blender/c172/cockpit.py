@@ -375,74 +375,97 @@ def strap(bm, pts, width, thick=0.003):
         rings.append([pts[i] + nrm * width / 2 + b * thick / 2, pts[i] - nrm * width / 2 + b * thick / 2, pts[i] - nrm * width / 2 - b * thick / 2, pts[i] + nrm * width / 2 - b * thick / 2])
     loft(bm, rings, close=True, cap_start=True, cap_end=True)
 
+# Where the seats stand (POH Figure 6-3, Loading Arrangements, p.6-7): the centre of gravity of the pilot and
+# the front passenger is at station 37 with the seat set for an average occupant (range 34 to 46), that of the
+# rear passengers at station 73; baggage area 1 begins behind the rear seat back, at station 82.
+# (Build-frame stations; a handbook station lies about 0.7 in further aft at seat height, units.cessna_fs.)
+FRONT_SEAT_FS = 28.0      # front edge of the front seat cushions (seat back at 44, occupant at 37)
+REAR_SEAT_FS = 64.0       # front edge of the rear seat cushion (seat back at 80 to 82, occupants at 73)
+
+
 def build_seats(ctx):
     M = ctx.mats
     grp = ctx.groups["INTERIOR"]
-    def seat(name, x, y0, w, en, ar):
+    on_rails = getattr(ctx, "detail_level", 0) >= 1      # the detail packs add the seat rails and rollers: the frame then stands on them
+
+    def seat(name, x, y0, w, en, ar, front=True):
         bm = new_bm()
         box(bm, (w, 0.46, 0.09), center=(x, y0 + 0.23, 1.035))
         pan = obj_from_bm(name + ".cushion", bm, ctx.col, pivot=(x, y0, 1.0), mat=M["leather_tan"], smooth=False)
         add_bevel(pan, 0.03, 4); add_subsurf(pan, 1)
         parent_keep(pan, grp)
-        ctx.tag(pan, "INTERIOR", en + " — seat cushion", ar + " — وسادة المقعد", status="estimated")
-        bm = new_bm()
-        # back, tilted 14° aft about its lower edge
-        box(bm, (w, 0.08, 0.52), center=(x, y0 + 0.44, 1.07 + 0.26))
-        back = obj_from_bm(name + ".back", bm, ctx.col, pivot=(x, y0 + 0.44, 1.07), mat=M["leather_tan"], smooth=False)
-        back.rotation_euler = (math.radians(-14), 0, 0)
-        add_bevel(back, 0.03, 4); add_subsurf(back, 1)
-        parent_keep(back, grp)
-        ctx.tag(back, "INTERIOR", en + " — seat back", ar + " — ظهر المقعد", status="estimated", animate="seat_back", hinge_axis="x", hinge_sign=1, range_deg=[-25, 0])
+        ctx.tag(pan, "INTERIOR", en + " — seat cushion", ar + " — وسادة المقعد", status="poh", ref="p.6-7, 7-11",
+                note="Stands where POH Figure 6-3 puts its occupant; form and size representative")
+        # backs, tilted 14° aft about their lower edge: one for a front seat, two for the split-backed rear seat (POH p.7-11)
+        backs = [("", x, w, "seat back", "ظهر المقعد")] if front else [
+            ("_L", x + w / 4 + 0.004, w / 2 - 0.012, "left seat back", "ظهر المقعد الأيسر"), ("_R", x - w / 4 - 0.004, w / 2 - 0.012, "right seat back", "ظهر المقعد الأيمن")]
+        for suffix, bx, bw, label_en, label_ar in backs:
+            bm = new_bm()
+            box(bm, (bw, 0.08, 0.52), center=(bx, y0 + 0.44, 1.07 + 0.26))
+            back = obj_from_bm(name + ".back" + suffix, bm, ctx.col, pivot=(bx, y0 + 0.44, 1.07), mat=M["leather_tan"], smooth=False)
+            back.rotation_euler = (math.radians(-14), 0, 0)
+            add_bevel(back, 0.03, 4); add_subsurf(back, 1)
+            parent_keep(back, grp)
+            ctx.tag(back, "INTERIOR", en + " — " + label_en, ar + " — " + label_ar, status="poh", ref="p.7-11", animate="seat_back", hinge_axis="x", hinge_sign=1, range_deg=[-25, 0],
+                    note="The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative")
         bm = new_bm()
         floor_top = FLOOR_TOP - CABIN_LIFT               # the frame is lifted with the seat, so start it at the floor
-        for sx in (-w / 2 + 0.09, w / 2 - 0.09):
-            tube(bm, [Vector((x + sx, y0 + 0.08, floor_top)), Vector((x + sx, y0 + 0.08, 1.0))], 0.012, segs=8)
-            tube(bm, [Vector((x + sx, y0 + 0.40, floor_top)), Vector((x + sx, y0 + 0.40, 1.0))], 0.012, segs=8)
-            tube(bm, [Vector((x + sx, y0 + 0.02, floor_top + 0.012)), Vector((x + sx, y0 + 0.46, floor_top + 0.012))], 0.010, segs=8)
+        leg = 0.12 if front else w / 2 - 0.09            # the legs of a front seat stand over its two rails
+        base = floor_top + (0.045 if front and on_rails else 0.012)
+        for sx in (-leg, leg):
+            tube(bm, [Vector((x + sx, y0 + 0.08, base if front and on_rails else floor_top)), Vector((x + sx, y0 + 0.08, 1.0))], 0.012, segs=8)
+            tube(bm, [Vector((x + sx, y0 + 0.40, base if front and on_rails else floor_top)), Vector((x + sx, y0 + 0.40, 1.0))], 0.012, segs=8)
+            tube(bm, [Vector((x + sx, y0 + 0.02, base)), Vector((x + sx, y0 + 0.46, base))], 0.010, segs=8)
         legs = obj_from_bm(name + ".frame", bm, ctx.col, pivot=(x, y0, floor_top), mat=M["steel"])
         parent_keep(legs, grp)
-        ctx.tag(legs, "INTERIOR", en + " — seat frame and rails", ar + " — إطار المقعد", status="estimated")
-        # lap belt and shoulder harness
+        ctx.tag(legs, "INTERIOR", en + " — seat frame", ar + " — إطار المقعد", status="estimated")
+        # lap belt
         bm = new_bm()
         pts = bezier(Vector((x - w / 2 + 0.02, y0 + 0.30, 0.98)), Vector((x - w / 2 + 0.06, y0 + 0.26, 1.10)), Vector((x + w / 2 - 0.06, y0 + 0.26, 1.10)), Vector((x + w / 2 - 0.02, y0 + 0.30, 0.98)), 16)
         strap(bm, pts, 0.048)
         belt = obj_from_bm(name + ".lap_belt", bm, ctx.col, pivot=(x, y0 + 0.3, 1.0), mat=M["belt"])
         parent_keep(belt, grp)
-        ctx.tag(belt, "INTERIOR", en + " — lap belt", ar + " — حزام الحضن", status="poh", ref="p.7-8")
+        ctx.tag(belt, "INTERIOR", en + " — seat belt", ar + " — حزام المقعد", status="poh", ref="p.7-12 (Fig 7-4)",
+                note="All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)")
         bm = new_bm()
         box(bm, (0.05, 0.02, 0.03), center=(x + 0.02, y0 + 0.27, 1.105))
         buckle = obj_from_bm(name + ".buckle", bm, ctx.col, pivot=(x, y0 + 0.3, 1.1), mat=M["chrome"], smooth=False)
         parent_keep(buckle, grp)
-        ctx.tag(buckle, "INTERIOR", "Seat belt buckle", "مشبك حزام الأمان", status="estimated")
+        ctx.tag(buckle, "INTERIOR", "Seat belt buckle", "مشبك حزام المقعد", status="poh", ref="p.7-12 (Fig 7-4)")
         return pan
-    seat("INTERIOR.seat_pilot", 0.28, fs(42), 0.40, "Pilot seat (adjustable)", "مقعد الطيار")
-    seat("INTERIOR.seat_copilot", -0.28, fs(42), 0.40, "Co-pilot seat (adjustable)", "مقعد مساعد الطيار")
-    seat("INTERIOR.seat_rear", 0.0, fs(80), 0.76, "Rear bench seat", "المقعد الخلفي")
-    # shoulder harnesses for the front seats, from the roof rail behind the door
-    for side, x in (("L", 0.30), ("R", -0.30)):
+    seat("INTERIOR.seat_pilot", 0.28, fs(FRONT_SEAT_FS), 0.40, "Pilot seat (adjustable)", "مقعد الطيار")
+    seat("INTERIOR.seat_copilot", -0.28, fs(FRONT_SEAT_FS), 0.40, "Front passenger seat (adjustable)", "مقعد الراكب الأمامي")
+    seat("INTERIOR.seat_rear", 0.0, fs(REAR_SEAT_FS), 0.76, "Rear seat (fixed, split-backed)", "المقعد الخلفي (ثابت بظهرين)", front=False)
+    # shoulder harnesses for the front seats: from the rear door post above the window line, over the outboard
+    # shoulder, to the seat belt link at the inboard hip (POH p.7-12, Figure 7-4)
+    y0 = fs(FRONT_SEAT_FS)
+    for side, x in (("L", 0.28), ("R", -0.28)):
         bm = new_bm()
-        o = 1 if side == "L" else -1   # harness comes from the roof rail on the door side
-        pts = bezier(Vector((x + o * 0.12, fs(64), 1.82)), Vector((x + o * 0.10, fs(57), 1.70)), Vector((x + o * 0.07, fs(51), 1.45)), Vector((x - o * 0.06, fs(50), 1.13)), 18)
+        o = 1 if side == "L" else -1
+        pts = bezier(Vector((x + o * 0.19, fs(69.0), 1.925)), Vector((x + o * 0.17, y0 + 0.62, 1.80)), Vector((x + o * 0.10, y0 + 0.37, 1.50)), Vector((x - o * 0.06, y0 + 0.27, 1.13)), 18)
         strap(bm, pts, 0.048)
         sh = obj_from_bm(f"INTERIOR.shoulder_harness_{side}", bm, ctx.col, pivot=pts[0], mat=M["belt"])
         parent_keep(sh, grp)
-        ctx.tag(sh, "INTERIOR", "Shoulder harness (inertia reel)", "حزام الكتف", status="poh", ref="p.7-8")
+        ctx.tag(sh, "INTERIOR", "Shoulder harness of the " + ("pilot's" if side == "L" else "front passenger's") + " seat", "حزام الكتف لمقعد " + ("الطيار" if side == "L" else "الراكب الأمامي"),
+                status="poh", ref="p.7-12 (Fig 7-4)",
+                note="Attached to the rear door post above the window line; it snaps onto the retaining stud of the seat belt link (POH p.7-12, 7-14)")
     # door armrests and inner handles (parented to the doors so they swing with them)
     for side, sgn in (("L", 1), ("R", -1)):
         door = bpy.data.objects.get(f"AIRFRAME.door_{side}")
         if not door:
             continue
         bm = new_bm()
-        box(bm, (0.05, 0.34, 0.05), center=(sgn * 0.47, fs(51), 1.16))
-        arm = obj_from_bm(f"INTERIOR.armrest_{side}", bm, ctx.col, pivot=(sgn * 0.47, fs(51), 1.16), mat=M["leather_tan"], smooth=False)
+        box(bm, (0.034, 0.34, 0.05), center=(sgn * 0.478, fs(41), 1.31))      # beside the occupant's elbow, above the seat cushion
+        arm = obj_from_bm(f"INTERIOR.armrest_{side}", bm, ctx.col, pivot=(sgn * 0.478, fs(41), 1.31), mat=M["leather_tan"], smooth=False)
         add_bevel(arm, 0.012, 3)
         parent_keep(arm, door)
-        ctx.tag(arm, "INTERIOR", "Door armrest", "مسند ذراع الباب", status="estimated")
+        ctx.tag(arm, "INTERIOR", "Door arm rest", "مسند ذراع الباب", status="poh", ref="p.7-15", note="The inside door handle is combined with the arm rest (POH p.7-15); form representative")
         bm = new_bm()
-        box(bm, (0.015, 0.09, 0.02), center=(sgn * 0.49, fs(59), 1.24))
-        ih = obj_from_bm(f"INTERIOR.door_inner_handle_{side}", bm, ctx.col, pivot=(sgn * 0.49, fs(59), 1.24), mat=M["chrome"], smooth=False)
+        box(bm, (0.015, 0.09, 0.02), center=(sgn * 0.482, fs(49.6), 1.322))    # at the aft end of the arm rest, level with its top
+        ih = obj_from_bm(f"INTERIOR.door_inner_handle_{side}", bm, ctx.col, pivot=(sgn * 0.482, fs(48.0), 1.322), mat=M["chrome"], smooth=False)
         parent_keep(ih, door)
-        ctx.tag(ih, "INTERIOR", "Door inner handle", "مقبض الباب الداخلي", status="estimated")
+        ctx.tag(ih, "INTERIOR", "Inside door handle (OPEN, CLOSE, LOCK)", "مقبض الباب الداخلي (OPEN ،CLOSE ،LOCK)", status="poh", ref="p.7-15",
+                note="Three positions: spring-loaded to CLOSE (up); rotated forward to LOCK it lies flush with the arm rest; rotated aft it opens the door (POH p.7-15)")
     # baggage shelf / rear bulkhead
     top = wl(51.5) - 0.03          # lower edge of the rear window at this station
     foot = floor_z(112) + 0.015    # it stands on the raised baggage floor
@@ -453,7 +476,8 @@ def build_seats(ctx):
     extrude_profile(bm, outline, Vector((1, 0, 0)), Vector((0, 0, 1)), (0, 0, 0), Vector((0, 1, 0)), fs(112) - 0.01, fs(112) + 0.01, smooth_sides=False)
     bh = obj_from_bm("INTERIOR.baggage_bulkhead", bm, ctx.col, pivot=(0, fs(112), 1.0), mat=M["interior_tan"], smooth=False)
     parent_keep(bh, grp)
-    ctx.tag(bh, "INTERIOR", "Baggage compartment aft bulkhead (120 lb area)", "الحاجز الخلفي لمقصورة الأمتعة", status="poh", ref="p.6-x baggage")
+    ctx.tag(bh, "INTERIOR", "Rear cabin wall: the aft bulkhead of baggage area 1", "الجدار الخلفي للمقصورة: الحاجز الخلفي لمنطقة الأمتعة 1", status="poh", ref="p.6-7 (Fig 6-3), 7-11",
+            note="Baggage area 1 extends from the back of the rear seats (station 82) to the rear cabin wall (approximately station 108); baggage area 2 lies behind it")
 
 def build(ctx):
     """Build the cockpit, then lift it to the cowl-deck height of the corrected fuselage.

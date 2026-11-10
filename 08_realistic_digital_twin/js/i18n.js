@@ -94,6 +94,8 @@ const P8 = {
     srcText: 'ترميز الثقة: أخضر = مقاس من الطائرة، أزرق = دليل POH، ذهبي = بيانات النوع، رمادي = تقديري. الأبعاد الكلية من الشكل 1-1 في POH 1979. لم تُسجّل قياسات طائرة FlyGACA الفعلية بعد. الهندسة تعليمية وليست رسومات Cessna/Lycoming.',
     annun: { low_voltage: 'LOW VOLTAGE', oil_pressure_low: 'ضغط الزيت منخفض', oil_temp_high: 'حرارة الزيت مرتفعة', overspeed: 'تجاوز الدورات', suction_low: 'الشفط منخفض', engine_rough: 'المحرك يعمل بخشونة', flooded: 'المحرك مُغرق', vne_exceeded: 'تجاوز VNE', hot_magneto: 'مغناطيس غير مؤرَّض' },
     groups8: { AIRFRAME: 'الهيكل', WING_L: 'الجناح الأيسر', WING_R: 'الجناح الأيمن', EMPENNAGE: 'الذيل', GEAR: 'عجلات الهبوط', POWERPLANT: 'مجموعة القدرة', ENGINE: 'المحرك', INTERIOR: 'المقصورة', PANEL: 'لوحة العدادات', SYSTEMS: 'الأنظمة' },
+    systems8: { IGNITION: 'الإشعال', INDUCTION: 'السحب والمكربن', OIL: 'الزيت', FUEL: 'الوقود', ELECTRICAL: 'الكهرباء', AVIONICS: 'الأفيونكس', VACUUM: 'التفريغ', PITOT_STATIC: 'البيتوت والضغط الساكن',
+      STALL_WARNING: 'إنذار الانهيار', CONTROLS: 'التحكم بالطيران والقلابات', BRAKES: 'الكوابح', CABIN_AIR: 'تدفئة المقصورة وتهويتها', INSTRUMENTS: 'داخل العدادات' },
   },
   en: {
     title8: 'FlyGACA · Cessna 172N (1979) realistic digital twin', gallery: 'Gallery',
@@ -111,6 +113,8 @@ const P8 = {
     srcText: 'Confidence colours: green = measured aircraft, blue = POH, gold = type data, grey = estimated. Overall dimensions come from Figure 1-1 of the 1979 POH. No actual FlyGACA-aircraft measurements are recorded yet. Geometry is educational, not Cessna/Lycoming drawings.',
     annun: { low_voltage: 'LOW VOLTAGE', oil_pressure_low: 'OIL PRESSURE LOW', oil_temp_high: 'OIL TEMP HIGH', overspeed: 'OVERSPEED', suction_low: 'SUCTION LOW', engine_rough: 'ENGINE ROUGH', flooded: 'FLOODED', vne_exceeded: 'VNE EXCEEDED', hot_magneto: 'HOT MAGNETO' },
     groups8: { AIRFRAME: 'Airframe', WING_L: 'Left wing', WING_R: 'Right wing', EMPENNAGE: 'Empennage', GEAR: 'Landing gear', POWERPLANT: 'Powerplant', ENGINE: 'Engine', INTERIOR: 'Interior', PANEL: 'Instrument panel', SYSTEMS: 'Systems' },
+    systems8: { IGNITION: 'Ignition', INDUCTION: 'Induction', OIL: 'Oil', FUEL: 'Fuel', ELECTRICAL: 'Electrical', AVIONICS: 'Avionics', VACUUM: 'Vacuum', PITOT_STATIC: 'Pitot-static',
+      STALL_WARNING: 'Stall warning', CONTROLS: 'Flight controls and flaps', BRAKES: 'Brakes', CABIN_AIR: 'Cabin heating and ventilation', INSTRUMENTS: 'Inside the instruments' },
   },
 };
 Object.assign(STRINGS.ar, P8.ar);

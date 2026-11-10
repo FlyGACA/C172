@@ -322,10 +322,15 @@ def build_accessories(ctx, grp):
     # muffler with heat shroud (cabin heat / carb heat source)
     bm = new_bm()
     revolve(bm, [(0.0, -0.19), (0.06, -0.19), (0.06, 0.19), (0.0, 0.19)], axis="X", origin=(0, MUFFLER_Y, MUFFLER_Z), segs=24)
-    revolve(bm, [(0.065, -0.10), (0.08, -0.10), (0.08, 0.10), (0.065, 0.10)], axis="X", origin=(0, MUFFLER_Y, MUFFLER_Z), segs=24)
     muf = obj_from_bm("ENGINE.muffler", bm, ctx.col, pivot=(0, MUFFLER_Y, MUFFLER_Z), mat=M["exhaust"])
     _link(muf, grp)
-    ctx.tag(muf, "ENGINE", "Muffler with heat shroud (source of cabin and carburetor heat)", "كاتم الصوت مع غلاف التسخين", status="poh", ref="p.7-24/35")
+    ctx.tag(muf, "ENGINE", "Exhaust muffler", "كاتم صوت العادم", status="poh", ref="p.7-30 (Fig 7-8)")
+    bm = new_bm()
+    revolve(bm, [(0.065, -0.10), (0.08, -0.10), (0.08, 0.10), (0.065, 0.10)], axis="X", origin=(0, MUFFLER_Y, MUFFLER_Z), segs=24)
+    shroud = obj_from_bm("ENGINE.muffler_shroud", bm, ctx.col, pivot=(0, MUFFLER_Y, MUFFLER_Z), mat=M["exhaust"])
+    _link(shroud, grp)
+    ctx.tag(shroud, "ENGINE", "Exhaust muffler shroud: the air heated in it goes to the cabin heater valve and to the carburetor heat valve", "غلاف كاتم صوت العادم: الهواء المسخَّن فيه يذهب إلى صمام تدفئة المقصورة وصمام تسخين المكربن",
+            status="poh", ref="p.7-30 (Fig 7-8)", note="Named in the cabin heating figure; form representative")
     # engine mount: tubular truss from four firewall points to the accessory housing lugs
     bm = new_bm()
     fw = [Vector((sx * 0.33, fs(0.5), zc + dz)) for sx in (-1, 1) for dz in (-0.40, 0.12)]

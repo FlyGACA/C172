@@ -62,6 +62,7 @@ def build_scene(subsurf, assets, detail=0):
     sc = bpy.context.scene
     sc.unit_settings.system = "METRIC"; sc.unit_settings.length_unit = "METERS"
     ctx = Ctx(subsurf)
+    ctx.detail_level = detail            # the basic builders may fit themselves to the detail packs (seat frames on their rails)
     ctx.mats = materials.build_library(os.path.join(assets, "textures"))
     for name, en, ar in [("AIRFRAME", "Airframe", "هيكل الطائرة"), ("WING_R", "Right wing", "الجناح الأيمن"), ("WING_L", "Left wing", "الجناح الأيسر"),
                          ("EMPENNAGE", "Empennage", "الذيل"), ("GEAR", "Landing gear", "عجلات الهبوط"), ("POWERPLANT", "Powerplant", "مجموعة القدرة"),
