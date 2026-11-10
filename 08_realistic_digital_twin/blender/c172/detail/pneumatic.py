@@ -66,8 +66,9 @@ def build_pitot_static(ctx, scene, port):
     pipe(bm, [tube + Vector((0, 0.004, 0.009)), in_wing, at_wall], LINE, bend=0.02)
     add("WING_L.pitot_line", bm, "WING_L", "Pitot pressure line, wing run: pitot tube to the wing root", "خط ضغط البيتوت، مسار الجناح: من أنبوب البيتوت إلى جذر الجناح",
         note="Plumbing connects the instruments to the sources (POH); the route through the leading edge is representative")
-    corners = [at_wall] + [SF.post_point("fwd", 1, w, shift=0.55) for w in (66.0, 58.0, 52.0, 47.0)]
-    corners += [SF.side_point(28.0, 46.5, 1, SKIN + 0.008), SF.side_point(22.0, 46.5, 1, SKIN + 0.008), SF.side_point(16.5, 46.8, 1, SKIN + 0.012)]
+    # in the post it lies between the wiring (ahead of it) and the fuel pipe (behind it); it leaves the post below the wiring
+    corners = [at_wall] + [SF.post_point("fwd", 1, w) for w in (66.0, 58.0, 52.0, 45.6)]
+    corners += [SF.side_point(28.0, 45.0, 1, SKIN + 0.008), SF.side_point(22.0, 45.0, 1, SKIN + 0.008), SF.side_point(16.5, 45.3, 1, SKIN + 0.012)]
     asi = port("ASI", "pitot")
     corners += [Vector((asi.x + 0.02, asi.y - 0.06, asi.z - 0.04)), asi]
     bm = new_bm()
@@ -153,7 +154,9 @@ def build_vacuum(ctx, scene, port):
     add("VACUUM.line_suction_gauge", bm, "Suction gage line", "خط مقياس التفريغ", "bare_alu", ref="p.7-34",
         note="The suction gage shows the suction available to the gyros; normal 4.5 to 5.4 in Hg (POH p.7-34)")
     bm = new_bm()
-    pipe(bm, [pump + Vector((0.035, 0.05, -0.02)), Vector((pump.x + 0.07, pump.y + 0.06, pump.z - 0.25)), Vector((pump.x + 0.07, pump.y + 0.07, 1.02))], HOSE, bend=0.04)
+    # outboard of the oil filter and the battery contactor, inboard of the engine mount, then down the face of the firewall
+    pipe(bm, [pump + Vector((0.04, 0.045, -0.005)), Vector((0.215, firewall_y - 0.054, 1.70)), Vector((0.215, firewall_y - 0.039, 1.60)), Vector((0.215, firewall_y - 0.039, 1.04))],
+         HOSE, bend=0.03)
     add("VACUUM.overboard_vent", bm, "Vacuum pump discharge line (overboard vent)", "خط تصريف مضخة التفريغ (تنفيس إلى الخارج)")
     for name in ("VACUUM.engine_driven_pump", "PANEL.AI.bezel", "PANEL.DG.bezel", "PANEL.SUCTION.bezel"):
         if name in scene:
@@ -170,7 +173,7 @@ def build_stall_warning(ctx, scene):
     station = inlet.x / IN
     at_wall = lanes.wing_point("stall_warning", 1, 0.50 / IN)
     bm = new_bm()
-    pipe(bm, [inlet + Vector((0, 0.012, -0.004)), lanes.wing_point("stall_warning", 1, station - 1.0), at_wall], 0.004, bend=0.02)
+    pipe(bm, [inlet + Vector((0, 0.012, -0.004))] + [lanes.wing_point("stall_warning", 1, st) for st in (station - 1.0, 34.0, 28.0, 22.5)] + [at_wall], 0.004, bend=0.02)
     add("WING_L.stall_warning_tube", bm, "WING_L", "Stall warning tube, wing run: leading-edge inlet to the wing root", "أنبوب إنذار الانهيار، مسار الجناح: من فتحة الحافة الأمامية إلى جذر الجناح",
         note="Low pressure at the inlet as the stall approaches draws air through the horn (POH p.7-34); route representative")
     horn = Vector((0.485, fs(37.1), at_wall.z - 0.05))

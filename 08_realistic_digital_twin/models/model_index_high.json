@@ -1,7 +1,7 @@
 {
  "lod": "high",
- "objects": 841,
- "triangles": 488746,
+ "objects": 843,
+ "triangles": 490454,
  "systems": {
   "AIRFRAME": 65,
   "WING_L": 56,
@@ -19,7 +19,7 @@
   "IGNITION": 18,
   "OIL": 13,
   "VACUUM": 8,
-  "CONTROLS": 124,
+  "CONTROLS": 126,
   "STALL_WARNING": 2,
   "BRAKES": 8,
   "INSTRUMENTS": 44
@@ -4438,7 +4438,7 @@
    "label_ar": "المكربن (سحب علوي)",
    "status": "poh",
    "ref": "p.7-23",
-   "assembly": "carburetor",
+   "assembly": "fuel_system,carburetor",
    "id": "INDUCTION.carburetor",
    "detail": 0,
    "name": "INDUCTION.carburetor",
@@ -4565,7 +4565,7 @@
    "id": "FUEL.line_to_carburetor",
    "detail": 0,
    "name": "FUEL.line_to_carburetor",
-   "triangles": 204,
+   "triangles": 332,
    "parent": "ENGINE"
   },
   {
@@ -6021,7 +6021,7 @@
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative",
    "id": "AIRFRAME.door_post_fwd_L",
    "name": "AIRFRAME.door_post_fwd_L",
-   "triangles": 68,
+   "triangles": 140,
    "parent": "AIRFRAME"
   },
   {
@@ -6035,7 +6035,7 @@
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative",
    "id": "AIRFRAME.door_post_aft_L",
    "name": "AIRFRAME.door_post_aft_L",
-   "triangles": 68,
+   "triangles": 140,
    "parent": "AIRFRAME"
   },
   {
@@ -6049,7 +6049,7 @@
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative",
    "id": "AIRFRAME.door_post_fwd_R",
    "name": "AIRFRAME.door_post_fwd_R",
-   "triangles": 68,
+   "triangles": 140,
    "parent": "AIRFRAME"
   },
   {
@@ -6063,7 +6063,7 @@
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative",
    "id": "AIRFRAME.door_post_aft_R",
    "name": "AIRFRAME.door_post_aft_R",
-   "triangles": 68,
+   "triangles": 140,
    "parent": "AIRFRAME"
   },
   {
@@ -6117,7 +6117,7 @@
    "ref": "p.7-3; station p.6-8 (Fig 6-4)",
    "id": "AIRFRAME.floor_bulkhead_gear",
    "name": "AIRFRAME.floor_bulkhead_gear",
-   "triangles": 382,
+   "triangles": 470,
    "parent": "AIRFRAME"
   },
   {
@@ -6143,7 +6143,7 @@
    "station_in": 17.0,
    "id": "AIRFRAME.floor_frame_fs017",
    "name": "AIRFRAME.floor_frame_fs017",
-   "triangles": 236,
+   "triangles": 324,
    "parent": "AIRFRAME"
   },
   {
@@ -6508,7 +6508,7 @@
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative",
    "id": "EMPENNAGE.fin_rib_wl58",
    "name": "EMPENNAGE.fin_rib_wl58",
-   "triangles": 216,
+   "triangles": 260,
    "parent": "EMPENNAGE"
   },
   {
@@ -6520,7 +6520,7 @@
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative",
    "id": "EMPENNAGE.fin_rib_wl66",
    "name": "EMPENNAGE.fin_rib_wl66",
-   "triangles": 216,
+   "triangles": 260,
    "parent": "EMPENNAGE"
   },
   {
@@ -6532,7 +6532,7 @@
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative",
    "id": "EMPENNAGE.fin_rib_wl74",
    "name": "EMPENNAGE.fin_rib_wl74",
-   "triangles": 216,
+   "triangles": 260,
    "parent": "EMPENNAGE"
   },
   {
@@ -6544,7 +6544,7 @@
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative",
    "id": "EMPENNAGE.fin_rib_wl82",
    "name": "EMPENNAGE.fin_rib_wl82",
-   "triangles": 216,
+   "triangles": 260,
    "parent": "EMPENNAGE"
   },
   {
@@ -6556,7 +6556,7 @@
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative",
    "id": "EMPENNAGE.fin_rib_wl89",
    "name": "EMPENNAGE.fin_rib_wl89",
-   "triangles": 128,
+   "triangles": 216,
    "parent": "EMPENNAGE"
   },
   {
@@ -7296,7 +7296,7 @@
    "note": "Shown in POH Figure 7-1; its position and size here are representative",
    "id": "CONTROLS.aileron_cable_L",
    "name": "CONTROLS.aileron_cable_L",
-   "triangles": 316,
+   "triangles": 366,
    "parent": "SYSTEMS"
   },
   {
@@ -7367,6 +7367,20 @@
    "id": "CONTROLS.aileron_pulley_side_L",
    "name": "CONTROLS.aileron_pulley_side_L",
    "triangles": 196,
+   "parent": "SYSTEMS"
+  },
+  {
+   "system": "CONTROLS",
+   "label_en": "Aileron cable pulley below the rear door post",
+   "label_ar": "بكرة كابل الجنيح تحت قائم الباب الخلفي",
+   "status": "poh",
+   "detail": 1,
+   "assembly": "aileron_control",
+   "ref": "p.7-4, 7-5 (Fig 7-1)",
+   "note": "Shown in POH Figure 7-1; its position and size here are representative",
+   "id": "CONTROLS.aileron_pulley_sill_L",
+   "name": "CONTROLS.aileron_pulley_sill_L",
+   "triangles": 160,
    "parent": "SYSTEMS"
   },
   {
@@ -7475,7 +7489,7 @@
    "note": "Shown in POH Figure 7-1; its position and size here are representative",
    "id": "CONTROLS.aileron_cable_R",
    "name": "CONTROLS.aileron_cable_R",
-   "triangles": 316,
+   "triangles": 366,
    "parent": "SYSTEMS"
   },
   {
@@ -7546,6 +7560,20 @@
    "id": "CONTROLS.aileron_pulley_side_R",
    "name": "CONTROLS.aileron_pulley_side_R",
    "triangles": 196,
+   "parent": "SYSTEMS"
+  },
+  {
+   "system": "CONTROLS",
+   "label_en": "Aileron cable pulley below the rear door post",
+   "label_ar": "بكرة كابل الجنيح تحت قائم الباب الخلفي",
+   "status": "poh",
+   "detail": 1,
+   "assembly": "aileron_control",
+   "ref": "p.7-4, 7-5 (Fig 7-1)",
+   "note": "Shown in POH Figure 7-1; its position and size here are representative",
+   "id": "CONTROLS.aileron_pulley_sill_R",
+   "name": "CONTROLS.aileron_pulley_sill_R",
+   "triangles": 160,
    "parent": "SYSTEMS"
   },
   {
@@ -8943,7 +8971,7 @@
    "note": "Shown in the POH fuel system schematic (Figure 7-6); its position and size here are representative",
    "id": "FUEL.line_tank_fwd_L",
    "name": "FUEL.line_tank_fwd_L",
-   "triangles": 764,
+   "triangles": 828,
    "parent": "SYSTEMS"
   },
   {
@@ -9082,7 +9110,7 @@
    "note": "Shown in the POH fuel system schematic (Figure 7-6); its position and size here are representative",
    "id": "FUEL.line_tank_fwd_R",
    "name": "FUEL.line_tank_fwd_R",
-   "triangles": 764,
+   "triangles": 828,
    "parent": "SYSTEMS"
   },
   {
@@ -9216,11 +9244,12 @@
    "status": "poh",
    "detail": 1,
    "ref": "p.7-22",
+   "joins": "INDUCTION.intake_pipe_*",
    "note": "The POH says the primer injects fuel into the cylinder intake ports; which cylinders are primed and the route of the lines are representative",
    "assembly": "fuel_system",
    "id": "FUEL.primer_line_delivery",
    "name": "FUEL.primer_line_delivery",
-   "triangles": 340,
+   "triangles": 212,
    "parent": "SYSTEMS"
   },
   {
@@ -9374,7 +9403,7 @@
    "ref": "p.7-32, 7-33 (Fig 7-9)",
    "id": "VACUUM.overboard_vent",
    "name": "VACUUM.overboard_vent",
-   "triangles": 92,
+   "triangles": 156,
    "parent": "SYSTEMS"
   },
   {
@@ -9388,7 +9417,7 @@
    "ref": "p.7-34",
    "id": "WING_L.stall_warning_tube",
    "name": "WING_L.stall_warning_tube",
-   "triangles": 92,
+   "triangles": 188,
    "parent": "WING_L"
   },
   {
@@ -9444,7 +9473,7 @@
    "ref": "p.7-23",
    "id": "BRAKES.line_L",
    "name": "BRAKES.line_L",
-   "triangles": 240,
+   "triangles": 304,
    "parent": "SYSTEMS"
   },
   {
@@ -9454,6 +9483,7 @@
    "status": "estimated",
    "detail": 1,
    "assembly": "brake_system",
+   "joins": "GEAR.main_leg_L",
    "id": "GEAR.brake_line_feed_L",
    "name": "GEAR.brake_line_feed_L",
    "triangles": 92,
@@ -9470,7 +9500,7 @@
    "ref": "p.7-23",
    "id": "BRAKES.line_R",
    "name": "BRAKES.line_R",
-   "triangles": 304,
+   "triangles": 368,
    "parent": "SYSTEMS"
   },
   {
@@ -9480,6 +9510,7 @@
    "status": "estimated",
    "detail": 1,
    "assembly": "brake_system",
+   "joins": "GEAR.main_leg_R",
    "id": "GEAR.brake_line_feed_R",
    "name": "GEAR.brake_line_feed_R",
    "triangles": 92,
@@ -9577,7 +9608,7 @@
    "assembly": "electrical_system",
    "id": "ELECTRICAL.cable_battery_to_contactor",
    "name": "ELECTRICAL.cable_battery_to_contactor",
-   "triangles": 156,
+   "triangles": 284,
    "parent": "SYSTEMS"
   },
   {
@@ -9603,7 +9634,7 @@
    "assembly": "electrical_system",
    "id": "ELECTRICAL.cable_starter",
    "name": "ELECTRICAL.cable_starter",
-   "triangles": 156,
+   "triangles": 92,
    "parent": "SYSTEMS"
   },
   {
@@ -9629,7 +9660,7 @@
    "assembly": "electrical_system",
    "id": "ELECTRICAL.cable_alternator",
    "name": "ELECTRICAL.cable_alternator",
-   "triangles": 284,
+   "triangles": 348,
    "parent": "SYSTEMS"
   },
   {
@@ -9666,6 +9697,7 @@
    "detail": 1,
    "note": "Route representative",
    "assembly": "electrical_system",
+   "joins": "POWERPLANT.landing_light_recess,ELECTRICAL.landing_light*",
    "id": "ELECTRICAL.wire_landing_light",
    "name": "ELECTRICAL.wire_landing_light",
    "triangles": 220,
@@ -9736,7 +9768,7 @@
    "assembly": "electrical_system",
    "id": "ELECTRICAL.harness_tail",
    "name": "ELECTRICAL.harness_tail",
-   "triangles": 668,
+   "triangles": 732,
    "parent": "SYSTEMS"
   },
   {
@@ -9746,7 +9778,7 @@
    "status": "estimated",
    "detail": 1,
    "assembly": "electrical_system",
-   "note": "Runs up the fin behind its spar; route representative",
+   "note": "Runs up the fin behind its leading-edge former, through an opening in each rib; route representative",
    "id": "EMPENNAGE.wiring_fin",
    "name": "EMPENNAGE.wiring_fin",
    "triangles": 156,
@@ -10578,6 +10610,7 @@
    "label_ar": "خط تنفيس علبة المرفق (ينفّس إلى الخارج تحت غطاء المحرك)",
    "status": "estimated",
    "detail": 1,
+   "joins": "ENGINE.crankcase_*",
    "note": "The POH mentions the breather (p.7-18: fill to five quarts to minimise loss of oil through the breather); its route is representative",
    "assembly": "oil_system",
    "id": "OIL.breather_line",
@@ -10698,6 +10731,7 @@
    "detail": 1,
    "ref": "p.7-19",
    "assembly": "carburetor",
+   "joins": "ENGINE.muffler",
    "note": "Route representative",
    "id": "INDUCTION.carb_heat_hose",
    "name": "INDUCTION.carb_heat_hose",
@@ -10711,6 +10745,7 @@
    "status": "estimated",
    "detail": 1,
    "assembly": "engine_controls",
+   "joins": "INDUCTION.throttle_valve",
    "note": "The throttle, mixture and carburetor heat controls are push-pull knobs on the panel (POH p.7-16, engine controls); the cables behind them are representative",
    "id": "ENGINE.throttle_cable",
    "name": "ENGINE.throttle_cable",
@@ -10724,6 +10759,7 @@
    "status": "estimated",
    "detail": 1,
    "assembly": "engine_controls",
+   "joins": "INDUCTION.mixture_valve",
    "note": "The throttle, mixture and carburetor heat controls are push-pull knobs on the panel (POH p.7-16, engine controls); the cables behind them are representative",
    "id": "ENGINE.mixture_cable",
    "name": "ENGINE.mixture_cable",
@@ -10737,6 +10773,7 @@
    "status": "estimated",
    "detail": 1,
    "assembly": "engine_controls",
+   "joins": "INDUCTION.carb_heat_valve",
    "note": "The throttle, mixture and carburetor heat controls are push-pull knobs on the panel (POH p.7-16, engine controls); the cables behind them are representative",
    "id": "INDUCTION.carb_heat_cable",
    "name": "INDUCTION.carb_heat_cable",
@@ -11353,6 +11390,7 @@
    "detail": 1,
    "ref": "p.7-17",
    "assembly": "tachometer",
+   "joins": "ENGINE.accessory_housing",
    "note": "The tachometer is engine-driven and mechanical (POH p.7-17); the route of its drive cable is representative",
    "id": "PANEL.TACH.drive_cable",
    "name": "PANEL.TACH.drive_cable",
@@ -11367,10 +11405,11 @@
    "detail": 1,
    "ref": "p.7-17",
    "assembly": "oil_system",
+   "joins": "ENGINE.accessory_housing",
    "note": "A direct pressure oil line from the engine works the oil pressure gage (POH p.7-17); route representative",
    "id": "OIL.pressure_gauge_line",
    "name": "OIL.pressure_gauge_line",
-   "triangles": 284,
+   "triangles": 236,
    "parent": "ENGINE"
   },
   {
@@ -11381,6 +11420,7 @@
    "detail": 1,
    "ref": "p.7-17",
    "assembly": "oil_system",
+   "joins": "ENGINE.accessory_housing",
    "note": "An electrical-resistance sensor works the oil temperature gage (POH p.7-17); position and route representative",
    "id": "OIL.temperature_sensor",
    "name": "OIL.temperature_sensor",
@@ -11389,6 +11429,6 @@
   }
  ],
  "file": "C172N_realistic_high.glb",
- "bytes": 6218416,
- "build_seconds": 60.5
+ "bytes": 6230572,
+ "build_seconds": 55.4
 }

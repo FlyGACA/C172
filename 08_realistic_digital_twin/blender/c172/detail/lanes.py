@@ -14,6 +14,7 @@ LEVEL = 0.893            # height of the fore-and-aft runs under the cabin floor
 PIPE_LEVEL = 0.872       # fuel pipes run a little lower, under the cables
 FEED_LEVEL = 0.895       # the fuel feed pipe near the firewall
 BRAKE_LEVEL = 0.880      # the two brake pipes
+BRAKE_FWD_LEVEL = 0.886           # the brake pipes ahead of station 22
 CROSS_LEVEL = 0.884      # the right brake pipe where it crosses the cabin
 HOLE = 0.009             # radius of the hole a run gets in a bulkhead
 
@@ -31,8 +32,10 @@ ALONG = {
     "rudder_R":      (-0.160, LEVEL, 11.0, 96.0),
     "aileron_L":     (0.235, LEVEL, 18.0, 60.0),
     "aileron_R":     (-0.235, LEVEL, 18.0, 60.0),
-    "brake_L":       (0.300, BRAKE_LEVEL, 12.0, 63.5),
-    "brake_R":       (-0.300, BRAKE_LEVEL, 14.0, 63.5),
+    "brake_L_fwd":   (0.275, BRAKE_FWD_LEVEL, 12.0, 22.5),  # the belly rises toward the firewall: the brake pipes start further in and higher
+    "brake_R_fwd":   (-0.275, BRAKE_FWD_LEVEL, 14.0, 22.5),
+    "brake_L":       (0.300, BRAKE_LEVEL, 23.0, 66.6),      # through the main gear bulkhead, then out to the gear leg
+    "brake_R":       (-0.300, BRAKE_LEVEL, 23.0, 66.6),
 }
 
 # Runs across the cabin, which pass through the two keel beams: name -> (station, z).
@@ -82,7 +85,7 @@ WING = {
     "fuel_vent":      (22.0, 25.5, 0.250, 0.250, 0.080, 0.080),
     "pitot":          (22.0, 69.5, 0.090, 0.090, -0.012, -0.012),
     "stall_warning":  (22.0, 41.0, 0.098, 0.060, 0.004, 0.012),
-    "wiring":         (22.0, 207.0, 0.070, 0.070, 0.000, 0.000),
+    "wiring":         (22.0, 209.6, 0.070, 0.070, 0.000, 0.000),      # through the last rib into the wing tip
 }
 
 

@@ -1,7 +1,7 @@
 {
  "lod": "medium",
  "objects": 340,
- "triangles": 191628,
+ "triangles": 191756,
  "systems": {
   "AIRFRAME": 22,
   "WING_L": 5,
@@ -4460,7 +4460,7 @@
    "id": "FUEL.line_to_carburetor",
    "detail": 0,
    "name": "FUEL.line_to_carburetor",
-   "triangles": 204,
+   "triangles": 332,
    "parent": "ENGINE"
   },
   {
@@ -4477,6 +4477,6 @@
   }
  ],
  "file": "C172N_realistic_medium.glb",
- "bytes": 3310444,
- "build_seconds": 15.4
+ "bytes": 3310924,
+ "build_seconds": 14.3
 }

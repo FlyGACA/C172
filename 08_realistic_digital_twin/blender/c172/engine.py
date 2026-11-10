@@ -368,7 +368,12 @@ def build_accessories(ctx, grp):
     _link(fsx, grp)
     ctx.tag(fsx, "FUEL", "Fuel strainer (gascolator) with drain — firewall, left", "مصفاة الوقود", status="poh", ref="p.7-28, 8-x")
     bm = new_bm()
-    tube(bm, bezier(Vector((0.25, fs(-2.5), 0.98)), Vector((0.25, fs(-8), 0.95)), Vector((0.08, fs(-14), 1.02)), Vector((0.05, fs(-17), zc - 0.30)), 12), 0.006, segs=8)
+    # forward outboard of the muffler and of the airbox, then across to the side of the carburetor above the airbox
+    turn = Vector((0.16, fs(-17.1), zc - 0.331))
+    side = Vector((0.052, fs(-17) - 0.004, zc - 0.326))
+    path = bezier(Vector((0.25, fs(-2.5), 0.98)), Vector((0.25, fs(-8), 0.95)), Vector((0.20, fs(-15.1), zc - 0.346)), turn, 12)
+    path += bezier(turn, turn + Vector((-0.02, -0.02, 0.005)), side + Vector((0.04, 0.0, 0.0)), side, 8)[1:]
+    tube(bm, path, 0.006, segs=8)
     fl_ = obj_from_bm("FUEL.line_to_carburetor", bm, ctx.col, pivot=(0.25, fs(-2.5), 0.98), mat=M["bare_alu"])
     _link(fl_, grp)
     ctx.tag(fl_, "FUEL", "Fuel line strainer → carburetor", "خط الوقود إلى المكربن", status="poh", ref="p.7-28")

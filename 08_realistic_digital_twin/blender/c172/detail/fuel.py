@@ -116,18 +116,20 @@ def build(ctx):
                 # forward along the top of the wall under the front carry-through spar, down the forward door post,
                 # then forward of the strut attach plates and down under the floor
                 wall_top = 2.056
+                # (the rearmost run in the post: the wiring and the pitot line lie ahead of it and leave the post higher up)
                 corners = [at_wall, SF.side_point(station - 1.0, (wall_top - U.GROUND_Z) / IN, sx, SKIN + 0.008),
-                           SF.side_point(SF.post_station("fwd", 66.0) + 0.6, (wall_top - U.GROUND_Z) / IN, sx, SKIN + 0.008)]
-                corners += [SF.post_point("fwd", sx, w) for w in (62.0, 52.0, 42.0, 33.0)]
-                corners += [SF.side_point(25.2, 26.5, sx, SKIN + 0.008), Vector((sx * 0.42, fs(25.0), 0.900)),
+                           SF.side_point(SF.post_station("fwd", 66.0) + SF.POST_SHIFT + 0.6, (wall_top - U.GROUND_Z) / IN, sx, SKIN + 0.008)]
+                corners += [SF.post_point("fwd", sx, w, shift=SF.POST_SHIFT) for w in (62.0, 52.0, 42.0, 33.0, 27.0)]
+                corners += [SF.side_point(25.2, 26.0, sx, SKIN + 0.008), Vector((sx * 0.42, fs(25.0), 0.900)),
                             Vector((sx * 0.40, fs(25.0), 0.897)), Vector((sx * 0.27, fs(25.0), 0.897)), Vector((sx * 0.215, fs(25.0), lanes.PIPE_LEVEL)),
                             Vector(lanes.point(f"fuel_fwd_{S}", 25.0)), Vector(lanes.point(f"fuel_fwd_{S}", 42.6)), VALVE + Vector((sx * 0.02, -0.022, 0.0))]
             else:
-                # down the rear door post, just ahead of the aileron cable, then under the floor ahead of the gear bulkhead
+                # down the rear door post ahead of the aileron cable, then under the floor ahead of the gear bulkhead
                 corners = [at_wall, SF.side_point(station + 0.3, (2.045 - U.GROUND_Z) / IN, sx, SKIN + 0.008),
                            SF.side_point(SF.post_station("aft", 63.0) - 0.75, (2.006 - U.GROUND_Z) / IN, sx, SKIN + 0.008)]
-                corners += [SF.post_point("aft", sx, w, shift=-0.75) for w in (58.0, 48.0, 38.0, 28.0)]
-                corners += [Vector((sx * 0.45, fs(66.8), 0.955)), Vector((sx * 0.40, fs(62.0), 0.897)), Vector((sx * 0.27, fs(62.0), 0.897)),
+                corners += [SF.post_point("aft", sx, w, shift=-0.75) for w in (58.0, 48.0, 38.0, 33.0)]      # it leaves the post above the pulleys of the aileron cable
+                # under the aileron cable, which rises to the post here, and inboard of the pulley at the side of the floor
+                corners += [Vector((sx * 0.46, fs(67.2), 0.940)), Vector((sx * 0.33, fs(62.0), 0.897)), Vector((sx * 0.27, fs(62.0), 0.897)),
                             Vector((sx * 0.215, fs(62.0), lanes.PIPE_LEVEL)), Vector((sx * 0.03, fs(62.0), lanes.PIPE_LEVEL)),
                             Vector((sx * 0.03, fs(45.6), lanes.PIPE_LEVEL)), VALVE + Vector((sx * 0.02, 0.022, 0.0))]
             bm = new_bm()
@@ -186,14 +188,17 @@ def build(ctx):
     pipe(bm, [Vector((low.x + 0.02, low.y + 0.03, low.z + 0.08)), Vector((low.x + 0.12, firewall_y + 0.03, low.z + 0.10)), Vector((knob.x - 0.02, firewall_y + 0.06, knob.z - 0.04)),
               pump_front + Vector((-0.012, 0.03, -0.012))], 0.0024, bend=0.03)
     add(ctx, "FUEL.primer_line_supply", bm, "SYSTEMS", "Primer supply line: strainer to primer pump", "خط تغذية التحضير: من المصفاة إلى مضخة التحضير", "copper", ref="p.7-22")
-    intake = [scene[f"INDUCTION.intake_pipe_{n}"].matrix_world.translation.copy() for n in (4, 2)]
-    tee = Vector((0.16, intake[0].y + 0.05, intake[0].z + 0.19))
+    from .. import engine as E
+    side_x, level = 0.43, knob.z + 0.095                    # outboard of the battery and the engine mount, under the rocker boxes
+    ports = [Vector((E.HEAD_X0 + 0.067, E.cyl_center_y(n) + 0.045, E.ORIGIN.z - 0.121)) for n in (4, 2)]      # on the intake pipe, just under each head
     bm = new_bm()
-    pipe(bm, [pump_front + Vector((0.012, 0.03, 0.012)), Vector((knob.x - 0.06, firewall_y + 0.07, knob.z + 0.12)), Vector((0.20, firewall_y - 0.06, tee.z + 0.03)), tee], 0.0024, bend=0.03)
-    for target in intake:
-        pipe(bm, [tee, Vector((0.22, target.y, tee.z - 0.03)), Vector((0.235, target.y - 0.01, target.z + 0.105))], 0.0024, bend=0.02)
+    pipe(bm, [pump_front + Vector((0.012, 0.03, 0.012)), Vector((side_x + 0.01, firewall_y + 0.05, level)), Vector((side_x, firewall_y - 0.05, level)), Vector((side_x, ports[1].y, level))],
+         0.0024, bend=0.03)
+    for port in ports:
+        pipe(bm, [Vector((side_x, port.y, level)), port], 0.0024, bend=0.02)
     add(ctx, "FUEL.primer_line_delivery", bm, "SYSTEMS", "Primer delivery lines: primer pump to the cylinder intake ports", "خطوط التحضير: من مضخة التحضير إلى فتحات سحب الأسطوانات", "copper",
-        ref="p.7-22", note="The POH says the primer injects fuel into the cylinder intake ports; which cylinders are primed and the route of the lines are representative")
+        ref="p.7-22", joins="INDUCTION.intake_pipe_*",
+        note="The POH says the primer injects fuel into the cylinder intake ports; which cylinders are primed and the route of the lines are representative")
 
     for name in ("FUEL.selector_handle", "FUEL.selector_plate", "FUEL.strainer", "FUEL.line_to_carburetor", "FUEL.vent_line", "INDUCTION.carburetor",
                  "PANEL.primer", "PANEL.FUEL_L.bezel", "PANEL.FUEL_R.bezel"):

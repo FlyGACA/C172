@@ -104,7 +104,7 @@ class System:
 
 def post_point(side, water):
     """Point on the centre line of the rear door post at a water line (in)."""
-    return SF.post_point("aft", side, water)
+    return SF.post_point("aft", side, water, shift=0.95)      # behind the fuel pipe from the aft tank outlet, which lies ahead of the centre line
 
 
 def wing_frame(xabs, side, xc):
@@ -195,6 +195,7 @@ def build_column_and_ailerons(ctx, half, panel_y, wheel_z, floor_top):
         # direct cable: chain, down to the floor, aft under the floor, across to the rear door post, up the post, out along the wing
         outer = sx * (half + sprocket_r)
         post_top = post_point(sx, 61.0)
+        post_foot = post_point(sx, A.DOOR[1][1] + 1.9)
         root_corner = lanes.wing_point("aileron_direct", sx, 0.512 / IN)
         corners = [
             (outer, sprocket_y, wheel_z - 0.05),
@@ -202,7 +203,8 @@ def build_column_and_ailerons(ctx, half, panel_y, wheel_z, floor_top):
             lanes.point(f"aileron_{S}", 19.5),
             lanes.point(f"aileron_{S}", lanes.AILERON_TURN_FS),
             (sx * 0.42, fs(lanes.AILERON_TURN_FS), lanes.LEVEL + 0.005),
-            post_point(sx, A.DOOR[1][1] + 1.9),
+            (sx * 0.455, post_foot.y, 1.000),                    # below the post: the cable then rises square to the wall, clear of the fuel pipe
+            post_foot,
             post_top,
             post_top + (root_corner - post_top) * ((WING_ENTRY_Z - post_top.z) / (root_corner.z - post_top.z)),
             root_corner,
@@ -212,12 +214,13 @@ def build_column_and_ailerons(ctx, half, panel_y, wheel_z, floor_top):
         ail.lay([(f"CONTROLS.aileron_cable_{S}", "SYSTEMS", f"Aileron direct cable, cabin run ({where_en}): control column to the wing root",
                   f"كابل الجنيح المباشر {where_ar}، مسار المقصورة: من عمود القيادة إلى جذر الجناح", None),
                  (f"{grp}.aileron_cable_direct", grp, f"Aileron direct cable, wing run ({where_en}): wing root to the aileron bellcrank",
-                  f"كابل الجنيح المباشر {where_ar}، مسار الجناح: من جذر الجناح إلى الذراع المرفقي للجنيح", 7)],
+                  f"كابل الجنيح المباشر {where_ar}، مسار الجناح: من جذر الجناح إلى الذراع المرفقي للجنيح", 8)],
                 corners,
                 [(f"CONTROLS.aileron_pulley_column_{S}", "SYSTEMS", "Aileron cable pulley at the foot of the control column", "بكرة كابل الجنيح عند قاعدة عمود القيادة", -Z),
                  (f"CONTROLS.aileron_pulley_floor_{S}", "SYSTEMS", "Aileron cable pulley under the floor, forward", "بكرة كابل الجنيح تحت الأرضية، الأمامية", "floor"),
                  (f"CONTROLS.aileron_pulley_aft_{S}", "SYSTEMS", "Aileron cable pulley under the floor, at the rear door posts", "بكرة كابل الجنيح تحت الأرضية عند قائمي الباب الخلفيين", "floor"),
                  (f"CONTROLS.aileron_pulley_side_{S}", "SYSTEMS", "Aileron cable pulley at the side of the cabin floor", "بكرة كابل الجنيح عند جانب أرضية المقصورة", "floor"),
+                 (f"CONTROLS.aileron_pulley_sill_{S}", "SYSTEMS", "Aileron cable pulley below the rear door post", "بكرة كابل الجنيح تحت قائم الباب الخلفي", None),
                  (f"CONTROLS.aileron_pulley_post_{S}", "SYSTEMS", "Aileron cable pulley at the foot of the rear door post", "بكرة كابل الجنيح عند قاعدة قائم الباب الخلفي", None),
                  None,
                  None,

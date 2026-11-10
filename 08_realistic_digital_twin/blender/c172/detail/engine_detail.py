@@ -162,10 +162,10 @@ def build_oil(ctx, scene, zc):
     hex_prism(bm, bypass - X * 0.02, -X, 0.024, 0.008)
     oil("OIL.bypass_valve", bm, "Oil cooler bypass valve: cold oil goes straight to the filter, hot oil through the cooler",
         "صمام تجاوز مبرّد الزيت: الزيت البارد يذهب مباشرة إلى الفلتر والساخن يمر عبر المبرّد", "brass")
-    relief = Vector((-0.11, fs(-11.0), zc + 0.112))
+    relief = Vector((-E.CASE_HALF_W, 0.5 * (E.cyl_center_y(1) + E.cyl_center_y(3)), zc + 0.02))       # on the side of the crankcase, between two cylinders
     bm = new_bm()
-    rod(bm, relief - Z * 0.01, relief + Z * 0.022, 0.011, segs=12)
-    hex_prism(bm, relief + Z * 0.022, Z, 0.02, 0.008)
+    rod(bm, relief + X * 0.01, relief - X * 0.022, 0.011, segs=12)
+    hex_prism(bm, relief - X * 0.022, -X, 0.02, 0.008)
     oil("OIL.pressure_relief_valve", bm, "Oil pressure relief valve: returns excess oil to the sump to hold the pressure", "صمام تنفيس ضغط الزيت: يعيد الزيت الزائد إلى الحوض ليضبط الضغط", "brass")
     cooler = Vector(E.OIL_COOLER)
     for key, dx, dz, en, ar in (("to_cooler", -0.03, 0.0, "Oil hose from the accessory housing to the oil cooler", "خرطوم الزيت من علبة الملحقات إلى المبرّد"),
@@ -177,9 +177,11 @@ def build_oil(ctx, scene, zc):
         union(bm, end, -Z, 0.008)
         oil(f"OIL.hose_{key}", bm, en, ar, "hose_black")
     bm = new_bm()
-    pipe(bm, [Vector((-0.05, fs(-10.0), zc + 0.11)), Vector((-0.08, fs(-8.8), zc + 0.175)), Vector((-0.20, fs(-4.9), zc + 0.175)), Vector((-0.215, fs(-2.6), zc + 0.07)),
-              Vector((-0.215, fs(-1.8), 1.10))], 0.007, bend=0.04)
+    # past the right side of the magneto, over the accessory housing, then down between the magneto and the firewall
+    pipe(bm, [Vector((-0.045, fs(-10.0), zc + 0.11)), Vector((-0.085, fs(-9.6), zc + 0.176)), Vector((-0.085, fs(-2.9), zc + 0.176)), Vector((-0.035, fs(-1.15), zc + 0.085)),
+              Vector((-0.035, fs(-1.15), 1.10))], 0.007, bend=0.03)
     oil("OIL.breather_line", bm, "Crankcase breather line (vents overboard under the cowling)", "خط تنفيس علبة المرفق (ينفّس إلى الخارج تحت غطاء المحرك)", "hose_black", status="estimated",
+        joins="ENGINE.crankcase_*",
         note="The POH mentions the breather (p.7-18: fill to five quarts to minimise loss of oil through the breather); its route is representative")
     for name in ("OIL.sump", "OIL.oil_filter", "OIL.oil_cooler", "OIL.dipstick_filler"):
         if name in scene:
@@ -209,7 +211,7 @@ def build_carburetor(ctx, scene, zc):
     centre = Vector((barrel.x, barrel.y, low + 0.084))
     disc(bm, centre, (0.0, 0.5, 0.87), 0.0195, 0.0016, segs=24)
     rod(bm, centre - X * 0.058, centre + X * 0.066, 0.003, segs=8)
-    bar(bm, centre + X * 0.064, centre + X * 0.064 + Vector((0, 0.004, 0.02)), 0.01, 0.003, X)        # the arm stays under the sump
+    bar(bm, centre + X * 0.064, centre + X * 0.064 + Vector((0, 0.004, -0.024)), 0.01, 0.003, X)      # the arm hangs down: its cable passes under the sump
     carb("INDUCTION.throttle_valve", bm, "Throttle valve (butterfly) with its shaft and arm: above the venturi in an up-draft carburetor",
          "صمام الخانق (الفراشة) مع محوره وذراعه: فوق الحلق في المكربن ذي السحب الصاعد", "brass")
     bm = new_bm()
@@ -251,10 +253,10 @@ def build_carburetor(ctx, scene, zc):
     pipe(bm, [muffler + Vector((0.07, -0.06, -0.06)), muffler + Vector((0.07, -0.093, -0.046)), Vector((0.06, airbox.y + 0.073, airbox.z - 0.051)), Vector((0.06, airbox.y + 0.058, airbox.z - 0.041))],
          0.016, bend=0.03)
     part(ctx, "INDUCTION.carb_heat_hose", bm, "ENGINE", "INDUCTION", "Carburetor heat hose: heated air from the muffler shroud to the airbox", "خرطوم تسخين المكربن: هواء ساخن من غلاف كاتم الصوت إلى صندوق الهواء",
-         "hose_black", status="poh", ref=REF_CARB, smooth=True, assembly="carburetor", note="Route representative")
+         "hose_black", status="poh", ref=REF_CARB, smooth=True, assembly="carburetor", joins="ENGINE.muffler", note="Route representative")
     for name in ("INDUCTION.carburetor", "INDUCTION.airbox", "INDUCTION.air_filter", "INDUCTION.filter_duct", "PANEL.carb_heat", "PANEL.throttle", "PANEL.mixture"):
-        if name in scene:
-            scene[name]["assembly"] = "carburetor"
+        if name in scene:                                  # the carburetor is part of the fuel system as well
+            scene[name]["assembly"] = ",".join([a for a in str(scene[name].get("assembly", "")).split(",") if a] + ["carburetor"])
 
 
 def build_controls(ctx, scene, zc):
@@ -264,22 +266,22 @@ def build_controls(ctx, scene, zc):
     airbox = scene["INDUCTION.airbox"].matrix_world.translation.copy()
     firewall = fs(1.0)
     ends = {
-        "throttle": Vector((0.064, body.y + 0.018, low + 0.104)),
+        "throttle": Vector((0.064, body.y + 0.018, low + 0.060)),
         "mixture": Vector((-0.094, body.y - 0.016, low + 0.05)),
         "carb_heat": Vector((0.11, airbox.y + 0.049, airbox.z + 0.045)),
     }
     runs = (("throttle", "PANEL.throttle", "ENGINE.throttle_cable", "Throttle cable: knob to the throttle arm on the carburetor", "كابل الخانق: من المقبض إلى ذراع الخانق على المكربن",
-             [(0.02, firewall + 0.09, 0.0), (0.05, firewall - 0.16, -0.025)]),
+             [(0.02, firewall + 0.09, 0.0), (0.05, firewall - 0.16, -0.065)], "INDUCTION.throttle_valve"),
             ("mixture", "PANEL.mixture", "ENGINE.mixture_cable", "Mixture cable: knob to the mixture arm on the carburetor", "كابل الخليط: من المقبض إلى ذراع الخليط على المكربن",
-             [(-0.09, firewall + 0.09, -0.01), (-0.10, firewall - 0.16, -0.045)]),
+             [(-0.09, firewall + 0.09, -0.01), (-0.10, firewall - 0.16, -0.045)], "INDUCTION.mixture_valve"),
             ("carb_heat", "PANEL.carb_heat", "INDUCTION.carb_heat_cable", "Carburetor heat cable: knob to the valve in the airbox", "كابل تسخين المكربن: من المقبض إلى الصمام في صندوق الهواء",
-             [(0.115, firewall + 0.09, -0.03), (0.135, firewall - 0.2, -0.085)]))
-    for key, knob_name, name, en, ar, via in runs:
+             [(0.115, firewall + 0.09, -0.03), (0.135, firewall - 0.2, -0.085)], "INDUCTION.carb_heat_valve"))
+    for key, knob_name, name, en, ar, via, joined in runs:
         knob = scene[knob_name].matrix_world.translation.copy()
         corners = [Vector((knob.x, knob.y - 0.05, knob.z))] + [Vector((x, y, knob.z + dz)) for x, y, dz in via] + [ends[key] + Vector((0.0, 0.07, 0.0)), ends[key]]
         bm = new_bm()
         pipe(bm, corners, 0.0032, bend=0.06)
-        part(ctx, name, bm, "ENGINE", "ENGINE" if name.startswith("ENGINE") else "INDUCTION", en, ar, "hose_black", status="estimated", smooth=True, assembly="engine_controls",
+        part(ctx, name, bm, "ENGINE", "ENGINE" if name.startswith("ENGINE") else "INDUCTION", en, ar, "hose_black", status="estimated", smooth=True, assembly="engine_controls", joins=joined,
              note="The throttle, mixture and carburetor heat controls are push-pull knobs on the panel (POH p.7-16, engine controls); the cables behind them are representative")
 
 

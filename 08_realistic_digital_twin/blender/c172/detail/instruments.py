@@ -353,7 +353,7 @@ def tachometer(ctx, scene):
     bm = new_bm()
     pipe(bm, [back, back - Y * 0.05, Vector((back.x + 0.02, firewall + 0.10, back.z - 0.01)), Vector((-0.12, firewall - 0.06, 1.63)), Vector((-0.06, fs(-7.0) + 0.047, 1.62))], 0.004, bend=0.06)
     part(ctx, "PANEL.TACH.drive_cable", bm, "PANEL", SYS, "Tachometer drive cable: a flexible shaft turned by the engine", "كابل تدوير عدّاد الدورات: عمود مرن يديره المحرك", "hose_black",
-         status="poh", ref="p.7-17", smooth=True, assembly="tachometer", note="The tachometer is engine-driven and mechanical (POH p.7-17); the route of its drive cable is representative")
+         status="poh", ref="p.7-17", smooth=True, assembly="tachometer", joins="ENGINE.accessory_housing", note="The tachometer is engine-driven and mechanical (POH p.7-17); the route of its drive cable is representative")
 
 
 def engine_gauges(ctx, scene):
@@ -364,14 +364,14 @@ def engine_gauges(ctx, scene):
     firewall = fs(1.0)
     gauge = back("OIL_P")
     bm = new_bm()
-    pipe(bm, [Vector((-0.158, fs(-6.2), 1.66)), Vector((-0.19, firewall - 0.07, 1.68)), Vector((-0.10, firewall + 0.06, 1.70)), Vector((gauge.x - 0.02, gauge.y - 0.18, gauge.z + 0.03)),
-              gauge - Y * 0.03, gauge], 0.0024, bend=0.04)
+    pipe(bm, [Vector((-0.10, fs(-7.0) + 0.045, 1.70)), Vector((-0.10, firewall - 0.07, 1.70)), Vector((-0.10, firewall + 0.06, 1.70)), Vector((gauge.x - 0.02, gauge.y - 0.18, gauge.z + 0.03)),
+              gauge - Y * 0.03, gauge], 0.0024, bend=0.04)        # from the back of the accessory housing, between the two sides of the engine mount
     part(ctx, "OIL.pressure_gauge_line", bm, "ENGINE", "OIL", "Oil pressure gage line: oil at engine pressure, direct from the engine to the gage", "خط مقياس ضغط الزيت: زيت بضغط المحرك مباشرة من المحرك إلى المقياس",
-         "copper", status="poh", ref="p.7-17", smooth=True, assembly="oil_system", note="A direct pressure oil line from the engine works the oil pressure gage (POH p.7-17); route representative")
+         "copper", status="poh", ref="p.7-17", smooth=True, assembly="oil_system", joins="ENGINE.accessory_housing", note="A direct pressure oil line from the engine works the oil pressure gage (POH p.7-17); route representative")
     sensor = Vector((0.07, fs(-7.0) + 0.047, 1.57))
     gauge = back("OIL_T")
     bm = new_bm()
     rod(bm, sensor - Y * 0.018, sensor + Y * 0.012, 0.005, segs=8)
     pipe(bm, [sensor + Y * 0.012, Vector((0.06, firewall - 0.04, 1.58)), Vector((0.06, firewall + 0.06, 1.62)), Vector((gauge.x - 0.02, gauge.y - 0.12, gauge.z)), gauge], 0.0016, bend=0.04)
     part(ctx, "OIL.temperature_sensor", bm, "ENGINE", "OIL", "Oil temperature sensor (electrical resistance) and its wire to the gage", "حسّاس حرارة الزيت (مقاومة كهربائية) وسلكه إلى المقياس",
-         "wire_yellow", status="poh", ref="p.7-17", smooth=True, assembly="oil_system", note="An electrical-resistance sensor works the oil temperature gage (POH p.7-17); position and route representative")
+         "wire_yellow", status="poh", ref="p.7-17", smooth=True, assembly="oil_system", joins="ENGINE.accessory_housing", note="An electrical-resistance sensor works the oil temperature gage (POH p.7-17); position and route representative")

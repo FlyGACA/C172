@@ -29,6 +29,15 @@ RUDDER_RIBS = [36.0, 44.0, 52.0, 60.0, 68.0, 76.0, 84.0]
 STAB_RIBS = [8.0, 20.0, 32.0, 44.0, 56.0]            # butt lines of the stabiliser and elevator ribs (in)
 
 
+FIN_WIRE_OFFSET = 2.4                  # the wiring to the beacon runs this far (in) behind the leading-edge former, through a hole in each rib
+
+
+def fin_wire_station(water):
+    """Station (in) of the wiring in the vertical stabiliser at a water line (in)."""
+    (s0, w0), (s1, w1) = A.FIN_SPAR
+    return s0 + (s1 - s0) * (water - w0) / (w1 - w0) + FIN_WIRE_OFFSET
+
+
 def _fin_rib_outline(water, front, rear, steps=10):
     """Outline of a horizontal slice of the vertical tail between two stations, in (aft, left) metres."""
     stations = [front + (rear - front) * i / steps for i in range(steps + 1)]
@@ -72,7 +81,11 @@ def build(ctx):
             continue
         plane = Plane((0, 0, wl(water)), Y, X)
         outline = _fin_rib_outline(water, front, rear)
-        holes = geom2d.lightening_holes(outline, fs(front) + 0.02, fs(rear) - 0.02, 3, 0.016, segments=10)
+        wire_station = fin_wire_station(water)
+        if A.fin_half_thickness(wire_station, water) - SKIN > 0.011:            # an opening for the wiring to the beacon, the lightening holes behind it
+            holes = geom2d.lightening_holes(outline, fs(wire_station) + 0.014, fs(rear) - 0.02, 3, 0.016, segments=10) + [geom2d.circle(fs(wire_station), 0.0, 0.006, 10)]
+        else:
+            holes = geom2d.lightening_holes(outline, fs(front) + 0.02, fs(rear) - 0.02, 3, 0.016, segments=10)
         bm = new_bm()
         sheet(bm, plane, outline, 0.001, holes, offset=-0.0005)
         part(ctx, f"EMPENNAGE.fin_rib_wl{int(water):02d}", bm, "EMPENNAGE", "EMPENNAGE", f"Vertical stabiliser rib, water line {water:g}",

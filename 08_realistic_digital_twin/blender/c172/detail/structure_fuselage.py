@@ -28,6 +28,9 @@ from .common import Plane, sheet, wall, strip, extrude_along, rect_section, hat_
 
 SKIN = 0.016                 # inside face of the skin as modelled, measured from the outer surface (m)
 KEEL_X = 0.20                # the two keel beams stand this far from the centreline
+POST_HALF_WIDTH = 0.032      # a door post is a channel this wide each way from its centre line, fore and aft
+POST_DEPTH = 0.0135          # and this deep, from the skin to the cabin lining
+POST_SHIFT = 0.85            # runs in a post lie on its centre line and this far (in) ahead of and behind it
 LEAN = math.tan(math.radians(U.FRL_PITCH_DEG))
 FLOOR_Z = A.FLOOR_Z          # centre plane of the cabin floor panel under the seats (airframe.floor_z)
 
@@ -183,7 +186,9 @@ def build(ctx):
     part(ctx, "AIRFRAME.frame_tail_end", bm, "AIRFRAME", "AIRFRAME", "Last tailcone frame (carries the rudder hinges and the stabiliser rear spar)",
          "الإطار الأخير لمخروط الذيل (يحمل مفصلات الدفة والعارضة الخلفية للمثبت الأفقي)", "bare_alu", status="estimated", inside="fuselage", station_in=end)
 
-    # ---- door posts: box members along the edges of the door opening, from the sill to the roof
+    # ---- door posts: channels along the edges of the door opening, from the sill to the roof. The web lies
+    # on the skin and the flanges stand inward as far as the cabin lining; pipes, cables and wires run in
+    # the channel side by side (POST_SHIFT), each on the side from which it enters and leaves.
     door = A.DOOR
     posts = [("fwd", (door[0][0] - 1.4, door[0][1]), (door[3][0] - 1.4, door[3][1] + 4.5), "Forward door post", "قائم الباب الأمامي"),
              ("aft", (door[1][0] + 1.4, door[1][1]), (door[2][0] + 1.4, door[2][1] + 3.0), "Rear door post", "قائم الباب الخلفي")]
@@ -195,10 +200,11 @@ def build(ctx):
                 t = i / 8
                 station = low[0] + (high[0] - low[0]) * t
                 water = low[1] + (high[1] - low[1]) * t
-                path.append(side_point(station, water, side, SKIN + 0.008))
+                path.append(side_point(station, water, side, SKIN + 0.0005))
                 inward.append(Vector((-side, 0, 0)))
             bm = new_bm()
-            extrude_along(bm, path, rect_section(0.05, 0.014), lambda i: inward[i])
+            w, d, t = POST_HALF_WIDTH, POST_DEPTH, 0.0015
+            extrude_along(bm, path, [(-w, 0), (w, 0), (w, d), (w - t, d), (w - t, t), (-w + t, t), (-w + t, d), (-w, d)], lambda i: inward[i])
             part(ctx, f"AIRFRAME.door_post_{key}_{S}", bm, "AIRFRAME", "AIRFRAME", f"{en}, {where_en}", f"{ar} {where_ar}", "bare_alu",
                  status="poh", ref="p.7-3", inside="fuselage",
                  note="The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative")
@@ -258,7 +264,7 @@ def build(ctx):
     for side, S in ((1, "L"), (-1, "R")):
         for level, water, word_en, word_ar in (("upper", 49.0, "Upper", "العلوية"), ("lower", 28.5, "Lower", "السفلية")):
             t = (water - post_low[1]) / (post_high[1] - post_low[1])
-            end_station = post_low[0] + (post_high[0] - post_low[0]) * t
+            end_station = post_low[0] + (post_high[0] - post_low[0]) * t - POST_HALF_WIDTH / IN - 0.1      # up to the flange of the post
             path, inward = [], []
             for i in range(9):
                 station = 0.6 + (end_station - 0.6) * i / 8

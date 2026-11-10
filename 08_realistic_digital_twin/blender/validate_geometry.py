@@ -10,6 +10,7 @@ nose gear depressed), the attachment of struts, fairings, doors and gear to thei
 that nothing inside the cabin or the cowl sticks out through the skin.
 """
 
+import fnmatch
 import math
 import os
 import sys
@@ -142,6 +143,53 @@ def outside_wing(point):
     upper = airframe.airfoil_y(section, fraction, True) * chord
     lower = airframe.airfoil_y(section, fraction, False) * chord
     return max(up - upper, lower - up, -along, along - chord)
+
+
+# A run is a pipe, a hose, a cable or a wire. It may touch the parts it joins: those of its own
+# assembly, a panel instrument or control, and any part named in its "joins" tag. It may pass through
+# the skins, linings and walls in RUN_PASSES, which have an opening for it in the aircraft that the
+# model does not cut. It must not cut through anything else: another run, structure, the engine.
+RUNS = (
+    "FUEL.line_*", "FUEL.primer_line_*", "FUEL.vent_crossover", "WING_?.fuel_line_*", "WING_?.fuel_vent_crossover",
+    "BRAKES.line_?", "GEAR.brake_line_feed_?",
+    "ELECTRICAL.cable_*", "ELECTRICAL.harness_*", "ELECTRICAL.wire_*", "EMPENNAGE.wiring_fin", "WING_?.wiring_harness",
+    "VACUUM.hose_*", "VACUUM.line_*", "VACUUM.overboard_vent",
+    "PITOT_STATIC.pitot_line", "PITOT_STATIC.static_line", "WING_?.pitot_line", "WING_?.stall_warning_tube",
+    "OIL.hose_*", "OIL.breather_line", "OIL.pressure_gauge_line", "OIL.temperature_sensor",
+    "ENGINE.throttle_cable", "ENGINE.mixture_cable", "INDUCTION.carb_heat_cable", "INDUCTION.carb_heat_hose", "PANEL.TACH.drive_cable",
+    "CABIN_AIR.*",
+)
+RUN_PASSES = (
+    "AIRFRAME.firewall", "AIRFRAME.fuselage", "INTERIOR.cabin_liner", "INTERIOR.headliner", "INTERIOR.floor", "INTERIOR.baggage_bulkhead", "INTERIOR.glareshield",
+    "WING_?.root_fairing", "WING_?.wing", "POWERPLANT.cowl_*", "ENGINE.baffles", "ENGINE.baffle_seals", "EMPENNAGE.fin",
+    "AIRFRAME.door_post_*",                # a channel: the runs lie in it and leave it through openings in its flanges
+)
+
+
+def matches(name, patterns):
+    return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
+
+
+def assemblies(ob):
+    return {name for name in str(ob.get("assembly", "")).split(",") if name}
+
+
+def check_runs(problems, tree_of):
+    """Every run against every other part of detail levels 0 and 1."""
+    parts = [ob for ob in bpy.data.objects if ob.type == "MESH" and not ob.name.startswith("_") and not ob.get("kit") and int(ob.get("detail", 0)) <= 1]
+    runs = [ob for ob in parts if matches(ob.name, RUNS)]
+    for run in runs:
+        tree, _vertices = tree_of(run.name)
+        own = assemblies(run)
+        joins = tuple(pattern for pattern in str(run.get("joins", "")).split(",") if pattern)
+        for other in parts:
+            if other is run or other.name.startswith("PANEL.") or matches(other.name, RUN_PASSES + joins) or own & assemblies(other):
+                continue
+            if matches(other.name, RUNS) and (other.name < run.name or matches(run.name, tuple(p for p in str(other.get("joins", "")).split(",") if p))):
+                continue                                   # each pair of runs once
+            if tree.overlap(tree_of(other.name)[0]):
+                problems.append(f"{run.name}: cuts through {other.name}")
+    return len(runs)
 
 
 def check_dimensions(problems, depsgraph):
@@ -285,13 +333,17 @@ def main():
         else:
             print(f"contact {name} -> {target_name}: {min(distances):.4f} m")
 
+    runs_checked = check_runs(problems, tree_of)
+    print(f"runs: {runs_checked} pipes, hoses, cables and wires checked against every other part")
+
     if problems:
         print(f"Geometry validation failed with {len(problems)} problem(s):", file=sys.stderr)
         for problem in problems:
             print(f"  - {problem}", file=sys.stderr)
         return 1
     print(f"Geometry validation OK: {len(REQUIRED)} critical objects, {len(CONTACTS)} contacts, "
-          f"{len(DIMENSIONS)} published dimensions, {inside_checked} parts inside the fuselage skin, {wing_checked} inside the wing skin")
+          f"{len(DIMENSIONS)} published dimensions, {inside_checked} parts inside the fuselage skin, {wing_checked} inside the wing skin, "
+          f"{runs_checked} runs clear of other parts")
     return 0
 
 

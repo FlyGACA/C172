@@ -54,10 +54,13 @@ def build(ctx):
         lower[S] = bottom
 
     # pipes from the master cylinders, under the floor, to the main-gear legs
-    left = [lower["L"] + Vector((0, 0.012, 0)), Vector((0.34, fs(8.0), 0.925)), Vector((0.30, fs(13.0), 0.905)), Vector(lanes.point("brake_L", 17.5)),
-            Vector(lanes.point("brake_L", 63.5))]
-    right = [lower["R"] + Vector((0, 0.012, 0)), Vector((lower["R"].x, fs(10.0), 0.905)), Vector((lower["R"].x - 0.003, fs(lanes.ACROSS["brake_R_cross"][0]), lanes.CROSS_LEVEL)),
-             Vector((-0.27, fs(lanes.ACROSS["brake_R_cross"][0]), lanes.CROSS_LEVEL)), Vector(lanes.point("brake_R", 17.5)), Vector(lanes.point("brake_R", 63.5))]
+    # each pipe is down on its lane before the first frame it passes (the frames lean: at this height frame 17 stands near station 15.5)
+    left = [lower["L"] + Vector((0, 0.012, 0)), Vector((0.34, fs(8.0), 0.925)), Vector(lanes.point("brake_L_fwd", 12.8)), Vector(lanes.point("brake_L_fwd", 21.0)),
+            Vector(lanes.point("brake_L", 25.0)), Vector(lanes.point("brake_L", 66.4))]
+    # the right brake's pipe starts on the left of the cabin: it turns across outboard of the left keel beam, so that it passes the beam square
+    right = [lower["R"] + Vector((0, 0.012, 0)), Vector((lower["R"].x + 0.03, fs(10.5), 0.905)), Vector((lower["R"].x + 0.04, fs(lanes.ACROSS["brake_R_cross"][0]), lanes.CROSS_LEVEL)),
+             Vector((lanes.ALONG["brake_R_fwd"][0], fs(lanes.ACROSS["brake_R_cross"][0]), lanes.CROSS_LEVEL)), Vector(lanes.point("brake_R_fwd", 21.0)),
+             Vector(lanes.point("brake_R", 25.0)), Vector(lanes.point("brake_R", 66.4))]
     for S, corners, sx in (("L", left, 1), ("R", right, -1)):
         where_en, where_ar = ("left", "الأيسر") if S == "L" else ("right", "الأيمن")
         bm = new_bm()
@@ -70,7 +73,8 @@ def build(ctx):
         bm = new_bm()
         pipe(bm, [corners[-1], leg[1] + Vector((0, 0.032, 0.012)), leg[2] + Vector((0, 0.032, 0))], PIPE, bend=0.02)
         part(ctx, f"GEAR.brake_line_feed_{S}", bm, "GEAR", SYS, f"Brake hydraulic line, {where_en}: from under the floor out to the gear leg",
-             f"خط الكوابح الهيدروليكي {where_ar}: من تحت الأرضية إلى ساق العجلة", "bare_alu", status="estimated", smooth=True, assembly=ASSEMBLY)
+             f"خط الكوابح الهيدروليكي {where_ar}: من تحت الأرضية إلى ساق العجلة", "bare_alu", status="estimated", smooth=True, assembly=ASSEMBLY,
+             joins=f"GEAR.main_leg_{S}")
 
     # parking brake: a control from the handle under the panel to a lock on the two master cylinders
     handle = scene["INTERIOR.parking_brake"].matrix_world.translation.copy()

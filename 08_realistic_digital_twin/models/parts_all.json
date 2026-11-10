@@ -1,15 +1,15 @@
 {
  "summary": {
-  "parts": 1082,
+  "parts": 1084,
   "by_detail": {
    "0": 340,
-   "1": 501,
+   "1": 503,
    "2": 241
   },
   "by_system": {
    "AIRFRAME": 65,
    "BRAKES": 8,
-   "CONTROLS": 124,
+   "CONTROLS": 126,
    "ELECTRICAL": 50,
    "EMPENNAGE": 61,
    "ENGINE": 95,
@@ -31,7 +31,7 @@
    "WING_R": 56
   },
   "assemblies": {
-   "aileron_control": 41,
+   "aileron_control": 43,
    "airspeed_indicator": 10,
    "altimeter": 13,
    "attitude_indicator": 11,
@@ -45,7 +45,7 @@
    "engine_internals": 64,
    "fasteners": 229,
    "flap_drive": 27,
-   "fuel_system": 35,
+   "fuel_system": 36,
    "hardware_kit": 12,
    "instrument_cases": 7,
    "nose_steering": 5,
@@ -184,7 +184,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "poh",
-   "triangles": 68,
+   "triangles": 140,
    "ref": "p.7-3",
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative"
   },
@@ -196,7 +196,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "poh",
-   "triangles": 68,
+   "triangles": 140,
    "ref": "p.7-3",
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative"
   },
@@ -208,7 +208,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "poh",
-   "triangles": 68,
+   "triangles": 140,
    "ref": "p.7-3",
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative"
   },
@@ -220,7 +220,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "poh",
-   "triangles": 68,
+   "triangles": 140,
    "ref": "p.7-3",
    "note": "The door posts are named in the POH; their line follows the door opening of the manufacturer's side view, the section is representative"
   },
@@ -311,7 +311,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "poh",
-   "triangles": 382,
+   "triangles": 470,
    "ref": "p.7-3; station p.6-8 (Fig 6-4)",
    "station_in": 65.3
   },
@@ -346,7 +346,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "estimated",
-   "triangles": 236,
+   "triangles": 324,
    "station_in": 17.0
   },
   {
@@ -1196,7 +1196,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 240,
+   "triangles": 304,
    "assembly": "brake_system",
    "ref": "p.7-23",
    "note": "Each brake is connected by a hydraulic line to its master cylinder (POH); the route under the floor is representative"
@@ -1209,7 +1209,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 304,
+   "triangles": 368,
    "assembly": "brake_system",
    "ref": "p.7-23",
    "note": "Each brake is connected by a hydraulic line to its master cylinder (POH); the route under the floor is representative"
@@ -1272,7 +1272,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 316,
+   "triangles": 366,
    "assembly": "aileron_control",
    "ref": "p.7-4, 7-5 (Fig 7-1)",
    "note": "Shown in POH Figure 7-1; its position and size here are representative"
@@ -1285,7 +1285,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 316,
+   "triangles": 366,
    "assembly": "aileron_control",
    "ref": "p.7-4, 7-5 (Fig 7-1)",
    "note": "Shown in POH Figure 7-1; its position and size here are representative"
@@ -1494,6 +1494,32 @@
    "detail": 1,
    "status": "poh",
    "triangles": 196,
+   "assembly": "aileron_control",
+   "ref": "p.7-4, 7-5 (Fig 7-1)",
+   "note": "Shown in POH Figure 7-1; its position and size here are representative"
+  },
+  {
+   "id": "CONTROLS.aileron_pulley_sill_L",
+   "system": "CONTROLS",
+   "en": "Aileron cable pulley below the rear door post",
+   "ar": "بكرة كابل الجنيح تحت قائم الباب الخلفي",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 160,
+   "assembly": "aileron_control",
+   "ref": "p.7-4, 7-5 (Fig 7-1)",
+   "note": "Shown in POH Figure 7-1; its position and size here are representative"
+  },
+  {
+   "id": "CONTROLS.aileron_pulley_sill_R",
+   "system": "CONTROLS",
+   "en": "Aileron cable pulley below the rear door post",
+   "ar": "بكرة كابل الجنيح تحت قائم الباب الخلفي",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 160,
    "assembly": "aileron_control",
    "ref": "p.7-4, 7-5 (Fig 7-1)",
    "note": "Shown in POH Figure 7-1; its position and size here are representative"
@@ -2339,7 +2365,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 284,
+   "triangles": 348,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -2363,7 +2389,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 156,
+   "triangles": 284,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -2399,7 +2425,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 156,
+   "triangles": 92,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -2443,7 +2469,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 668,
+   "triangles": 732,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -2783,7 +2809,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 216,
+   "triangles": 260,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -2794,7 +2820,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 216,
+   "triangles": 260,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -2805,7 +2831,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 216,
+   "triangles": 260,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -2816,7 +2842,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 216,
+   "triangles": 260,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -2827,7 +2853,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 128,
+   "triangles": 216,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -3767,7 +3793,7 @@
    "status": "estimated",
    "triangles": 156,
    "assembly": "electrical_system",
-   "note": "Runs up the fin behind its spar; route representative"
+   "note": "Runs up the fin behind its leading-edge former, through an opening in each rib; route representative"
   },
   {
    "id": "ENGINE",
@@ -5248,7 +5274,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 764,
+   "triangles": 828,
    "assembly": "fuel_system",
    "ref": "p.7-20 to 7-23 (Fig 7-6)",
    "note": "Shown in the POH fuel system schematic (Figure 7-6); its position and size here are representative"
@@ -5261,7 +5287,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 764,
+   "triangles": 828,
    "assembly": "fuel_system",
    "ref": "p.7-20 to 7-23 (Fig 7-6)",
    "note": "Shown in the POH fuel system schematic (Figure 7-6); its position and size here are representative"
@@ -5274,7 +5300,7 @@
    "parent": "ENGINE",
    "detail": 0,
    "status": "poh",
-   "triangles": 204,
+   "triangles": 332,
    "assembly": "fuel_system",
    "ref": "p.7-28"
   },
@@ -5299,7 +5325,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 340,
+   "triangles": 212,
    "assembly": "fuel_system",
    "ref": "p.7-22",
    "note": "The POH says the primer injects fuel into the cylinder intake ports; which cylinders are primed and the route of the lines are representative"
@@ -6013,7 +6039,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 108,
-   "assembly": "carburetor",
+   "assembly": "fuel_system,carburetor",
    "ref": "p.7-23"
   },
   {
@@ -6652,7 +6678,7 @@
    "parent": "ENGINE",
    "detail": 1,
    "status": "poh",
-   "triangles": 284,
+   "triangles": 236,
    "assembly": "oil_system",
    "ref": "p.7-17",
    "note": "A direct pressure oil line from the engine works the oil pressure gage (POH p.7-17); route representative"
@@ -9234,7 +9260,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 92,
+   "triangles": 156,
    "assembly": "vacuum_system",
    "ref": "p.7-32, 7-33 (Fig 7-9)"
   },
@@ -10991,7 +11017,7 @@
    "parent": "WING_L",
    "detail": 1,
    "status": "poh",
-   "triangles": 92,
+   "triangles": 188,
    "assembly": "stall_warning",
    "ref": "p.7-34",
    "note": "Low pressure at the inlet as the stall approaches draws air through the horn (POH p.7-34); route representative"
