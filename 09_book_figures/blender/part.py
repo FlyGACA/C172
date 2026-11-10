@@ -162,6 +162,7 @@ def main():
     render.add_argument("--focus", nargs="+", metavar="ID", help="fit the picture to these parts (default: to all the parts drawn)")
     render.add_argument("--target", type=float, nargs=3, metavar=("X", "Y", "Z"), help="look at this point (m) instead of the middle of the parts")
     render.add_argument("--distance", type=float, help="camera distance from the target (m) instead of fitting the parts")
+    render.add_argument("--detail", type=int, choices=(0, 1, 2), help="with --context: also show the parts up to this detail level that are not named (2 = with the fasteners)")
     render.add_argument("--quick", action="store_true")
     export = sub.add_parser("export")
     export.add_argument("--part", nargs="+", required=True)

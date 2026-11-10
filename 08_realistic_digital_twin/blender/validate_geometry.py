@@ -211,10 +211,13 @@ def main():
     inside_checked = 0
     wing_checked = 0
     for ob in bpy.data.objects:
-        if ob.type != "MESH" or ob.hide_render or ob.name.startswith("_"):
-            continue
+        level = int(ob.get("detail", 0))
+        if ob.type != "MESH" or ob.name.startswith("_") or (ob.hide_render and level < 2):
+            continue                                   # fasteners (level 2) are hidden in the saved scene but checked all the same
+        kit = bool(ob.get("kit"))                      # a specimen of standard hardware, kept beside the aircraft
         evaluated, mesh, _matrix, vertices, _polygons = evaluated_mesh(ob, depsgraph)
-        all_points.extend(vertices)
+        if not kit:
+            all_points.extend(vertices)
         invalid = [vertex.index for vertex in mesh.vertices if not all(math.isfinite(v) for v in vertex.co)]
         if invalid:
             problems.append(f"{ob.name}: {len(invalid)} non-finite vertices")
@@ -224,7 +227,9 @@ def main():
             problems.append(f"{ob.name}: {degenerate} degenerate faces (budget {budget})")
         elif degenerate:
             print(f"known mesh debt {ob.name}: {degenerate}/{budget} degenerate faces")
-        level = int(ob.get("detail", 0))
+        if kit:
+            evaluated.to_mesh_clear()
+            continue
         if level >= 1 and ob.name.startswith("WING_") and not ob.get("outside"):
             # structure and mechanisms in the wing stay under its skin
             wing_checked += 1

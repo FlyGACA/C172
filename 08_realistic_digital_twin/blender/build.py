@@ -138,11 +138,12 @@ def main():
             # the editable scene carries every detail level; the exported model may carry fewer
             top = export.BLEND_DETAIL if args.detail is None else args.detail
             ctx = build_scene(spec["subsurf"], args.assets, top)
-            # fasteners stay in the editable scene but out of sight: a picture asks for them (render_figure "detail")
+            # fasteners stay in the editable scene but are left out of renders until a picture asks for them
+            # (render_figure "detail"). They stay enabled in the viewport: Blender does not work out where a
+            # disabled object stands, and the validator has to check them like everything else.
             for ob in ctx.col.objects:
                 if ob.get("detail", 0) > export.SHOWN_DETAIL:
                     ob.hide_render = True
-                    ob.hide_viewport = True
             blend = args.blend or os.path.join(args.out, "C172N_realistic.blend")
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             bpy.ops.file.make_paths_relative()

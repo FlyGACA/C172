@@ -197,7 +197,7 @@ def setup_scene(spec, quick):
         ground.is_shadow_catcher = True
     if "detail" in spec:                                 # 0 basic model only ... 2 with the fasteners (hidden in the saved scene)
         for ob in bpy.data.objects:
-            if ob.type == "MESH" and "detail" in ob and ob.name != GROUND:
+            if ob.type == "MESH" and "detail" in ob and ob.name != GROUND and not ob.get("kit"):      # the hardware kit is shown only when named
                 ob.hide_render = ob.hide_viewport = int(ob["detail"]) > int(spec["detail"])
     for ob in resolve(spec.get("hide", [])):
         ob.hide_render = True
@@ -287,7 +287,7 @@ def setup_camera(sc, spec):
         cam.ortho_scale = cam_spec["ortho_scale"]
     else:
         cam.angle = math.radians(cam_spec["fov"])
-    cam.clip_start = 0.05
+    cam.clip_start = max(0.0005, min(0.05, direction.length * 0.1))          # a rivet drawn alone is looked at from centimetres away
     cam.clip_end = 1000
     return ob
 
