@@ -178,11 +178,13 @@ export function turnCoordinator(host, title) {
   const plane = el('g', {}, svg);
   el('path', { d: 'M-66 0 L-10 0 L-6 -8 L6 -8 L10 0 L66 0 M-20 18 L20 18 M0 0 L0 18', class: 'tc-plane' }, plane);
   el('rect', { x: -40, y: 32, width: 80, height: 14, rx: 7, class: 'tc-tube' }, svg);
-  el('circle', { cx: 0, cy: 39, r: 6, class: 'tc-ball' }, svg);
+  const ball = el('circle', { cx: 0, cy: 39, r: 6, class: 'tc-ball' }, svg);
   const flag = el('text', { x: 0, y: -40, class: 'tc-flag' }, svg);
   return {
     ...f,
-    update(rate, off) {
+    /** rate: 1 = standard rate; off: no electrical power; slip: the ball, + to the right (one ball width is about 0.043). */
+    update(rate, off, slip = 0) {
+      ball.setAttribute('cx', (Math.max(-1, Math.min(1, slip / 0.12)) * 33).toFixed(1));
       plane.setAttribute('transform', `rotate(${(rate * 20).toFixed(2)})`);
       flag.textContent = off ? 'OFF' : '';
       f.read.textContent = off ? 'OFF' : `${(rate * 3).toFixed(1)}°/s`;

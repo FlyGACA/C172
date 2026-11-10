@@ -12,6 +12,11 @@ instruments, cabin air and lights, seats, doors and baggage fittings, avionics, 
 any of which can be drawn or exported on its own ([parts index](08_realistic_digital_twin/docs/06_parts_index.md),
 [atlas](09_book_figures/atlas/README.md)).
 
+**The viewer flies.** A small six-degree-of-freedom flight model moves the aircraft, its control surfaces and
+its instruments. Its numbers come from the Pilot's Operating Handbook where the handbook has them, and each one
+is labelled POH, POH-derived or estimated; it has no certified fidelity
+([the model, its validation against the handbook and every number](08_realistic_digital_twin/docs/08_flight_model.md)).
+
 ```bash
 python3 -m http.server 8000
 # then open http://localhost:8000/08_realistic_digital_twin/   (Phase 7: /07_kinematic_twin/)
@@ -36,6 +41,8 @@ python3 -m http.server 8000
 | 07 | [`07_kinematic_twin/`](07_kinematic_twin/) | Rebuilt model with pivots and Lycoming-correct engine, crank-driven animation, documented systems simulation, 10 guided POH scenarios, offline viewer, tests |
 | **08** | [**`08_realistic_digital_twin/`**](08_realistic_digital_twin/) | Blender-scripted realistic model (editable `.blend`, three Draco GLB quality levels, generated PBR textures), full cockpit and O-320 engine assembly, PBR viewer with HDR sky, shadows and AO, bilingual part catalogue, Phase 7 simulation and scenarios, Playwright and CI rebuild checks |
 | 09 | [`09_book_figures/`](09_book_figures/) | Book figures: [the figure plan](09_book_figures/PLAN.md), a browser-based build to print-ready PDF/SVG in English and Arabic, and four sample figures (instrument from data, system schematic, two labelled illustrations drawn from the Phase 8 model) |
+
+| 10 | [`shared/js/`](shared/js/), [`08_realistic_digital_twin/`](08_realistic_digital_twin/docs/08_flight_model.md) | Flight: a six-degree-of-freedom flight model from the handbook's numbers, flown in the Phase 8 viewer together with the systems simulation; a scripted pilot that flies the handbook's takeoff, landing and stall; tests that state the tolerances |
 
 Folders 01–06 are the original release packages, imported unchanged; see
 [RELEASES.md](RELEASES.md). Their integrity is checked against

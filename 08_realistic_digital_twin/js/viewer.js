@@ -137,7 +137,7 @@ export class Viewer {
     const loop = () => {
       const dt = Math.min(0.1, this.clock.getDelta());
       for (const f of this.onFrame) f(dt);
-      this.controls.update();
+      if (!this.manualCamera) this.controls.update();      // the cockpit camera of the flight mode places itself
       this.renderer.info.reset();
       if (this.composer && this.aoEnabled) this.composer.render(); else this.renderer.render(this.scene, this.camera);
       this.labels.render(this.scene, this.camera);

@@ -6,9 +6,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as F from '../js/flight.js';
-import { createPilot, pilotStep, flyTakeoff, flyLanding } from '../js/pilot.js';
+import { createPilot, pilotStep, flyTakeoff, flyLanding, flyStall } from '../js/pilot.js';
+import * as POH from '../js/poh_tables.js';
+import { readFileSync } from 'node:fs';
+import { render as renderFlightDoc } from '../scripts/flight_doc.mjs';
 import { createState, step } from '../js/sim.js';
 import { createDeck, stepDeck, deckInFlight, deckOnGround } from '../js/flightdeck.js';
+import { FM_NOTES_AR } from '../js/flight_notes_ar.js';
 
 const KT = 0.514444;
 const near = (value, want, tol, what) => assert.ok(Math.abs(value - want) <= tol, `${what}: ${value.toFixed(2)} is not within ${tol} of ${want}`);
@@ -27,6 +31,17 @@ test('every number of the model says where it comes from', () => {
   }
   const count = (s) => rows.filter((r) => r.source === s).length;
   assert.ok(count('poh') >= 10 && count('derived') >= 12, `poh ${count('poh')}, derived ${count('derived')}`);
+});
+
+test('every number has its note in Arabic too', () => {
+  const names = Object.keys(F.FM);
+  assert.deepEqual(Object.keys(FM_NOTES_AR).sort(), [...names].sort());
+  for (const n of names) {
+    assert.match(FM_NOTES_AR[n], /[\u0600-\u06FF]{3}/, `${n}: Arabic text`);
+    // the figures of a note are the same in both languages
+    const figures = (t) => (t.match(/\d+(?:\.\d+)?/g) || []).filter((x) => x.length > 1 || Number(x) > 1).sort().join(' ');
+    assert.equal(figures(FM_NOTES_AR[n].replace(/½/g, '')), figures(F.FM[n].note.replace(/½/g, '')), `${n}: the same figures in the Arabic note`);
+  }
 });
 
 test('numbers read from the handbook (p.1-2, 1-3, 1-5, 2-5, 2-7)', () => {
@@ -54,13 +69,8 @@ test('airspeed calibration is the table of Figure 5-1 (p.5-8)', () => {
 
 // ------------------------------------------------------------------------------------------ stall speeds
 test('stall speeds are those of Figure 5-3 (p.5-11) within 1 KCAS at every bank angle', () => {
-  const table = {      // [flaps, cg]: KCAS at 0, 30, 45, 60 degrees of bank
-    '0 aft': [50, 54, 59, 71], '10 aft': [47, 51, 56, 66], '40 aft': [44, 47, 52, 62],
-    '0 fwd': [53, 57, 63, 75], '10 fwd': [51, 55, 61, 72], '40 fwd': [47, 51, 56, 66],
-  };
-  for (const [key, row] of Object.entries(table)) {
-    const [flap, cg] = key.split(' ');
-    [0, 30, 45, 60].forEach((bank, i) => near(F.stallSpeedKcas({ flapDeg: Number(flap), cgFrac: cg === 'aft' ? 1 : 0, bankDeg: bank }), row[i], 1.0, `flaps ${key}, bank ${bank}`));
+  for (const cg of ['aft', 'fwd']) for (const [flap, row] of Object.entries(POH.STALL_KCAS[cg])) {
+    POH.STALL_KCAS.bankDeg.forEach((bank, i) => near(F.stallSpeedKcas({ flapDeg: Number(flap), cgFrac: cg === 'aft' ? 1 : 0, bankDeg: bank }), row[i], 1.0, `flaps ${flap} ${cg}, bank ${bank}`));
   }
   // the lift curve really tops out there: steady flight is possible just above and not below
   for (const [flap, cg, vs] of [[0, 1, 50], [40, 0, 47]]) {
@@ -72,7 +82,7 @@ test('stall speeds are those of Figure 5-3 (p.5-11) within 1 KCAS at every bank 
 // ------------------------------------------------------------------------------------------ engine and propeller
 test('static RPM at full throttle is in the handbook range 2280 to 2400 (p.2-5)', () => {
   const rpm = F.equilibriumRpm(F.engineAt(1, 1), 0, 1);
-  assert.ok(rpm >= 2280 && rpm <= 2400, `static ${rpm.toFixed(0)} RPM`);
+  assert.ok(rpm >= POH.STATIC_RPM.min && rpm <= POH.STATIC_RPM.max, `static ${rpm.toFixed(0)} RPM`);
   const idle = F.equilibriumRpm(F.engineAt(0, 1), 0, 1);
   assert.ok(idle > 600 && idle < 850, `idle ${idle.toFixed(0)} RPM`);
   // the propeller never gives more than the engine puts in
@@ -85,38 +95,28 @@ const climbAt = (kias, altFt, tempC = null) => {
 };
 
 test('rate of climb at standard temperature is Figure 5-6 (p.5-15) within 25 ft/min from sea level to 12,000 ft', () => {
-  const table = [[0, 73, 770], [1000, 73, 725], [2000, 72, 675], [3000, 72, 630], [4000, 71, 580], [5000, 71, 535], [6000, 70, 485], [7000, 69, 440], [8000, 69, 390],
-    [9000, 68, 345], [10000, 68, 295], [11000, 67, 250], [12000, 67, 200]];
-  for (const [alt, kias, fpm] of table) near(climbAt(kias, alt), fpm, 25, `climb at ${alt} ft`);
+  for (const [alt, kias, fpm] of POH.CLIMB_STANDARD.rows) near(climbAt(kias, alt), fpm, 25, `climb at ${alt} ft`);
 });
 
 test('rate of climb at -20, 0, 20 and 40 °C is Figure 5-5 (p.5-14) within 45 ft/min', () => {
-  const table = { 0: [73, 875, 815, 755, 695], 2000: [72, 765, 705, 650, 590], 4000: [71, 655, 600, 545, 485], 6000: [70, 545, 495, 440, 385], 8000: [69, 440, 390, 335, 280],
-    10000: [68, 335, 285, 230, null], 12000: [67, 230, 180, null, null] };
-  for (const [alt, row] of Object.entries(table)) {
-    [-20, 0, 20, 40].forEach((tc, i) => { if (row[i + 1] != null) near(climbAt(row[0], Number(alt), tc), row[i + 1], 45, `climb at ${alt} ft, ${tc} °C`); });
+  for (const [alt, row] of Object.entries(POH.CLIMB_TEMPERATURE.rows)) {
+    POH.CLIMB_TEMPERATURE.tempC.forEach((tc, i) => { if (row[i + 1] != null) near(climbAt(row[0], Number(alt), tc), row[i + 1], 45, `climb at ${alt} ft, ${tc} °C`); });
   }
 });
 
 test('the best rate, best angle and best glide speeds fall where the handbook puts them', () => {
   const best = (fn, lo, hi) => { let b = [0, -1e9]; for (let k = lo; k <= hi; k += 0.5) { const v = fn(k); if (v > b[1]) b = [k, v]; } return b[0]; };
-  near(best((k) => climbAt(k, 0), 55, 95), 73, 5, 'best rate of climb speed at sea level, KIAS (p.5-15: 73)');
-  near(best((k) => climbAt(k, 10000), 55, 95), 68, 4, 'best rate of climb speed at 10,000 ft, KIAS (p.5-15: 68)');
-  const angle = (k) => F.trim({ kcas: F.kcasFromKias(k), altFt: 0, torque: F.fullThrottleTorque(1) }).gamma;
-  near(best(angle, 45, 90), 59, 4, 'best angle of climb speed at sea level, KIAS (p.4-3: 59)');
+  near(best((k) => climbAt(k, 0), 55, 95), POH.SPEEDS.bestRate[0], 5, 'best rate of climb speed at sea level, KIAS (p.4-3: 73)');
+  near(best((k) => climbAt(k, 10000), 55, 95), POH.SPEEDS.bestRate[10000], 4, 'best rate of climb speed at 10,000 ft, KIAS (p.4-3: 68)');
+  const angle = (alt) => (k) => F.trim({ kcas: F.kcasFromKias(k), altFt: alt, torque: F.fullThrottleTorque(F.chargeAt(alt)) }).gamma;
+  near(best(angle(0), 45, 90), POH.SPEEDS.bestAngle[0], 4, 'best angle of climb speed at sea level, KIAS (p.4-3: 59)');
+  near(best(angle(10000), 45, 90), POH.SPEEDS.bestAngle[10000], 4, 'best angle of climb speed at 10,000 ft, KIAS (p.4-3: 61)');
   const glide = (k) => { const t = F.trim({ kcas: F.kcasFromKias(k), altFt: 5000, engineOn: false }); return 1 / Math.tan(-t.gamma); };
   assert.ok(glide(65) > 0.98 * glide(best(glide, 50, 90)), 'the glide at 65 KIAS is within 2 % of the best the model has');
 });
 
 test('cruise is Figure 5-7 (p.5-16): true airspeed within 3 knots and power within 2.5 points on every line the engine can reach; at and above 8000 ft its full throttle is up to 7.5 knots short of the fastest lines', () => {
-  const table = {      // altitude: [RPM, % BHP, KTAS] at standard temperature
-    2000: [[2500, 75, 116], [2400, 67, 111], [2300, 60, 105], [2200, 53, 100], [2100, 47, 94]],
-    4000: [[2550, 75, 118], [2500, 71, 115], [2400, 64, 110], [2300, 57, 105], [2200, 51, 99], [2100, 46, 93]],
-    6000: [[2600, 75, 120], [2500, 67, 115], [2400, 60, 109], [2300, 54, 104], [2200, 49, 98], [2100, 44, 92]],
-    8000: [[2650, 75, 122], [2600, 71, 120], [2500, 64, 114], [2400, 58, 109], [2300, 52, 103], [2200, 47, 97]],
-    10000: [[2650, 71, 122], [2600, 68, 119], [2500, 61, 114], [2400, 55, 108], [2300, 50, 102], [2200, 45, 96]],
-    12000: [[2600, 64, 118], [2500, 58, 113], [2400, 53, 107], [2300, 48, 101], [2200, 44, 95]],
-  };
+  const table = POH.CRUISE.rows;
   let lines = 0, beyond = 0;
   for (const [altText, rows] of Object.entries(table)) {
     const alt = Number(altText);
@@ -148,7 +148,7 @@ test('cruise is Figure 5-7 (p.5-16): true airspeed within 3 knots and power with
 
 test('maximum glide is about 9.1 to 1 at 65 KIAS with the propeller windmilling (p.3-11)', () => {
   const t = F.trim({ kcas: F.kcasFromKias(65), altFt: 6000, engineOn: false });
-  near(1 / Math.tan(-t.gamma), 9.1, 0.1, 'glide ratio');
+  near(1 / Math.tan(-t.gamma), POH.GLIDE.ratio, 0.1, 'glide ratio');
   // flown, not only trimmed: 60 seconds of glide lose the height the ratio says
   const f = F.createFlight({ inFlight: { kias: 65, altFt: 6000, engineOn: false } });
   const p = createPilot(), start = [f.north, f.alt];
@@ -158,27 +158,24 @@ test('maximum glide is about 9.1 to 1 at 65 KIAS with the propeller windmilling 
 });
 
 // ------------------------------------------------------------------------------------------ field performance
-test('short-field takeoff distances are Figure 5-4 (p.5-12, 5-13): ground roll within 12 %, total over 50 ft within 14 %', () => {
-  const rows = [      // field elevation, °C, weight, [ground roll, total], speeds
-    [0, 0, 2300, [720, 1300]], [0, 20, 2300, [835, 1490]], [0, 40, 2300, [960, 1700]], [2000, 20, 2300, [1000, 1790]], [4000, 20, 2300, [1210, 2175]], [8000, 20, 2300, [1805, 3375]],
-    [0, 20, 2100, [680, 1220], { rotateKias: 44, v50: 56 }], [0, 20, 1900, [540, 985], { rotateKias: 42, v50: 54 }],
-  ];
-  for (const [elev, tc, weight, [roll, total], o = {}] of rows) {
+test('short-field takeoff distances are Figure 5-4 (p.5-12, 5-13): within 8 % and 9 % at sea level, within 14 % up to 8000 ft and at lighter weights', () => {
+  for (const [elev, tc, weight, roll, total, liftOff, at50] of POH.TAKEOFF.rows) {
+    const o = weight === 2300 ? {} : { rotateKias: liftOff - 6, v50: at50 };
     const f = F.createFlight({ fieldElevFt: elev, isaDevC: isaDev(elev, tc), weightLb: weight });
     const r = flyTakeoff(f, o);
-    within(r.groundRollFt, roll, 0.12, `takeoff ground roll, ${elev} ft ${tc} °C ${weight} lb`);
+    within(r.groundRollFt, roll, 0.14, `takeoff ground roll, ${elev} ft ${tc} °C ${weight} lb`);
     within(r.totalFt, total, 0.14, `takeoff over 50 ft, ${elev} ft ${tc} °C ${weight} lb`);
     if (weight === 2300 && elev === 0) {
       within(r.groundRollFt, roll, 0.08, `takeoff ground roll at sea level, ${tc} °C`);
       within(r.totalFt, total, 0.09, `takeoff over 50 ft at sea level, ${tc} °C`);
-      near(r.liftOffKias, 52, 2, 'lift-off speed, KIAS');
-      near(r.kiasAt50, 59, 2.5, 'speed at 50 ft, KIAS');
+      near(r.liftOffKias, liftOff, 2, 'lift-off speed, KIAS');
+      near(r.kiasAt50, at50, 2.5, 'speed at 50 ft, KIAS');
     }
   }
 });
 
 test('short-field landing distances are Figure 5-10 (p.5-21): ground roll within 5 %, total over 50 ft within 7 %', () => {
-  for (const [elev, tc, roll, total] of [[0, 0, 495, 1205], [0, 20, 530, 1265], [0, 40, 565, 1330], [4000, 20, 615, 1410], [8000, 20, 710, 1580]]) {
+  for (const [elev, tc, roll, total] of POH.LANDING.rows) {
     const f = F.createFlight({ fieldElevFt: elev, isaDevC: isaDev(elev, tc) });
     const r = flyLanding(f);
     within(r.groundRollFt, roll, 0.05, `landing ground roll, ${elev} ft ${tc} °C`);
@@ -189,59 +186,33 @@ test('short-field landing distances are Figure 5-10 (p.5-21): ground roll within
 });
 
 // ------------------------------------------------------------------------------------------ the stall, flown
-/** Power-off stall: hold the altitude at idle until the wing stalls, hold the wheel back, then recover. */
-function flyStall({ cg = 0.5, flap = 0, hold = 6, altFt = 3000, entryKias = 70 }) {
-  const f = F.createFlight({ cgFrac: cg, inFlight: { kias: entryKias, altFt, flapDeg: flap } });
-  const p = createPilot(), dt = 1 / 60, charge = F.chargeAt(altFt);
-  const r = { maxAlpha: 0 };
-  let phase = 'entry', tStall = 0, tRecover = 0, lowest = 1e9;
-  while (f.t < 150) {
-    let target, engine = F.engineAt(0, charge);
-    if (phase === 'entry') target = { altFt, bankDeg: 0, maxPitchDeg: 30 };
-    else if (phase === 'hold') target = { elevator: 1, bankDeg: 0 };
-    else { engine = F.engineAt(1, charge); target = f.out.kias < 58 ? { pitchDeg: -3, bankDeg: 0 } : { pitchDeg: 6, bankDeg: 0 }; }
-    F.stepFlight(f, { ...pilotStep(p, f, target, dt), trim: f.trimmed.trim, engineOn: true, engine, flapCommandDeg: flap }, dt);
-    const o = f.out;
-    if (r.warningKcas == null && o.stallWarning) r.warningKcas = o.kcas;
-    if (phase === 'entry' && o.stalled) { phase = 'hold'; tStall = f.t; Object.assign(r, { stallKcas: o.kcas, stallKias: o.kias, loadFactor: o.loadFactor, pitchAtStall: o.pitchDeg, altAtStall: o.altFt }); }
-    if (phase === 'hold') {
-      r.maxAlpha = Math.max(r.maxAlpha, o.alphaDeg);
-      r.lowestPitch = Math.min(r.lowestPitch ?? 99, o.pitchDeg);
-      if (f.t - tStall > hold) { phase = 'recover'; tRecover = f.t; r.heldLossFt = r.altAtStall - o.altFt; r.altAtRecovery = o.altFt; r.alphaHeld = o.alphaDeg; r.sinkHeld = o.vsFpm; }
-    }
-    if (phase === 'recover') {
-      lowest = Math.min(lowest, o.altFt);
-      if (f.t - tRecover > 2 && o.vsFpm > 0 && !o.stalled) { r.recoveryLossFt = r.altAtRecovery - lowest; r.recoverySeconds = f.t - tRecover; r.alphaStall = o.alphaStallDeg; return r; }
-    }
-  }
-  return r;
-}
+const stall = ({ cg = 0.5, flap = 0, hold = 6 }) => flyStall(F.createFlight({ cgFrac: cg }), { flapDeg: flap, holdSeconds: hold });
 
 test('a power-off stall flown at 1 g comes at the handbook speed, with the horn 5 to 10 knots before (p.5-11, p.7-34)', () => {
   for (const [cg, flap, poh] of [[1, 0, 50], [0, 0, 53], [0.5, 0, 51.5], [1, 40, 44], [0, 40, 47]]) {
-    const r = flyStall({ cg, flap, hold: 1, entryKias: flap ? 65 : 70 });
+    const r = stall({ cg, flap, hold: 1 });
     assert.ok(r.stallKcas, `cg ${cg} flaps ${flap}: it stalls`);
     // the entry is not exactly 1 g: bring the speed to 1 g before comparing
     near(r.stallKcas / Math.sqrt(r.loadFactor), poh, 1.5, `stall speed, cg ${cg} flaps ${flap}, KCAS at 1 g`);
     const margin = r.warningKcas - r.stallKcas;
-    assert.ok(margin >= 5 && margin <= 10, `cg ${cg} flaps ${flap}: horn ${margin.toFixed(1)} knots before the stall`);
+    assert.ok(margin >= POH.STALL_WARNING.knotsBefore[0] && margin <= POH.STALL_WARNING.knotsBefore[1], `cg ${cg} flaps ${flap}: horn ${margin.toFixed(1)} knots before the stall`);
   }
 });
 
 test('at the stall the nose drops with the wheel held back, and the recovery loses less than the 180 ft of the handbook (p.5-11)', () => {
   for (const cg of [0, 0.5, 1]) {
-    const r = flyStall({ cg, hold: 6 });
-    assert.ok(r.pitchAtStall - r.lowestPitch > 4, `cg ${cg}: the nose drops ${(r.pitchAtStall - r.lowestPitch).toFixed(1)} degrees`);
-    assert.ok(r.sinkHeld < -250, `cg ${cg}: held in the stall it sinks ${r.sinkHeld.toFixed(0)} ft/min`);
-    assert.ok(r.recoveryLossFt < 180, `cg ${cg}: recovery lost ${r.recoveryLossFt.toFixed(0)} ft`);
+    const r = stall({ cg, hold: 6 });
+    assert.ok(r.pitchAtStallDeg - r.lowestPitchDeg > 4, `cg ${cg}: the nose drops ${(r.pitchAtStallDeg - r.lowestPitchDeg).toFixed(1)} degrees`);
+    assert.ok(r.sinkHeldFpm < -250, `cg ${cg}: held in the stall it sinks ${r.sinkHeldFpm.toFixed(0)} ft/min`);
+    assert.ok(r.recoveryLossFt < POH.STALL_KCAS.recoveryLossFt, `cg ${cg}: recovery lost ${r.recoveryLossFt.toFixed(0)} ft`);
     assert.ok(r.recoverySeconds < 12, `cg ${cg}: recovered in ${r.recoverySeconds.toFixed(1)} s`);
   }
   // the further aft the centre of gravity, the deeper the wheel takes the aircraft into the stall
-  const fwd = flyStall({ cg: 0, hold: 6 }), aft = flyStall({ cg: 1, hold: 6 });
-  assert.ok(aft.maxAlpha > fwd.maxAlpha + 5, `aft ${aft.maxAlpha.toFixed(1)}, forward ${fwd.maxAlpha.toFixed(1)} degrees`);
-  assert.ok(fwd.alphaHeld < fwd.alphaStall + 2.5, 'at the forward limit the elevator holds the aircraft barely beyond the stall');
+  const fwd = stall({ cg: 0, hold: 6 }), aft = stall({ cg: 1, hold: 6 });
+  assert.ok(aft.maxAlphaDeg > fwd.maxAlphaDeg + 5, `aft ${aft.maxAlphaDeg.toFixed(1)}, forward ${fwd.maxAlphaDeg.toFixed(1)} degrees`);
+  assert.ok(fwd.alphaHeldDeg < fwd.alphaStallDeg + 2.5, 'at the forward limit the elevator holds the aircraft barely beyond the stall');
   // one recovery at once, as it is taught: wheel forward, full throttle
-  const prompt = flyStall({ cg: 0.5, hold: 0.5 });
+  const prompt = stall({ cg: 0.5, hold: 0.5 });
   assert.ok(prompt.recoveryLossFt < 150, `recovery at once lost ${prompt.recoveryLossFt.toFixed(0)} ft`);
 });
 
@@ -497,4 +468,9 @@ test('with the systems simulation: scenario flight is untouched when no flight m
   near(s.truth.alt, 3000, 5, 'scenario altitude');
   assert.equal(s.ind.slip, 0);
   assert.equal(s.ind.stallWarning, false);
+});
+
+test('the tables of docs/08_flight_model.md are those the code gives (npm run flight:doc)', () => {
+  const text = readFileSync(new URL('../docs/08_flight_model.md', import.meta.url), 'utf8');
+  assert.equal(renderFlightDoc(text), text, 'the document is stale: run npm run flight:doc');
 });

@@ -17,6 +17,7 @@
     <button data-mode="cockpit" data-i18n="m_cockpit">Cockpit</button>
     <button data-mode="engine" data-i18n="m_engine">Engine</button>
     <button data-mode="systems" data-i18n="m_systems">Systems</button>
+    <button data-mode="flight" data-i18n="m_flight">Flight</button>
   </nav>
   <div class="right">
     <select id="quality" title="quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
@@ -32,6 +33,20 @@
     <div id="loading"><div class="bar"><i></i></div><span data-i18n="loading">Loading…</span></div>
     <div id="hint" data-i18n="hint"></div>
     <div id="annun"></div>
+    <div id="fhud" hidden>
+      <span><b data-k="ias">0</b><small>KIAS</small></span><span><b data-k="alt">0</b><small>ALT ft</small></span><span><b data-k="vs">0</b><small>VS fpm</small></span>
+      <span><b data-k="hdg">360</b><small>HDG</small></span><span><b data-k="rpm">0</b><small>RPM</small></span><span><b data-k="flap">0°</b><small>FLAP</small></span>
+      <span><b data-k="trim">+0.00</b><small>TRIM</small></span><span><b data-k="g">1.0</b><small>G</small></span>
+      <em class="lamp-stall" data-i18n="fl_stall">STALL</em><em class="lamp-brake" data-i18n="fl_brake">BRAKES</em>
+    </div>
+    <div id="fmsg" hidden><p id="fmsgText"></p><button id="fmsgAgain" data-i18n="fl_again">Fly again</button></div>
+    <div id="fbar" hidden>
+      <button data-act="power-" title="PgDn">PWR −</button><button data-act="power+" title="PgUp">PWR +</button>
+      <button data-act="flap-" title="V">FLAP ▲</button><button data-act="flap+" title="F">FLAP ▼</button>
+      <button data-act="trim-" title="[">TRIM ▼</button><button data-act="trim+" title="]">TRIM ▲</button>
+      <button data-act="brake" title="B" data-i18n="fl_brake">BRAKES</button><button data-act="cam" title="C" data-i18n="camera">Camera</button>
+    </div>
+    <div id="fpad" hidden><i></i></div>
   </div>
 
   <aside id="left" class="drawer">
@@ -50,7 +65,21 @@
         <label><span data-i18n="kollsman">Kollsman</span><input id="kollsman" type="number" min="28" max="31" step="0.01" value="29.92"></label>
       </div>
     </details>
-    <details><summary data-i18n="flightctl">Flight controls</summary>
+    <details id="flightBox"><summary data-i18n="fl_title">Flight</summary>
+      <div class="grid">
+        <label><span data-i18n="fl_begin">Begin</span><span class="pair wrap" id="flPresets"><button data-preset="runway" data-i18n="fl_runway">Runway</button><button data-preset="cruise" data-i18n="fl_cruise">Cruise</button><button data-preset="approach" data-i18n="fl_approach">Approach</button><button id="flStop" data-i18n="fl_stop">End</button></span></label>
+        <label><span data-i18n="camera">Camera</span><span class="seg small" id="flCam"><button data-cam="chase" class="on" data-i18n="fl_chase">Outside</button><button data-cam="cockpit" data-i18n="fl_cockpit">Pilot's eye</button></span></label>
+        <label><span data-i18n="fl_assist">Assistance</span><span class="pair wrap"><button id="flRudder" class="tog on" data-i18n="fl_autorudder">Rudder</button><button id="flLevel" class="tog" data-i18n="fl_leveller">Wings level</button><button id="flParking" class="tog on" data-i18n="fl_parking">Parking brake</button></span></label>
+        <label><span data-i18n="fl_weight">Weight</span><span class="pair"><input id="flWeight" type="number" min="1600" max="2300" step="50" value="2300"><small>lb</small></span></label>
+        <label><span data-i18n="fl_cg">Centre of gravity</span><span class="pair"><input id="flCg" type="range" min="0" max="1" step="0.05" value="0.5"><output id="flCgOut"></output></span></label>
+        <label><span data-i18n="fl_wind">Wind</span><span class="pair"><input id="flWindDir" type="number" min="0" max="360" step="10" value="0"><small>°</small><input id="flWindKt" type="number" min="0" max="30" step="1" value="0"><small>kt</small></span></label>
+        <label><span data-i18n="fl_temp">Temperature</span><span class="pair"><input id="flTemp" type="number" min="-20" max="40" step="1" value="15"><small>°C</small></span></label>
+      </div>
+      <p class="info" data-i18n="fl_keys"></p>
+      <p><button id="flCoef" data-i18n="fl_coef">The numbers of the model</button></p>
+      <p class="info" data-i18n="fl_disclaimer"></p>
+    </details>
+    <details id="surfaceBox"><summary data-i18n="flightctl">Flight controls</summary>
       <div class="grid">
         <label><span data-i18n="aileron">Aileron</span><input id="aileron" type="range" min="-1" max="1" step="0.01" value="0"></label>
         <label><span data-i18n="elevator">Elevator</span><input id="elevator" type="range" min="-1" max="1" step="0.01" value="0"></label>
@@ -59,7 +88,7 @@
         <label><span data-i18n="center">Centre</span><button id="centerCtl" data-i18n="center">Centre</button></label>
       </div>
     </details>
-    <details><summary data-i18n="flight">Flight state (instructor)</summary>
+    <details id="instructorBox"><summary data-i18n="flight">Flight state (instructor)</summary>
       <div class="grid">
         <label><span data-i18n="onGround">On ground</span><button id="onGround" class="tog on">ON</button></label>
         <label><span data-i18n="iasTarget">IAS</span><input id="iasTarget" type="range" min="0" max="160" step="1" value="0"><output id="iasOut">0</output></label>
@@ -112,6 +141,12 @@
     </details>
   </aside>
 </main>
+<dialog id="coefDialog">
+  <h3 data-i18n="fl_coef">The numbers of the model</h3>
+  <p data-i18n="fl_coefIntro"></p>
+  <div id="coefTable"></div>
+  <p><button id="coefClose" data-i18n="close">Close</button></p>
+</dialog>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

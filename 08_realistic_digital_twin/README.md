@@ -36,7 +36,9 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
 ## Using the viewer
 
 - **Modes** (top bar): Exterior · Cockpit (camera at the pilot's eye, look around with the mouse/finger) ·
-  Engine (upper cowl removed) · Systems (X-ray with the scenario drawer).
+  Engine (upper cowl removed) · Systems (X-ray with the scenario drawer) · **Flight** (the flight model
+  flies the aircraft: runway, cruise or approach; keys or the on-screen wheel; outside or pilot's-eye camera;
+  see [docs/08_flight_model.md](docs/08_flight_model.md)). The flight model has no certified fidelity.
 - **Left drawer**: cockpit controls wired to the Phase 7 simulation (master, avionics, ignition
   with START hold, throttle, mixture, carb heat, primer, fuel selector, flaps, lights, Kollsman),
   flight-control inputs (ailerons, elevator, rudder, trim), instructor flight state, faults, scenarios.

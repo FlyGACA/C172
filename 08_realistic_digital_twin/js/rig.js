@@ -17,7 +17,7 @@ export class Rig {
     this.explodeOff = new Map(); // obj -> Vector3 (world-space dir * distance)
     this.plugs = []; this.needles = []; this.hinges = new Map(); this.labels = [];
     this.state = { aileron: 0, elevator: 0, rudder: 0, trim: 0, flaps: 0, doorL: 0, doorR: 0, cowlOff: 0, noseSteer: 0,
-      theta: 0, propAngle: 0, ind: null, controls: null, truth: null, running: false, cranking: false, magsFiring: [] };
+      theta: 0, propAngle: 0, ind: null, controls: null, truth: null, running: false, cranking: false, magsFiring: [], flying: false };
     this.explode = 0; this.xray = false; this.showLabels = false;
     this.hiddenSystems = new Set();   // systems whose parts are not drawn
     this.tmpQ = new THREE.Quaternion(); this.tmpV = new THREE.Vector3();
@@ -38,6 +38,7 @@ export class Rig {
     for (const [, g] of this.groups) this.base.set(g, { p: g.position.clone(), q: g.quaternion.clone() });
     this.engineNode = this.groups.get('ENGINE');
     this._collect();
+    this._propellerDisc();
     this._computeExplode();
   }
 
@@ -50,6 +51,25 @@ export class Rig {
       }
       if (u.needle) this.needles.push({ obj: o, key: u.needle, axis: u.spin_axis || 'z', sign: u.spin_sign || 1 });
     }
+  }
+
+  /** A translucent disc on the propeller's axis: what a propeller turning fast looks like. Shown instead of the blades above idle. */
+  _propellerDisc() {
+    const prop = this.parts.get('POWERPLANT.propeller'), spinner = this.parts.get('POWERPLANT.spinner');
+    if (!prop || !spinner || typeof document === 'undefined') return;
+    const box = new THREE.Box3().setFromObject(prop), centre = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'), grad = g.createRadialGradient(128, 128, 8, 128, 128, 128);
+    for (const [at, colour] of [[0, 'rgba(30,30,30,0)'], [0.14, 'rgba(30,30,30,0)'], [0.4, 'rgba(34,34,34,0.5)'], [0.86, 'rgba(34,34,34,0.34)'], [0.93, 'rgba(210,180,60,0.45)'], [0.97, 'rgba(34,34,34,0.25)'], [1, 'rgba(30,30,30,0)']]) grad.addColorStop(at, colour);
+    g.fillStyle = grad; g.fillRect(0, 0, 256, 256);
+    const map = new THREE.CanvasTexture(c); map.colorSpace = THREE.SRGBColorSpace;
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(Math.max(size.x, size.y) / 2, 48), new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, side: THREE.DoubleSide, opacity: 0, fog: false }));
+    disc.name = '_propellerDisc'; disc.renderOrder = 12; disc.visible = false;
+    spinner.updateWorldMatrix(true, false);
+    disc.position.copy(spinner.worldToLocal(centre));
+    disc.quaternion.setFromUnitVectors(AX.z, AX[spinner.userData.spin_axis || 'z']);
+    spinner.add(disc);
+    this.propDisc = disc; this.propBlades = prop;
   }
 
   part(name) { return this.parts.get(name); }
@@ -142,6 +162,11 @@ export class Rig {
     const rpm = ind ? ind.rpm : 0;
     s.theta += (rpm / 60) * 2 * Math.PI * dt * animSpeed;
     this.spin('POWERPLANT.spinner', s.theta); this.spin('ENGINE.crank_flange_pulley', s.theta);
+    if (this.propDisc) {      // above idle the eye sees a disc; the slow-motion display of the engine keeps the blades
+      const blur = s.flying || animSpeed >= 0.5 ? THREE.MathUtils.clamp((rpm - 300) / 500, 0, 1) : 0;
+      this.propDisc.visible = blur > 0.02; this.propDisc.material.opacity = blur;
+      this.propBlades.traverse((m) => { if (m.isMesh) m.visible = blur < 0.6; });
+    }
     this._engineInternals(s.theta);
     // instruments
     if (ind) this._instruments(ind, s);
@@ -205,7 +230,8 @@ export class Rig {
     const ball = this.parts.get('PANEL.AI.ball');
     if (ball) { const b = this.base.get(ball); this._spin(ball, -ind.aiBank * D2R); ball.position.set(b.p.x, b.p.y - THREE.MathUtils.clamp(ind.aiPitch, -20, 20) * 0.0005, b.p.z); }
     const card = this.parts.get('PANEL.DG.card'); if (card) this._spin(card, -ind.hi * D2R);
-    const tcb = this.parts.get('PANEL.TC.ball'); if (tcb) { const b = this.base.get(tcb); tcb.position.set(b.p.x - THREE.MathUtils.clamp(s.truth ? s.truth.turnRate / 3 : 0, -1, 1) * 0.006 * 0, b.p.y, b.p.z); }
+    // the ball: one width of the ball for about 2.5 degrees of sideways force (+X of the model is the pilot's left)
+    const tcb = this.parts.get('PANEL.TC.ball'); if (tcb) { const b = this.base.get(tcb); tcb.position.set(b.p.x - THREE.MathUtils.clamp((ind.slip || 0) / 0.12, -1, 1) * 0.014, b.p.y, b.p.z); }
     const lv = this.parts.get('PANEL.low_volt'); if (lv) this._lamp('PANEL.low_volt', !!ind.lowVoltage, 0xff3030, 2.5);
   }
 

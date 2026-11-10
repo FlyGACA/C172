@@ -175,6 +175,68 @@ try {
     await ctxm.close();
   });
 
+  await check('flight mode: the flight model flies the aircraft and moves the surfaces and the instruments', async () => {
+    const pf = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const { errors: errs } = await open(pf, 'lang=en&q=low');
+    await pf.click('#modes button[data-mode=flight]');
+    await pf.waitForFunction(() => window.__twin.flight.active, null, { timeout: 30000 });
+    // software GL draws a few frames a second, so the test advances the flight itself
+    const fly = (seconds, set = {}) => pf.evaluate(([seconds, set]) => {
+      const t = window.__twin, f = t.flight;
+      if (set.throttle != null) t.sim.controls.throttle = set.throttle;
+      if (set.parking != null) f.parking = set.parking;
+      if (set.flaps != null) f.setFlaps(set.flaps);
+      f.stick.dragging = set.wheel != null; if (set.wheel != null) { f.stick.x = set.wheel[0]; f.stick.y = set.wheel[1]; }
+      for (let i = 0; i < seconds * 60; i++) f.step(1 / 60);
+      f.place(); t.rig.update(0.016, 0.05);
+      const o = f.deck.flight.out, r = t.rig, moved = (n) => { const p = r.part(n); return p ? p.quaternion.angleTo(r.base.get(p).q) : -1; };
+      return { kias: o.kias, agl: o.aglFt, gs: o.groundSpeedKt, hdg: o.headingDeg, bank: o.bankDeg, flap: o.flapDeg, wheels: o.wheels, rpm: t.sim.ind.rpm, ias: t.sim.ind.ias, alt: t.sim.ind.alt, stall: t.sim.ind.stallWarning,
+        pivot: f.pivot.position.toArray(), elevator: moved('EMPENNAGE.elevator'), flapPart: moved('WING_L.flap'), asi: moved('PANEL.ASI.needle_ASI'), crashed: f.crashed, hudStall: document.getElementById('fhud').classList.contains('stall') };
+    }, [seconds, set]);
+    const start = await pf.evaluate(() => { const t = window.__twin; return { hud: !document.getElementById('fhud').hidden, pad: !document.getElementById('fpad').hidden, parent: t.viewer.model.parent.name, dynamic: !!t.sim.flight.dynamic, running: t.sim.engine.running, far: t.viewer.camera.far }; });
+    assert.deepEqual(start, { hud: true, pad: true, parent: '_aircraftPivot', dynamic: true, running: true, far: 45000 });
+    const roll = await fly(18, { throttle: 1, parking: false });
+    assert.ok(roll.gs > 45 && roll.wheels === 3, `after 18 s at full throttle: ${roll.gs.toFixed(0)} kt on ${roll.wheels} wheels`);
+    assert.ok(roll.rpm > 2280 && roll.rpm < 2420, `tachometer ${roll.rpm.toFixed(0)}`);
+    assert.ok(Math.abs(((roll.hdg + 180) % 360) - 180) < 6, `it runs straight: heading ${roll.hdg.toFixed(1)}`);
+    assert.ok(roll.asi > 0.3, 'the airspeed needle of the 3D panel has moved');
+    await fly(3, { wheel: [0, 0.25] });
+    const air = await fly(8, { wheel: [0, 0.06] });
+    assert.ok(air.agl > 30 && air.wheels === 0 && !air.crashed, `airborne at ${air.agl.toFixed(0)} ft`);
+    assert.ok(air.pivot[1] > 9 && air.pivot[2] > 300, `the model is where the flight is: ${air.pivot.map((v) => v.toFixed(0))}`);
+    assert.ok(air.elevator > 0.01, 'the elevator of the model follows the wheel');
+    assert.ok(Math.abs(air.ias - air.kias) < 3 && air.alt > 30, `instruments: ${air.ias.toFixed(0)} KIAS, ${air.alt.toFixed(0)} ft`);
+    await shot(pf, 'p8_flight_climb');
+    // cruise: the flaps travel at the speed of their motor, and the model's flaps with them
+    await pf.evaluate(() => window.__twin.beginFlight('cruise'));
+    const flap = await fly(5, { flaps: 20, wheel: [0, -0.05] });
+    assert.ok(Math.abs(flap.flap - 20) < 0.5 && flap.flapPart > 0.3, `flaps ${flap.flap.toFixed(1)}`);
+    // throttle closed and the wheel coming back: the stall warning
+    let warned = false;
+    await fly(1, { throttle: 0, flaps: 0 });
+    for (let i = 0; i < 30 && !warned; i++) { const s = await fly(1.5, { wheel: [0, Math.min(0.6, 0.05 + i * 0.03)] }); warned = s.stall && s.hudStall; }
+    assert.ok(warned, 'the stall warning shows');
+    // the pilot's eye
+    await pf.evaluate(() => { const f = window.__twin.flight; window.__twin.beginFlight('approach'); f.setCamera('cockpit', true); f.place(); });
+    const eye = await pf.evaluate(() => { const t = window.__twin, f = t.flight; return { d: t.viewer.camera.position.distanceTo(f.pivot.position), manual: !!t.viewer.manualCamera, fov: t.viewer.camera.fov }; });
+    assert.ok(eye.d < 1.2 && eye.manual && eye.fov > 60, JSON.stringify(eye));
+    await settle(pf, 1500); await shot(pf, 'p8_flight_cockpit');
+    // every number of the model, with its source
+    await pf.click('#flCoef');
+    const table = await pf.evaluate(() => ({ rows: document.querySelectorAll('#coefTable tbody tr').length, kinds: [...new Set([...document.querySelectorAll('#coefTable .badge')].map((b) => b.className.replace('badge ', '')))].sort() }));
+    assert.ok(table.rows > 70, `rows ${table.rows}`); assert.deepEqual(table.kinds, ['derived', 'estimated', 'poh']);
+    await pf.click('#coefClose');
+    await pf.click('#lang'); await pf.click('#flCoef');
+    assert.match(await pf.$eval('#coefTable tbody tr td:nth-child(4)', (el) => el.textContent), /[\u0600-\u06FF]{4}/);
+    await pf.click('#coefClose'); await pf.click('#lang');
+    // leaving the mode puts the aircraft back on the apron
+    await pf.click('#modes button[data-mode=exterior]');
+    const end = await pf.evaluate(() => { const t = window.__twin; return { active: t.flight.active, parent: t.viewer.model.parent.type, pos: t.viewer.model.position.toArray(), dynamic: !!t.sim.flight.dynamic, far: t.viewer.camera.far, manual: !!t.viewer.manualCamera, hud: document.getElementById('fhud').hidden, fov: t.viewer.camera.fov }; });
+    assert.deepEqual(end, { active: false, parent: 'Scene', pos: [0, 0, 0], dynamic: false, far: 300, manual: false, hud: true, fov: 42 });
+    assert.deepEqual(errs, []);
+    await pf.close();
+  });
+
   await check('medium LOD loads', async () => {
     const p3 = await browser.newPage({ viewport: { width: 1200, height: 800 } });
     const { errors: errs, loadMs: ms } = await open(p3, 'lang=en&q=medium');

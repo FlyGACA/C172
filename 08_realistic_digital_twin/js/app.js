@@ -6,6 +6,9 @@ import { createState, step, annunciations } from './sim.js';
 import { SCENARIOS, evaluateSteps } from './scenarios.js';
 import { STRINGS } from './i18n.js';
 import { dialGauge, altimeter, attitude, heading, turnCoordinator } from './gauges.js';
+import { FlightMode, readySystems } from './flightmode.js';
+import { cgStation } from './flight.js';
+import { FM_NOTES_AR } from './flight_notes_ar.js';
 
 const $ = (id) => document.getElementById(id);
 const qs = new URLSearchParams(location.search);
@@ -41,8 +44,14 @@ const rigReady = (async () => {
   $('loading').classList.add('hide');
   return rig;
 })();
-let rig = null;
-rigReady.then((r) => { rig = r; buildTree(); setMode('exterior', true); window.__twin.ready = true; }).catch((e) => { console.error(e); $('loading').querySelector('span').textContent = T().loadFail; });
+let rig = null, flight = null;
+rigReady.then((r) => {
+  rig = r; buildTree(); setMode('exterior', true);
+  flight = new FlightMode({ viewer, rig, hud: $('fhud'), pad: $('fpad') });
+  flight.onChange = syncFlightUI;
+  syncFlightUI();
+  window.__twin.ready = true;
+}).catch((e) => { console.error(e); $('loading').querySelector('span').textContent = T().loadFail; });
 
 // ------------------------------------------------------------------ language
 function applyLang() {
@@ -52,6 +61,7 @@ function applyLang() {
   document.title = T().title8;
   $('quality').innerHTML = ['high', 'medium', 'low'].map((q) => `<option value="${q}" ${q === quality ? 'selected' : ''}>${T()['q_' + q]}</option>`).join('');
   $('sources').textContent = T().srcText;
+  syncFlightUI();
   fillScenarios();
   if (rig) { rig.lang = lang; rig.buildLabels(lang); buildTree(); showInfo(selected); }
 }
@@ -77,6 +87,13 @@ function setMode(m, instant = false) {
   document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
   if (!rig) return;
   const st = rig.state;
+  if (m === 'flight') {                      // the flight model flies the aircraft: begin on the runway, engine running
+    st.cowlOff = 0; $('cowl').classList.remove('on'); rig.showAll(); rig.isolate(null); rig.setXray(false); $('xray').classList.remove('on');
+    $('flightBox').open = true; $('left').classList.add('open');
+    if (!flight.active) beginFlight('runway');
+    return;
+  }
+  if (flight && flight.active) endFlight();
   viewer.camera.near = (m === 'cockpit') ? 0.03 : 0.25; viewer.camera.updateProjectionMatrix();
   if (m === 'exterior') { st.cowlOff = 0; $('cowl').classList.remove('on'); viewer.flyTo(CAMS.exterior.pos, CAMS.exterior.tgt, instant); viewer.controls.minDistance = 1.5; rig.showAll(); rig.isolate(null); }
   if (m === 'cockpit') { viewer.flyTo(CAMS.pilot.pos, CAMS.pilot.tgt, instant); viewer.controls.minDistance = 0.05; rig.isolate(null); rig.showAll(); $('left').classList.add('open'); }
@@ -85,7 +102,11 @@ function setMode(m, instant = false) {
   else { rig.setXray($('xray').classList.contains('on') && m === 'engine'); if (m !== 'engine') $('xray').classList.remove('on'); }
 }
 document.querySelectorAll('#modes button').forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
-document.querySelectorAll('#cams button').forEach((b) => (b.onclick = () => { const c = CAMS[b.dataset.cam]; if (c) { viewer.flyTo(c.pos, c.tgt); viewer.controls.minDistance = b.dataset.cam === 'pilot' || b.dataset.cam === 'panel' ? 0.05 : 0.5; } }));
+document.querySelectorAll('#cams button').forEach((b) => (b.onclick = () => {
+  const c = CAMS[b.dataset.cam]; if (!c) return;
+  if (flight && flight.active) { flight.setCamera(b.dataset.cam === 'pilot' || b.dataset.cam === 'panel' ? 'cockpit' : 'chase', true); return; }      // in flight the camera goes with the aircraft
+  viewer.flyTo(c.pos, c.tgt); viewer.controls.minDistance = b.dataset.cam === 'pilot' || b.dataset.cam === 'panel' ? 0.05 : 0.5;
+}));
 
 // ------------------------------------------------------------------ selection
 const ray = new THREE.Raycaster();
@@ -195,10 +216,16 @@ $('mixture').oninput = (e) => { c().mixture = Number(e.target.value); };
 $('carbHeat').oninput = (e) => { c().carbHeat = Number(e.target.value); };
 $('prime').onclick = () => { c().primeStrokes = (c().primeStrokes || 0) + 1; ctx.primes = (ctx.primes || 0) + 1; $('primes').value = ctx.primes; };
 document.querySelectorAll('#fuelsel button').forEach((b) => (b.onclick = () => { c().fuelSelector = b.dataset.v; document.querySelectorAll('#fuelsel button').forEach((x) => x.classList.toggle('on', x === b)); }));
-document.querySelectorAll('#flapsel button').forEach((b) => (b.onclick = () => { if (rig) rig.state.flaps = Number(b.dataset.v); document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', x === b)); }));
+document.querySelectorAll('#flapsel button').forEach((b) => (b.onclick = () => {
+  if (flight && flight.active) { flight.setFlaps(Number(b.dataset.v)); return; }      // in flight the flap motor does it, at its own speed
+  if (rig) rig.state.flaps = Number(b.dataset.v); document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', x === b));
+}));
 $('kollsman').onchange = (e) => { c().altimeterSetting = Number(e.target.value); };
-for (const k of ['aileron', 'elevator', 'rudder', 'trim']) $(k).oninput = (e) => { if (rig) rig.state[k] = Number(e.target.value); };
-$('centerCtl').onclick = () => { for (const k of ['aileron', 'elevator', 'rudder', 'trim']) { $(k).value = 0; if (rig) rig.state[k] = 0; } };
+for (const k of ['aileron', 'elevator', 'rudder', 'trim']) $(k).oninput = (e) => {
+  if (flight && flight.active) { if (k === 'trim') flight.setTrim(Number(e.target.value)); return; }      // in flight the wheel and pedals are flown, the trim is set
+  if (rig) rig.state[k] = Number(e.target.value);
+};
+$('centerCtl').onclick = () => { for (const k of ['aileron', 'elevator', 'rudder', 'trim']) { $(k).value = 0; if (rig) rig.state[k] = 0; } if (flight && flight.active) flight.setTrim(0); };
 // flight state
 $('onGround').onclick = () => { sim.flight.onGround = !sim.flight.onGround; $('onGround').classList.toggle('on', sim.flight.onGround); };
 for (const [id, key, out] of [['iasTarget', 'iasTarget', 'iasOut'], ['altTarget', 'altTarget', 'altOut'], ['bank', 'bank', 'bankOut'], ['pitch', 'pitch', 'pitchOut']]) {
@@ -206,7 +233,7 @@ for (const [id, key, out] of [['iasTarget', 'iasTarget', 'iasOut'], ['altTarget'
 }
 $('timeScale').oninput = (e) => { timeScale = Number(e.target.value); };
 $('pause').onclick = () => { paused = !paused; $('pause').textContent = paused ? T().resume : T().pause; };
-$('resetSim').onclick = () => { sim = createState(); scenario = null; ctx = {}; syncUI(); };
+$('resetSim').onclick = () => { scenario = null; ctx = {}; if (flight && flight.active) beginFlight(flight.preset); else { sim = createState(); syncUI(); } renderScenario(); };
 // faults
 $('f_pitot').onchange = (e) => { sim.faults.pitot = e.target.value; };
 $('f_static').onclick = () => { sim.faults.staticBlocked = !sim.faults.staticBlocked; $('f_static').classList.toggle('on', sim.faults.staticBlocked); };
@@ -239,6 +266,7 @@ function fillScenarios() {
 }
 $('scenarioSel').onchange = (e) => startScenario(e.target.value);
 function startScenario(id) {
+  if (flight && flight.active) { endFlight(); if (mode === 'flight') setMode('exterior'); }      // a scenario sets its own flight state
   scenario = SCENARIOS.find((s) => s.id === id) || null; ctx = {};
   sim = createState(scenario ? JSON.parse(JSON.stringify(scenario.setup || {})) : {});
   if (scenario && scenario.setup) sim = createState(scenario.setup);
@@ -286,15 +314,96 @@ const G = {};
 }
 function updateGauges() {
   const i = sim.ind;
-  G.ASI.update(i.ias); G.AI.update(i.aiBank, i.aiPitch); G.ALT.update(i.alt, sim.controls.altimeterSetting); G.TC.update(i.tc, i.tcFlag); G.HI.update(i.hi); G.VSI.update(i.vsi);
+  G.ASI.update(i.ias); G.AI.update(i.aiBank, i.aiPitch); G.ALT.update(i.alt, sim.controls.altimeterSetting); G.TC.update(i.tc, i.tcFlag, i.slip); G.HI.update(i.hi); G.VSI.update(i.vsi);
   G.TACH.update(i.rpm); G.SUCTION.update(i.suction); G.AMMETER.update(i.ammeter); G.OIL_P.update(i.oilP); G.OIL_T.update(i.oilT); G.FUEL_L.update(i.fuelL); G.FUEL_R.update(i.fuelR);
 }
+
+// ------------------------------------------------------------------ flight mode (the flight model flies the aircraft)
+function beginFlight(preset) {
+  scenario = null; ctx = {};
+  const c = flight.conditions;
+  c.weightLb = Number($('flWeight').value) || 2300; c.cgFrac = Number($('flCg').value);
+  c.windFromDeg = Number($('flWindDir').value) || 0; c.windKt = Number($('flWindKt').value) || 0; c.isaDevC = (Number($('flTemp').value) || 15) - 15;
+  sim = readySystems();
+  sim.flight.oatF = 59 + c.isaDevC * 1.8;
+  flight.start(preset, sim);
+  syncUI(); renderScenario(); $('scenarioSel').value = '';
+}
+function endFlight() {
+  flight.stop();
+  sim = createState(); syncUI();
+  document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', x.dataset.v === '0'));
+  for (const k of ['aileron', 'elevator', 'rudder', 'trim']) $(k).value = 0;
+}
+function syncFlightUI() {
+  if (!flight) return;
+  const on = flight.active;
+  $('fhud').hidden = !on; $('fpad').hidden = !on; $('fbar').hidden = !on; $('instructorBox').hidden = on;
+  $('fmsg').hidden = !(on && flight.crashed);
+  if (on && flight.crashed) $('fmsgText').textContent = T()['fl_crash_' + flight.crashed] || flight.crashed;
+  document.querySelectorAll('#flPresets button[data-preset]').forEach((b) => b.classList.toggle('on', on && b.dataset.preset === flight.preset));
+  document.querySelectorAll('#flCam button').forEach((b) => b.classList.toggle('on', b.dataset.cam === flight.camera));
+  $('flRudder').classList.toggle('on', flight.assist.rudder); $('flLevel').classList.toggle('on', flight.assist.level); $('flParking').classList.toggle('on', flight.parking);
+  $('flStop').disabled = !on;
+  for (const k of ['aileron', 'elevator', 'rudder']) $(k).disabled = on;
+  if (on) {
+    document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', Number(x.dataset.v) === flight.flapCommand));
+    $('throttle').value = sim.controls.throttle;
+  }
+  const w = Number($('flWeight').value) || 2300, f = Number($('flCg').value);
+  $('flCgOut').textContent = `${cgStation(w, f).toFixed(1)} in · ${f <= 0.02 ? T().fl_cg_fwd : f >= 0.98 ? T().fl_cg_aft : Math.round(f * 100) + ' %'}`;
+}
+document.querySelectorAll('#flPresets button[data-preset]').forEach((b) => (b.onclick = () => { if (!flight) return; if (mode !== 'flight') { mode = 'flight'; document.querySelectorAll('#modes button').forEach((x) => x.classList.toggle('on', x.dataset.mode === 'flight')); } beginFlight(b.dataset.preset); }));
+$('flStop').onclick = () => { if (flight && flight.active) setMode('exterior'); };
+document.querySelectorAll('#flCam button').forEach((b) => (b.onclick = () => flight && flight.setCamera(b.dataset.cam, true)));
+$('flRudder').onclick = () => { flight.assist.rudder = !flight.assist.rudder; syncFlightUI(); };
+$('flLevel').onclick = () => { flight.assist.level = !flight.assist.level; syncFlightUI(); };
+$('flParking').onclick = () => { flight.parking = !flight.parking; syncFlightUI(); };
+for (const id of ['flWeight', 'flCg']) $(id).oninput = syncFlightUI;
+for (const id of ['flWindDir', 'flWindKt']) $(id).onchange = () => { if (flight) { flight.conditions.windFromDeg = Number($('flWindDir').value) || 0; flight.conditions.windKt = Number($('flWindKt').value) || 0; flight.applyWind(); } };
+$('fmsgAgain').onclick = () => beginFlight(flight.preset);
+// the buttons beside the on-screen wheel: a press acts once, holding repeats (throttle, trim) or holds (brakes)
+document.querySelectorAll('#fbar button').forEach((b) => {
+  const act = b.dataset.act; let timer = null;
+  const once = () => {
+    if (!flight || !flight.active) return;
+    if (act === 'power+' || act === 'power-') { sim.controls.throttle = Math.min(1, Math.max(0, sim.controls.throttle + (act === 'power+' ? 0.05 : -0.05))); $('throttle').value = sim.controls.throttle; }
+    if (act === 'trim+' || act === 'trim-') { flight.setTrim(flight.trim + (act === 'trim+' ? 0.02 : -0.02)); }
+    if (act === 'flap+') flight.setFlaps(flight.flapCommand + 10);
+    if (act === 'flap-') flight.setFlaps(flight.flapCommand - 10);
+    if (act === 'cam') flight.setCamera(flight.camera === 'chase' ? 'cockpit' : 'chase', true);
+  };
+  b.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (act === 'brake') { flight.brakeHeld = true; flight.parking = false; b.classList.add('on'); syncFlightUI(); return; }
+    once();
+    if (/power|trim/.test(act)) timer = setInterval(once, 120);
+  });
+  const up = () => { clearInterval(timer); timer = null; if (act === 'brake' && flight) { flight.brakeHeld = false; b.classList.remove('on'); } };
+  b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up); b.addEventListener('pointercancel', up);
+});
+// the pilot's head: in the cockpit camera a drag on the picture turns it
+{
+  let last = null;
+  const el = viewer.renderer.domElement;
+  el.addEventListener('pointerdown', (e) => { if (flight && flight.active && flight.camera === 'cockpit') last = [e.clientX, e.clientY]; });
+  el.addEventListener('pointermove', (e) => { if (last && flight && flight.active && flight.camera === 'cockpit') { flight.look((e.clientX - last[0]) * -0.22, (e.clientY - last[1]) * -0.18); last = [e.clientX, e.clientY]; } });
+  addEventListener('pointerup', () => { last = null; });
+}
+// the numbers of the model, each with its source
+$('flCoef').onclick = () => {
+  const t = T();
+  const rows = FlightMode.coefficients().map((r) => `<tr><td><code>${r.name}</code></td><td class="v">${r.text}</td><td><span class="badge ${r.source}">${t['src_' + r.source]}</span></td><td>${lang === 'ar' ? FM_NOTES_AR[r.name] || r.note : r.note}</td><td class="v">${r.ref}</td></tr>`).join('');
+  $('coefTable').innerHTML = `<table><thead><tr><th>${t.fl_col_name}</th><th>${t.fl_col_value}</th><th>${t.fl_col_source}</th><th>${t.fl_col_note}</th><th>${t.fl_col_ref}</th></tr></thead><tbody>${rows}</tbody></table>`;
+  $('coefDialog').showModal();
+};
+$('coefClose').onclick = () => $('coefDialog').close();
 
 // ------------------------------------------------------------------ main loop
 let gaugeTimer = 0, statTimer = 0;
 viewer.onFrame.push((dt) => {
   if (!paused) {
-    step(sim, dt * timeScale);
+    if (flight && flight.active) flight.step(dt * timeScale); else step(sim, dt * timeScale);
     if (scenario) {
       if (scenario.tick) scenario.tick(sim, ctx, dt * timeScale);
       const key = JSON.stringify(ctx.done || []) + (ctx.magResult ? 'm' : '');
@@ -303,16 +412,21 @@ viewer.onFrame.push((dt) => {
   }
   viewer.tickCamera(dt);
   if (explodeAnim) { explodeAnim.t = Math.min(1, explodeAnim.t + dt / 1.6); const k = 1 - Math.pow(1 - explodeAnim.t, 3); const v = explodeAnim.from + (explodeAnim.to - explodeAnim.from) * k; $('explode').value = v; rig && rig.setExplode(v); if (explodeAnim.t >= 1) explodeAnim = null; }
+  if (flight && flight.active) flight.place();
   if (rig) {
     const st = rig.state;
     st.ind = sim.ind; st.controls = sim.controls; st.truth = sim.truth;
     st.running = sim.engine.running; st.cranking = sim.engine.cranking; st.magsFiring = sim.engine.magsFiring || [];
+    st.flying = !!(flight && flight.active);
     rig.update(dt, animSpeed);
     if (sim.engine.rpm >= 1) { $('crank').value = Math.round(((st.theta * 180 / Math.PI) % 720 + 720) % 720); }
     $('crankOut').textContent = `${$('crank').value}°`;
   }
   gaugeTimer += dt;
-  if (gaugeTimer > 0.1) { gaugeTimer = 0; updateGauges(); const a = annunciations(sim); $('annun').innerHTML = a.map((k) => `<span class="${k === 'low_voltage' || k === 'oil_pressure_low' ? '' : 'warn'}">${(T().annun || {})[k] || k}</span>`).join(''); }
+  if (gaugeTimer > 0.1) {
+    gaugeTimer = 0; updateGauges();
+    if (flight && flight.active) { const c = flight.deck.controls; $('aileron').value = c.aileron; $('elevator').value = c.elevator; $('rudder').value = c.rudder; $('trim').value = flight.trim; $('throttle').value = sim.controls.throttle; } const a = annunciations(sim); $('annun').innerHTML = a.map((k) => `<span class="${k === 'low_voltage' || k === 'oil_pressure_low' ? '' : 'warn'}">${(T().annun || {})[k] || k}</span>`).join('');
+  }
   statTimer += dt;
   if (statTimer > 2 && rig) { statTimer = 0; const s = viewer.stats(); $('hint').textContent = `${T().hint} · ${s.triangles.toLocaleString()} ${T().stats} · ${s.calls} ${T().calls} · ${T()['q_' + quality]}`; }
 });
@@ -320,4 +434,4 @@ viewer.start();
 applyLang(); syncUI();
 
 // test hook
-window.__twin = { ready: false, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
+window.__twin = { ready: false, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };

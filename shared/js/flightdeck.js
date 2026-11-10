@@ -54,6 +54,7 @@ export function stepDeck(deck, controls = {}, dt = 1 / 60) {
 /** Stand the aircraft on the runway (heading in degrees). The systems are left as they are. */
 export function deckOnGround(deck, headingDeg = 0) {
   setOnGround(deck.flight, headingDeg);
+  if (deck.sim.engine.running) deck.flight.rpm = deck.sim.engine.rpm;          // a running engine keeps turning
   deck.controls = { ...deck.controls, aileron: 0, elevator: 0, rudder: 0, trim: 0, flapCommandDeg: deck.flight.flapDeg, brake: 1 };
   writeTruth(deck);
   return deck;

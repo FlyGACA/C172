@@ -5,7 +5,7 @@
 // fly the handbook's figures with it and the lessons use it to demonstrate an exercise. It reads only what
 // the instruments show (flight.out) and returns wheel and pedal positions.
 
-import { FM, stepFlight, setInFlight, engineAt, chargeAt } from './flight.js';
+import { FM, stepFlight, setInFlight, engineAt, chargeAt, propellerBalance } from './flight.js';
 
 const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 const D2R = Math.PI / 180;
@@ -43,6 +43,7 @@ export function createPilot() {
 export function pilotStep(p, f, target, dt) {
   const o = f.out;
   const out = { elevator: 0, aileron: 0, rudder: 0 };
+  const hold = o.onGround ? { aileron: 0, rudder: 0 } : propellerBalance(f);      // what the propeller asks of the hand and the foot
   // ---------------- elevator
   if (target.elevator != null) { out.elevator = target.elevator; p.thetaCmd = null; p.iPitch = 0; }
   else {
@@ -78,7 +79,7 @@ export function pilotStep(p, f, target, dt) {
     const bank = target.headingDeg != null ? clamp(1.2 * wrap(target.headingDeg - o.headingDeg), -limit, limit) : (target.bankDeg ?? 0);
     const e = bank - o.bankDeg;
     p.iRoll = clamp(p.iRoll + 0.012 * e * dt, -0.5, 0.5);
-    out.aileron = clamp(0.03 * e - 0.28 * f.p + p.iRoll, -1, 1);
+    out.aileron = clamp(hold.aileron + 0.03 * e - 0.28 * f.p + p.iRoll, -1, 1);
   }
   // ---------------- rudder
   if (target.rudder != null) { out.rudder = target.rudder; p.iBall = 0; }
@@ -92,7 +93,7 @@ export function pilotStep(p, f, target, dt) {
     const gain = clamp((70 / Math.max(40, o.kias)) ** 2, 0.25, 2.5);
     const turning = (9.80665 * Math.sin(o.bankDeg * D2R)) / v;
     p.iBall = clamp(p.iBall + 4 * gain * o.slip * dt, -0.9, 0.9);
-    out.rudder = clamp(p.iBall + 0.8 * gain * o.slip - 1.5 * gain * (f.r - turning), -1, 1);
+    out.rudder = clamp(hold.rudder + p.iBall + 0.8 * gain * o.slip - 1.5 * gain * (f.r - turning), -1, 1);
   }
   return out;
 }
@@ -166,4 +167,37 @@ export function flyLanding(f, { approachKias = 60, touchdownKias = 47, flareFt =
     if (onStep) onStep(f, phase);
   }
   return { groundRollFt: touch == null ? null : (pos() - touch) / FT, totalFt: at50 == null ? null : (pos() - at50) / FT, touchdownKias: touchKias, touchdownFpm: touchFpm };
+}
+
+/**
+ * A power-off stall as it is taught: throttle closed, the altitude held until the wing stalls, the wheel held back
+ * for `holdSeconds`, then the recovery (wheel forward, full throttle, back to a climb). `f` is put in level flight.
+ * Returns the speeds of the warning and of the stall, the load factor at the stall and the height the recovery lost.
+ */
+export function flyStall(f, { flapDeg = 0, holdSeconds = 6, altFt = 3000, entryKias = flapDeg ? 65 : 70, dt = 1 / 60, onStep = null } = {}) {
+  const tr = setInFlight(f, { kias: entryKias, altFt, flapDeg });
+  const p = createPilot(), charge = chargeAt(altFt, f.isaDevC);
+  const r = { maxAlphaDeg: 0 };
+  let phase = 'entry', tStall = 0, tRecover = 0, lowest = Infinity;
+  for (let i = 0; i < 150 / dt; i++) {
+    let target, engine = engineAt(0, charge);
+    if (phase === 'entry') target = { altFt, bankDeg: 0, maxPitchDeg: 30 };
+    else if (phase === 'hold') target = { elevator: 1, bankDeg: 0 };
+    else { engine = engineAt(1, charge); target = f.out.kias < 58 ? { pitchDeg: -3, bankDeg: 0 } : { pitchDeg: 6, bankDeg: 0 }; }
+    stepFlight(f, { ...pilotStep(p, f, target, dt), trim: tr.trim, engineOn: true, engine, flapCommandDeg: flapDeg }, dt);
+    const o = f.out;
+    if (r.warningKcas == null && o.stallWarning) r.warningKcas = o.kcas;
+    if (phase === 'entry' && o.stalled) { phase = 'hold'; tStall = f.t; Object.assign(r, { stallKcas: o.kcas, stallKias: o.kias, loadFactor: o.loadFactor, pitchAtStallDeg: o.pitchDeg, altAtStallFt: o.altFt }); }
+    if (phase === 'hold') {
+      r.maxAlphaDeg = Math.max(r.maxAlphaDeg, o.alphaDeg);
+      r.lowestPitchDeg = Math.min(r.lowestPitchDeg ?? 99, o.pitchDeg);
+      if (f.t - tStall > holdSeconds) { phase = 'recover'; tRecover = f.t; Object.assign(r, { heldLossFt: r.altAtStallFt - o.altFt, altAtRecoveryFt: o.altFt, alphaHeldDeg: o.alphaDeg, sinkHeldFpm: o.vsFpm }); }
+    }
+    if (phase === 'recover') {
+      lowest = Math.min(lowest, o.altFt);
+      if (f.t - tRecover > 2 && o.vsFpm > 0 && !o.stalled) { r.recoveryLossFt = r.altAtRecoveryFt - lowest; r.recoverySeconds = f.t - tRecover; r.alphaStallDeg = o.alphaStallDeg; return r; }
+    }
+    if (onStep) onStep(f, phase);
+  }
+  return r;
 }

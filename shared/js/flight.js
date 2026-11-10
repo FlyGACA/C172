@@ -80,10 +80,10 @@ export const FM = {
   kDownwash: c(0.18, 'estimated', 'nose-down break of the stall: a stalled wing sends less downwash to the tail; per unit of lift coefficient lost'),
   // ---- lateral and directional
   CYbeta: c(-0.31, 'estimated', 'side force due to sideslip'),
-  Clbeta: c(-0.089, 'estimated', 'dihedral effect'),
+  Clbeta: c(-0.105, 'estimated', 'dihedral effect'),
   Clp: c(-0.47, 'estimated', 'roll damping'),
-  Clr0: c(0.02, 'estimated', 'roll due to yaw rate at zero lift'),
-  ClrCL: c(0.25, 'estimated', 'roll due to yaw rate, per unit lift coefficient'),
+  Clr0: c(0.03, 'estimated', 'roll due to yaw rate at zero lift'),
+  ClrCL: c(0.12, 'estimated', 'roll due to yaw rate, per unit lift coefficient: with the dihedral effect it leaves the aircraft slow to leave level flight in cruise and slowly spiralling at low speed'),
   ClAileron: c(0.054, 'estimated', 'rolling moment of full aileron'),
   CnAileron0: c(-0.0010, 'estimated', 'adverse yaw of full aileron at zero lift'),
   CnAileronCL: c(-0.0020, 'estimated', 'adverse yaw of full aileron, per unit lift coefficient'),
@@ -104,7 +104,7 @@ export const FM = {
   Ct0: c(0.0978, 'derived', 'thrust coefficient standing still (about 540 lb of static thrust): from the takeoff ground roll', 'p.5-12 Fig 5-4'),
   Ct1: c(-0.02516, 'derived', 'fall of the thrust coefficient with the advance ratio; with Ct3 it gives the rate of climb at sea level and the assumed efficiency of 0.78 in cruise', 'p.5-14 Fig 5-5, p.5-16 Fig 5-7'),
   Ct3: c(-0.08136, 'derived', 'fall of the thrust coefficient with the cube of the advance ratio (see Ct1)', 'p.5-14 Fig 5-5, p.5-16 Fig 5-7'),
-  torqueLapse: c(0.165, 'derived', 'full-throttle torque goes as (pressure ratio over the root of the temperature ratio) to the power 1.165: fits the rate of climb with altitude and with temperature. The fastest lines of the cruise table above 8000 ft then ask 3 to 7 % more power than the model has', 'p.5-14, 5-15, 5-16'),
+  torqueLapse: c(0.165, 'derived', 'full-throttle torque goes as (pressure ratio over the root of the temperature ratio) to the power 1.165: fits the rate of climb with altitude and with temperature. The fastest lines of the cruise table at and above 8000 ft then ask 5 to 8 % more power than the model has (4 to 7 knots)', 'p.5-14, 5-15, 5-16'),
   windmillJ: c(0.95, 'estimated', 'advance ratio of the windmilling propeller'),
   // ---- landing gear
   kMain: c(60000, 'estimated', 'stiffness of a main gear leg (N/m)'),
@@ -292,6 +292,20 @@ function powerMoments(Tc, torqueCoefficient) {
   return { Cl: RIG.Cl - torqueCoefficient, Cn, CY: (-K.slipstreamShare * Cn) / K.tailArm };       // the slipstream pushes the fin sideways
 }
 
+/** The aileron and rudder that leave no rolling and no yawing moment from the propeller, without sideslip. */
+function balance(Tc, torqueCoefficient, CL) {
+  const power = powerMoments(Tc, torqueCoefficient);
+  const a11 = K.ClAileron, a12 = K.ClRudder, a21 = K.CnAileron0 + K.CnAileronCL * CL, a22 = K.CnRudder * tailFactor(Tc);
+  const det = a11 * a22 - a12 * a21;
+  return { aileron: clamp((-power.Cl * a22 + power.Cn * a12) / det, -1, 1), rudder: clamp((-power.Cn * a11 + power.Cl * a21) / det, -1, 1) };
+}
+
+/** The same for a flight as it is now: what a pilot's hand and foot learn to hold against the propeller. */
+export function propellerBalance(f) {
+  const o = f.out;
+  return o.qS > 50 ? balance(o.Tc, o.propTorque / (o.qS * K.wingSpan), o.CL) : { aileron: 0, rudder: 0 };
+}
+
 // ---------------------------------------------------------------------------------- state
 const qMul = (a, b) => [a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3], a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
   a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1], a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0]];
@@ -475,7 +489,7 @@ function airLoads(f, ctl, thrust, engineOn, mp, R) {
   return {
     force: [-D * ca + L * sa + thrust, qS * CY, -D * sa - L * ca],
     moment: [qS * K.wingSpan * Cl, qS * CHORD * Cm, qS * K.wingSpan * Cn],
-    V, alpha, beta, qbar, sigma, rho, CL, CD, lift, L, D, Tc, de,
+    V, alpha, beta, qbar, qS, sigma, rho, CL, CD, lift, L, D, Tc, de, torque,
   };
 }
 
@@ -583,6 +597,7 @@ function stepOnce(f, input, ctl, mp, h) {
   // the ball of the turn coordinator: + to the right. It goes where the sideways force on the airframe does not hold it.
   o.slip = clamp(-(air.force[1] + gear.force[1]) / Math.max(0.2 * mp.m * G, Math.abs(air.force[2] + gear.force[2])), -1, 1);
   o.rpm = f.rpm; o.thrustN = thrust; o.CL = air.CL; o.CD = air.CD;
+  o.Tc = air.Tc; o.qS = air.qS; o.propTorque = air.torque;
   o.elevatorDeg = air.de * R2D; o.flapDeg = f.flapDeg;
   o.onGround = gear.onGround > 0; o.wheels = gear.onGround; o.weightOnWheels = gear.weightOnWheels;
   o.groundSpeedKt = Math.hypot(vE[0], vE[1]) / KT;
@@ -636,11 +651,8 @@ export function trim({ kcas, altFt = 0, climbFpm = 0, torque = null, engine = nu
   const worth = clamp(-rest / (K.Cmde * tailFactor(Tc)) / sat, -0.999, 0.999);
   const de = clamp(sat * Math.atanh(worth), -K.elevatorUpDeg * D2R, K.elevatorDownDeg * D2R);     // radians, trailing edge down positive
   const elevator = de < 0 ? -de / (K.elevatorUpDeg * D2R) : -de / (K.elevatorDownDeg * D2R);
-  // ---- aileron and rudder against the propeller: no rolling and no yawing moment without sideslip
-  const power = powerMoments(Tc, engineOn && rpm > 100 ? shaft / ((rpm * Math.PI) / 30) / (qS * K.wingSpan) : 0);
-  const a11 = K.ClAileron, a12 = K.ClRudder, a21 = K.CnAileron0 + K.CnAileronCL * CL, a22 = K.CnRudder * tailFactor(Tc);
-  const det = a11 * a22 - a12 * a21;
-  const aileron = clamp((-power.Cl * a22 + power.Cn * a12) / det, -1, 1), rudder = clamp((-power.Cn * a11 + power.Cl * a21) / det, -1, 1);
+  // ---- aileron and rudder against the propeller
+  const { aileron, rudder } = balance(Tc, engineOn && rpm > 100 ? shaft / ((rpm * Math.PI) / 30) / (qS * K.wingSpan) : 0, CL);
   const needCL = (W * Math.cos(gamma) - thrust * Math.sin(alpha)) / qS;
   return { alpha, theta: alpha + gamma, gamma, tas, kcas, thrust, torque: tq, throttle, rpm, CL, CD, Tc, elevator, elevatorDeg: de * R2D, trim: clamp(-(de * R2D) / K.trimAuthorityDeg, -1, 1), aileron, rudder,
     climbFpm: ((tas * Math.sin(gamma)) / FT) * 60, sigma, power: shaft, stalled: CL < needCL - 1e-3 };
