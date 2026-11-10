@@ -177,17 +177,21 @@ function stepOnce(s, dt) {
   const c = s.controls, f = s.flight, e = s.engine, el = s.elec, fl = s.fuel;
   s.t += dt;
 
-  // ---------------- flight "truth" (scenario driven; this is not a flight model)
+  // ---------------- flight "truth"
+  // Scenario driven: speed and height follow their targets (this is not a flight model). When a flight model
+  // flies the aircraft (flight.dynamic, set by shared/js/flightdeck.js), it writes the truth and this is skipped.
   const tr = s.truth;
-  const iasT = f.onGround ? 0 : f.iasTarget;
-  tr.ias = lag(tr.ias, iasT, dt, 2.5);
-  const vsCmd = f.onGround ? 0 : clamp((f.altTarget - tr.alt) * 1.2, -800, 800);
-  tr.vs = lag(tr.vs, vsCmd, dt, 2.0);
-  tr.alt += (tr.vs / 60) * dt;
-  if (f.onGround) { tr.alt = f.altTarget; tr.vs = 0; }
-  const tas = tr.ias * (1 + 0.02 * tr.alt / 1000);
-  tr.turnRate = f.onGround || tas < 20 ? 0 : (1091 * Math.tan((f.bank * Math.PI) / 180)) / tas; // deg/s
-  tr.heading = ((tr.heading + tr.turnRate * dt) % 360 + 360) % 360 || 360;
+  if (!f.dynamic) {
+    const iasT = f.onGround ? 0 : f.iasTarget;
+    tr.ias = lag(tr.ias, iasT, dt, 2.5);
+    const vsCmd = f.onGround ? 0 : clamp((f.altTarget - tr.alt) * 1.2, -800, 800);
+    tr.vs = lag(tr.vs, vsCmd, dt, 2.0);
+    tr.alt += (tr.vs / 60) * dt;
+    if (f.onGround) { tr.alt = f.altTarget; tr.vs = 0; }
+    const tas = tr.ias * (1 + 0.02 * tr.alt / 1000);
+    tr.turnRate = f.onGround || tas < 20 ? 0 : (1091 * Math.tan((f.bank * Math.PI) / 180)) / tas; // deg/s
+    tr.heading = ((tr.heading + tr.turnRate * dt) % 360 + 360) % 360 || 360;
+  }
 
   // ---------------- electrical: master, loads, alternator, battery (POH p.7-23..7-26)
   const masterNow = c.masterBat;
@@ -298,12 +302,15 @@ function stepOnce(s, dt) {
 
   e.roughness = e.running ? clamp((firing.size === 1 && mf[[...firing][0]] === 'weak' ? 0.6 : 0) + (e.ice > 0.5 ? (e.ice - 0.5) * 1.6 : 0) + (melting ? 0.35 : 0) + (e.phi < 0.75 ? (0.75 - e.phi) * 4 : 0), 0, 1) : 0;
   e.power = e.running ? throttleAirflow(c.throttle) * sigma * mixP * ignitionFactor * iceFactor : 0;
-  let rpmTarget;
-  if (e.running) rpmTarget = equilibriumRpm(e.power, tr.ias);
-  else if (e.cranking) rpmTarget = 160;
-  else rpmTarget = tr.ias > 40 ? (tr.ias - 40) * 20 : 0; // windmilling propeller (illustrative)
-  const tau = e.running ? 0.7 : e.cranking ? 0.4 : 1.6;
-  e.rpm = Math.max(0, lag(e.rpm, rpmTarget, dt, tau));
+  if (f.dynamic && !e.cranking) e.rpm = Math.max(0, f.dynamic.rpm);   // the flight model's propeller turns the engine, running or windmilling
+  else {
+    let rpmTarget;
+    if (e.running) rpmTarget = equilibriumRpm(e.power, tr.ias);
+    else if (e.cranking) rpmTarget = 160;
+    else rpmTarget = tr.ias > 40 ? (tr.ias - 40) * 20 : 0; // windmilling propeller (illustrative)
+    const tau = e.running ? 0.7 : e.cranking ? 0.4 : 1.6;
+    e.rpm = Math.max(0, lag(e.rpm, rpmTarget, dt, tau));
+  }
   if (e.rpm < 2) e.rpm = 0;
   e.fuelFlowGph = e.running ? ffDemand : 0;
 
@@ -379,6 +386,9 @@ export function computeIndications(s, dt) {
   ind.hi = vac.hiHeading;
   ind.tcFlag = !powered;                 // electric turn coordinator
   ind.tc = powered ? clamp(s.truth.turnRate / 3, -1.6, 1.6) : 0; // 1.0 = standard-rate mark
+  const dyn = s.flight.dynamic;
+  ind.slip = dyn ? dyn.slip : 0;                       // the ball: + to the right (needs no power)
+  ind.stallWarning = !!(dyn && dyn.stallWarning);      // pneumatic horn: independent of the electrical system (POH p.7-34)
   ind.lowVoltage = el.lowVoltage;
 }
 
