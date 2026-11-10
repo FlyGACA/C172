@@ -22,7 +22,7 @@ LEVELS = {0: "basic model", 1: "under the skin: structure, mechanisms, systems",
 SYSTEM_TITLES = {
     "AIRFRAME": "Airframe", "WING_L": "Left wing", "WING_R": "Right wing", "EMPENNAGE": "Empennage", "GEAR": "Landing gear", "POWERPLANT": "Powerplant",
     "ENGINE": "Engine", "IGNITION": "Ignition", "INDUCTION": "Induction", "OIL": "Oil", "FUEL": "Fuel", "ELECTRICAL": "Electrical", "VACUUM": "Vacuum",
-    "PITOT_STATIC": "Pitot-static", "STALL_WARNING": "Stall warning", "CABIN_AIR": "Cabin heating, ventilating and defrosting", "AVIONICS": "Avionics", "CONTROLS": "Flight controls and flap drive", "BRAKES": "Brakes", "INTERIOR": "Interior",
+    "PITOT_STATIC": "Pitot-static", "STALL_WARNING": "Stall warning", "CABIN_AIR": "Cabin heating, ventilating and defrosting", "AVIONICS": "Avionics", "GROUND_EQUIPMENT": "Ground equipment (fitted or used only on the ground)", "CONTROLS": "Flight controls and flap drive", "BRAKES": "Brakes", "INTERIOR": "Interior",
     "PANEL": "Instrument panel", "INSTRUMENTS": "Inside the instruments", "FASTENERS": "Fasteners", "HARDWARE": "Standard hardware (kit)", "SYSTEMS": "Systems",
 }
 

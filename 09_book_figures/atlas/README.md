@@ -235,6 +235,36 @@ npm run part -- render --part @baggage 'INTERIOR.seat_rear.*' INTERIOR.baggage_b
 npm run part -- render --part INTERIOR.control_lock PANEL.control_wheel_collars INTERIOR.yoke_L INTERIOR.yoke_shaft_L PANEL.ignition_switch PANEL.lower_panel --detail 2 --focus INTERIOR.control_lock INTERIOR.yoke_L --azimuth 150 --elevation 18 --margin 1.2
 ```
 
+## Avionics installation: the radio stack, the avionics bus, the antenna cables to the roof, the fin and the belly, the speaker, the microphone, the ELT
+
+<div dir="rtl">تركيب الأفيونكس: مجموعة الراديو وقضيب توزيع الأفيونكس وكابلات الهوائيات إلى السقف والمثبت الرأسي وأسفل الجسم ومكبر الصوت والميكروفون وجهاز ELT</div>
+
+![Avionics installation: the radio stack, the avionics bus, the antenna cables to the roof, the fin and the belly, the speaker, the microphone, the ELT](avionics.png)
+
+```
+npm run part -- render --part @avionics --context --azimuth 215 --elevation 30 --grow 0.003 --tint '#3A7BD5' --margin 0.75
+```
+
+## Behind the radio stack: each unit in its tray, the avionics bus with a lead to each unit, the cables leaving for the antennas and the speaker
+
+<div dir="rtl">خلف مجموعة الراديو: كل وحدة في حاملها وقضيب توزيع الأفيونكس بوصلة إلى كل وحدة والكابلات الخارجة إلى الهوائيات ومكبر الصوت</div>
+
+![Behind the radio stack: each unit in its tray, the avionics bus with a lead to each unit, the cables leaving for the antennas and the speaker](radio_stack.png)
+
+```
+npm run part -- render --part 'PANEL.radio_*' ELECTRICAL.avionics_bus ELECTRICAL.wire_avionics_feed 'AVIONICS.coax_*' ELECTRICAL.wire_speaker PANEL.upper_panel --focus PANEL.radio_COMNAV1.chassis PANEL.radio_MARKER.chassis ELECTRICAL.avionics_bus --azimuth 40 --elevation 25 --size 1800x1350 --margin 1.6
+```
+
+## On the ground: tie-down ropes, tow bar, pitot tube cover, rudder gust lock, control lock, fuel sampler cup (detail level 2)
+
+<div dir="rtl">على الأرض: حبال الربط وقضيب السحب وغطاء أنبوب البيتوت وقفل الدفة وقفل التحكم وكوب عيّنة الوقود (مستوى التفصيل 2)</div>
+
+![On the ground: tie-down ropes, tow bar, pitot tube cover, rudder gust lock, control lock, fuel sampler cup (detail level 2)](ground_equipment.png)
+
+```
+npm run part -- render --part @ground_equipment --context --detail 2 --azimuth 35 --elevation 18 --grow 0.004 --tint '#D9534F' --margin 0.6
+```
+
 ## Lights: navigation, strobe, landing, beacon and tail lights; flood and dome lights in the overhead console; courtesy and map lights
 
 <div dir="rtl">الأضواء: أضواء الملاحة والوميض والهبوط والمنارة والذيل؛ ضوءا إنارة اللوحة والمقصورة في الكونسول العلوي؛ أضواء المجاملة والخرائط</div>

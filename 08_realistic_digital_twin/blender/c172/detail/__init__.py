@@ -35,7 +35,9 @@ MODULES = [
     "instruments",
     "interior",
     "cabin",
+    "avionics",
     "fasteners",
+    "ground",
 ]
 
 

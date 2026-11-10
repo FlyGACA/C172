@@ -364,8 +364,9 @@ def engine_gauges(ctx, scene):
     firewall = fs(1.0)
     gauge = back("OIL_P")
     bm = new_bm()
-    pipe(bm, [Vector((-0.10, fs(-7.0) + 0.045, 1.70)), Vector((-0.10, firewall - 0.07, 1.70)), Vector((-0.10, firewall + 0.06, 1.70)), Vector((gauge.x - 0.02, gauge.y - 0.18, gauge.z + 0.03)),
-              gauge - Y * 0.03, gauge], 0.0024, bend=0.04)        # from the back of the accessory housing, between the two sides of the engine mount
+    pipe(bm, [Vector((-0.10, fs(-7.0) + 0.045, 1.70)), Vector((-0.10, firewall - 0.07, 1.70)), Vector((-0.10, firewall + 0.045, 1.70)), Vector((gauge.x - 0.028, firewall + 0.06, 1.70)),
+              Vector((gauge.x - 0.028, gauge.y - 0.10, gauge.z + 0.03)), gauge - Y * 0.03, gauge], 0.0024, bend=0.03)
+    # from the back of the accessory housing, between the two sides of the engine mount; inside the cabin it crosses along the firewall and comes aft beside the radio stack
     part(ctx, "OIL.pressure_gauge_line", bm, "ENGINE", "OIL", "Oil pressure gage line: oil at engine pressure, direct from the engine to the gage", "خط مقياس ضغط الزيت: زيت بضغط المحرك مباشرة من المحرك إلى المقياس",
          "copper", status="poh", ref="p.7-17", smooth=True, assembly="oil_system", joins="ENGINE.accessory_housing", note="A direct pressure oil line from the engine works the oil pressure gage (POH p.7-17); route representative")
     sensor = Vector((0.07, fs(-7.0) + 0.047, 1.57))

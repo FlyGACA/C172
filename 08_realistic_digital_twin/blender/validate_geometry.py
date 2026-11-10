@@ -158,6 +158,7 @@ RUNS = (
     "OIL.hose_*", "OIL.breather_line", "OIL.pressure_gauge_line", "OIL.temperature_sensor",
     "ENGINE.throttle_cable", "ENGINE.mixture_cable", "INDUCTION.carb_heat_cable", "INDUCTION.carb_heat_hose", "PANEL.TACH.drive_cable",
     "CABIN_AIR.*", "WING_?.ventilator_duct",
+    "AVIONICS.coax_*", "EMPENNAGE.nav_antenna_cable",
 )
 RUN_PASSES = (
     "AIRFRAME.firewall", "AIRFRAME.fuselage", "INTERIOR.cabin_liner", "INTERIOR.headliner", "INTERIOR.floor", "INTERIOR.baggage_bulkhead", "INTERIOR.glareshield",
@@ -183,7 +184,7 @@ def check_runs(problems, tree_of):
         own = assemblies(run)
         joins = tuple(pattern for pattern in str(run.get("joins", "")).split(",") if pattern)
         for other in parts:
-            if other is run or other.name.startswith("PANEL.") or matches(other.name, RUN_PASSES + joins) or own & assemblies(other):
+            if other is run or (other.name.startswith("PANEL.") and not other.name.endswith(".chassis")) or matches(other.name, RUN_PASSES + joins) or own & assemblies(other):
                 continue
             if matches(other.name, RUNS) and (other.name < run.name or matches(run.name, tuple(p for p in str(other.get("joins", "")).split(",") if p))):
                 continue                                   # each pair of runs once
@@ -262,7 +263,7 @@ def main():
         level = int(ob.get("detail", 0))
         if ob.type != "MESH" or ob.name.startswith("_") or (ob.hide_render and level < 2):
             continue                                   # fasteners (level 2) are hidden in the saved scene but checked all the same
-        kit = bool(ob.get("kit"))                      # a specimen of standard hardware, kept beside the aircraft
+        kit = bool(ob.get("kit"))                      # not part of the aircraft as it flies: a specimen of standard hardware, ground equipment
         evaluated, mesh, _matrix, vertices, _polygons = evaluated_mesh(ob, depsgraph)
         if not kit:
             all_points.extend(vertices)

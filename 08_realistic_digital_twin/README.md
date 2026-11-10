@@ -30,8 +30,8 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
 | Cockpit | 3D dial ticks | 15 instruments with faces drawn from `instruments.json`, radio stack, switches, push-pull controls, yokes, pedals, trim wheel, fuel selector, seats, belts |
 | Engine | schematic | finned barrels and heads, rocker covers, pushrod tubes, plugs and leads, dual magneto, starter, alternator and belt, carburettor/airbox/filter, exhaust and muffler, mount, baffles; crank/cam/pistons/rods/valves animated |
 | Lighting | room environment | generated sky HDR, shadow-mapped sun, GTAO (high) |
-| Delivery | one GLB | high 502 k / medium 193 k / low 97 k triangles, Draco, 2048/1024/512 px textures, auto-selected by device |
-| Under the skin | nothing | structure, control runs, fuel, brake, air-pressure and electrical systems, the insides of the engine and of the flight instruments as separate named parts (high model), fasteners and a hardware kit (`.blend`): 1,147 parts in all |
+| Delivery | one GLB | high 508 k / medium 193 k / low 97 k triangles, Draco, 2048/1024/512 px textures, auto-selected by device |
+| Under the skin | nothing | structure, control runs, fuel, brake, air-pressure and electrical systems, the insides of the engine and of the flight instruments as separate named parts (high model), fasteners and a hardware kit (`.blend`): 1,174 parts in all |
 
 ## Using the viewer
 
@@ -55,8 +55,9 @@ static, vacuum and stall-warning plumbing; contactors, bus and wiring; inside th
 train, timing gears, oil system and the inside of the carburetor; inside the flight instruments,
 the capsules, linkages, gear trains, gyro rotors and gimbals; cabin heating and ventilation, and
 the cabin lights; the seat rails, rollers and locks, the door latches and the openable window,
-the baggage net; and, in the `.blend`, rivet rows, screws, bolts, a kit of standard hardware
-and the control lock.
+the baggage net; the radio units behind the panel with their antenna cables; and, in the `.blend`,
+rivet rows, screws, bolts, a kit of standard hardware and what is fitted only on the ground
+(control lock, gust lock, pitot cover, tie-downs, tow bar).
 
 ![Fuel system](../09_book_figures/atlas/fuel_system.png)
 ![Flight controls](../09_book_figures/atlas/flight_controls.png)

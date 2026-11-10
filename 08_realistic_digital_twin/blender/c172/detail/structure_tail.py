@@ -30,6 +30,7 @@ STAB_RIBS = [8.0, 20.0, 32.0, 44.0, 56.0]            # butt lines of the stabili
 
 
 FIN_WIRE_OFFSET = 2.4                  # the wiring to the beacon runs this far (in) behind the leading-edge former, through a hole in each rib
+FIN_COAX_X = 0.013                     # the cable to the navigation antenna passes each rib beside the wiring, this far to the right, through a hole of its own
 
 
 def fin_wire_station(water):
@@ -83,7 +84,8 @@ def build(ctx):
         outline = _fin_rib_outline(water, front, rear)
         wire_station = fin_wire_station(water)
         if A.fin_half_thickness(wire_station, water) - SKIN > 0.011:            # an opening for the wiring to the beacon, the lightening holes behind it
-            holes = geom2d.lightening_holes(outline, fs(wire_station) + 0.014, fs(rear) - 0.02, 3, 0.016, segments=10) + [geom2d.circle(fs(wire_station), 0.0, 0.006, 10)]
+            holes = geom2d.lightening_holes(outline, fs(wire_station) + 0.014, fs(rear) - 0.02, 3, 0.016, segments=10) + [geom2d.circle(fs(wire_station), 0.0, 0.006, 10),
+                                                                                                                                 geom2d.circle(fs(wire_station), -FIN_COAX_X, 0.005, 10)]
         else:
             holes = geom2d.lightening_holes(outline, fs(front) + 0.02, fs(rear) - 0.02, 3, 0.016, segments=10)
         bm = new_bm()

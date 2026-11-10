@@ -5,7 +5,7 @@ what has been added underneath, so that any part can be shown on its own or in p
 pulley, the fuel selector valve, a rocker arm, the capsule of the airspeed indicator, a row of
 rivets, a single bolt.
 
-- **Which parts exist, and their ids:** [`06_parts_index.md`](06_parts_index.md) (1,147 parts, English and Arabic names).
+- **Which parts exist, and their ids:** [`06_parts_index.md`](06_parts_index.md) (1,174 parts, English and Arabic names).
 - **Pictures of every assembly:** [`../../09_book_figures/atlas/`](../../09_book_figures/atlas/README.md).
 - **How to draw or export a part:** [`../../09_book_figures/README.md`](../../09_book_figures/README.md#any-part-on-its-own).
 
@@ -16,8 +16,8 @@ Every part carries a level.
 | Level | What | Parts | Where it is |
 |---|---|---|---|
 | 0 | Basic model: skins, glass, gear, cockpit, engine as seen with the cowl off | 342 | every web model, the `.blend` |
-| 1 | Under the skin: structure, control runs, system components, wiring, the insides of the engine and of the instruments, cabin air and lights, the seat, door and baggage fittings | 563 | the **high** web model, the `.blend` |
-| 2 | Fasteners (rivet rows, screws, bolts), the hardware kit, and the control lock, which is fitted only on the ground | 242 | the `.blend` only; left out of renders until a figure asks for them |
+| 1 | Under the skin: structure, control runs, system components, wiring, the insides of the engine and of the instruments, cabin air and lights, the seat, door and baggage fittings, the avionics installation | 582 | the **high** web model, the `.blend` |
+| 2 | Fasteners (rivet rows, screws, bolts), the hardware kit, and what is fitted or used only on the ground (control lock, rudder gust lock, pitot tube cover, tie-down ropes, tow bar, fuel sampler cup) | 250 | the `.blend` only; left out of renders until a figure asks for them |
 
 The medium and low web models stay basic, so that tablets and phones do not download what they will
 not show. A figure recipe sets `"detail": 2` to see the fasteners; the part tool shows whatever part
@@ -39,11 +39,13 @@ and `note`, which says what is representative about it.
 | `fuel` | 27 | Two tanks, two outlets each, selector valve, strainer, primer, vent crossover, quantity transmitters, sump drains (p.7-20 to 7-23, Fig 7-6) | The tank outline (the bay holds about 21.5 US gal, the standard tank), every pipe route |
 | `pneumatic` | 13 | Pitot and static lines, alternate static valve, vacuum relief valve, filter, hoses, suction gage line, stall warning tube and horn (p.7-31 to 7-34, Fig 7-9) | Routes and forms |
 | `brakes` | 8 | Master cylinder on each of the pilot's pedals, a line to each brake, parking brake (p.7-23) | Forms, routes, parking brake linkage |
-| `electrical` | 18 | Contactors, alternator control unit, bus bar (Fig 7-7) | Mounting positions, every cable and harness route |
+| `electrical` | 21 | Contactors, alternator control unit, bus bar (Fig 7-7); ground service plug receptacle under a cover plate on the lower left side of the cowling (p.7-27, optional) | Mounting positions, every cable and harness route |
 | `engine_detail` | 64, and 8 of level 2 | Oil system: suction strainer screen, engine-driven pump, bypass valve, hose to the cooler on the lower right side of the firewall and back, pressure relief valve, breather (p.7-18). Carburetor: up-draft, float type, fixed jet, accelerator pump, mixture control, carburetor heat from the muffler shroud (p.7-19). Engine controls (p.7-16) | What every engine of this kind has (tappets, push rods, rocker arms, valve springs, piston pins and rings, timing gears at 2 : 1) is `type_data`; every form, size and position is representative, not Lycoming data |
 | `instruments` | 46 | What works each instrument: pitot and static pressure (p.7-31), suction for the two gyro indicators (p.7-32); a direct oil line to the oil pressure gage, an electrical sensor for the oil temperature gage, an engine-driven mechanical tachometer (p.7-17) | Everything inside the cases: see below |
 | `interior` | 27 | Cabin heating, ventilating and defrosting: heat from a shroud round the muffler, heater valve, cabin manifold with outlet holes, defroster duct and outlet with two sliding valves, a duct down each side to an outlet at the front door post, ventilating air door, an adjustable ventilator near each upper corner of the windshield, CABIN HT and CABIN AIR controls (p.7-29 to 7-31, Fig 7-8). Lights: red flood light and dome light in the overhead console, courtesy lights under the wings, door-post map light (p.7-27 to 7-29) | Every form and route; the door hinges and the navigation and transponder antennas, which the handbook does not describe |
 | `cabin` | 33, and 1 of level 2 | Seats: tubular handle under the centre of each front seat, seat back lever under its right front corner, a lever for each rear seat back (p.7-11). Seat belts attached to fittings on the floorboard, harness stowage sheath above each door (p.7-12). Doors: key-operated lock on the left door, door stop, openable window with a latch on the lower edge of its frame and a spring-loaded retaining arm (p.7-15). Baggage net with eight straps, tie-down rings (p.7-11). Control lock through the pilot's control wheel shaft and its collar, flag over the ignition switch (p.7-16). Light rheostats, lighter, map compartment, microphone, jacks, keying switch, speaker (Fig 7-2, p.7-28, 7-35 to 7-38) | How a seat is carried and locked on its rails, the seat stops, the door latch and its rods, the number and place of the tie-down rings, every form |
+| `avionics` | 16 | Avionics stacked on the centreline of the panel (p.7-9), an avionics bus fed through the avionics power switch (Fig 7-7), audio control panel and airplane speaker (p.7-35 to 7-37) | The unit behind each face of the radio stack, where the bus is, every antenna cable (communication, navigation, ADF sense, transponder), the speaker wire, the emergency locator transmitter and its cable |
+| `ground` | 8 of level 2 | What the preflight inspection takes off or uses (p.4-4 to 4-6): rudder gust lock (also p.7-16), pitot tube cover, wing, tail and nose tie-downs, fuel sampler cup; the tow bar on the nose gear (p.7-9) | Every form; where a rope is made fast on the ramp |
 | `fasteners` | 233 | Nothing: the handbook does not show fasteners | Rows follow the modelled structure at a representative pitch |
 
 The seats stand where the handbook's loading figure puts their occupants (Figure 6-3, p.6-7): the pilot
@@ -82,7 +84,10 @@ the backs of the cases (`PORTS` in `detail/instruments.py` is the one table both
 
 Not modelled: the two ventilators available for the rear cabin area (optional), the six-way seat
 (height and seat back cranks), the child's seat, the integrated seat belt and shoulder harness with
-inertia reels (optional), the avionics wiring and antenna cables.
+inertia reels (optional); the wiring from the bus bar to the switches and circuit breakers, the wires
+to the microphone and phone jacks and to the keying switch; the marker beacon antenna and the ADF loop
+antenna; the fuel strainer drain control. The panel has no omni course indicators and no ADF bearing
+indicator, which the handbook's panel figure shows (Figure 7-2).
 
 **None of this is a maintenance reference.** For anything that matters on the aircraft, use the
 manufacturer's maintenance manual and illustrated parts catalogue.
@@ -106,8 +111,15 @@ Where there is no lane, each pack lays its runs so that they pass each other:
 - **Engine compartment.** Cables, hoses and pipes pass inboard or outboard of the engine mount
   tubes, not between them: the alternator cable and the primer lines along the left side of the
   cowl, the oil gage line and the breather near the centreline.
+- **Avionics cables.** The speaker wire and the antenna cables leave the radio stack to the right,
+  each at its own depth and height behind the panel, run along the right side between the skin and
+  the lining below the wing wiring, climb the right forward door post in lanes of their own between
+  the wiring and the fuel pipe, and run aft above the headliner inboard of the tail wiring. They keep
+  the same order all the way: the first to leave the bundle lies on top, ahead and inboard. The
+  navigation cable follows the tail wiring to the fin and passes each fin rib through its own
+  opening; the transponder cable has a lane under the floor.
 
-**Nothing runs through anything else.** The validator checks every pipe, hose, duct, cable and wire (66
+**Nothing runs through anything else.** The validator checks every pipe, hose, duct, cable and wire (75
 runs) against every other part: a run may touch the parts it joins (those of its own assembly, a
 panel instrument or control, or a part named in its `joins` tag) and may pass through the skins,
 linings and walls that have an opening for it in the aircraft (firewall, cabin lining, door-post
@@ -117,7 +129,7 @@ flanges); anything else it cuts through fails the build.
 
 A part can belong to one or more assemblies, which gather the parts of a system wherever they are:
 `aileron_control` has parts in the cabin, in both wings and on the ailerons. Select an assembly with
-`@name` in a figure recipe or in the part tool. The index lists the 33 of them, from
+`@name` in a figure recipe or in the part tool. The index lists the 34 of them, from
 `@aileron_control` to `@vertical_speed_indicator`.
 
 ## Checks
@@ -126,7 +138,7 @@ A part can belong to one or more assemblies, which gather the parts of a system 
 every level:
 
 - mesh health: no zero-area faces, no non-finite vertices;
-- parts in the fuselage stay inside the fuselage and cowl skin (593 of them), parts in a wing stay
+- parts in the fuselage stay inside the fuselage and cowl skin (609 of them), parts in a wing stay
   inside the wing skin (157; 3 mm tolerance; a rivet head is allowed to stand proud);
 - no pipe, hose, cable or wire cuts through another part (see "Where the runs lie");
 - the published dimensions, the stance and the attachments of the basic model, as before.

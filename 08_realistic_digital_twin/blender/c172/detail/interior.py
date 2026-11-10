@@ -249,10 +249,11 @@ def build_antennas(ctx):
          "steel", status="estimated", smooth=True, note="Not described in the POH; where a 172 of this year carries its navigation antenna, drawn representatively")
     # ---- transponder antenna: a short stub under the fuselage
     station = 58.0
-    belly = Vector((0.0, fs(station), A.fus_surface_z(station, 0.0)))
+    x = lanes.ALONG["coax_xpdr"][0]                             # at the end of its cable's lane under the floor
+    belly = Vector((x, fs(station), A.fus_surface_z(station, abs(x))))
     bm = new_bm()
     disc(bm, belly - Z * 0.002, Z, 0.014, 0.004, segs=12)
     rod(bm, belly, belly - Z * 0.055, 0.0025, segs=6)
     dome(bm, belly - Z * 0.055, -Z, 0.005, 0.005, sides=8, rings=2)
-    part(ctx, "AIRFRAME.transponder_antenna", bm, "AIRFRAME", "ELECTRICAL", "Transponder antenna: a short stub under the fuselage", "هوائي المرسل المجيب: قضيب قصير تحت جسم الطائرة", "steel", status="estimated", smooth=True,
+    part(ctx, "AIRFRAME.transponder_antenna", bm, "AIRFRAME", "ELECTRICAL", "Transponder antenna: a short stub under the fuselage, left of the centreline", "هوائي المرسل المجيب: قضيب قصير تحت جسم الطائرة، يسار خط المنتصف", "steel", status="estimated", smooth=True,
          note="Not described in the POH; position representative")

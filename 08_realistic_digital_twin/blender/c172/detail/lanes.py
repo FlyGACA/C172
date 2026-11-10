@@ -36,6 +36,7 @@ ALONG = {
     "brake_R_fwd":   (-0.275, BRAKE_FWD_LEVEL, 14.0, 22.5),
     "brake_L":       (0.300, BRAKE_LEVEL, 23.0, 66.6),      # through the main gear bulkhead, then out to the gear leg
     "brake_R":       (-0.300, BRAKE_LEVEL, 23.0, 66.6),
+    "coax_xpdr":     (0.105, LEVEL, 7.0, 57.0),             # transponder antenna cable, in the free lane left of the centre
 }
 
 # Runs across the cabin, which pass through the two keel beams: name -> (station, z).

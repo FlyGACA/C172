@@ -1,23 +1,24 @@
 {
  "summary": {
-  "parts": 1147,
+  "parts": 1174,
   "by_detail": {
    "0": 342,
-   "1": 563,
-   "2": 242
+   "1": 582,
+   "2": 250
   },
   "by_system": {
    "AIRFRAME": 81,
-   "AVIONICS": 4,
+   "AVIONICS": 17,
    "BRAKES": 8,
    "CABIN_AIR": 15,
    "CONTROLS": 126,
-   "ELECTRICAL": 59,
+   "ELECTRICAL": 65,
    "EMPENNAGE": 61,
    "ENGINE": 96,
    "FASTENERS": 229,
    "FUEL": 34,
    "GEAR": 24,
+   "GROUND_EQUIPMENT": 8,
    "HARDWARE": 12,
    "IGNITION": 18,
    "INDUCTION": 18,
@@ -37,7 +38,7 @@
    "airspeed_indicator": 10,
    "altimeter": 13,
    "attitude_indicator": 11,
-   "avionics": 4,
+   "avionics": 32,
    "baggage": 2,
    "brake_system": 15,
    "cabin_air": 20,
@@ -45,7 +46,7 @@
    "control_lock": 5,
    "directional_gyro": 12,
    "doors": 25,
-   "electrical_system": 26,
+   "electrical_system": 29,
    "elevator_control": 22,
    "elevator_trim": 28,
    "engine_controls": 3,
@@ -53,6 +54,7 @@
    "fasteners": 229,
    "flap_drive": 27,
    "fuel_system": 36,
+   "ground_equipment": 9,
    "hardware_kit": 12,
    "instrument_cases": 7,
    "lighting": 15,
@@ -530,7 +532,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "poh",
-   "triangles": 516,
+   "triangles": 558,
    "ref": "p.7-3",
    "station_in": 28.2
   },
@@ -542,7 +544,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "estimated",
-   "triangles": 124,
+   "triangles": 168,
    "station_in": 8.0
   },
   {
@@ -553,7 +555,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "estimated",
-   "triangles": 324,
+   "triangles": 366,
    "station_in": 17.0
   },
   {
@@ -564,7 +566,7 @@
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "estimated",
-   "triangles": 698,
+   "triangles": 740,
    "station_in": 41.0
   },
   {
@@ -1373,6 +1375,20 @@
    "ref": "p.7-3"
   },
   {
+   "id": "AIRFRAME.tail_tie_down_rope",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Tail tie-down rope",
+   "ar": "حبل ربط الذيل",
+   "parent": "AIRFRAME",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 204,
+   "assembly": "ground_equipment",
+   "ref": "p.4-5",
+   "note": "Tail tie-down: disconnected in the preflight inspection (POH p.4-5)",
+   "kit": true
+  },
+  {
    "id": "AIRFRAME.tail_tiedown",
    "system": "AIRFRAME",
    "en": "Tail tie-down ring",
@@ -1385,12 +1401,13 @@
   {
    "id": "AIRFRAME.transponder_antenna",
    "system": "ELECTRICAL",
-   "en": "Transponder antenna: a short stub under the fuselage",
-   "ar": "هوائي المرسل المجيب: قضيب قصير تحت جسم الطائرة",
+   "en": "Transponder antenna: a short stub under the fuselage, left of the centreline",
+   "ar": "هوائي المرسل المجيب: قضيب قصير تحت جسم الطائرة، يسار خط المنتصف",
    "parent": "AIRFRAME",
    "detail": 1,
    "status": "estimated",
    "triangles": 104,
+   "assembly": "avionics",
    "note": "Not described in the POH; position representative"
   },
   {
@@ -1422,6 +1439,80 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 10240
+  },
+  {
+   "id": "AVIONICS.coax_adf",
+   "system": "AVIONICS",
+   "en": "ADF sense antenna cable: from the ADF receiver to the lead-in of the sense wire on the roof",
+   "ar": "كابل هوائي الاستشعار لجهاز ADF: من المستقبل إلى مدخل سلك الاستشعار على السقف",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 780,
+   "assembly": "avionics",
+   "note": "Not described in the POH; route representative"
+  },
+  {
+   "id": "AVIONICS.coax_com",
+   "system": "AVIONICS",
+   "en": "Communication antenna cable: from the NAV/COM transceiver to the antenna on the cabin roof",
+   "ar": "كابل هوائي الاتصال: من جهاز الملاحة والاتصال إلى الهوائي على سقف المقصورة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 828,
+   "assembly": "avionics",
+   "note": "Not described in the POH; route representative"
+  },
+  {
+   "id": "AVIONICS.coax_elt",
+   "system": "AVIONICS",
+   "en": "ELT antenna cable",
+   "ar": "كابل هوائي جهاز ELT",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 220,
+   "assembly": "avionics",
+   "note": "Not described in the POH; route representative",
+   "optional": true
+  },
+  {
+   "id": "AVIONICS.coax_nav",
+   "system": "AVIONICS",
+   "en": "Navigation antenna cable: from the NAV/COM receiver along the cabin roof and the tailcone to the vertical stabiliser",
+   "ar": "كابل هوائي الملاحة: من جهاز الملاحة والاتصال بمحاذاة سقف المقصورة ومخروط الذيل إلى المثبت الرأسي",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 1148,
+   "assembly": "avionics",
+   "note": "Not described in the POH; route representative"
+  },
+  {
+   "id": "AVIONICS.coax_transponder",
+   "system": "AVIONICS",
+   "en": "Transponder antenna cable: from the transponder to the antenna under the fuselage",
+   "ar": "كابل هوائي المرسل المجيب: من الجهاز إلى الهوائي تحت جسم الطائرة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 380,
+   "assembly": "avionics",
+   "note": "Not described in the POH; route representative"
+  },
+  {
+   "id": "AVIONICS.elt",
+   "system": "AVIONICS",
+   "en": "Emergency locator transmitter (ELT), in the tailcone behind the rear cabin wall",
+   "ar": "جهاز تحديد الموقع في حالات الطوارئ (ELT)، في مخروط الذيل خلف الجدار الخلفي للمقصورة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 52,
+   "assembly": "avionics",
+   "note": "Described in the supplements of the handbook when fitted; where it is mounted is representative",
+   "optional": true
   },
   {
    "id": "BRAKES.line_L",
@@ -2674,7 +2765,8 @@
    "parent": "AIRFRAME",
    "detail": 0,
    "status": "estimated",
-   "triangles": 20
+   "triangles": 20,
+   "assembly": "avionics"
   },
   {
    "id": "ELECTRICAL.alternator",
@@ -2711,6 +2803,19 @@
    "assembly": "electrical_system",
    "ref": "p.7-26",
    "note": "Removes the alternator field on over-voltage; the red LOW VOLTAGE light then comes on (POH p.7-26). Mounting position representative"
+  },
+  {
+   "id": "ELECTRICAL.avionics_bus",
+   "system": "ELECTRICAL",
+   "en": "Avionics bus, with a lead to each unit of the radio stack",
+   "ar": "قضيب توزيع الأفيونكس، مع وصلة إلى كل وحدة في مجموعة الراديو",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 108,
+   "assembly": "avionics",
+   "ref": "p.7-23 to 7-27 (Fig 7-7)",
+   "note": "The avionics power switch connects the avionics bus to the primary bus (POH Figure 7-7); where the bus is mounted is representative"
   },
   {
    "id": "ELECTRICAL.battery",
@@ -2823,6 +2928,19 @@
    "note": "Route representative"
   },
   {
+   "id": "ELECTRICAL.cable_ground_service",
+   "system": "ELECTRICAL",
+   "en": "Ground service cable: from the receptacle to the battery circuit (optional equipment)",
+   "ar": "كابل الخدمة الأرضية: من المقبس إلى دائرة البطارية (تجهيز اختياري)",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 156,
+   "assembly": "electrical_system",
+   "note": "Route representative",
+   "optional": true
+  },
+  {
    "id": "ELECTRICAL.cable_starter",
    "system": "ELECTRICAL",
    "en": "Starter cable: starter contactor to starter",
@@ -2842,7 +2960,8 @@
    "parent": "AIRFRAME",
    "detail": 0,
    "status": "estimated",
-   "triangles": 216
+   "triangles": 216,
+   "assembly": "avionics"
   },
   {
    "id": "ELECTRICAL.dome_light",
@@ -2879,7 +2998,8 @@
    "parent": "AIRFRAME",
    "detail": 0,
    "status": "estimated",
-   "triangles": 28
+   "triangles": 28,
+   "assembly": "avionics"
   },
   {
    "id": "ELECTRICAL.flood_light",
@@ -2893,6 +3013,20 @@
    "assembly": "lighting",
    "ref": "p.7-28",
    "note": "A single red flood light lights the instrument and control panels; its intensity is set with the PANEL LT rheostat (POH p.7-28)"
+  },
+  {
+   "id": "ELECTRICAL.ground_service_receptacle",
+   "system": "ELECTRICAL",
+   "en": "Ground service plug receptacle (optional equipment), behind a cover plate on the lower left side of the cowling",
+   "ar": "مقبس قابس الخدمة الأرضية (تجهيز اختياري)، خلف لوحة غطاء على الجانب السفلي الأيسر لغطاء المحرك",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 68,
+   "assembly": "electrical_system",
+   "ref": "p.7-27",
+   "note": "Lets an external power source be used for cold starting and for lengthy work on the electrical system; its circuit has a polarity reversal protection (POH p.7-27). Position representative",
+   "optional": true
   },
   {
    "id": "ELECTRICAL.ground_strap",
@@ -2926,7 +3060,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 396,
+   "triangles": 524,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -3017,6 +3151,19 @@
    "ref": "p.7-27"
   },
   {
+   "id": "ELECTRICAL.wire_avionics_feed",
+   "system": "ELECTRICAL",
+   "en": "Avionics feed wire: from the avionics power switch to the avionics bus",
+   "ar": "سلك تغذية الأفيونكس: من مفتاح طاقة الأفيونكس إلى قضيب الأفيونكس",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 156,
+   "assembly": "avionics",
+   "ref": "p.7-23 to 7-27 (Fig 7-7)",
+   "note": "Route representative"
+  },
+  {
    "id": "ELECTRICAL.wire_landing_light",
    "system": "ELECTRICAL",
    "en": "Landing light wiring (through the firewall, along the lower cowl)",
@@ -3027,6 +3174,18 @@
    "triangles": 220,
    "assembly": "electrical_system",
    "note": "Route representative"
+  },
+  {
+   "id": "ELECTRICAL.wire_speaker",
+   "system": "ELECTRICAL",
+   "en": "Speaker wire: from the audio control panel to the airplane speaker",
+   "ar": "سلك مكبر الصوت: من لوحة التحكم الصوتي إلى مكبر صوت الطائرة",
+   "parent": "SYSTEMS",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 812,
+   "assembly": "avionics",
+   "note": "Not described in the POH; route representative"
   },
   {
    "id": "EMPENNAGE",
@@ -3270,7 +3429,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 260,
+   "triangles": 304,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -3281,7 +3440,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 260,
+   "triangles": 304,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -3292,7 +3451,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 260,
+   "triangles": 304,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -3303,7 +3462,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 260,
+   "triangles": 304,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -3314,7 +3473,7 @@
    "parent": "EMPENNAGE",
    "detail": 1,
    "status": "estimated",
-   "triangles": 216,
+   "triangles": 260,
    "note": "Formed sheet-metal ribs (POH p.7-3); position representative"
   },
   {
@@ -3338,7 +3497,20 @@
    "detail": 1,
    "status": "estimated",
    "triangles": 112,
+   "assembly": "avionics",
    "note": "Not described in the POH; where a 172 of this year carries its navigation antenna, drawn representatively"
+  },
+  {
+   "id": "EMPENNAGE.nav_antenna_cable",
+   "system": "AVIONICS",
+   "en": "Navigation antenna cable in the vertical stabiliser",
+   "ar": "كابل هوائي الملاحة داخل المثبت الرأسي",
+   "parent": "EMPENNAGE",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 220,
+   "assembly": "avionics",
+   "note": "Runs up the fin beside the wiring, through an opening in each rib; route representative"
   },
   {
    "id": "EMPENNAGE.rivets_fin_spar_L",
@@ -3774,6 +3946,20 @@
    "status": "estimated",
    "triangles": 196,
    "assembly": "rudder_control"
+  },
+  {
+   "id": "EMPENNAGE.rudder_gust_lock",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Rudder gust lock: a control surface lock over the vertical stabiliser and the rudder",
+   "ar": "قفل الدفة ضد هبّات الريح: قفل سطح تحكم فوق المثبت الرأسي والدفة",
+   "parent": "EMPENNAGE",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 76,
+   "assembly": "ground_equipment",
+   "ref": "p.4-5, 7-16",
+   "note": "Fitted where high or gusty winds occur; removed in the preflight inspection (POH p.4-5, 7-16). Form representative",
+   "kit": true
   },
   {
    "id": "EMPENNAGE.rudder_hinge_1",
@@ -6190,6 +6376,20 @@
    "ref": "p.7-10, 8-x"
   },
   {
+   "id": "GEAR.nose_tie_down_rope",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Nose tie-down rope, on the nose gear",
+   "ar": "حبل ربط المقدمة، على عجلة المقدمة",
+   "parent": "GEAR",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 204,
+   "assembly": "ground_equipment",
+   "ref": "p.4-6",
+   "note": "Nose tie-down: disconnected in the preflight inspection (POH p.4-6). Where the rope is made fast to the nose gear is representative",
+   "kit": true
+  },
+  {
    "id": "GEAR.nose_torque_links",
    "system": "GEAR",
    "en": "Torque links (scissors)",
@@ -6253,6 +6453,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 36
+  },
+  {
+   "id": "GEAR.tow_bar",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Tow bar, attached to the nose gear",
+   "ar": "قضيب السحب، موصول بعجلة المقدمة",
+   "parent": "GEAR",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 248,
+   "assembly": "ground_equipment",
+   "ref": "p.7-9",
+   "note": "Moving the airplane by hand is most easily done with a tow bar attached to the nose gear strut; when it is towed by a vehicle the nose wheel must never be turned more than 30 degrees either side of centre (POH p.7-9). Form representative",
+   "kit": true
   },
   {
    "id": "HARDWARE",
@@ -6739,9 +6953,10 @@
    "detail": 2,
    "status": "poh",
    "triangles": 168,
-   "assembly": "control_lock",
+   "assembly": "control_lock,ground_equipment",
    "ref": "p.7-16",
-   "note": "Locks the ailerons and the elevator in neutral while the airplane is parked. Its flag, labelled CONTROL LOCK, REMOVE BEFORE STARTING ENGINE, covers the ignition switch (POH p.7-16). Fitted only on the ground: shown in the editable scene and by the part tool, not in the web model"
+   "note": "Locks the ailerons and the elevator in neutral while the airplane is parked. Its flag, labelled CONTROL LOCK, REMOVE BEFORE STARTING ENGINE, covers the ignition switch (POH p.7-16). Fitted only on the ground: shown in the editable scene and by the part tool, not in the web model",
+   "kit": true
   },
   {
    "id": "INTERIOR.door_inner_handle_L",
@@ -7449,7 +7664,7 @@
    "parent": "ENGINE",
    "detail": 1,
    "status": "poh",
-   "triangles": 236,
+   "triangles": 300,
    "assembly": "oil_system",
    "ref": "p.7-17",
    "note": "A direct pressure oil line from the engine works the oil pressure gage (POH p.7-17); route representative"
@@ -9440,7 +9655,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 14,
+   "assembly": "avionics",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+  },
+  {
+   "id": "PANEL.radio_ADF.chassis",
+   "system": "AVIONICS",
+   "en": "ADF receiver: the unit behind its face, in its mounting tray",
+   "ar": "مستقبل ADF: الوحدة خلف واجهتها، في حاملها",
+   "parent": "PANEL.radio_ADF",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 24,
+   "assembly": "avionics",
+   "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
    "id": "PANEL.radio_ADF.knob_L",
@@ -9471,7 +9699,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 14,
+   "assembly": "avionics",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+  },
+  {
+   "id": "PANEL.radio_AUDIO.chassis",
+   "system": "AVIONICS",
+   "en": "Audio control panel: the unit behind its face, in its mounting tray",
+   "ar": "لوحة التحكم الصوتي: الوحدة خلف واجهتها، في حاملها",
+   "parent": "PANEL.radio_AUDIO",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 24,
+   "assembly": "avionics",
+   "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
    "id": "PANEL.radio_AUDIO.knob_L",
@@ -9502,7 +9743,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 14,
+   "assembly": "avionics",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+  },
+  {
+   "id": "PANEL.radio_COMNAV1.chassis",
+   "system": "AVIONICS",
+   "en": "NAV/COM 1: the unit behind its face, in its mounting tray",
+   "ar": "جهاز الملاحة والاتصال 1: الوحدة خلف واجهتها، في حاملها",
+   "parent": "PANEL.radio_COMNAV1",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 24,
+   "assembly": "avionics",
+   "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
    "id": "PANEL.radio_COMNAV1.knob_L",
@@ -9533,7 +9787,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 14,
+   "assembly": "avionics",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+  },
+  {
+   "id": "PANEL.radio_COMNAV2.chassis",
+   "system": "AVIONICS",
+   "en": "NAV/COM 2: the unit behind its face, in its mounting tray",
+   "ar": "جهاز الملاحة والاتصال 2: الوحدة خلف واجهتها، في حاملها",
+   "parent": "PANEL.radio_COMNAV2",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 24,
+   "assembly": "avionics",
+   "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
    "id": "PANEL.radio_COMNAV2.knob_L",
@@ -9564,7 +9831,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 14,
+   "assembly": "avionics",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+  },
+  {
+   "id": "PANEL.radio_MARKER.chassis",
+   "system": "AVIONICS",
+   "en": "Marker beacon receiver: the unit behind its face, in its mounting tray",
+   "ar": "مستقبل منارات العلامات: الوحدة خلف واجهتها، في حاملها",
+   "parent": "PANEL.radio_MARKER",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 24,
+   "assembly": "avionics",
+   "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
    "id": "PANEL.radio_MARKER.knob_L",
@@ -9595,7 +9875,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 14,
+   "assembly": "avionics",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+  },
+  {
+   "id": "PANEL.radio_XPDR.chassis",
+   "system": "AVIONICS",
+   "en": "Transponder: the unit behind its face, in its mounting tray",
+   "ar": "المرسل المجيب: الوحدة خلف واجهتها، في حاملها",
+   "parent": "PANEL.radio_XPDR",
+   "detail": 1,
+   "status": "estimated",
+   "triangles": 24,
+   "assembly": "avionics",
+   "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
    "id": "PANEL.radio_XPDR.knob_L",
@@ -9626,6 +9919,7 @@
    "detail": 0,
    "status": "poh",
    "triangles": 24,
+   "assembly": "avionics",
    "ref": "p.7-25/27"
   },
   {
@@ -9856,6 +10150,20 @@
    "detail": 0,
    "status": "estimated",
    "triangles": 15874
+  },
+  {
+   "id": "POWERPLANT.ground_service_cover",
+   "system": "ELECTRICAL",
+   "en": "Cover plate of the ground service plug receptacle (optional equipment)",
+   "ar": "لوحة غطاء مقبس قابس الخدمة الأرضية (تجهيز اختياري)",
+   "parent": "POWERPLANT",
+   "detail": 1,
+   "status": "poh",
+   "triangles": 12,
+   "assembly": "electrical_system",
+   "ref": "p.7-27",
+   "note": "On the lower left side of the cowling (POH p.7-27); size and position representative",
+   "optional": true
   },
   {
    "id": "POWERPLANT.inlet_duct_L",
@@ -10448,6 +10756,20 @@
    "note": "A float-type transmitter in each tank works its electric fuel quantity indicator (POH); drawn on the inboard end of the tank, representative"
   },
   {
+   "id": "WING_L.fuel_sampler_cup",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Fuel sampler cup, under the sump quick-drain valve of the left tank",
+   "ar": "كوب عيّنة الوقود، تحت صمام التصريف السريع لحوض الخزان الأيسر",
+   "parent": "WING_L",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 256,
+   "assembly": "ground_equipment",
+   "ref": "p.4-5",
+   "note": "Before the first flight of the day and after each refuelling a small quantity of fuel is drained from each tank sump and checked for water, sediment and the proper fuel grade (POH p.4-5). Form representative",
+   "kit": true
+  },
+  {
    "id": "WING_L.fuel_tank",
    "system": "FUEL",
    "en": "Fuel tank, left wing (standard tank: 21.5 US gal, 20 usable)",
@@ -10731,6 +11053,20 @@
    "assembly": "pitot_static",
    "ref": "p.7-31",
    "note": "Plumbing connects the instruments to the sources (POH); the route through the leading edge is representative"
+  },
+  {
+   "id": "WING_L.pitot_tube_cover",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Pitot tube cover, with its streamer",
+   "ar": "غطاء أنبوب البيتوت، مع شريطه",
+   "parent": "WING_L",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 64,
+   "assembly": "ground_equipment",
+   "ref": "p.4-6",
+   "note": "Removed in the preflight inspection, and the opening checked for stoppage (POH p.4-6). Form representative",
+   "kit": true
   },
   {
    "id": "WING_L.rear_spar",
@@ -11980,6 +12316,20 @@
    "status": "poh",
    "triangles": 136,
    "ref": "p.7-3"
+  },
+  {
+   "id": "WING_L.tie_down_rope",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Tie-down rope of the left wing",
+   "ar": "حبل ربط الجناح الأيسر",
+   "parent": "WING_L",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 204,
+   "assembly": "ground_equipment",
+   "ref": "p.4-5, 4-6 (Fig 4-1)",
+   "note": "Wing tie-down: disconnected in the preflight inspection (POH p.4-5, 4-6). Where it is made fast on the ramp is representative",
+   "kit": true
   },
   {
    "id": "WING_L.tiedown",
@@ -13916,6 +14266,20 @@
    "status": "poh",
    "triangles": 136,
    "ref": "p.7-3"
+  },
+  {
+   "id": "WING_R.tie_down_rope",
+   "system": "GROUND_EQUIPMENT",
+   "en": "Tie-down rope of the right wing",
+   "ar": "حبل ربط الجناح الأيمن",
+   "parent": "WING_R",
+   "detail": 2,
+   "status": "poh",
+   "triangles": 204,
+   "assembly": "ground_equipment",
+   "ref": "p.4-5, 4-6 (Fig 4-1)",
+   "note": "Wing tie-down: disconnected in the preflight inspection (POH p.4-5, 4-6). Where it is made fast on the ramp is representative",
+   "kit": true
   },
   {
    "id": "WING_R.tiedown",

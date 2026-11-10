@@ -22,6 +22,7 @@ from mathutils import Vector
 
 from ..units import IN, fs, wl
 from .. import airframe as A
+from .. import powerplant as PP
 from . import lanes
 from . import structure_fuselage as SF
 from . import structure_tail as ST
@@ -40,6 +41,15 @@ def add(ctx, name, bm, group, en, ar, mat, status="estimated", smooth=True, **ta
     if status == "poh":
         tags.setdefault("ref", REF)
     return part(ctx, name, bm, group, SYS, en, ar, mat, status=status, smooth=smooth, **tags)
+
+
+def cowl_side_x(station, z):
+    """Half width of the cowl skin at a station (in) and a height (m)."""
+    ring = PP.cowl_ring(station)
+    for a, b in zip(ring, ring[1:] + ring[:1]):
+        if a.x > 0 and b.x > 0 and (a.z - z) * (b.z - z) <= 0 and abs(a.z - b.z) > 1e-9:
+            return a.x + (b.x - a.x) * (z - a.z) / (b.z - a.z)
+    return max(p.x for p in ring)
 
 
 def build(ctx):
@@ -116,12 +126,34 @@ def build(ctx):
     add(ctx, "ELECTRICAL.wire_landing_light", bm, "SYSTEMS", "Landing light wiring (through the firewall, along the lower cowl)", "أسلاك ضوء الهبوط (عبر جدار الحريق، بمحاذاة الغطاء السفلي)",
         "wire_yellow", note="Route representative")
 
+    # ---- ground service plug receptacle (optional equipment): under a cover plate on the lower left side of the cowling
+    station, z = -3.3, 1.12
+    x_skin = cowl_side_x(station, z)
+    socket = Vector((x_skin - 0.046, fs(station), z))
+    bm = new_bm()
+    box(bm, (0.045, 0.06, 0.045), center=socket)
+    for dy in (-0.014, 0.014):
+        rod(bm, socket + Vector((0.0225, dy, 0.0)), socket + Vector((0.03, dy, 0.0)), 0.005, segs=8)
+    add(ctx, "ELECTRICAL.ground_service_receptacle", bm, "SYSTEMS", "Ground service plug receptacle (optional equipment), behind a cover plate on the lower left side of the cowling",
+        "مقبس قابس الخدمة الأرضية (تجهيز اختياري)، خلف لوحة غطاء على الجانب السفلي الأيسر لغطاء المحرك", "black_plastic", status="poh", ref="p.7-27", smooth=False, optional=True,
+        note="Lets an external power source be used for cold starting and for lengthy work on the electrical system; its circuit has a polarity reversal protection (POH p.7-27). Position representative")
+    bm = new_bm()
+    box(bm, (0.003, 0.08, 0.06), center=(x_skin + 0.0005, fs(station), z))
+    part(ctx, "POWERPLANT.ground_service_cover", bm, "POWERPLANT", SYS, "Cover plate of the ground service plug receptacle (optional equipment)", "لوحة غطاء مقبس قابس الخدمة الأرضية (تجهيز اختياري)", "paint_white",
+         status="poh", ref="p.7-27", smooth=False, assembly=ASSEMBLY, optional=True, note="On the lower left side of the cowling (POH p.7-27); size and position representative")
+    bm = new_bm()
+    pipe(bm, [socket + Vector((-0.005, 0.0, 0.0225)), Vector((x_skin - 0.045, socket.y - 0.03, 1.30)), Vector((0.44, battery.y + 0.006, 1.40)), Vector((battery.x + 0.112, battery.y + 0.006, 1.40))],
+         CABLE, bend=0.03)
+    add(ctx, "ELECTRICAL.cable_ground_service", bm, "SYSTEMS", "Ground service cable: from the receptacle to the battery circuit (optional equipment)", "كابل الخدمة الأرضية: من المقبس إلى دائرة البطارية (تجهيز اختياري)",
+        "hose_red", optional=True, joins="ELECTRICAL.battery,ELECTRICAL.ground_service_receptacle", note="Route representative")
+
     # ---- harness to each wing: up the forward door post, out through the leading edge to the tip lights
     for sx, S in ((1, "L"), (-1, "R")):
         where_en, where_ar = ("left", "الأيسر") if sx > 0 else ("right", "الأيمن")
         root = lanes.wing_point("wiring", sx, 0.51 / IN)
         start = (bus_a if sx > 0 else bus_b) + Vector((0.0, -0.05, 0.03))
-        corners = [start, Vector((sx * 0.44, fs(15.5), 1.50)), SF.side_point(17.5, 47.6, sx, SKIN + 0.012), SF.side_point(22.0, 47.3, sx, SKIN + 0.008),
+        corners = [start] + ([Vector((-0.14, start.y - 0.007, 1.452)), Vector((0.06, start.y - 0.007, 1.452))] if sx > 0 else [])            # the left one passes under the radio stack
+        corners += [Vector((sx * 0.44, fs(15.5), 1.50)), SF.side_point(17.5, 47.6, sx, SKIN + 0.012), SF.side_point(22.0, 47.3, sx, SKIN + 0.008),
                    SF.side_point(28.0, 47.3, sx, SKIN + 0.008)]
         corners += [SF.post_point("fwd", sx, w, shift=-SF.POST_SHIFT) for w in (47.3, 52.0, 58.0, 66.0)]    # the foremost run in the post
         corners += [root]
