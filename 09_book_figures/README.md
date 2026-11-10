@@ -4,17 +4,20 @@ Print-ready figures for the FlyGACA Cessna 172N book, built from the same data a
 the 3D twin, in English and Arabic.
 
 **Start with [the plan](PLAN.md)** — which kind of picture to use for which job, why the generated
-aircraft has not looked right, and the order of work. [النسخة العربية](README_AR.md)
+aircraft did not look right, what was done about it, and the order of work. [النسخة العربية](README_AR.md)
 
-## Three samples, one per method that works today
+![Major components of the aircraft](out/preview/aircraft-exterior.en.png)
+
+## Four samples of the methods that work today
 
 | | |
 |---|---|
 | ![Airspeed indicator](out/preview/asi-markings.en.png) | **S-1 · Instrument, drawn from data.** Scale, arcs and red line are read from `08_realistic_digital_twin/data/instruments.json`. |
 | ![Fuel system](out/preview/fuel-system.ar.png) | **S-2 · System schematic (Arabic edition shown).** Symbols and four line codes; capacities from the POH constants in `shared/js/sim.js`. |
-| ![Flight controls](out/preview/flight-controls.en.png) | **S-3 · Illustration from the 3D twin.** Flat tones and ink outlines, not a fake photograph; labels placed by code from the model's part names. |
+| ![Flight controls](out/preview/flight-controls.en.png) | **S-3 · Illustration from the 3D twin, plan view.** Soft tones and ink outlines, not a fake photograph; labels placed by code from the model's part names. |
+| ![Major components](out/preview/aircraft-exterior.ar.png) | **S-4 · Illustration from the 3D twin, three-quarter view (Arabic edition shown).** The five major components tinted; the engine named in the legend comes from the POH table. |
 
-All three are `draft`: nobody has yet checked them against the aircraft's own POH.
+All four are `draft`: nobody has yet checked them against the aircraft's own POH.
 
 ## Build
 
@@ -22,7 +25,9 @@ All three are `draft`: nobody has yet checked them against the aircraft's own PO
 npm ci                    # Playwright, once
 npm run figures           # every figure, both languages -> 09_book_figures/out/
 npm run figures:render    # re-render the 3D illustrations in Blender (only when the model or a camera changes)
+npm run figures:check     # build everything into a temporary folder; fails if any text runs off a figure
 npm test                  # includes tests/figures.test.mjs
+npm run test:figures:py   # the line-drawing rules of the illustrations (numpy)
 ```
 
 | Output | Use |
@@ -46,8 +51,27 @@ To work on one figure, serve the repository root (`npm run serve`) and open
    rather than typing them.
 4. For a figure from the 3D twin, add `data/<name>.render.json` (camera, tinted parts, parts to label)
    and reference it as `render` in the manifest. `render_figure.py` writes the picture and the pixel
-   position of every labelled part; `js/callouts.js` places the labels.
+   position of every labelled part; `js/callouts.js` places the labels. `--quick` gives a small
+   preview in half a minute for choosing the camera; `--anchors-only` moves labels without rendering.
 5. `npm run figures && npm test`.
+
+## How the illustrations are drawn
+
+`blender/render_figure.py` makes each picture in three steps, all from the model itself:
+
+1. **Shading** — a soft studio render in flat neutral tones, with the parts named under
+   `highlights` tinted. No textures and no paint scheme: the picture explains, it does not pretend.
+2. **Drawing data** — two exact renders at twice the size: which part covers each pixel and how far
+   away it is, and which way the surface faces.
+3. **Ink** (`blender/ink.py`) — a heavy line round the aircraft, a medium line wherever two parts meet
+   (door, control surfaces, cowl, windows), a fine line at folds. Slender parts such as aerials and
+   the pitot tube are recognised in the picture and drawn with fine lines only, so they do not turn
+   into black bars.
+
+The lines therefore come from the parts of the model, not from an edge filter on the shaded image
+and not from hand tracing: the same model always gives the same drawing, and correcting the model
+corrects every figure. Line widths are set in the recipe (`ink.outer_px`, `part_px`, `fine_px`, in
+pixels of a 2400-pixel-wide picture). The rules are unit-tested in `tests/test_ink.py`.
 
 ## Files
 
@@ -59,18 +83,21 @@ js/svg.js                  SVG helpers; text alignment that works in both writin
 js/callouts.js             automatic label placement with leader lines
 js/figures/                one module per figure
 data/                      bilingual text per figure; render recipes for 3D figures
-blender/render_figure.py   illustration-style render + label anchor points
+blender/render_figure.py   illustration render (shading, drawing data, ink) + label anchor points
+blender/ink.py             the ink-line rules (numpy only)
 renders/                   rendered illustrations and their anchor files
 css/figure.css             the shared visual language (type, colours, line codes)
 build.mjs                  Chromium build to PDF / SVG / PNG
 vendor/fonts/              IBM Plex Sans Arabic (SIL Open Font License, see OFL.txt)
 tests/figures.test.mjs     manifest, bilingual text, provenance and data-agreement checks
+tests/test_ink.py          ink-line rules
 ```
 
 ## Limits
 
 - The samples are drafts for review, not approved training material. Use the aircraft's POH/AFM.
-- 3D-derived figures inherit the model's geometry status (`estimated` except the POH dimensions).
-  [PLAN.md](PLAN.md) describes how to correct it.
+- 3D-derived figures inherit the model's geometry status. The outline follows photographs of the
+  type and reproduces the published dimensions, but it is still `estimated`: it has not been checked
+  against the FlyGACA aircraft ([shape reference](../08_realistic_digital_twin/docs/05_shape_reference.md)).
 - Arabic terminology follows the vocabulary already used in this repository and needs a native
   instructor's review before print.

@@ -1,5 +1,5 @@
 {
-  "_doc": "Render recipe for blender/render_figure.py. Plan view, nose up, so the aircraft's left wing is on the left of the page. 'highlights' tint the parts the figure is about; 'anchors' are the parts that get a label (their image positions are written to renders/flight-controls.anchors.json). An anchor may carry 'at': [across, down] (0..1) to move its label point within the part.",
+  "_doc": "Render recipe for blender/render_figure.py. Plan view, nose up, so the aircraft's left wing is on the left of the page. 'highlights' tint the parts the figure is about; 'anchors' are the parts that get a label (their image positions are written to renders/flight-controls.anchors.json). An anchor may carry 'at': [across, down] (0..1) to move its label point within the part. 'ink' sets the line widths in pixels of a 2400-pixel-wide picture: outer_px round the aircraft, part_px where two parts meet, fine_px at folds.",
   "id": "flight-controls",
   "camera": {
     "type": "ortho",
@@ -30,9 +30,9 @@
   ],
   "ground_shadow": false,
   "ink": {
-    "inner_px": 2.6,
-    "outer_px": 5.0,
-    "crease_deg": 132
+    "outer_px": 4.6,
+    "part_px": 2.4,
+    "fine_px": 1.5
   },
   "highlights": [
     {
@@ -128,5 +128,8 @@
         0.5
       ]
     }
+  ],
+  "hide": [
+    "ELECTRICAL.adf_sense_wire"
   ]
 }

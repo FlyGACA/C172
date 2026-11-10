@@ -32,4 +32,12 @@
 - Three draft samples: airspeed indicator markings (from `instruments.json`), fuel system schematic, flight control surfaces. Not yet reviewed against the aircraft's POH.
 - Tests: manifest, bilingual text, POH provenance keys, agreement between instrument data, simulation constants and the POH table.
 
+08 — Outline corrected, and 09 — illustrations redrawn (2026-11-10):
+- The Phase 8 airframe did not read as a Cessna 172. Its outline now follows a side-on photograph of the type, scaled by the POH length (`08_realistic_digital_twin/docs/05_shape_reference.md`): stance and propeller clearance, cowl and nose cap, fuselage lines, cabin section, windows, wrap-around windshield and rear window, swept fin with dorsal fin, raked rudder, tail position, wing struts, landing gear and wheel fairings. Overlap of the model's silhouette with the photograph: 0.78 before, 0.90 now. Status remains `estimated` (the type, not a survey of the FlyGACA aircraft).
+- Section tables are interpolated with a shape-preserving cubic instead of an ease curve (no more kinks), the fuselage ends stay square under subdivision (no gap behind the cowl), doors have a gap all round and trim panels inside.
+- The geometry validator now measures the built scene against the published span, length, wheel base, track, tail span and propeller clearance, checks 14 attachments, and fails if any of 255 interior parts shows through the skin.
+- Reference and gallery renders regenerated: the upper cowl is on in every view except the engine views, and the aircraft stands on the apron instead of a blank floor. Paint stripes now continue across the cowl.
+- Book illustrations are drawn with a new renderer: soft shading plus ink lines computed from exact part, depth and surface-direction data (heavy outline, medium part boundaries, fine folds; slender parts drawn fine). New sample S-4, major components of the aircraft, in English and Arabic; S-3 redrawn.
+- Tests: interpolation and stance (Python), ink-line rules (Python), the new figure and recipe checks (node), and a figure build in CI that fails if any text runs off a figure.
+
 **Status:** Phases 01–06 are stored exactly as delivered (verify with `npm run verify:checksums`). No flight-certified or maintenance-grade simulation is claimed.

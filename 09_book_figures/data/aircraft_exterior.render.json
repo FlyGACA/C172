@@ -1,0 +1,214 @@
+{
+  "_doc": "Render recipe for blender/render_figure.py. Three-quarter view from the front left and above, long lens (13 degrees) so the proportions stay close to a drawing; the aircraft fills the frame. The five major components are tinted ('highlights' name the system groups of the model, so every part of a group takes its colour; the fuselage stays neutral). 'anchors' are the parts that get a label. The sun is high so the shadow lies under the aircraft; it is lightened and faded out toward the edges of the picture.",
+  "id": "aircraft-exterior",
+  "camera": {
+    "type": "persp",
+    "pos": [
+      24.7,
+      -30.1,
+      13.2
+    ],
+    "target": [
+      -0.68,
+      1.475,
+      1.17
+    ],
+    "fov": 13.45
+  },
+  "resolution": [
+    2400,
+    1080
+  ],
+  "samples": 96,
+  "shadow_strength": 0.38,
+  "ink": {
+    "outer_px": 4.6,
+    "part_px": 2.4,
+    "fine_px": 1.5
+  },
+  "hide": [
+    "ELECTRICAL.adf_sense_wire"
+  ],
+  "highlights": [
+    {
+      "key": "wings",
+      "ids": [
+        "WING_L",
+        "WING_R"
+      ],
+      "color": "#8DB7E2"
+    },
+    {
+      "key": "empennage",
+      "ids": [
+        "EMPENNAGE"
+      ],
+      "color": "#8FCBA8"
+    },
+    {
+      "key": "gear",
+      "ids": [
+        "GEAR",
+        "AIRFRAME.step_L",
+        "AIRFRAME.step_R"
+      ],
+      "color": "#E8C06A"
+    },
+    {
+      "key": "powerplant",
+      "ids": [
+        "POWERPLANT"
+      ],
+      "color": "#E8A07C"
+    }
+  ],
+  "anchors": [
+    {
+      "key": "propeller",
+      "ids": [
+        "POWERPLANT.propeller"
+      ],
+      "at": [
+        0.12,
+        0.3
+      ]
+    },
+    {
+      "key": "cowl",
+      "ids": [
+        "POWERPLANT.cowl_upper",
+        "POWERPLANT.cowl_lower"
+      ],
+      "at": [
+        0.55,
+        0.5
+      ]
+    },
+    {
+      "key": "nose_wheel",
+      "ids": [
+        "GEAR.nose_wheel_fairing",
+        "GEAR.nose_wheel.tyre"
+      ]
+    },
+    {
+      "key": "main_wheel",
+      "ids": [
+        "GEAR.main_wheel_fairing_L",
+        "GEAR.main_wheel_L.tyre"
+      ]
+    },
+    {
+      "key": "windshield",
+      "ids": [
+        "AIRFRAME.windshield"
+      ],
+      "at": [
+        0.4,
+        0.45
+      ]
+    },
+    {
+      "key": "door",
+      "ids": [
+        "AIRFRAME.door_L"
+      ],
+      "at": [
+        0.5,
+        0.7
+      ]
+    },
+    {
+      "key": "strut",
+      "ids": [
+        "WING_R.strut"
+      ],
+      "at": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "key": "wing",
+      "ids": [
+        "WING_R.wing"
+      ],
+      "at": [
+        0.35,
+        0.45
+      ]
+    },
+    {
+      "key": "aileron",
+      "ids": [
+        "WING_R.aileron"
+      ]
+    },
+    {
+      "key": "flap",
+      "ids": [
+        "WING_L.flap"
+      ],
+      "at": [
+        0.72,
+        0.5
+      ]
+    },
+    {
+      "key": "fuselage",
+      "ids": [
+        "AIRFRAME.fuselage"
+      ],
+      "at": [
+        0.45,
+        0.86
+      ]
+    },
+    {
+      "key": "fin",
+      "ids": [
+        "EMPENNAGE.fin"
+      ],
+      "at": [
+        0.75,
+        0.3
+      ]
+    },
+    {
+      "key": "rudder",
+      "ids": [
+        "EMPENNAGE.rudder"
+      ],
+      "at": [
+        0.5,
+        0.35
+      ]
+    },
+    {
+      "key": "stabilizer",
+      "ids": [
+        "EMPENNAGE.stabilizer"
+      ],
+      "at": [
+        0.8,
+        0.5
+      ]
+    },
+    {
+      "key": "elevator",
+      "ids": [
+        "EMPENNAGE.elevator"
+      ],
+      "at": [
+        0.85,
+        0.7
+      ]
+    }
+  ],
+  "key_rotation": [
+    24,
+    0,
+    -28
+  ],
+  "shadow_feather_px": 110
+}

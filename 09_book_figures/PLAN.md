@@ -1,7 +1,13 @@
 # Book figures — the plan
 
-Written 2026-11-10 against this repository at Phase 8. Three sample figures made the way this plan
+Written 2026-11-10 against this repository at Phase 8. Four sample figures made the way this plan
 recommends are in [`out/preview/`](out/preview/); how they are built is in [`README.md`](README.md).
+
+**Update, same day.** The first three-quarter illustration drawn from the model showed the problem
+described below too plainly: it did not look like a Cessna 172. The shape of the model has since
+been corrected against photographs of the type and the illustration renderer rewritten; sample
+[S-4](out/preview/aircraft-exterior.en.png) is the result. The sections below say what was wrong,
+what was done, and what still depends on photographs and measurements of your own aircraft.
 
 ## The recommendation
 
@@ -18,39 +24,45 @@ each for the job it does best, all in one visual style:
 The twin keeps its place, but as an illustration engine. It does not have to pass for a photograph;
 it has to be *recognisably a 172*, which is a much smaller problem (see "Source 3").
 
-## Why the generated Cessna does not look right
+## Why the generated Cessna did not look right
 
-It is a shape problem, not a rendering problem.
+It was a shape problem, not a rendering problem.
 
-- The model builder is given four real dimensions: span, length, height and propeller diameter
-  (POH Figure 1-1). Every other number — fuselage sections, fin, cowl, windows, fairings — has the
-  status `estimated` in [`units.py`](../08_realistic_digital_twin/blender/c172/units.py) and is typed
-  by hand into tables such as `FUS_TABLE`, `FIN_TABLE` and `COWL_TABLE`.
+- The model builder was given four real dimensions: span, length, height and propeller diameter
+  (POH Figure 1-1). Every other number — fuselage sections, fin, cowl, windows, fairings — had the
+  status `estimated` in [`units.py`](../08_realistic_digital_twin/blender/c172/units.py) and was typed
+  by hand into tables such as `FUS_TABLE` and `COWL_TABLE`.
 - Each phase improved the technique: primitives, then a kinematic model, then Blender surfaces with
   textures and sky lighting. None added shape information. Better rendering of an estimated shape
   gives a sharper picture of a generic high-wing aircraft, and pilots know this outline by heart.
 - A photoreal look is the least forgiving target there is. Every missing rivet line, reflection or
   placard reads as "fake".
 
-What a pilot notices first, and where it comes from:
+What a pilot noticed first, and what was done about it:
 
-| In the model | On the aircraft | Where |
+| In the first model | On the aircraft | Now |
 |---|---|---|
-| Rudder trailing edge is vertical | It rakes aft toward the top | `RUD_TE_FS = 283` is one constant for every height (`airframe.py`) |
-| Fin leading edge has kinks; the dorsal fillet looks serrated in three-quarter views | One smooth swept line into a long, low dorsal fin | `FIN_TABLE` |
-| Rear window is a small flat panel in the roof | A wide window that wraps round the aft cabin | `window_cutters()` |
-| Wheel fairings are large half-discs | Slim teardrops (and many trainers fly without them) | `gear.py` |
-| Nose and cowl proportions | Never checked against the aircraft | `COWL_TABLE`; the spinner station is `estimated` |
+| Stood far too high: 17.6 in under the propeller, belly 31 in above the ground | 11¾ in propeller clearance, belly about 17 in up | Corrected (published clearance; photo-profile) |
+| Rudder trailing edge vertical, fin upright with a kinked fillet | 45° swept fin on a long, low dorsal fin; raked rudder | Corrected (photo-profile) |
+| Tail 29 in too far aft | — | Corrected (photo-profile) |
+| Side windows 22 in tall, flat windshield between thick pillars, small rear window in the roof | 13 in windows, a windshield that wraps round to thin door posts, a rear window over the whole back of the cabin | Corrected (photo-profile, ramp photograph) |
+| Wheel fairings large half-discs | Slim teardrops (and many trainers fly without them) | Corrected (ramp photograph) |
+| Short nose, rectangular light off centre | Longer cowl; one round landing light and the carburettor air inlet on the centreline of the nose cap | Corrected (photo-profile, ramp photograph, POH 7-27) |
 
-Two things make the published pictures look worse than the model is:
+How the outline was measured, the readings, and how far they can be trusted are in
+[`docs/05_shape_reference.md`](../08_realistic_digital_twin/docs/05_shape_reference.md). In short:
+one photograph of a Cessna 172 taken almost exactly side-on, scaled by the POH length, gives the
+side elevation; the model's silhouette now overlaps it by 0.90 (0.78 before). Widths and details
+come from two more photographs and are less certain. The status of the shape stays `estimated`:
+it follows *a* 172, not yet *your* 172.
 
-- **The engine cowl is missing from the first picture people see.** The gallery command in
-  `package.json` passes `--hide POWERPLANT.cowl_upper`, and the committed
-  `docs/renders/phase8_front_quarter.png` (the image at the top of the root README) shows the same
-  open nose with the engine blocks exposed. Rendering it again with the stock command gives a
-  complete aircraft. The visual-regression check passes either way, so it did not catch this.
-- **A white aircraft stands on a white floor in soft light.** There is no tonal contrast to show
-  form. Photographs of white aircraft work because the apron and sky are darker than the paint.
+Two things also made the published pictures look worse than the model was. Both are fixed:
+
+- **The engine cowl was missing from the first picture people see.** The gallery command hid the
+  upper cowl for every view, and the image at the top of the root README showed the engine blocks
+  exposed. Only the engine views leave the cowl off now.
+- **A white aircraft stood on a white floor.** The apron material was not saved with the scene, so
+  the renders had no ground to give contrast. It is now.
 
 ## The principle: realism for recognition, clarity for understanding
 
@@ -124,23 +136,27 @@ schematics; then weight-and-balance and performance charts.
 ghosted inside the airframe, cutaways, exploded assemblies, the engine's moving parts, the same
 aircraft from a fixed angle with different parts highlighted.
 
-**How it is drawn.** Flat neutral tones, ink outlines, colour only on the subject, labels placed by
-code from the model's own part names. Sample: [S-3 flight controls](out/preview/flight-controls.en.png).
-A plan view was chosen because the planform is the most accurate part of the model today.
+**How it is drawn.** Soft neutral tones, ink outlines, colour only on the subject, labels placed by
+code from the model's own part names. Samples: [S-3 flight controls](out/preview/flight-controls.en.png)
+(plan view) and [S-4 major components](out/preview/aircraft-exterior.en.png) (three-quarter view).
 
-**What has to happen first.** Line art puts the outline in front of the reader, so it shows the shape
-errors in the table above even more plainly than a shaded render does. Perspective views of the
-exterior should wait until the shape is corrected. The corrections are a data task, and the builder
-does not need to change:
+The outlines are not traced and not left to a stroke renderer. For every pixel the renderer knows
+exactly which part is there, how far away it is and which way the surface faces; a heavy line is
+drawn round the aircraft, a medium line wherever two parts meet, and a fine line at folds. The same
+model therefore always gives the same clean drawing, at any angle, with any parts tinted.
+
+**What it rests on.** Line art puts the outline in front of the reader, so it is only as good as
+the shape of the model. That shape now follows photographs of the type (see above). Three steps
+turn "a 172" into "your 172", and none of them needs the builder to change:
 
 1. *Capture reference from the real aircraft.* A side, front, rear and (from a ladder, mezzanine or
    drone) top photograph, each taken from as far away as possible with the longest lens available, the
    aircraft level, a tape or scale bar in the frame. A phone LiDAR or photogrammetry scan is a useful
    extra. Glossy white paint and glass scan badly, so treat a scan as a shape reference accurate to a
    few centimetres, not as a finished model.
-2. *Fit the tables to it.* Overlay the model's outline on each photograph and adjust `FUS_TABLE`,
-   `FIN_TABLE`, the rudder trailing edge, `COWL_TABLE`, the window outlines and the fairings until the
-   outlines agree.
+2. *Check the model against it.* The overlay method of `docs/05_shape_reference.md` works with any
+   square-on photograph. Widths, the cowl and the nose cap are the parts most likely to move, because
+   they changed between model years and are the least well covered by the photographs used so far.
 3. *Record it.* Enter the measurements through the existing workflow
    ([`docs/04_aircraft_measurements.md`](../08_realistic_digital_twin/docs/04_aircraft_measurements.md))
    so the affected parts move from `estimated` to `measured`.
@@ -200,7 +216,8 @@ The same sources serve every reader, not only the print run.
 2. Photograph day, including the reference set for the twin.
 3. Instrument figures and system schematics. These need nothing from the 3D model and are most of the
    figures.
-4. Fit the twin's shape to the reference photographs; then the ghosted, cutaway and perspective figures.
+4. Check the twin's shape against the photographs of your own aircraft (it now follows the type);
+   then the ghosted, cutaway and further perspective figures.
 5. Review rounds, then a print proof.
 
 Steps 2 and 3 can start now and do not wait for each other.
@@ -219,7 +236,8 @@ Steps 2 and 3 can start now and do not wait for each other.
 1. Which aircraft is the book's reference, and can it be photographed? The measurement file names a
    profile `HZ-C172`, with serial number and installed equipment still unverified.
 2. The book's format (trim size, colour, print and e-book, language layout).
-3. For the twin: fit it to your own reference (recommended), license a model, or commission one.
+3. For the twin: check it against your own reference photographs (recommended), license a model, or
+   commission one.
 4. Who reviews: an instructor for content, and a reader for the Arabic terminology.
 
 ## Starter figure list
@@ -230,7 +248,8 @@ Adapt it to the book's chapters. P = photograph, V = vector from data, S = vecto
 | Chapter | Figure | Source |
 |---|---|---|
 | The aircraft | Three-view with principal dimensions | V (POH numbers) + 3D outline |
-| | Exterior and its parts | P |
+| | Major components — **sample S-4** | 3D |
+| | Exterior and its parts, as on the ramp | P |
 | | Doors, windows, baggage door | P |
 | Flight controls | Control surfaces — **sample S-3** | 3D |
 | | Control wheel, pedals, trim wheel, flap lever | P |

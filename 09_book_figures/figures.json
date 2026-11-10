@@ -97,7 +97,37 @@
           "what": "Planform and part names; geometry status 'estimated' except the POH span and length"
         }
       ],
-      "notes": "Plan view chosen because the planform is the most accurate part of the current model. Perspective views of the exterior wait for the geometry correction described in PLAN.md.",
+      "notes": "Plan view: the planform is drawn from the POH span and the published tail span. Geometry status 'estimated'; see 08_realistic_digital_twin/docs/05_shape_reference.md.",
+      "status": "draft"
+    },
+    {
+      "id": "aircraft-exterior",
+      "number": "S-4",
+      "module": "aircraft_exterior.js",
+      "kind": "illustration",
+      "method": "render-3d",
+      "width_mm": 160,
+      "title": {
+        "en": "Major components of the aircraft",
+        "ar": "المكوّنات الرئيسية للطائرة"
+      },
+      "data": "data/aircraft_exterior.json",
+      "render": "data/aircraft_exterior.render.json",
+      "sources": [
+        {
+          "poh": "1-3",
+          "what": "Engine model and rating, fixed-pitch propeller, via 08_realistic_digital_twin/data/poh_references.json"
+        },
+        {
+          "poh": "Section 7",
+          "what": "Airframe, landing gear and fuel tank descriptions (page numbers to be confirmed in review)"
+        },
+        {
+          "model": "08_realistic_digital_twin/models/C172N_realistic.blend",
+          "what": "Shape and part names; outline fitted to photographs of the type, status 'estimated' (docs/05_shape_reference.md)"
+        }
+      ],
+      "notes": "The grouping into five components is the usual teaching convention, not POH wording. The nose cap details (single landing light, air inlet) follow a 1970s Cessna 172; confirm against the aircraft.",
       "status": "draft"
     }
   ]

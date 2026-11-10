@@ -5,6 +5,8 @@ Reference aircraft: **Cessna 172N, 1979 model**, factory-standard educational ba
 the configuration of a specific serial number is not verified.
 
 **Latest: [Phase 8 — realistic digital twin (Blender-built airframe, cockpit, engine)](08_realistic_digital_twin/)**
+and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe was corrected
+against photographs of the type on 2026-11-10 ([how](08_realistic_digital_twin/docs/05_shape_reference.md)).
 
 ```bash
 python3 -m http.server 8000
@@ -12,6 +14,8 @@ python3 -m http.server 8000
 ```
 
 ![Phase 8 exterior](08_realistic_digital_twin/docs/renders/phase8_front_quarter.png)
+
+![Book figure S-4: major components of the aircraft](09_book_figures/out/preview/aircraft-exterior.en.png)
 
 ## Phases
 
@@ -27,7 +31,7 @@ python3 -m http.server 8000
 | 06 | [`06_interactive_twin/`](06_interactive_twin/) | 224-part GLB, Three.js viewer, manifest |
 | 07 | [`07_kinematic_twin/`](07_kinematic_twin/) | Rebuilt model with pivots and Lycoming-correct engine, crank-driven animation, documented systems simulation, 10 guided POH scenarios, offline viewer, tests |
 | **08** | [**`08_realistic_digital_twin/`**](08_realistic_digital_twin/) | Blender-scripted realistic model (editable `.blend`, three Draco GLB quality levels, generated PBR textures), full cockpit and O-320 engine assembly, PBR viewer with HDR sky, shadows and AO, bilingual part catalogue, Phase 7 simulation and scenarios, Playwright and CI rebuild checks |
-| 09 | [`09_book_figures/`](09_book_figures/) | Book figures: [the figure plan](09_book_figures/PLAN.md), a browser-based build to print-ready PDF/SVG in English and Arabic, and three sample figures (instrument from data, system schematic, labelled illustration rendered from the Phase 8 model) |
+| 09 | [`09_book_figures/`](09_book_figures/) | Book figures: [the figure plan](09_book_figures/PLAN.md), a browser-based build to print-ready PDF/SVG in English and Arabic, and four sample figures (instrument from data, system schematic, two labelled illustrations drawn from the Phase 8 model) |
 
 Folders 01–06 are the original release packages, imported unchanged; see
 [RELEASES.md](RELEASES.md). Their integrity is checked against
@@ -42,13 +46,14 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm run build:model8` | Rebuild the Phase 8 `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
 | `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
-| `npm run validate:geometry8` | Check mesh health, aircraft bounds, fairing normals and critical skin attachments |
+| `npm run validate:geometry8` | Check mesh health, published dimensions of the built model, attachments, and that nothing inside shows through the skin |
 | `npm run quality` | Validate bilingual metadata, provenance, generated indexes and asset budgets |
 | `npm run measurements:validate` / `npm run measurements:report` | Validate the aircraft survey and compare it with model references |
 | `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
-| `npm run render8` | Cycles reference renders of the Phase 8 model |
+| `npm run render8` / `npm run gallery8` | Cycles reference renders and print-size gallery views of the Phase 8 model |
 | `npm run figures` | Build the book figures (PDF, SVG, review PNG; English and Arabic) into `09_book_figures/out/` |
 | `npm run figures:render` | Re-render the 3D-derived book illustrations and their label anchors in Blender |
+| `npm run figures:check` / `npm run test:figures:py` | Build every figure into a temporary folder (fails if text runs off a figure) / test the ink-line rules of the illustrations |
 | `npm run verify:model` | Rebuild in a temp dir and compare with the committed GLB |
 | `npm run verify:checksums` | Verify the archived phase packages |
 | `npm test` | Unit tests: kinematics, POH-referenced simulation behaviour, scenarios, book-figure manifest and provenance |

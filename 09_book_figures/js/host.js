@@ -40,6 +40,20 @@ try {
   el('title', {}, svg).textContent = entry.title[lang];
   await module.draw({ svg, lang, dir, t, data, entry, json, text: textFactory(dir), width, height });
 
+  // Layout check: no text may run off the figure. A label that does not fit is a build error, not a
+  // surprise at the printer's. (Text is measured after the fonts have loaded, see above.)
+  const toFigure = svg.getScreenCTM().inverse();
+  const stray = [...svg.querySelectorAll('text')].filter((node) => {
+    if (!node.textContent.trim() || node.getAttribute('visibility') === 'hidden') return false;
+    const box = node.getBBox();
+    const local = toFigure.multiply(node.getScreenCTM());
+    return [[box.x, box.y], [box.x + box.width, box.y], [box.x, box.y + box.height], [box.x + box.width, box.y + box.height]].some(([x, y]) => {
+      const point = new DOMPoint(x, y).matrixTransform(local);
+      return point.x < -1 || point.y < -1 || point.x > width + 1 || point.y > height + 1;
+    });
+  });
+  if (stray.length) throw new Error(`${entry.id} [${lang}]: text runs off the figure: ${stray.map((node) => JSON.stringify(node.textContent.trim().slice(0, 40))).join(', ')}`);
+
   if (preview) {
     const caption = document.createElement('div');
     caption.id = 'caption';

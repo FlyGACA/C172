@@ -88,6 +88,26 @@ export function textFactory(dir) {
   };
 }
 
+/**
+ * Break `content` into lines no wider than `maxWidth` figure units, measured in the real font of
+ * class `cls`. Returns the text with "\n" between lines, ready for the text factory.
+ */
+export function wrapLines(parent, content, maxWidth, { cls = 'label', dir = 'ltr' } = {}) {
+  const probe = el('text', { class: cls, direction: dir, visibility: 'hidden' }, parent);
+  const lines = [];
+  for (const paragraph of String(content).split('\n')) {
+    let line = '';
+    for (const word of paragraph.split(/\s+/).filter(Boolean)) {
+      const candidate = line ? `${line} ${word}` : word;
+      probe.textContent = candidate;
+      if (line && probe.getComputedTextLength() > maxWidth) { lines.push(line); line = word; } else line = candidate;
+    }
+    lines.push(line);
+  }
+  probe.remove();
+  return lines.join('\n');
+}
+
 /** Arrowhead centred on (x, y) pointing along `deg` (0 = up, 90 = right, 180 = down). */
 export function arrowHead(parent, x, y, deg, size = 16, cls = 'arrow') {
   const d = `M0 ${-size * 0.9} L${size * 0.62} ${size * 0.5} L${-size * 0.62} ${size * 0.5} Z`;

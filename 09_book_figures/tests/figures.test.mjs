@@ -1,5 +1,7 @@
 // Checks on the book-figure manifest, text and provenance. No browser needed: `npm test`.
-// (Layout problems are caught by `npm run figures:check`, which builds every figure in Chromium.)
+// (Layout problems — text running off a figure, a label whose part is hidden — are caught by
+// `npm run figures:check`, which builds every figure in Chromium; the line-drawing rules of the
+// illustrations are tested in test_ink.py.)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
@@ -89,13 +91,16 @@ test('fuel figure: capacities come from the simulation constants that cite the P
 
 test('3D-rendered figures: recipe, picture and label anchors are consistent with the model', () => {
   const parts = new Set(modelIndex.parts.map((part) => part.name));
+  // a recipe may also name a whole system group (the parent of its parts), e.g. "EMPENNAGE"
+  const groups = new Set(modelIndex.parts.map((part) => part.parent).filter((parent) => parent && !parts.has(parent)));
   for (const figure of manifest.figures.filter((f) => f.method === 'render-3d')) {
     const recipe = read(figure.render);
     const data = read(figure.data);
     const render = read(data.render);
     assert.equal(recipe.id, figure.id);
+    for (const id of recipe.hide || []) assert.ok(parts.has(id) || groups.has(id), `${figure.id}: hidden part ${id} is not in the model`);
     for (const group of [...recipe.highlights, ...recipe.anchors]) {
-      for (const id of group.ids) assert.ok(parts.has(id), `${figure.id}: ${id} is not a part of the model`);
+      for (const id of group.ids) assert.ok(parts.has(id) || groups.has(id), `${figure.id}: ${id} is not a part or a system group of the model`);
     }
     const png = readFileSync(path(`renders/${render.image}`));
     assert.equal(png.subarray(1, 4).toString(), 'PNG');
@@ -107,6 +112,43 @@ test('3D-rendered figures: recipe, picture and label anchors are consistent with
       assert.ok(point.x >= 0 && point.x <= render.width && point.y >= 0 && point.y <= render.height);
       assert.ok(point.label_en && ARABIC.test(point.label_ar), `${figure.id}: ${anchor} has no bilingual model label`);
     }
+  }
+});
+
+test('major-components figure: the legend uses the tints of the picture and every label belongs to a component', () => {
+  const data = read('data/aircraft_exterior.json');
+  const recipe = read('data/aircraft_exterior.render.json');
+  const tints = new Map(recipe.highlights.map((highlight) => [highlight.key, highlight.color.toLowerCase()]));
+  const components = new Map(data.components.map((component) => [component.key, component]));
+  assert.equal(components.size, 5, 'fuselage, wings, empennage, landing gear, powerplant');
+  for (const [key, color] of tints) assert.equal(components.get(key)?.color.toLowerCase(), color, `${key}: legend colour differs from the picture`);
+  const untinted = [...components.keys()].filter((key) => !tints.has(key));
+  assert.deepEqual(untinted, ['fuselage'], 'only the fuselage is left in the neutral tone');
+  const anchors = new Set(recipe.anchors.map((anchor) => anchor.key));
+  assert.equal(new Set(data.callouts.map((callout) => callout.anchor)).size, data.callouts.length, 'a part is labelled once');
+  for (const callout of data.callouts) {
+    assert.ok(anchors.has(callout.anchor), `${callout.anchor}: no such anchor in the render recipe`);
+    assert.ok(components.has(callout.component), `${callout.anchor}: unknown component ${callout.component}`);
+    assert.ok(['left', 'right'].includes(callout.side));
+    for (const lang of manifest.languages) assert.ok(data.strings[lang][`name_${callout.anchor}`], `${callout.anchor}: no ${lang} name`);
+  }
+  for (const key of components.keys()) {
+    for (const lang of manifest.languages) assert.ok(data.strings[lang][key] && data.strings[lang][`${key}_role`], `${key}: incomplete ${lang} legend row`);
+  }
+  // the engine named in the legend is filled in from the POH table when the figure is drawn
+  for (const lang of manifest.languages) assert.match(data.strings[lang].powerplant_role, /\{engine\}.*\{rating\}|\{rating\}.*\{engine\}/s);
+  assert.match(poh.values.find((value) => value.key === 'engine.rating').value, /^\d+ BHP/);
+});
+
+test('illustration recipes use the ink settings the renderer understands', () => {
+  const known = new Set(['enabled', 'color', 'outer_px', 'part_px', 'fine_px', 'fine_strength', 'crease_deg', 'depth_jump_m', 'slender_ratio', 'no_lines']);
+  for (const figure of manifest.figures.filter((f) => f.method === 'render-3d')) {
+    const recipe = read(figure.render);
+    for (const key of Object.keys(recipe.ink || {})) assert.ok(known.has(key), `${figure.id}: unknown ink setting "${key}"`);
+    const ink = { outer_px: 4.6, part_px: 2.4, fine_px: 1.5, ...recipe.ink };
+    assert.ok(ink.outer_px > ink.part_px && ink.part_px > ink.fine_px, `${figure.id}: line weights must run outline > part > fine`);
+    // print resolution: at least 300 pixels per inch at the width the picture is printed
+    assert.ok(recipe.resolution[0] >= 1800, `${figure.id}: picture is too small for print`);
   }
 });
 
