@@ -22,28 +22,36 @@ from mathutils import Vector
 
 from ..units import IN, fs
 from . import lanes
+from . import instruments as I
 from . import structure_fuselage as SF
 from .structure_fuselage import SKIN
 from .common import pipe, union, disc, rod, part, new_bm, Y
 
 LINE = 0.003                      # 1/4 in instrument line as drawn
+APPROACH = 0.03                   # a line runs this far straight into an instrument port
 HOSE = 0.008                      # vacuum hose
 
 
 def build(ctx):
     scene = bpy.data.objects
 
-    def back(instrument, dx=0.0, dz=0.0, depth=0.045):
-        """A point on the back of a panel instrument."""
-        p = scene[f"PANEL.{instrument}.bezel"].matrix_world.translation
-        return Vector((p.x + dx, p.y - depth, p.z + dz))
+    def port(instrument, name):
+        """Where a line joins an instrument: the end of the port on the back of its case (instruments.py)."""
+        return I.port(scene, instrument, name)
 
-    build_pitot_static(ctx, scene, back)
-    build_vacuum(ctx, scene, back)
+    build_pitot_static(ctx, scene, port)
+    build_vacuum(ctx, scene, port)
     build_stall_warning(ctx, scene)
 
 
-def build_pitot_static(ctx, scene, back):
+def join(bm, corners, radius, bend):
+    """A line that ends at an instrument port: it arrives along the port's axis and carries the union nut."""
+    end = corners[-1]
+    pipe(bm, corners[:-1] + [end - Y * APPROACH, end], radius, bend=bend)
+    union(bm, end, Y, radius)
+
+
+def build_pitot_static(ctx, scene, port):
     def add(name, bm, group, en, ar, mat="bare_alu", status="poh", **tags):
         tags.setdefault("assembly", "pitot_static")
         tags.setdefault("ref", "p.7-31")
@@ -60,24 +68,29 @@ def build_pitot_static(ctx, scene, back):
         note="Plumbing connects the instruments to the sources (POH); the route through the leading edge is representative")
     corners = [at_wall] + [SF.post_point("fwd", 1, w, shift=0.55) for w in (66.0, 58.0, 52.0, 47.0)]
     corners += [SF.side_point(28.0, 46.5, 1, SKIN + 0.008), SF.side_point(22.0, 46.5, 1, SKIN + 0.008), SF.side_point(16.5, 46.8, 1, SKIN + 0.012)]
-    asi = back("ASI")
-    corners += [Vector((asi.x + 0.03, fs(16.3), asi.z - 0.04)), asi + Vector((0.012, 0, 0))]
+    asi = port("ASI", "pitot")
+    corners += [Vector((asi.x + 0.02, asi.y - 0.06, asi.z - 0.04)), asi]
     bm = new_bm()
-    pipe(bm, corners, LINE, bend=0.025)
-    union(bm, corners[-1], Y, LINE)
+    join(bm, corners, LINE, 0.02)
     add("PITOT_STATIC.pitot_line", bm, "SYSTEMS", "Pitot pressure line, cabin run: down the door post to the airspeed indicator",
         "خط ضغط البيتوت، مسار المقصورة: نزولاً في قائم الباب إلى مؤشر السرعة الجوية", inside="fuselage",
         note="The pitot-static system supplies ram air pressure to the airspeed indicator (POH); route representative")
 
     # ---- static lines: port, tee behind the panel, three instruments
-    port = scene["PITOT_STATIC.static_port"].matrix_world.translation.copy()
-    tee = Vector((0.30, back("ASI").y - 0.05, 1.615))
+    static_port = scene["PITOT_STATIC.static_port"].matrix_world.translation.copy()
+    # behind the cases the static lines run across in one layer, 30 mm behind the ports and level
+    # with the gap between the two rows of instruments; the vacuum hoses turn 30 mm further forward
+    asi_s, alt_s, vsi_s = port("ASI", "static"), port("ALT", "static"), port("VSI", "static")
+    layer = asi_s.y - APPROACH
+    level = 0.5 * (alt_s.z + scene["PANEL.VSI.bezel"].matrix_world.translation.z)
+    tee = Vector((0.335, layer, level))
+    inlet = Vector((0.43, fs(14.5), 1.52))
     bm = new_bm()
-    pipe(bm, [port + Vector((-0.02, 0, 0)), port + Vector((-0.07, 0.02, 0.03)), Vector((0.43, fs(14.5), 1.52)), tee], LINE, bend=0.03)
-    for instrument, dx, dz in (("ASI", -0.012, 0.0), ("ALT", 0.0, 0.0), ("VSI", 0.0, 0.0)):
-        end = back(instrument, dx, dz)
-        pipe(bm, [tee, Vector((end.x, tee.y, tee.z)), end], LINE, bend=0.015)
-        union(bm, end, Y, LINE)
+    pipe(bm, [static_port + Vector((-0.02, 0, 0)), static_port + Vector((-0.07, 0.02, 0.03)), inlet, tee], LINE, bend=0.03)
+    branch = Vector((alt_s.x, layer, level))
+    join(bm, [tee, Vector((asi_s.x, layer, level)), asi_s], LINE, 0.012)        # each turns up or down in the layer, then aft into its port
+    join(bm, [tee, branch, alt_s], LINE, 0.012)
+    join(bm, [branch, vsi_s], LINE, 0.012)
     add("PITOT_STATIC.static_line", bm, "SYSTEMS", "Static pressure lines: static port to the airspeed indicator, altimeter and rate-of-climb indicator",
         "خطوط الضغط الساكن: من المنفذ الساكن إلى مؤشر السرعة ومقياس الارتفاع ومؤشر معدل الصعود", inside="fuselage",
         note="Static pressure goes to the airspeed indicator, the rate-of-climb indicator and the altimeter (POH); route representative")
@@ -87,7 +100,7 @@ def build_pitot_static(ctx, scene, back):
     rod(bm, valve - Y * 0.02, valve + Y * 0.02, 0.009, segs=10)
     rod(bm, valve + Y * 0.02, valve + Y * 0.06, 0.003, segs=6)
     disc(bm, valve + Y * 0.062, Y, 0.008, 0.008, segs=10)
-    pipe(bm, [valve - Y * 0.02, valve + Vector((0.06, -0.07, 0.08)), tee], LINE, bend=0.03)
+    pipe(bm, [valve - Y * 0.02, valve + Vector((0.06, -0.07, 0.08)), Vector((0.40, layer + 0.015, 1.47)), inlet + (tee - inlet) * 0.5], LINE, bend=0.03)      # under the instruments, into the line from the port
     add("PITOT_STATIC.alternate_static_valve", bm, "SYSTEMS", "Alternate static source valve (optional equipment, next to the throttle)",
         "صمام المصدر البديل للضغط الساكن (تجهيز اختياري، بجانب الخانق)", "brass", inside="fuselage", optional=True,
         note="May be installed adjacent to the throttle; pulled ON it supplies static pressure from inside the cabin if the external port is blocked (POH p.7-31, 3-8)")
@@ -96,7 +109,7 @@ def build_pitot_static(ctx, scene, back):
             scene[name]["assembly"] = "pitot_static"
 
 
-def build_vacuum(ctx, scene, back):
+def build_vacuum(ctx, scene, port):
     def add(name, bm, en, ar, mat="hose_black", status="poh", **tags):
         tags.setdefault("assembly", "vacuum_system")
         tags.setdefault("ref", "p.7-32, 7-33 (Fig 7-9)")
@@ -106,7 +119,8 @@ def build_vacuum(ctx, scene, back):
     firewall_y = fs(1.0)
     relief = Vector((0.17, firewall_y + 0.075, 1.555))
     filter_centre = Vector((0.385, firewall_y + 0.085, 1.50))
-    ai, dg = back("AI", depth=0.075), back("DG", depth=0.075)
+    suction = [port("AI", "suction"), port("DG", "suction")]
+    air = [port("AI", "air"), port("DG", "air")]
 
     bm = new_bm()
     rod(bm, relief - Y * 0.028, relief + Y * 0.028, 0.02, segs=14)
@@ -123,17 +137,17 @@ def build_vacuum(ctx, scene, back):
          HOSE, bend=0.035)
     add("VACUUM.hose_pump_to_relief_valve", bm, "Vacuum hose: pump to relief valve (through the firewall)", "خرطوم التفريغ: من المضخة إلى صمام التنفيس (عبر جدار الحريق)")
     bm = new_bm()
-    tee = Vector((ai.x - 0.02, ai.y - 0.05, 0.5 * (ai.z + dg.z)))
+    tee = Vector((suction[0].x, suction[0].y - 0.06, 0.5 * (suction[0].z + suction[1].z)))
     pipe(bm, [relief + Vector((0.022, 0.0, 0.0)), Vector((tee.x, relief.y, relief.z)), tee], HOSE, bend=0.03)
-    for gyro in (ai, dg):
-        pipe(bm, [tee, Vector((tee.x, tee.y, gyro.z)), gyro + Vector((-0.02, 0, 0))], HOSE, bend=0.02)
+    for end in suction:
+        pipe(bm, [tee, Vector((tee.x, tee.y, end.z)), end], HOSE, bend=0.02)
     add("VACUUM.hose_relief_valve_to_gyros", bm, "Vacuum hoses: relief valve to the attitude and directional indicators", "خراطيم التفريغ: من صمام التنفيس إلى مؤشر الوضع والمؤشر الاتجاهي")
     bm = new_bm()
-    for gyro in (ai, dg):
-        pipe(bm, [filter_centre - Y * 0.04 + Vector((0, 0, 0.012 if gyro is ai else -0.012)), Vector((filter_centre.x, gyro.y - 0.02, gyro.z)), gyro + Vector((0.022, 0, 0))], HOSE, bend=0.03)
+    for end, dz in zip(air, (0.012, -0.012)):
+        pipe(bm, [filter_centre + Y * 0.04 + Vector((0, 0, dz)), filter_centre + Y * 0.07 + Vector((0, 0, dz)), Vector((end.x, end.y - 0.10, end.z)), end], HOSE, bend=0.03)
     add("VACUUM.hose_filter_to_gyros", bm, "Inlet air hoses: air filter to the attitude and directional indicators", "خراطيم هواء الدخول: من المرشح إلى مؤشر الوضع والمؤشر الاتجاهي",
         "hose_blue")
-    gauge = back("SUCTION")
+    gauge = scene["PANEL.SUCTION.bezel"].matrix_world.translation + Vector((0.0, -0.045, 0.0))
     bm = new_bm()
     pipe(bm, [gauge, gauge + Vector((0.0, -0.04, 0.0)), Vector((tee.x - 0.03, tee.y - 0.01, gauge.z + 0.03)), tee + Vector((0, 0, -0.01))], LINE, bend=0.025)
     add("VACUUM.line_suction_gauge", bm, "Suction gage line", "خط مقياس التفريغ", "bare_alu", ref="p.7-34",

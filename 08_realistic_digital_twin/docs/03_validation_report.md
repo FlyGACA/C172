@@ -1,7 +1,8 @@
 # Phase 8 — Validation report
 
 Date: 2026-11-06; sections 1–4 updated 2026-11-10 after the outline of the airframe was corrected
-(see [05_shape_reference.md](05_shape_reference.md)). Environment: Linux x64 container, 4 CPU, no
+against the handbook drawings (see [05_shape_reference.md](05_shape_reference.md)) and the model was
+taken under the skin (see [07_under_the_skin.md](07_under_the_skin.md)). Environment: Linux x64 container, 4 CPU, no
 GPU (Blender Cycles on CPU; browser tests on Chromium with SwiftShader software WebGL). Real-GPU
 numbers must be measured on target devices.
 
@@ -9,16 +10,22 @@ numbers must be measured on target devices.
 
 | Level | Objects | Triangles | GLB size | Build time | Subdivision | Textures |
 |---|---|---|---|---|---|---|
-| high | 337 | 355 948 | 4.6 MB | 26–28 s | 2 | 2048 px |
-| medium | 337 | 186 566 | 3.3 MB | 12–13 s | 1 | 1024 px |
-| low | 337 | 93 589 | 2.1 MB | 13–14 s (incl. decimation) | 1 + decimate 0.5 | 512 px |
+| high | 841 | 488 746 | 6.2 MB | 55–60 s | 2 | 2048 px |
+| medium | 340 | 191 628 | 3.3 MB | 15–20 s | 1 | 1024 px |
+| low | 340 | 96 123 | 2.1 MB | 15–22 s (incl. decimation) | 1 + decimate 0.5 | 512 px |
+
+The high level carries detail level 1 (structure, control runs, systems, the insides of the engine
+and of the instruments: 501 parts under the skin);
+medium and low are the basic model of 340 parts. The editable scene also holds detail level 2
+(fasteners and the hardware kit, 241 parts), which is in no web model: 1 082 parts in all, listed in
+`models/parts_all.json` and [06_parts_index.md](06_parts_index.md).
 
 All three are far inside the budgets set in `02_modeling_architecture.md` (25 / 12 / 5 MB,
-600 k / 250 k / 100 k triangles). Editable source `models/C172N_realistic.blend`: 1.1 MB
+600 k / 250 k / 100 k triangles). Editable source `models/C172N_realistic.blend`: 2.9 MB
 (compressed, modifiers live, cutters in a hidden collection, textures relative).
 
 `scripts/validate_glb.py` — all levels **OK**: glTF 2.0 binary, Draco required, every primitive has
-NORMAL + TEXCOORD_0 and a PBR material (39 materials, 23 images), every mesh node carries
+NORMAL + TEXCOORD_0 and a PBR material (42 materials in the high level, 23 images), every mesh node carries
 `system`, `label_en`, `label_ar`, `status ∈ {measured, poh, type_data, estimated}` extras.
 
 Determinism: two consecutive builds produced identical object lists, triangle counts and file
@@ -28,12 +35,15 @@ Spatial regression: `blender/validate_geometry.py` measures the built scene and 
 
 - non-finite or newly degenerate mesh data (existing generator debt is capped at 56 degenerate
   faces per crankcase half, so it cannot silently increase) and aircraft-envelope violations;
-- a built dimension that differs from the published one: wing span, length, wheel base, track,
-  propeller ground clearance, tail span, tyres on the ground (table in section 2);
-- a strut, fairing, gear leg, step, fin, stabiliser or cowl half that neither intersects its
-  neighbour nor comes within 2–3 cm of it (14 attachments), and downward wing-root-fairing normals;
-- any of the 255 parts of the engine, panel and cabin that reaches more than 3 mm outside the skin,
-  tested against the section tables the skin is lofted from.
+- a built dimension that differs from the published one: wing span over the tips and over the strobe
+  lights, length, wheel base, track, tail span, tyres on the ground, and the maximum height together
+  with the propeller clearance, which the POH gives for the nose gear depressed (table in section 2);
+- a strut, fairing, gear leg, step, fin, stabiliser, cowl half, door, baggage door or wing that
+  neither intersects its neighbour nor comes within 1–3 cm of it (19 attachments);
+- any of the 431 parts in the fuselage and cowl (engine, panel, cabin, structure, control runs,
+  pipes, wiring) that reaches more than 3 mm outside the skin, tested against the section tables the
+  skin is lofted from, and any of the 155 parts in the wings that leaves the wing section. Every
+  detail level is checked, the fasteners included.
 
 The last check exists because the first corrected build had rudder pedals, harness anchors and
 engine baffles showing through the new, lower fuselage; it found all of them.
@@ -49,53 +59,56 @@ the constants the model was built with):
 
 | Quantity | Published | Built model | Tolerance |
 |---|---|---|---|
-| Wing span over the tips (lights excluded) | 35 ft 10 in = 10.922 m | 10.922 m | 2 cm |
-| Length, spinner tip to rudder | 26 ft 11 in = 8.204 m (POH Fig 1-1) | 8.203 m | 3 cm |
-| Wheel base | 65 in = 1.651 m | 1.651 m | 1 cm |
-| Gear track | 8 ft 3½ in = 2.527 m | 2.527 m | 1 cm |
-| Propeller ground clearance | 11¾ in = 0.298 m | 0.298 m | 1.5 cm |
+| Wing span with strobe lights installed | 36 ft = 10.973 m (POH Fig 1-1, note 1) | 10.973 m | 2 cm |
+| Wing span over the tips | 35 ft 10 in = 10.922 m (type data) | 10.922 m | 2 cm |
+| Length, spinner tip to rudder, aircraft on its wheels | 26 ft 11 in = 8.204 m (POH Fig 1-1) | 8.202 m | 3 cm |
+| Wheel base | 65 in = 1.651 m | 1.653 m | 1 cm |
+| Main wheel track | 8 ft 4½ in = 2.553 m (POH Fig 1-1) | 2.553 m | 1 cm |
 | Span of the horizontal tail | 11 ft 4 in = 3.454 m | 3.454 m | 2 cm |
+| Maximum height, nose gear depressed until the propeller clears the ground by 11¾ in | 8 ft 9½ in = 2.680 m (POH Fig 1-1, note 2) | 2.651 m | 3 cm |
 | Propeller diameter | 75 in = 1.905 m (POH 1-3) | 1.905 m | unit test |
 | Wing area | 174 ft² (type data) | 174.5 ft² from the planform | unit test (±4 ft²) |
 
-Height: the POH gives 8 ft 9½ in as the maximum, with the nose gear depressed. At rest the top of
-the beacon is 96.5 in (2.45 m) above the ground in the reference photograph, and that is what the
-model reproduces.
+Height and propeller clearance: the POH gives both for the nose gear depressed. At rest the model's
+propeller clears the ground by 16.9 in and the beacon is 93.7 in high; pushing the nose wheel 3.6 in
+down, which a strut and a tyre can give, brings the clearance to the published 11¾ in and the height
+to 2.651 m, 2.9 cm under the published maximum. The validator and a unit test hold the two together.
 
-One inconsistency in the repository's own data is left for the POH check: `units.py` carries the
-span as 35 ft 10 in "Fig 1-1", while `data/poh_references.json` records "span 36 ft" from the same
-figure. The model measures 10.92 m over the wing tips and 11.00 m (36 ft 1 in) over the navigation
-lights, so the two figures may simply be the span without and with the tip lights.
+Span: the POH figure of 36 ft is the span "with strobe lights installed"; the type data's 35 ft 10 in
+is the span over the wing tips. The model reproduces both.
 
-Outline: the side elevation follows a photograph of a Cessna 172 taken almost exactly side-on and
-scaled by the POH length. The model's silhouette, rendered from the direction of the photograph,
-overlaps it by 0.90 (0.78 for the first Phase 8 model); the remaining difference is the wings and
-wheels of an aircraft in flight. Method, readings and limits are in
-[05_shape_reference.md](05_shape_reference.md). Cross-sections, the nose cap and the wheel fairings
-come from two further photographs read by eye. The geometry status therefore remains
-**estimated**: it follows the type, not a survey of the FlyGACA aircraft.
+Outline: the side, top and front views of the model, drawn to scale by `blender/threeview.py`, are
+laid over the manufacturer's three-view drawing and the cabin figures of the handbook. Fuselage,
+cabin openings, wing planform and tail agree within about an inch in the side and top views. Method,
+readings and what remains uncertain (the nose and wheel fairings of this model year, cross-sections,
+the pitch of the fuselage reference line) are in [05_shape_reference.md](05_shape_reference.md). The
+geometry status remains **estimated**: it follows the type's drawings, not a survey of the FlyGACA
+aircraft.
 
 ## 3. Automated tests
 
 | Suite | Result |
 |---|---|
-| `tests/test_profiles.py` (airfoil, superellipse, resampling, shape-preserving interpolation, units, stance) | 13 / 13 pass |
+| `tests/test_profiles.py` (airfoil, superellipse, resampling, shape-preserving interpolation, units, stance, sheet-metal geometry) | 20 / 20 pass |
 | `tests/kinematics.test.mjs` (GLB ↔ kinematics ↔ POH plug map ↔ labels) | 8 / 8 pass |
 | `tests/sim.test.mjs`, `tests/scenarios.test.mjs` (Phase 7 behaviour, re-run on the Phase 8 copies) | 35 / 35 pass |
 | Phase 7 suites (`07_kinematic_twin/tests`) | unchanged, 41 / 41 pass |
 | `scripts/validate_glb.py` | 3 / 3 levels OK |
-| `blender/validate_geometry.py` | 11 critical objects, 14 attachments, 6 published dimensions, 255 interior parts inside the skin, fairing normals OK |
+| `blender/validate_geometry.py` | 14 critical objects, 19 attachments, 7 published dimensions, 549 parts inside the fuselage skin, 155 inside the wing skin |
+| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 082 parts, bilingual, status, POH page), parts index up to date |
+| `09_book_figures/tests/test_ink.py` (ink-line rules, camera framing) | 12 / 12 pass |
 | `scripts/compare_renders.py` | 3 canonical render views within perceptual thresholds |
 
 ## 4. Browser test (`tests/e2e.mjs`, Playwright Chromium + SwiftShader)
 
-Final run: **10 / 10 checks passed** (`?test=1` disables the GTAO pass; everything else as shipped).
+Final run: **11 / 11 checks passed** (`?test=1` disables the GTAO pass; everything else as shipped).
 
 | Check | Result |
 |---|---|
-| high level loads: 10 system groups, 337 parts, no console errors | ok |
-| doors open, flaps 30°, aileron input moves the surfaces | ok |
+| high level loads: 10 system groups, 841 parts, no console errors | ok |
+| doors open, flaps 40°, aileron input moves the surfaces | ok |
 | part selection shows bilingual info and the status badge (propeller → POH) | ok |
+| confidence overlay colours the parts by provenance and restores the materials | ok |
 | exploded assembly animation displaces parts from their system centres | ok |
 | engine mode removes the upper cowl; start from the cockpit controls (BAT/ALT, prime, throttle, BOTH, START) → engine runs, crank turns, piston 1 on the right bank, 2 on the left | ok |
 | cockpit mode: camera at the pilot's eye, tachometer needle follows the simulation | ok |
@@ -109,11 +122,11 @@ of a real GPU; draw calls and triangles are device-independent):
 
 | Level | Load to interactive | Draw calls | Triangles per frame (incl. shadow pass) |
 |---|---|---|---|
-| high | 4.6 s | 690 | 621 576 |
-| medium | 1.8 s | 687 | 342 028 |
-| low | 1.7 s | 681 | 171 468 |
+| high | — | 1 702 | 974 924 |
+| medium | 1.9 s | 706 | 383 664 |
+| low | 1.7 s | 701 | 191 394 |
 
-Draw calls are dominated by part count (331 selectable objects); the next optimisation step would
+Draw calls are dominated by part count (841 selectable objects in the high level); the next optimisation step would
 be merging static exterior parts into fewer meshes for the low level while keeping the part
 index for selection.
 

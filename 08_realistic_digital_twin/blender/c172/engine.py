@@ -20,6 +20,18 @@ CYL = {1: (-1, 0.140, 180), 2: (1, 0.096, 0), 3: (-1, -0.095, 0), 4: (1, -0.139,
 CASE_HALF_W = 0.125       # crankcase half width at the cylinder decks
 HEAD_X0 = CASE_HALF_W + 0.118    # start of the head
 HEAD_X1 = HEAD_X0 + 0.115        # end of the head (rocker cover beyond)
+ROCKER_BOX_Z = (-0.055, 0.085)   # the rocker cover, below and above the cylinder axis: the push rods come in at its top
+PUSHROD_Z = (0.080, 0.066)       # height of a push rod above the crank axis: where it leaves the crankcase, at the rocker box
+VALVE_STEM = 0.111               # length of a valve stem: its tip stands in the rocker box
+VALVE_DY = 0.032                 # the two valves, tappets and push rods of a cylinder lie this far fore and aft of its axis
+CAM_Z = 0.082                    # the camshaft lies this far above the crankshaft
+OIL_COOLER = (-0.30, fs(-0.9), 1.09)   # centre of the oil cooler: lower right side of the firewall (POH p.7-18)
+
+def pushrod_z(x):
+    """Height above the crank axis of a push rod (and of its shroud tube) at distance x from the centreline."""
+    x0, x1 = CASE_HALF_W - 0.01, HEAD_X1 + 0.002
+    return PUSHROD_Z[0] + (PUSHROD_Z[1] - PUSHROD_Z[0]) * (abs(x) - x0) / (x1 - x0)
+
 
 def cyl_center_y(c):
     return ORIGIN.y - CYL[c][1]
@@ -103,16 +115,17 @@ def build_cylinder(ctx, grp, c):
     ctx.tag(head, "ENGINE", f"Cylinder {c} head (aluminium, deep cooling fins, two plugs)", f"رأس الأسطوانة {c}", status="estimated", cyl=c, xray=True)
     # rocker cover
     bm = new_bm()
-    box(bm, (0.04, 0.16, 0.11), center=(side * (HEAD_X1 + 0.02), yc, zc))
+    box(bm, (0.04, 0.16, ROCKER_BOX_Z[1] - ROCKER_BOX_Z[0]), center=(side * (HEAD_X1 + 0.02), yc, zc + 0.5 * (ROCKER_BOX_Z[0] + ROCKER_BOX_Z[1])))
     rc = obj_from_bm(f"ENGINE.rocker_cover_{c}", bm, ctx.col, pivot=(side * HEAD_X1, yc, zc), mat=M["lycoming_grey"], smooth=False)
     add_bevel(rc, 0.012, 3)
     _link(rc, grp)
     ctx.tag(rc, "ENGINE", f"Rocker cover {c} (valve gear)", f"غطاء الروافع {c}", status="estimated", cyl=c)
-    # pushrod shroud tubes (Lycoming: camshaft above the crank, tubes along the top of the cylinder)
+    # pushrod shroud tubes (Lycoming: camshaft above the crank, tubes along the top of the cylinder, into the head)
     bm = new_bm()
-    for dy in (-0.032, 0.032):
-        tube(bm, [Vector((side * (x0 - 0.01), yc + dy, zc + 0.085)), Vector((side * (HEAD_X1 - 0.02), yc + dy, zc + 0.095))], 0.009, segs=10)
-    pr = obj_from_bm(f"ENGINE.pushrod_tubes_{c}", bm, ctx.col, pivot=(side * x0, yc, zc + 0.085), mat=M["bare_alu"])
+    tube_end = HEAD_X0 + 0.012
+    for dy in (-VALVE_DY, VALVE_DY):
+        tube(bm, [Vector((side * (x0 - 0.01), yc + dy, zc + PUSHROD_Z[0])), Vector((side * tube_end, yc + dy, zc + pushrod_z(tube_end)))], 0.009, segs=10)
+    pr = obj_from_bm(f"ENGINE.pushrod_tubes_{c}", bm, ctx.col, pivot=(side * x0, yc, zc + PUSHROD_Z[0]), mat=M["bare_alu"])
     _link(pr, grp)
     ctx.tag(pr, "ENGINE", f"Pushrod shroud tubes {c}", f"أنابيب قضبان الدفع {c}", status="estimated", cyl=c)
     # spark plugs: top and bottom of the head, with leads to the dual magneto
@@ -178,7 +191,7 @@ def build_cylinder(ctx, grp, c):
     for kind, dy in (("intake", 0.032), ("exhaust", -0.032)):
         bm = new_bm()
         xv = side * (HEAD_X0 + 0.01)
-        tube(bm, [Vector((xv, yc + dy, zc)), Vector((xv + side * 0.09, yc + dy, zc))], 0.004, segs=8)
+        tube(bm, [Vector((xv, yc + dy, zc)), Vector((xv + side * VALVE_STEM, yc + dy, zc))], 0.004, segs=8)
         revolve(bm, [(0.0, 0.0), (0.021, 0.0), (0.021, side * 0.004), (0.0, side * 0.004)], axis="X", origin=(xv, yc + dy, zc), segs=16)
         vo = obj_from_bm(f"ENGINE.valve_{kind}_{c}", bm, ctx.col, pivot=(xv, yc + dy, zc), mat=M["chrome"])
         _link(vo, grp)
@@ -207,7 +220,7 @@ def build_crank_train(ctx, grp):
     ctx.tag(crank, "ENGINE", "Crankshaft (pins 1 & 4 at 180°, 2 & 3 at 0°; firing order 1-3-2-4)", "عمود المرفق", status="type_data", ref="Lycoming O-320 firing order 1-3-2-4", animate="crank", spin_axis="y", spin_sign=-1, internal=True)
     # camshaft above the crank with lobes, half speed
     bm = new_bm()
-    zc = ORIGIN.z + 0.082
+    zc = ORIGIN.z + CAM_Z
     revolve(bm, [(0.0, fs(-31)), (0.014, fs(-31)), (0.014, fs(-9.5)), (0.0, fs(-9.5))], axis="Y", origin=(0, 0, zc), segs=14)
     for c in CYL:
         yc = cyl_center_y(c)
@@ -268,12 +281,13 @@ def build_accessories(ctx, grp):
     _link(of, grp)
     ctx.tag(of, "OIL", "Full-flow oil filter (spin-on)", "فلتر الزيت", status="poh", ref="p.7-24")
     bm = new_bm()
-    box(bm, (0.05, 0.14, 0.13), center=(-0.30, fs(-9), zc - 0.02))
+    cooler = Vector(OIL_COOLER)
+    box(bm, (0.14, 0.05, 0.13), center=cooler)
     for i in range(10):
-        box(bm, (0.052, 0.002, 0.13), center=(-0.30, fs(-9) - 0.06 + i * 0.013, zc - 0.02))
-    oc = obj_from_bm("OIL.oil_cooler", bm, ctx.col, pivot=(-0.30, fs(-9), zc - 0.02), mat=M["bare_alu"], smooth=False)
+        box(bm, (0.002, 0.052, 0.13), center=(cooler.x - 0.06 + i * 0.013, cooler.y, cooler.z))
+    oc = obj_from_bm("OIL.oil_cooler", bm, ctx.col, pivot=cooler, mat=M["bare_alu"], smooth=False)
     _link(oc, grp)
-    ctx.tag(oc, "OIL", "Oil cooler (on the right rear baffle, cooling air from the inlet)", "مبرّد الزيت", status="poh", ref="p.7-24")
+    ctx.tag(oc, "OIL", "Oil cooler (on the lower right side of the firewall)", "مبرّد الزيت (على الجانب الأيمن السفلي لجدار الحريق)", status="poh", ref="p.7-18")
     bm = new_bm()
     tube(bm, [Vector((0.05, fs(-10), zc + 0.10)), Vector((0.05, fs(-10.5), zc + 0.155))], 0.012, segs=10)
     revolve(bm, [(0.0, 0.0), (0.02, 0.0), (0.02, 0.02), (0.0, 0.02)], axis="Z", origin=(0.05, fs(-10.5), zc + 0.155), segs=12)

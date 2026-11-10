@@ -76,8 +76,9 @@ def command_list(args):
 def command_render(args):
     width, height = (int(v) for v in args.size.lower().split("x"))
     name = args.name or args.part[0].replace("*", "all").replace(".", "_").replace("/", "_")
-    chosen = RF.resolve(args.part, hidden=True)
-    for ob in chosen:                                   # a part of the upper detail levels may be hidden in the saved scene
+    phantoms = RF.resolve(args.ghost, hidden=True) if args.ghost else []
+    chosen = [ob for ob in RF.resolve(args.part, hidden=True) if ob not in phantoms]
+    for ob in chosen + phantoms:                        # a part of the upper detail levels may be hidden in the saved scene
         ob.hide_render = False
         ob.hide_viewport = False
     chosen_names = [ob.name for ob in chosen]
@@ -92,11 +93,14 @@ def command_render(args):
         spec["camera"]["target"] = args.target
     if args.distance:
         spec["camera"]["distance"] = args.distance
+    if phantoms:
+        spec["ghost"] = [ob.name for ob in phantoms]
     if args.context:
-        keep = set(chosen_names)
-        spec["ghost"] = [ob.name for ob in bpy.data.objects
-                         if ob.type == "MESH" and not ob.hide_render and ob.name not in keep and not ob.name.startswith("_") and int(ob.get("detail", 0)) == 0
-                         and ob.get("system") not in ("INTERIOR", "PANEL")]
+        keep = set(chosen_names) | set(spec.get("ghost", []))
+        spec["ghost"] = spec.get("ghost", []) + [
+            ob.name for ob in bpy.data.objects
+            if ob.type == "MESH" and not ob.hide_render and ob.name not in keep and not ob.name.startswith("_") and int(ob.get("detail", 0)) == 0
+            and ob.get("system") not in ("INTERIOR", "PANEL")]
         if args.frame == "part":
             spec["camera"]["of"] = chosen_names
     else:
@@ -148,6 +152,7 @@ def main():
     render = sub.add_parser("render")
     render.add_argument("--part", nargs="+", required=True)
     render.add_argument("--context", action="store_true", help="draw the rest of the aircraft as a phantom")
+    render.add_argument("--ghost", nargs="+", metavar="ID", help="draw these parts as a phantom: a case round its mechanism, a skin over its structure")
     render.add_argument("--frame", choices=("part", "aircraft"), default="part")
     render.add_argument("--name")
     render.add_argument("--out", default=os.path.join(RF.ROOT, "parts"))

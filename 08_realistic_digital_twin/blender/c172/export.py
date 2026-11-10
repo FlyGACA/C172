@@ -77,6 +77,37 @@ def model_index(ctx, lod):
         systems[e.get("system", "?")] += 1
     return {"lod": lod, "objects": len(entries), "triangles": tris, "systems": systems, "parts": entries}
 
+def parts_list(ctx):
+    """Every part of the editable scene, all detail levels: what part.py and the parts index work from."""
+    deps = bpy.context.evaluated_depsgraph_get()
+    parts = []
+    for ob in sorted(ctx.col.objects, key=lambda o: o.name):
+        if "system" not in ob:
+            continue
+        entry = dict(id=ob.name, system=ob.get("system", ""), en=ob.get("label_en", ""), ar=ob.get("label_ar", ""), parent=ob.parent.name if ob.parent else None)
+        if ob.get("group"):
+            entry["group"] = True
+        if ob.type == "MESH":
+            mesh = ob.evaluated_get(deps).to_mesh()
+            entry.update(detail=int(ob.get("detail", 0)), status=ob.get("status", ""), triangles=sum(len(p.vertices) - 2 for p in mesh.polygons))
+            ob.evaluated_get(deps).to_mesh_clear()
+            for key in ("assembly", "ref", "note", "count", "station_in", "optional", "kit"):
+                if key in ob:
+                    entry[key] = _plain(ob[key])
+        parts.append(entry)
+    meshes = [p for p in parts if "detail" in p]
+    summary = dict(parts=len(meshes), by_detail={}, by_system={}, assemblies={})
+    for p in meshes:
+        summary["by_detail"][str(p["detail"])] = summary["by_detail"].get(str(p["detail"]), 0) + 1
+        summary["by_system"][p["system"]] = summary["by_system"].get(p["system"], 0) + 1
+        for name in str(p.get("assembly", "")).split(","):
+            if name:
+                summary["assemblies"][name] = summary["assemblies"].get(name, 0) + 1
+    for key in summary:
+        if isinstance(summary[key], dict):
+            summary[key] = dict(sorted(summary[key].items()))
+    return dict(summary=summary, parts=parts)
+
 def write_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

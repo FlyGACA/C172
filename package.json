@@ -16,6 +16,7 @@
     "validate:glb8": "python3 08_realistic_digital_twin/scripts/validate_glb.py",
     "validate:geometry8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/validate_geometry.py",
     "quality": "python3 08_realistic_digital_twin/scripts/quality_gate.py",
+    "parts:index": "python3 08_realistic_digital_twin/scripts/parts_index.py",
     "measurements:validate": "python3 08_realistic_digital_twin/scripts/measurements.py validate 08_realistic_digital_twin/data/aircraft_measurements.json",
     "measurements:report": "python3 08_realistic_digital_twin/scripts/measurements.py report 08_realistic_digital_twin/data/aircraft_measurements.json /tmp/c172_measurement_deviation.md",
     "test:py8": "python3 08_realistic_digital_twin/tests/test_profiles.py",

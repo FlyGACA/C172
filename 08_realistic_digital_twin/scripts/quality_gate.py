@@ -115,6 +115,30 @@ def validate_models(gate: Gate) -> None:
         gate.check(part_sets.get(lod) == expected, f"{lod}: part set differs from the high model's parts of detail level <= {LOD_DETAIL[lod]}")
 
 
+def validate_parts_list(gate: Gate) -> None:
+    """models/parts_all.json lists every part of the editable scene, all detail levels; the parts index is written from it."""
+    data = gate.json("models/parts_all.json")
+    parts = [part for part in data.get("parts", []) if "detail" in part]
+    gate.check(bool(parts), "parts list is empty")
+    ids = [part.get("id", "") for part in parts]
+    gate.check(len(ids) == len(set(ids)), "parts list: duplicate ids")
+    for part in parts:
+        gate.check(part.get("status") in STATUS, f"parts list: {part.get('id')}: invalid status")
+        gate.check(bool(part.get("en")) and bool(part.get("ar")), f"parts list: {part.get('id')}: incomplete bilingual label")
+        gate.check(part.get("detail") in (0, 1, 2), f"parts list: {part.get('id')}: invalid detail level")
+        gate.check(part.get("status") != "poh" or bool(part.get("ref")) or part.get("detail") == 0, f"parts list: {part.get('id')}: a part documented from the POH needs its page (ref)")
+    high = {part.get("name") for part in gate.json("models/model_index_high.json").get("parts", [])}
+    in_web_model = {part["id"] for part in parts if part["detail"] <= LOD_DETAIL["high"]}
+    gate.check(in_web_model == high, "parts list: the parts of detail level 0-1 differ from the high web model")
+    path = P8 / "scripts" / "parts_index.py"
+    spec = importlib.util.spec_from_file_location("quality_parts_index", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    index = P8 / "docs" / "06_parts_index.md"
+    gate.check(index.is_file() and bool(data) and index.read_text(encoding="utf-8") == module.render(data),
+               "docs/06_parts_index.md is out of date: run python3 08_realistic_digital_twin/scripts/parts_index.py")
+
+
 def validate_manifest_and_assets(gate: Gate) -> None:
     manifest = gate.json("phase8_manifest.json")
     gate.check(manifest.get("phase") == 8, "manifest phase must be 8")
@@ -145,6 +169,7 @@ def main() -> int:
     validate_references(gate)
     validate_instruments(gate)
     validate_models(gate)
+    validate_parts_list(gate)
     validate_manifest_and_assets(gate)
     validate_measurements(gate)
     if gate.errors:
@@ -152,7 +177,7 @@ def main() -> int:
         for error in gate.errors:
             print(f"  - {error}")
         return 1
-    print("Quality gate OK: catalog, provenance, instruments, LOD indexes, manifests and asset budgets")
+    print("Quality gate OK: catalog, provenance, instruments, LOD indexes, parts list, manifests and asset budgets")
     return 0
 
 

@@ -4312,10 +4312,10 @@
   },
   {
    "system": "OIL",
-   "label_en": "Oil cooler (on the right rear baffle, cooling air from the inlet)",
-   "label_ar": "مبرّد الزيت",
+   "label_en": "Oil cooler (on the lower right side of the firewall)",
+   "label_ar": "مبرّد الزيت (على الجانب الأيمن السفلي لجدار الحريق)",
    "status": "poh",
-   "ref": "p.7-24",
+   "ref": "p.7-18",
    "id": "OIL.oil_cooler",
    "detail": 0,
    "name": "OIL.oil_cooler",
@@ -4477,6 +4477,6 @@
   }
  ],
  "file": "C172N_realistic_low.glb",
- "bytes": 2109616,
- "build_seconds": 22.2
+ "bytes": 2109560,
+ "build_seconds": 16.5
 }

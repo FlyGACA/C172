@@ -5,8 +5,12 @@ Reference aircraft: **Cessna 172N, 1979 model**, factory-standard educational ba
 the configuration of a specific serial number is not verified.
 
 **Latest: [Phase 8 — realistic digital twin (Blender-built airframe, cockpit, engine)](08_realistic_digital_twin/)**
-and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe was corrected
-against photographs of the type on 2026-11-10 ([how](08_realistic_digital_twin/docs/05_shape_reference.md)).
+and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe follows the
+manufacturer's three-view drawing ([how](08_realistic_digital_twin/docs/05_shape_reference.md)), and the
+model goes under the skin: structure, control runs, systems, the insides of the engine and of the
+instruments, and fasteners, as 1,082 separate named parts,
+any of which can be drawn or exported on its own ([parts index](08_realistic_digital_twin/docs/06_parts_index.md),
+[atlas](09_book_figures/atlas/README.md)).
 
 ```bash
 python3 -m http.server 8000
@@ -47,7 +51,11 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
 | `npm run validate:geometry8` | Check mesh health, published dimensions of the built model, attachments, and that nothing inside shows through the skin |
-| `npm run quality` | Validate bilingual metadata, provenance, generated indexes and asset budgets |
+| `npm run quality` | Validate bilingual metadata, provenance, generated indexes, the parts list and asset budgets |
+| `npm run parts:index` | Write the parts index (`08_realistic_digital_twin/docs/06_parts_index.md`) from the built model's parts list |
+| `npm run part:list` / `npm run part -- render ...` / `npm run part -- export ...` | List every part of the Phase 8 model; draw any part, assembly or system on its own or in the phantom aircraft; export it as a GLB |
+| `python3 09_book_figures/atlas.py` | Redraw the atlas: one picture of every assembly under the skin |
+| `npm run threeview8 -- --out DIR` | Scaled outline drawings of the model, to lay over the handbook three-view |
 | `npm run measurements:validate` / `npm run measurements:report` | Validate the aircraft survey and compare it with model references |
 | `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
 | `npm run render8` / `npm run gallery8` | Cycles reference renders and print-size gallery views of the Phase 8 model |

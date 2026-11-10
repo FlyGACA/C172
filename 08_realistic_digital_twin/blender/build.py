@@ -149,6 +149,7 @@ def main():
             bpy.ops.file.make_paths_relative()
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             print("saved", blend)
+            export.write_json(os.path.join(args.out, "parts_all.json"), export.parts_list(ctx))      # every part, all detail levels
             keep = min(top, spec["detail"])
             if keep < top:
                 for ob in list(ctx.col.objects):
