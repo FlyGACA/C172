@@ -4690,7 +4690,7 @@
    "detail": 0,
    "name": "AIRFRAME.marking_wordmark_L",
    "triangles": 180,
-   "parent": "AIRFRAME"
+   "parent": "AIRFRAME.fuselage"
   },
   {
    "keep_faces": true,
@@ -4704,7 +4704,7 @@
    "detail": 0,
    "name": "AIRFRAME.marking_wordmark_R",
    "triangles": 180,
-   "parent": "AIRFRAME"
+   "parent": "AIRFRAME.fuselage"
   },
   {
    "keep_faces": true,
@@ -4718,7 +4718,7 @@
    "detail": 0,
    "name": "EMPENNAGE.marking_wordmark_L",
    "triangles": 96,
-   "parent": "EMPENNAGE"
+   "parent": "EMPENNAGE.fin"
   },
   {
    "keep_faces": true,
@@ -4732,7 +4732,7 @@
    "detail": 0,
    "name": "EMPENNAGE.marking_wordmark_R",
    "triangles": 96,
-   "parent": "EMPENNAGE"
+   "parent": "EMPENNAGE.fin"
   },
   {
    "keep_faces": true,
@@ -4792,6 +4792,6 @@
   }
  ],
  "file": "C172N_realistic_medium.glb",
- "bytes": 5348740,
- "build_seconds": 18.0
+ "bytes": 5348952,
+ "build_seconds": 20.2
 }

@@ -18,7 +18,8 @@ LIFT = 0.0012          # how far it stays above the paint
 
 def marking(ctx, name, cell, centre, width, across, up, target, parent, label_en, label_ar, segments=(18, 5), note=""):
     """A marking of the decal atlas, `width` wide, its letters running along `across` with their tops toward `up`,
-    pressed onto `target` from the side that across x up looks out of."""
+    pressed onto `target` from the side that across x up looks out of. Its parent is the skin it lies on, so that
+    it goes where that skin goes: with a flap, and in an exploded view."""
     (u0, v0, u1, v1), aspect = decal_cells()[cell]
     height = width / aspect
     out = Vector(across).cross(Vector(up)).normalized()
@@ -60,14 +61,14 @@ def build(ctx):
     # ---- the operator's wordmark on the rear fuselage, above the band, read from each side
     if fus:
         for side, sx in (("L", 1), ("R", -1)):
-            marking(ctx, f"AIRFRAME.marking_wordmark_{side}", "WORDMARK", (sx * 0.34, fs(137.5), 1.548), 0.50, Y * sx, Z, fus, ctx.groups["AIRFRAME"],
+            marking(ctx, f"AIRFRAME.marking_wordmark_{side}", "WORDMARK", (sx * 0.34, fs(137.5), 1.548), 0.50, Y * sx, Z, fus, fus,
                     f"Operator's wordmark, {'left' if sx > 0 else 'right'} side", "شعار المشغّل، الجانب " + ("الأيسر" if sx > 0 else "الأيمن"))
     # ---- the fin: the wordmark again, above the band
     fin = scene.get("EMPENNAGE.fin")
     if fin:
         for side, sx in (("L", 1), ("R", -1)):
             # between the band and the point where the ADF sense wire meets the leading edge (WL 80), so the wire does not cross it
-            marking(ctx, f"EMPENNAGE.marking_wordmark_{side}", "WORDMARK", (sx * 0.02, fs(243.5), wl(75.4)), 0.36, Y * sx, Z, fin, ctx.groups["EMPENNAGE"],
+            marking(ctx, f"EMPENNAGE.marking_wordmark_{side}", "WORDMARK", (sx * 0.02, fs(243.5), wl(75.4)), 0.36, Y * sx, Z, fin, fin,
                     f"Operator's wordmark on the fin, {'left' if sx > 0 else 'right'} side", "شعار المشغّل على الزعنفة، الجانب " + ("الأيسر" if sx > 0 else "الأيمن"), segments=(12, 4))
     # ---- beside each fuel filler: the grade and the quantity (POH p.1-3: 100LL or 100; p.1-4: 21.5 gal in each standard tank)
     for side in ("L", "R"):
