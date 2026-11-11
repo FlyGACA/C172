@@ -331,10 +331,17 @@ def svg(plate, picture_bytes, anchors, mime="image/jpeg", curves=None):
         "</svg>", ""])
 
 
+def missing_sprites(plate):
+    """The pictures of the aeroplane that a re-skinned plate lays on its old drawing and that are not on disk. Only the ones it uses count (reskin.sprites_used), so a
+    picture that is not rendered yet (the spin, an instrument) holds up the plates that lay it and no others."""
+    from reskin import sprites_used
+    return [name for name in sprites_used(plate) if not os.path.exists(os.path.join(HERE, "renders", name + ".png"))]
+
+
 def has_render(plate):
     """Whether the pictures of a plate are on disk. The raw renders of new plates are not kept in git (they are large): `npm run plates:render` makes them."""
     if "reskin" in plate:
-        return all(os.path.exists(os.path.join(HERE, "renders", sprite["id"] + ".png")) for sprite in SPEC["sprites"])
+        return not missing_sprites(plate)
     if "layers" in plate:
         return all(os.path.exists(png) and os.path.exists(anchors) for _n, png, anchors, _b in layers_of(plate))
     if "source" in plate:
@@ -352,7 +359,8 @@ def main():
         if wanted and plate["id"] not in wanted:
             continue
         if not wanted and not has_render(plate):
-            print(f"skipped {plate['id']}: no render on disk (npm run plates:render makes it; the finished plate is in out/book)")
+            missing = f" ({', '.join(missing_sprites(plate))})" if "reskin" in plate else ""
+            print(f"skipped {plate['id']}: no render on disk{missing} (npm run plates:render makes it; the finished plate is in out/book)")
             continue
         if "reskin" in plate:                       # an old figure with the model's aeroplane in it (reskin.py): only the flat picture is made
             from reskin import reskin

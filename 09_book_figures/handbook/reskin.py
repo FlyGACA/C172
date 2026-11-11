@@ -157,3 +157,15 @@ def reskin(plate, sprite_markup, sprite_aspect):
     root = re.search(r"<svg[^>]*>", svg).group(0)
     new_root = root.replace("<svg ", '<svg xmlns:xlink="http://www.w3.org/1999/xlink" data-px-per-unit="3" ', 1) if "data-px-per-unit" not in root else root
     return svg.replace(root, new_root, 1)
+
+
+def sprites_used(plate):
+    """The names of the pictures of the aeroplane (figs/sprites.py) that a re-skinned plate lays on its old drawing. The re-skin is run with a stand-in for the
+    picture maker that only takes note of each name, so no render is needed: build_plates.py waits for these renders and for no others."""
+    names = set()
+
+    def note(o, x, y):
+        names.add(o["name"])
+        return ""
+    reskin(plate, note, lambda name: 0.3)
+    return sorted(names)

@@ -63,7 +63,8 @@ developed spin, rendered once on a transparent background, and the four instrume
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
 them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
 (`renders/`) and the web SVGs (`out/<id>.svg`) of these plates are **not kept in git** (they are large): `npm run plates:render` makes them
-again, and `build_plates.py` skips a plate whose render is missing.
+again, and `build_plates.py` skips a plate whose render is missing (a re-skinned plate waits only for the pictures of the aeroplane it lays on its drawing,
+and the message names the ones missing; a plate named on the command line is built or fails).
 
 ## What changed against the figures it replaces
 
