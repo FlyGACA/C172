@@ -46,7 +46,8 @@ def scale(plate):
 def ground(base, plate, anchors):
     """What lies under the aircraft, drawn into the background before the render goes on: "ground" lists sectors of light
     ({"type": "wedge", "at": anchor or "pos": [x, y], "r", "from", "to" (degrees clockwise from straight up), "colour", "opacity", "fade"})
-    and dotted lines ({"type": "dots", "from", "to", "step", "r", "colour", "opacity"}). A sector drawn over the picture (the "wedge"
+    dotted lines ({"type": "dots", "from", "to", "step", "r", "colour", "opacity"}), the ground ({"type": "band", "at": anchor, "colour", "colour2"}) and a
+    soft shadow on it ({"type": "contact", "at": anchor, "rx", "ry", "opacity", "blur"}). A sector drawn over the picture (the "wedge"
     overlay) would dull the aircraft.""" 
     cw, ch = plate["canvas"]
     k = scale(plate)
@@ -62,6 +63,24 @@ def ground(base, plate, anchors):
                 px, py = (xa + (xb - xa) * i / n) * k * 2, (ya + (yb - ya) * i / n) * k * 2
                 pen.ellipse([px - rr, py - rr, px + rr, py + rr], fill=rgb + (round(255 * g.get("opacity", 0.4)),))
             base.alpha_composite(big.resize(base.size, Image.LANCZOS))
+            continue
+        if g["type"] == "band":                                                    # the ground: from the anchor's line down to the bottom of the canvas, a gradient
+            _x, y = pts[g["at"]] if "at" in g else (0, g["y"])
+            top, bottom = g["colour"], g.get("colour2", g["colour"])
+            y0 = round(y * k)
+            band = Image.new("RGBA", base.size, (0, 0, 0, 0))
+            for row in range(y0, base.size[1]):
+                t = (row - y0) / max(1, base.size[1] - y0)
+                ImageDraw.Draw(band).line([(0, row), (base.size[0], row)], fill=tuple(round(top[c] + (bottom[c] - top[c]) * t) for c in range(3)) + (round(255 * g.get("opacity", 1.0)),))
+            base.alpha_composite(band)
+            continue
+        if g["type"] == "contact":                                                 # a soft flat shadow under an aeroplane standing on the ground
+            x, y = pts[g["at"]] if "at" in g else g["pos"]
+            layer = Image.new("L", base.size, 0)
+            ImageDraw.Draw(layer).ellipse([(x - g["rx"]) * k, (y - g["ry"]) * k, (x + g["rx"]) * k, (y + g["ry"]) * k], fill=round(255 * g.get("opacity", 0.35)))
+            layer = layer.filter(ImageFilter.GaussianBlur(g.get("blur", 6) * k))
+            dark = Image.new("RGBA", base.size, (20, 24, 34, 0)); dark.putalpha(layer)
+            base.alpha_composite(dark)
             continue
         if g["type"] != "wedge":
             raise ValueError(f"{plate['id']}: unknown ground item {g['type']!r}")
@@ -97,6 +116,10 @@ def picture(plate, lossless=False, anchors=None):
         for (name, path, _anchors, box), layer in zip(layers_of(plate), plate["layers"]):
             x, y, w, h = box
             piece = Image.open(path).convert("RGBA").resize((round(w * k), round(h * k)), Image.LANCZOS)
+            if layer.get("round"):                       # rounded corners (canvas units): a picture in a frame
+                big = Image.new("L", (piece.width * 2, piece.height * 2), 0)
+                ImageDraw.Draw(big).rounded_rectangle([0, 0, big.width - 1, big.height - 1], radius=layer["round"] * k * 2, fill=255)
+                piece.putalpha(ImageChops.multiply(piece.split()[3], big.resize(piece.size, Image.LANCZOS)))
             shadow = layer.get("shadow")
             if shadow:                                   # a soft shadow under the picture, so that it stands off the page (the box needs room for it)
                 blurred = piece.split()[3].filter(ImageFilter.GaussianBlur(shadow.get("blur", 6) * k)).point(lambda v: round(v * shadow.get("opacity", 0.32)))
@@ -244,6 +267,10 @@ def overlays(plate, anchors, curves=None):
         elif kind == "sprite":                               # the aeroplane from figs/sprites.py, centred on a point of the canvas
             x, y = where(o["at"] if "at" in o else o["pos"])
             out.append(sprite_markup(o, x, y))
+        elif kind == "polygon":                              # a filled shape through anchors and canvas points (a cover, a plug, a streamer)
+            points = " ".join(f"{num(x)},{num(y)}" for x, y in (where(q) for q in o["points"]))
+            edge = f' stroke="{colour(o.get("stroke", "#FFFFFF"))}" stroke-width="{o.get("width", 1.6)}" stroke-linejoin="round"' if o.get("stroke", "#FFFFFF") else ""
+            out.append(f'<polygon points="{points}" fill="{colour(o["fill"])}" opacity="{o.get("opacity", 1.0)}"{edge}/>')
         elif kind == "cg":
             p = pts[o["at"]]; out.append(centre_of_gravity(p[0], p[1], o.get("r", 8.5)))
         elif kind == "path":                                 # a 3D curve of the recipe, projected: an axis, a turning arrow, a track

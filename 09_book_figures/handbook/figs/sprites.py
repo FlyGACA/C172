@@ -4,6 +4,7 @@ plate lays on its canvas, as many times as it needs, at any place, size and head
     sprite-top    from above, nose up (propeller as a disc)
     sprite-top-night   the same by moonlight, lights off (a night figure draws the lights itself)
     sprite-side   from the right, nose to the right
+    sprite-side-left   from the left, nose to the left
     sprite-front  from ahead
     sprite-rear   from behind
 
@@ -18,10 +19,12 @@ def sprites():
     return [
         {"id": "sprite-top", "width_m": WIDTH_M, "render": {**common, "pitch": {"deg": 0.0, "about": [0, 0, 1.3]},
             "camera": {"view": "side", "target": [0, 1.95, 0.8], "width": WIDTH_M, "azimuth": 0, "elevation": 90, "up": [0, -1, 0]}, "size": [1536, 1536]}},
-        {"id": "sprite-top-night", "width_m": WIDTH_M, "render": {**common, "pitch": {"deg": 0.0, "about": [0, 0, 1.3]}, "light": "night",
+        {"id": "sprite-top-night", "width_m": WIDTH_M, "render": {**common, "pitch": {"deg": 0.0, "about": [0, 0, 1.3]}, "light": "night", "exposure": 1.1,
             "camera": {"view": "side", "target": [0, 1.95, 0.8], "width": WIDTH_M, "azimuth": 0, "elevation": 90, "up": [0, -1, 0]}, "size": [1536, 1536]}},
         {"id": "sprite-side", "width_m": WIDTH_M, "render": {**common,
             "camera": {"view": "side", "target": [0, 1.95, 1.25], "width": WIDTH_M, "azimuth": 0, "elevation": 0}, "size": [1536, 640]}},
+        {"id": "sprite-side-left", "width_m": WIDTH_M, "render": {**common, "mirror": True,
+            "camera": {"view": "side", "target": [0, 1.95, 1.25], "width": WIDTH_M, "azimuth": 180, "elevation": 0}, "size": [1536, 640]}},
         {"id": "sprite-front", "width_m": WIDTH_M, "render": {**common,
             "camera": {"view": "side", "target": [0, 1.95, 1.25], "width": WIDTH_M, "azimuth": 90, "elevation": 0}, "size": [1536, 640]}},
         {"id": "sprite-rear", "width_m": WIDTH_M, "render": {**common, "propeller": "none",

@@ -15,7 +15,7 @@ await mkdir(FLAT, { recursive: true });
 const browser = await chromium.launch();
 for (const file of files) {
   const svg = await readFile(join(SRC, file), 'utf8');
-  const [, w, h] = /viewBox="0 0 (\d+) (\d+)"/.exec(svg);
+  const [, w, h] = /viewBox="-?[0-9.]+[ ,]+-?[0-9.]+[ ,]+([0-9.]+)[ ,]+([0-9.]+)"/.exec(svg);          // (the origin of an old figure's viewBox may be off zero)
   const scale = +(/data-px-per-unit="([\d.]+)"/.exec(svg)?.[1] ?? 3);
   const page = await browser.newPage({ viewport: { width: +w, height: +h }, deviceScaleFactor: scale });
   await page.setContent(`<!doctype html><body style="margin:0;background:#fff">${svg.replace(/^<\?xml[^>]*>\s*/, '')}</body>`);

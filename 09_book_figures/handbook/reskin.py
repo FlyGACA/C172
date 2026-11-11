@@ -2,7 +2,8 @@
 in old/, the drawing the book had) and swaps its flat aeroplane symbols for pictures of the model (figs/sprites.py), in the same place, heading and
 size (a little larger, so the picture can be read), tinted where the symbol was coloured; the fonts are the book's (Inter, JetBrains Mono).
 
-    "reskin": {"svg": "fig-18-06-circuit.svg", "grow": 1.7, "grow_side": 1.4, "extra": [overlays], "remove": [regex, ...]}
+    "reskin": {"svg": "fig-18-06-circuit.svg", "grow": 1.7, "grow_side": 1.4, "remove": [regex, ...],
+               "drop": [[from text, up to text]], "sprites": [sprite overlays with "at"], "markup": "svg markup"}  (the last three: a stretch of the old drawing replaced)
 
 build_plates.py writes the result to cache/flat-src/<id>.svg like any plate; rasterize.mjs and book_plates.py do the rest."""
 import math
@@ -28,6 +29,10 @@ BIG = re.compile(r'<g transform="translate\(([-\d.]+),([-\d.]+)\) rotate\(([-\d.
 # the same, from the side (nose toward +x, wheels on y = 0), inside a group that puts it in place: the picture goes in the group, whatever else is in it stays
 SIDE_SILHOUETTE = re.compile(r'<path d="(M-30\.2 -17\.7[^"]*)"([^>]*)/>(?:<line x1="1\.2" y1="-13\.3" x2="[-\d.]+" y2="[-\d.]+"[^>]*/>)?')       # (and its blue flap mark, which the picture shows itself)
 
+# a line-drawn side view (fuselage outline, wing and gear lines, two wheels, a strut) in whatever attitude: the stall sequences
+LINE_SIDE = re.compile(r'<path d="(M [^"]+)" fill="#e8eefc" stroke="#1f2937" stroke-width="1\.4"/>\s*(?:<line[^>]*/>\s*){1,2}'
+                       r'<circle cx="([-\d.]+)" cy="([-\d.]+)" r="3"[^>]*/>\s*<circle cx="([-\d.]+)" cy="([-\d.]+)" r="3"[^>]*/>\s*<line[^>]*/>')
+
 DARK = "#1f2937"
 LOOK = {"outline": {"width": 0.5, "colour": "#2B3648", "opacity": 0.9}, "shadow": {"dx": 1.2, "dy": 2.0, "blur": 1.5, "opacity": 0.26}}
 
@@ -48,7 +53,24 @@ def reskin(plate, sprite_markup, sprite_aspect):
     with open(os.path.join(HERE, "old", cfg["svg"]), encoding="utf-8") as f:
         svg = f.read()
     for pattern in cfg.get("remove", []):
-        svg = re.sub(pattern, "", svg)
+        svg = re.sub(pattern, "", svg, flags=re.S)
+    for old, new in cfg.get("replace", []):                  # a few words of the old drawing changed (a colour, a ground)
+        if old not in svg:
+            raise ValueError(f"{plate['id']}: {old[:60]!r} is not in the old drawing")
+        svg = svg.replace(old, new)
+    for spec in cfg.get("drop", []):                         # a stretch of the old drawing taken out (from the first text up to the second) and the new things put there
+        start, end = spec[0], spec[1]
+        a = svg.index(start)
+        b = svg.index(end, a)
+        extra = spec[2] if len(spec) > 2 else None           # {"sprites": [...], "markup": "..."} for this stretch alone; otherwise the figure's own, at the first
+        piece = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in extra.get("sprites", [])) + extra.get("markup", "") if extra else "@@INSERT@@"
+        svg = svg[:a] + piece + svg[b:]
+    insert = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in cfg.get("sprites", [])) + cfg.get("markup", "")
+    if "@@INSERT@@" in svg:
+        svg = svg.replace("@@INSERT@@", insert, 1)
+    else:                                                    # (under everything else of the old drawing, as its own symbols were: after the white ground)
+        ground = re.search(r'<rect x="0" y="0" width="[\d.]+" height="[\d.]+" fill="#ffffff"/>', svg)
+        svg = svg[:ground.end()] + insert + svg[ground.end():] if ground and insert else svg.replace("</svg>", insert + "</svg>", 1)
 
     def top(m):
         angle, cx, cy = float(m.group(1)), float(m.group(2)), float(m.group(3))
@@ -115,6 +137,17 @@ def reskin(plate, sprite_markup, sprite_aspect):
         h_units = width * sprite_aspect("sprite-side")
         return sprite_markup(o, (min(xs) + max(xs)) / 2, max(ys) - h_units / 2 + 0.6)
 
+    def line_side(m):
+        nums = [float(v) for v in re.findall(r"-?\d+\.?\d*", m.group(1))]
+        xs, ys = nums[0::2], nums[1::2]
+        x1, y1, x2, y2 = (float(m.group(i)) for i in (2, 3, 4, 5))
+        pitch_down = math.degrees(math.atan2(y2 - y1, x2 - x1))                         # the line through the wheels, nose wheel on the right
+        left, right = min(xs), max(xs)
+        top, bottom = min(ys), max(y2, y1) + 3
+        return sprite_markup({"name": "sprite-side", "width": (right - left) * cfg.get("grow_line_side", 1.18), "angle": pitch_down, **look(DARK, cfg)},
+                             (left + right) / 2 + 2, (top + bottom) / 2)
+
+    svg = LINE_SIDE.sub(line_side, svg)
     svg = SIDE_SILHOUETTE.sub(side_silhouette, svg)
     svg = SILHOUETTE.sub(silhouette, svg)
     svg = TOP.sub(top, svg)

@@ -73,7 +73,7 @@ class PlateSpec(unittest.TestCase):
                 if o["type"] in ("glowdot", "icon", "text", "wedge", "sprite") and isinstance(o.get("at"), str):
                     self.assertIn(o["at"], anchors, f"{p['id']}: {o['type']} at the anchor {o['at']!r}, which the recipe does not define")
             for g in p.get("ground", []):
-                self.assertIn(g["type"], ("wedge", "dots"), p["id"])
+                self.assertIn(g["type"], ("wedge", "dots", "band", "contact"), p["id"])
                 if isinstance(g.get("at"), str):
                     self.assertIn(g["at"], anchors, f"{p['id']}: ground item {g} names an anchor the recipe does not define")
 
