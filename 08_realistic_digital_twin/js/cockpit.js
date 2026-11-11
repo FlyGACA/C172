@@ -55,6 +55,7 @@ export class FirstPerson {
     this.enabled = true;
     v.manualCamera = true; v.controls.enabled = false; v.camAnim = null;
     v.camera.near = 0.03; v.camera.updateProjectionMatrix();
+    v.setIndoors?.(true);
     if (view) this.lookAt(view, true);
     this.place();
   }
@@ -66,6 +67,7 @@ export class FirstPerson {
     this.enabled = false; this.keys.clear(); this._paint();
     v.manualCamera = false; v.controls.enabled = true;
     v.camera.fov = this.saved.fov; v.camera.near = this.saved.near; v.camera.updateProjectionMatrix();
+    v.setIndoors?.(false);
     v.renderer.domElement.style.cursor = '';
   }
 

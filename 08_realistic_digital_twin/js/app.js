@@ -500,9 +500,10 @@ function advance(dt) {
   const key = JSON.stringify(ctx.done || []) + (ctx.magResult ? 'm' : '') + (scenario.lesson ? `${scenario.report(ctx).length}:${Math.floor((ctx.reportClock || 0) / 2)}` : '');
   if (key !== lastStepState) { lastStepState = key; renderScenario(); } else evaluateSteps(scenario, sim, ctx);
 }
-viewer.onFrame.push((dt) => {
-  // in steps of a thirtieth of a second at most: a slow frame or a fast clock must not coarsen the controls
-  if (!paused) for (let left = dt * timeScale; left > 1e-6; left -= 1 / 30) advance(Math.min(1 / 30, left));
+viewer.onFrame.push((dt, elapsed = dt) => {
+  // the simulation keeps time with the clock, in steps of a thirtieth of a second at most: a slow frame or a fast
+  // clock must not coarsen the controls
+  if (!paused) for (let left = elapsed * timeScale; left > 1e-6; left -= 1 / 30) advance(Math.min(1 / 30, left));
   viewer.tickCamera(dt);
   if (explodeAnim) { explodeAnim.t = Math.min(1, explodeAnim.t + dt / 1.6); const k = 1 - Math.pow(1 - explodeAnim.t, 3); const v = explodeAnim.from + (explodeAnim.to - explodeAnim.from) * k; $('explode').value = v; rig && rig.setExplode(v); if (explodeAnim.t >= 1) explodeAnim = null; }
   if (seat && seat.enabled) seat.tick(dt);

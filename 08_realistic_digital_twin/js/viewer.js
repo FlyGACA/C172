@@ -26,8 +26,10 @@ export function pickQuality(qs) {
   if (q && QUALITY[q]) return q;
   const mem = navigator.deviceMemory || 8;
   const mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || innerWidth < 800;
-  if (mobile || mem <= 2) return 'low';
-  if (mem <= 4 || (navigator.hardwareConcurrency || 8) <= 4) return 'medium';
+  // a tablet has the screen and the memory for the medium level; a telephone gets the low one
+  const tablet = mobile && Math.min(screen.width, screen.height) >= 700;
+  if (mem <= 2 || (mobile && !tablet)) return 'low';
+  if (tablet || mem <= 4 || (navigator.hardwareConcurrency || 8) <= 4) return 'medium';
   return 'high';
 }
 
@@ -165,8 +167,16 @@ export class Viewer {
       return made.get(m);
     };
     const seen = new Set(), clear = this.q.glass === 'clear' && this.fx;
+    this.glass = [];                       // the window and instrument glass, with how strongly each mirrors the sky from outside
+    // Bright metal in the cabin would mirror the open sky, which it cannot see: under the roof it gets a third of it.
+    const indoors = new Map();
+    const inCabin = (o) => /^(INTERIOR|PANEL)$/.test(o.userData.system ?? o.parent?.userData.system ?? '');
     root.traverse((o) => {
       if (!o.isMesh || !o.material || Array.isArray(o.material)) return;
+      if (inCabin(o) && o.material.metalness > 0.5) {
+        if (!indoors.has(o.material)) { const m = o.material.clone(); m.name = o.material.name; m.envMapIntensity = 0.3; indoors.set(o.material, m); }
+        o.material = indoors.get(o.material);
+      }
       const name = o.material.name || '';
       if (/^(skin_|paint_)/.test(name)) o.material = physical(o.material);
       if (/^glass_|^instrument_glass/.test(name) && clear) o.material = physical(o.material);
@@ -186,7 +196,20 @@ export class Viewer {
         if (clear) { m.transparent = false; m.opacity = 1; m.transmission = 1; m.thickness = 0.002; m.ior = 1.5; m.roughness = 0.02; m.color.setRGB(1, 1, 1); m.envMapIntensity = 0.6; m.depthWrite = true; }
         else { m.opacity = 0.08; m.roughness = 0.02; m.envMapIntensity = 3.0; }
       }
+      if (/^glass_|^instrument_glass/.test(name)) this.glass.push({ material: m, outdoors: m.envMapIntensity });
+      // markings and lettering lie a millimetre over the surface they are on: from far away the depth buffer cannot
+      // tell the two apart, so they are drawn as lying on top
+      if (/^(markings|panel_placards)/.test(name)) { m.polygonOffset = true; m.polygonOffsetFactor = -2; m.polygonOffsetUnits = -6; }
     });
+  }
+
+  /**
+   * From a seat in the cabin the inner face of the glass mirrors the cabin, which is dark, not the sky: seen from
+   * there the windows are clear. Outside they carry the sky's reflection again.
+   */
+  setIndoors(on) {
+    this.indoors = !!on;
+    for (const g of this.glass || []) g.material.envMapIntensity = g.outdoors * (on ? 0.1 : 1);
   }
 
   _buildPasses() {
@@ -227,8 +250,12 @@ export class Viewer {
 
   start() {
     const loop = () => {
-      const dt = Math.min(0.1, this.clock.getDelta());
-      for (const f of this.onFrame) f(dt);
+      // dt moves what is drawn (cameras, doors): no more than a tenth of a second, so a slow frame is not a jump.
+      // elapsed is for what must keep time with the clock (the simulation): up to half a second of it a frame,
+      // so that a slow device does not see the aircraft's systems in slow motion.
+      const raw = this.clock.getDelta();
+      const dt = Math.min(0.1, raw), elapsed = Math.min(0.5, raw);
+      for (const f of this.onFrame) f(dt, elapsed);
       if (!this.manualCamera) this.controls.update();      // the pilot's seat places the camera itself
       // the sky is always round the camera, and as far as the camera sees
       this.sky.position.copy(this.camera.position); this.sky.scale.setScalar(this.camera.far * 0.9);
