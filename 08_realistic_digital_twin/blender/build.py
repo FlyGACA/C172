@@ -153,10 +153,14 @@ def main():
                 if ob.get("detail", 0) > export.SHOWN_DETAIL:
                     ob.hide_render = True
             blend = args.blend or os.path.join(args.out, "C172N_realistic.blend")
+            from c172 import cockpit
+            cockpit.pose_pointers(ctx.col.objects, True)         # the saved scene shows a parked aircraft: engine stopped, master switch off
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             bpy.ops.file.make_paths_relative()
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             print("saved", blend)
+            cockpit.pose_pointers(ctx.col.objects, False)        # the web model carries its pointers at zero: the viewer turns them
+            bpy.context.view_layer.update()
             export.write_json(os.path.join(args.out, "parts_all.json"), export.parts_list(ctx))      # every part, all detail levels
             keep = min(top, spec["detail"])
             if keep < top:

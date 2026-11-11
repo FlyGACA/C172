@@ -75,6 +75,28 @@ INSTRUMENT_NAMES = {
     "OIL_T": ("Oil temperature gage", "مقياس حرارة الزيت"), "OIL_P": ("Oil pressure gage", "مقياس ضغط الزيت"), "AMMETER": ("Ammeter", "مقياس التيار"),
 }
 
+# What the pointers show in the saved scene: the engine stopped and the master switch off (the electric indicators
+# rest at the foot of their scales). Readings by instrument, in its own units; the clock stands at ten past ten.
+REST_READINGS = {"ASI": 0.0, "VSI": 0.0, "TACH": 0.0, "SUCTION": 0.0, "FUEL_L": 0.0, "FUEL_R": 0.0, "OIL_T": 50.0, "OIL_P": 0.0, "AMMETER": 0.0}
+REST_ANGLES = {"CLOCK_H": 305.0, "CLOCK_M": 60.0}
+
+def pose_pointers(objects, at_rest=True):
+    """Turn the pointers to what they show on a parked aircraft (at_rest), or back to the zero of their dials.
+    The editable scene is saved at rest, so that a render of the cockpit does not show a climb and a running
+    engine; the web model is exported at zero, where the rig of the viewer takes the pointers over."""
+    import json
+    from .dials import DATA, value_to_angle
+    with open(DATA, encoding="utf-8") as f:
+        specs = json.load(f)["instruments"]
+    for ob in objects:
+        kind = ob.get("needle")
+        if not kind:
+            continue
+        angle = 0.0
+        if at_rest:
+            angle = value_to_angle(specs[kind], REST_READINGS[kind]) if kind in REST_READINGS and kind in specs else REST_ANGLES.get(kind, 0.0)
+        ob.rotation_euler = (0.0, -math.radians(angle), 0.0)          # clockwise as the pilot sees it
+
 def stack_rows():
     """The radios of the stack: (region, height of the middle of its face, height of its face), top to bottom."""
     rows = []; top = STACK_TOP
