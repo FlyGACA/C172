@@ -5,7 +5,7 @@ what has been added underneath, so that any part can be shown on its own or in p
 pulley, the fuel selector valve, a rocker arm, the capsule of the airspeed indicator, a row of
 rivets, a single bolt.
 
-- **Which parts exist, and their ids:** [`06_parts_index.md`](06_parts_index.md) (1,193 parts, English and Arabic names).
+- **Which parts exist, and their ids:** [`06_parts_index.md`](06_parts_index.md) (1,198 parts, English and Arabic names).
 - **Pictures of every assembly:** [`../../09_book_figures/atlas/`](../../09_book_figures/atlas/README.md).
 - **How to draw or export a part:** [`../../09_book_figures/README.md`](../../09_book_figures/README.md#any-part-on-its-own).
 
@@ -15,9 +15,9 @@ Every part carries a level.
 
 | Level | What | Parts | Where it is |
 |---|---|---|---|
-| 0 | Basic model: skins, glass, gear, cockpit, engine as seen with the cowl off | 342 | every web model, the `.blend` |
+| 0 | Basic model: skins, glass, gear, cockpit, engine as seen with the cowl off | 369 | every web model, the `.blend` |
 | 1 | Under the skin: structure, control runs, system components, wiring, the insides of the engine and of the instruments, cabin air and lights, the seat, door and baggage fittings, the avionics installation | 582 | the **high** web model, the `.blend` |
-| 2 | Fasteners (rivet rows, screws, bolts), the hardware kit, and what is fitted or used only on the ground (control lock, rudder gust lock, pitot tube cover, tie-down ropes, tow bar, fuel sampler cup) | 250 | the `.blend` only; left out of renders until a figure asks for them |
+| 2 | Fasteners (rivet rows, screws, bolts), the hardware kit, and what is fitted or used only on the ground (control lock, rudder gust lock, pitot tube cover, tie-down ropes, tow bar, fuel sampler cup) | 247 | the `.blend` only; left out of renders until a figure asks for them |
 
 The medium and low web models stay basic, so that tablets and phones do not download what they will
 not show. A figure recipe sets `"detail": 2` to see the fasteners; the part tool shows whatever part
@@ -86,8 +86,9 @@ Not modelled: the two ventilators available for the rear cabin area (optional), 
 (height and seat back cranks), the child's seat, the integrated seat belt and shoulder harness with
 inertia reels (optional); the wiring from the bus bar to the switches and circuit breakers, the wires
 to the microphone and phone jacks and to the keying switch; the marker beacon antenna and the ADF loop
-antenna; the fuel strainer drain control. The panel has no omni course indicators and no ADF bearing
-indicator, which the handbook's panel figure shows (Figure 7-2).
+antenna; the fuel strainer drain control; the secondary altimeter, the autopilot control unit and the
+rear view mirror that the handbook's panel figure shows (Figure 7-2). The panel itself is described in
+[12_cockpit.md](12_cockpit.md).
 
 **None of this is a maintenance reference.** For anything that matters on the aircraft, use the
 manufacturer's maintenance manual and illustrated parts catalogue.

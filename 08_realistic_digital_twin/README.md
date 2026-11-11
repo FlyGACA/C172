@@ -9,7 +9,8 @@ to English. `?q=high|medium|low` forces a quality level; `?lang=en` forces the l
 [Architecture & milestones](docs/02_modeling_architecture.md) · [Validation report](docs/03_validation_report.md) ·
 [Aircraft measurement workflow](docs/04_aircraft_measurements.md) ·
 [Shape reference](docs/05_shape_reference.md) · [Parts index](docs/06_parts_index.md) ·
-[Under the skin](docs/07_under_the_skin.md) · [Paint, markings and the look](docs/11_paint_and_look.md)
+[Under the skin](docs/07_under_the_skin.md) · [Paint, markings and the look](docs/11_paint_and_look.md) ·
+[The instrument panel and the cockpit](docs/12_cockpit.md)
 
 ## What this phase is
 
@@ -27,11 +28,11 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
 | Source | numpy script → GLB | Blender Python package → editable `.blend` + 3 GLB quality levels |
 | Airframe | superellipse primitives | subdivided fuselage with real window/door cut-outs, doors on hinges, NACA 2412/0012 lofted wings, flaps/ailerons/elevator/rudder/trim tab on hinge frames, tubular gear with fairings, cowl with inlets |
 | Surfaces | flat colours | PBR texture sets (albedo / ORM / normal): a paint scheme laid on each skin from where its texels lie in space, so the stripes cross every joint unbroken; markings as separate sharp pieces; fine rivet rows and panel seams, wear, glass, rubber, aluminium; in the cabin vinyl, pleated cloth, carpet, a two-tone liner, a lettered panel |
-| Cockpit | 3D dial ticks | 15 instruments with faces drawn from `instruments.json`, radio stack, switches, push-pull controls, yokes, pedals, trim wheel, fuel selector, seats, belts |
+| Cockpit | 3D dial ticks | a panel arranged as the handbook's figure of it (POH Figure 7-2): 17 instruments set into the panel behind their glass, with faces drawn from `instruments.json`; the avionics stack with its knobs; rocker switches, circuit breakers, push-pull controls, control wheels, pedals, trim wheel, fuel selector, seats, belts |
 | Engine | schematic | finned barrels and heads, rocker covers, pushrod tubes, plugs and leads, dual magneto, starter, alternator and belt, carburettor/airbox/filter, exhaust and muffler, mount, baffles; crank/cam/pistons/rods/valves animated |
 | Lighting | room environment | a sky drawn by a shader that also lights the model, a concrete apron, sun with soft shadows, clear coat on the paint, shade baked into the cabin and the outside, bloom and grading (high, medium), GTAO and clear glass (high) |
 | Delivery | one GLB | high 540 k / medium 225 k / low 137 k triangles, Draco, 2048 px textures (high) and 1024 px (medium, low), the paint of the fuselage twice as fine; auto-selected by device |
-| Under the skin | nothing | structure, control runs, fuel, brake, air-pressure and electrical systems, the insides of the engine and of the flight instruments as separate named parts (high model), fasteners and a hardware kit (`.blend`): 1,193 parts in all |
+| Under the skin | nothing | structure, control runs, fuel, brake, air-pressure and electrical systems, the insides of the engine and of the flight instruments as separate named parts (high model), fasteners and a hardware kit (`.blend`): 1,198 parts in all |
 
 ## Using the viewer
 
@@ -114,7 +115,7 @@ blender/c172/dials.py       instrument faces and placards from data/instruments.
 blender/c172/airframe.py    fuselage, glazing, doors, wings, control surfaces, empennage, struts, details
 blender/c172/gear.py        main and nose gear, wheels, brakes, fairings
 blender/c172/powerplant.py  cowl halves, nose bowl, inlets, landing light, spinner, propeller, exhaust
-blender/c172/cockpit.py     panel, instruments, radio stack, controls, yokes, pedals, seats, belts
+blender/c172/cockpit.py     panel and subpanel, instruments, avionics stack, switches and controls, control wheels, pedals, seats, belts
 blender/c172/engine.py      O-320 assembly, internals, accessories, mount, baffles
 blender/c172/export.py      LOD settings, detail level per LOD, Draco export, model index, parts list
 blender/c172/detail/        what lies under the skin: structure, controls, flap drive, fuel, pneumatic, brakes, electrical, fasteners

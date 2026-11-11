@@ -4,7 +4,8 @@ Date: 2026-11-06; sections 1–4 updated 2026-11-10 after the outline of the air
 against the handbook drawings (see [05_shape_reference.md](05_shape_reference.md)) and the model was
 taken under the skin (see [07_under_the_skin.md](07_under_the_skin.md)); section 1 updated 2026-11-11
 after the paint, the markings, the cabin trim and the propeller were redone
-(see [11_paint_and_look.md](11_paint_and_look.md)). Environment: Linux x64 container, 4 CPU, no
+(see [11_paint_and_look.md](11_paint_and_look.md)) and the instrument panel was laid out again after the
+handbook's figure (see [12_cockpit.md](12_cockpit.md)). Environment: Linux x64 container, 4 CPU, no
 GPU (Blender Cycles on CPU; browser tests on Chromium with SwiftShader software WebGL). Real-GPU
 numbers must be measured on target devices.
 
@@ -12,14 +13,14 @@ numbers must be measured on target devices.
 
 | Level | Objects | Triangles | GLB size | Build time | Subdivision | Textures |
 |---|---|---|---|---|---|---|
-| high | 943 | 539 534 | 8.8 MB | 55–65 s | 2 | 2048 px (paint of the fuselage 4096 px) |
-| medium | 361 | 224 964 | 5.3 MB | 15–22 s | 1 | 1024 px (paint of the fuselage 2048 px) |
-| low | 361 | 136 622 | 5.0 MB | 15–22 s (incl. decimation) | 1 + decimate 0.5, the painted skins and the propeller left whole | as medium |
+| high | 951 | 558 716 | 9.1 MB | 65–80 s | 2 | 2048 px (paint of the fuselage 4096 px) |
+| medium | 369 | 243 890 | 5.6 MB | 20–23 s | 1 | 1024 px (paint of the fuselage 2048 px) |
+| low | 369 | 146 952 | 5.2 MB | 20–23 s (incl. decimation) | 1 + decimate 0.5, the painted skins and the propeller left whole | as medium |
 
 The high level carries detail level 1 (structure, control runs, systems, the insides of the engine
 and of the instruments, cabin air and lights, seat, door and baggage fittings, the avionics installation: 582 parts under the skin);
-medium and low are the basic model of 361 parts. The editable scene also holds detail level 2
-(fasteners, the hardware kit and ground equipment, 250 parts), which is in no web model: 1 193 parts in all, listed in
+medium and low are the basic model of 369 parts. The editable scene also holds detail level 2
+(fasteners, the hardware kit and ground equipment, 247 parts), which is in no web model: 1 198 parts in all, listed in
 `models/parts_all.json` and [06_parts_index.md](06_parts_index.md).
 
 All three are inside the budgets set in `02_modeling_architecture.md` (25 / 12 / 6 MB,
@@ -100,7 +101,7 @@ aircraft.
 | Phase 7 suites (`07_kinematic_twin/tests`) | unchanged, 41 / 41 pass |
 | `scripts/validate_glb.py` | 3 / 3 levels OK |
 | `blender/validate_geometry.py` | 14 critical objects, 19 attachments, 7 published dimensions, 609 parts inside the fuselage skin, 157 inside the wing skin, 75 runs (pipes, hoses, ducts, cables, wires) clear of every other part |
-| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 193 parts, bilingual, status, POH page), parts index up to date |
+| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 198 parts, bilingual, status, POH page), parts index up to date |
 | `09_book_figures/tests/test_ink.py` (ink-line rules, camera framing) | 12 / 12 pass |
 | `scripts/compare_renders.py` | 3 canonical render views within perceptual thresholds |
 
@@ -110,7 +111,7 @@ Final run: **12 / 12 checks passed** (`?test=1` disables the GTAO pass; everythi
 
 | Check | Result |
 |---|---|
-| high level loads: 10 system groups, 943 parts, no console errors | ok |
+| high level loads: 10 system groups, 951 parts, no console errors | ok |
 | doors open, flaps 40°, aileron input moves the surfaces | ok |
 | the parts tree lists the systems; isolating one (fuel) draws only its parts, wherever they are | ok |
 | part selection shows bilingual info and the status badge (propeller → POH) | ok |
@@ -132,7 +133,7 @@ of a real GPU; draw calls and triangles are device-independent):
 | medium | 1.8 s | 710 | 386 320 |
 | low | 1.8 s | 705 | 192 722 |
 
-Draw calls are dominated by part count (943 selectable objects in the high level); the next optimisation step would
+Draw calls are dominated by part count (951 selectable objects in the high level); the next optimisation step would
 be merging static exterior parts into fewer meshes for the low level while keeping the part
 index for selection.
 
