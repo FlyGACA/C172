@@ -62,8 +62,8 @@ def reskin(plate, sprite_markup, sprite_aspect):
         start, end = spec[0], spec[1]
         a = svg.index(start)
         b = svg.index(end, a)
-        extra = spec[2] if len(spec) > 2 else None           # {"sprites": [...], "markup": "..."} for this stretch alone; otherwise the figure's own, at the first
-        piece = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in extra.get("sprites", [])) + extra.get("markup", "") if extra else "@@INSERT@@"
+        extra = spec[2] if len(spec) > 2 else None           # {"before": "...", "sprites": [...], "markup": "..."} for this stretch alone (before: drawn under the sprites); otherwise the figure's own, at the first
+        piece = extra.get("before", "") + "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in extra.get("sprites", [])) + extra.get("markup", "") if extra else "@@INSERT@@"
         svg = svg[:a] + piece + svg[b:]
     insert = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in cfg.get("sprites", [])) + cfg.get("markup", "")
     if "@@INSERT@@" in svg:

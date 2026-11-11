@@ -1,6 +1,10 @@
 """Helpers shared by the figure modules (not a figure itself: plates_spec.py only loads f_*.py)."""
 
+import math
+
 BEZEL_M = 0.093          # the outer diameter of an instrument's bezel in the model, metres
+SIDE_ASPECT = 0.294      # height over width of sprite-side, cropped to the aeroplane in it
+NIGHT = {"tint": "#8F9DBB", "tint_strength": 0.72}      # the model by moonlight on a dark ground: no outline, no shadow, a cooler and dimmer paint
 
 
 def dial_layer(name, inst, centre, diameter, readings=None, margin=9, px=5, samples=48, shadow=True):
@@ -60,3 +64,26 @@ def power_bar(x, y, w, h, fraction, ink="#1F2A44", fill="#8B93A3"):
     inner = (h - 6) * fraction
     return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="3" fill="#FFFFFF" stroke="{ink}" stroke-width="2.4"/>'
             + (f'<rect x="{x + 3}" y="{y + h - 3 - inner:.1f}" width="{w - 6}" height="{inner:.1f}" rx="1.5" fill="{fill}"/>' if fraction > 0 else ""))
+
+
+def side_plane(tx, ty, angle, k, bbox, grow=1.15, look=None, name="sprite-side", mirror=False):
+    """The model seen from the side where an old flat silhouette stood. (tx, ty, angle, k) are the translate, rotate (degrees clockwise) and scale of the old
+    path; bbox = (xmin, xmax, ymin, ymax) is its extent in its own units. The wheels of the new picture stand where the old ones did (ymax), its middle is the
+    old one's middle across, and it is `grow` times as long. Returns a sprite overlay for a reskin."""
+    xmin, xmax, ymin, ymax = bbox
+    width = (xmax - xmin) * k * grow
+    height = width * SIDE_ASPECT
+    lx = (xmin + xmax) / 2 * k
+    ly = ymax * k - height / 2
+    a = math.radians(angle)
+    o = {"name": name, "at": [round(tx + lx * math.cos(a) - ly * math.sin(a), 1), round(ty + lx * math.sin(a) + ly * math.cos(a), 1)], "width": round(width, 1), **(look or {})}
+    if angle:
+        o["angle"] = angle
+    return o
+
+
+def dial_sprite(sid, inst, readings, diameter=92, px=6):
+    """An instrument of the model on its own as a picture with a transparent ground, for a re-skinned figure (a sprite overlay of `diameter` canvas units
+    names it by `sid`)."""
+    layer = dial_layer(sid, inst, (0, 0), diameter, readings, px=px, shadow=False)
+    return {"id": sid, "width_m": BEZEL_M, "render": layer["render"]}

@@ -50,11 +50,15 @@ returns a plate in the same form; `plates_spec.py` joins them), written in three
   light, glowing dots, free markup and pictures of the aeroplane (`"sprite"`); see `build_plates.py` `overlays()`.
 - **An old figure with the model's aeroplane in it** (`"reskin"`, `reskin.py`): the diagram of the figure the book had (its SVG kept in `old/`)
   with its flat aeroplane symbols replaced by pictures of the model, in the same place, heading and size, tinted where the symbol was coloured, in the
-  book's fonts. Forty figures are made this way; where one symbol is not recognised (a rear or three-quarter view drawn as a detailed line
-  picture) the figure keeps it.
+  book's fonts. Fifty-seven figures are made this way. A symbol the patterns of `reskin.py` do not know is named in the figure's module: `"drop"` takes a
+  stretch of the old drawing out and puts the new things there (so that the z-order stays: a sprite can lie over a flight path and under a callout, and
+  `"before"` draws something under it), `"remove"`, `"replace"`, `"sprites"` and `"markup"` do the rest; `figs/kit.py` `side_plane()` stands the model on the
+  wheels of an old silhouette (its translate, rotate and scale), and `dial_sprite()` makes one instrument of the model a picture to set into an old figure
+  (31-4). Where the old drawing is a diagram of something the model does not have (a low-wing aeroplane, an airliner), or of an idea rather than of the
+  aeroplane (the vestibular illusions), the drawing stays.
 
-The pictures of the aeroplane are `figs/sprites.py`: from above, from the side, from ahead, from behind and from above by moonlight, rendered once
-on a transparent background (`npm run plates:render` makes them with the rest).
+The pictures of the aeroplane are `figs/sprites.py`: from above, from the side (both sides), from ahead, from behind, from above by moonlight and in a
+developed spin, rendered once on a transparent background, and the four instruments of Figure 31-4 (`npm run plates:render` makes them with the rest).
 
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
 them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
