@@ -41,11 +41,11 @@ Model coordinates: metres, nose +Z, the pilot's left +X, up +Y. Positive yaw is 
 
 | Quantity | Value | Source |
 |---|---|---|
-| Eye, head level and straight | (0.28, 1.55, 0.015) | Fore and aft: the front seat occupant at station 37 (POH Figure 6-3). Height and distance from the centreline: estimated. |
+| Eye, head level and straight | (0.28, 1.63, −0.05) | Estimated: where an adult's eye is on the seat as the model draws it, 0.77 m above the cushion pressed down by 3 cm and 0.2 m ahead of the seat back at shoulder height. The handbook's station 37 (Figure 6-3) is the centre of gravity of the front seat occupant, not the eye. |
 | Head turn (yaw) | 135° either way | Estimated: about 80° of neck, the rest eyes and shoulders. Not straight behind. |
 | Head nod (pitch) | 70° down to 55° up | Estimated. |
 | Lean forward | 0 to 0.20 m | Estimated: the seat back behind, the harness and the control wheel ahead. |
-| Lean sideways | 0.14 m to the right, 0.03 m to the left | Estimated. The cabin wall is 0.23 m to the left of the eye in the model. |
+| Lean sideways | 0.14 m to the right, none to the left | Estimated. On the left the door post is a hand's width from the head. |
 | Neck, from the eyes | 0.10 m below, 0.085 m behind | Estimated. The eyes swing about the neck as the head turns. |
 | Shoulders, from the eyes | 0.25 m below, 0.19 m either side, 0.045 m behind | Estimated. They follow 70 % of a lean and do not turn with the head. |
 | Hips to eyes | 0.75 m | Estimated. A lean swings the head about the hips, so it comes down a little. |
@@ -73,23 +73,31 @@ flight, on the apron it moves the model and the systems simulation.
 | Master switch, two halves (`PANEL.master_bat`, `PANEL.master_alt`) | Click. | within reach |
 | Avionics, beacon, navigation lights, strobes, landing light, pitot heat (`PANEL.switch_*`) | Click. | within reach |
 | Primer (`PANEL.primer`) | Click: one stroke. | within reach |
-| Flap lever (`PANEL.flap_switch`) | Click the upper half: 10° up. Click the lower half: 10° down. In flight the flaps follow at the speed of their motor, and need electrical power. | within reach |
+| Flap lever (`PANEL.flap_switch`) | Click the upper half: 10° up. Click the lower half: 10° down. In flight the flaps follow at the speed of their motor, and need electrical power. | just within reach |
 | Elevator trim wheel (`INTERIOR.trim_wheel`) | Drag: the rim rolled down is nose up. | within reach |
 | Control wheel (`INTERIOR.yoke_L`) | Hold and drag: across turns it, down the picture pulls it back. In flight it centres when let go; on the apron it stays where it is put. | within reach |
 | Parking brake (`INTERIOR.parking_brake`) | Click. | within reach |
-| Fuel selector (`FUEL.selector_handle`) | Click the right half: clockwise. Click the left half: the other way. LEFT, BOTH, RIGHT, OFF round the dial. | within reach, on the floor between the seats |
-| Cabin heat (`PANEL.cabin_heat`) | Click. The knob moves; the simulation has no cabin air. | just within reach |
+| Fuel selector (`FUEL.selector_handle`) | Click the right half: clockwise. Click the left half: the other way. LEFT, BOTH, RIGHT, OFF round the dial. | with a slight lean: on the floor between the seats |
+| Cabin heat (`PANEL.cabin_heat`) | Click. The knob moves; the simulation has no cabin air. | with a lean |
 | Cabin air (`PANEL.cabin_air`) | Click. The knob moves; the simulation has no cabin air. | with a lean |
 | Left door, inside handle (`INTERIOR.door_inner_handle_L`) | Click: the door opens or closes. Only while the aircraft stands still. | within reach, on the arm rest behind the left elbow |
 | Right door, inside handle (`INTERIOR.door_inner_handle_R`) | Click. | within reach, across the cabin |
 
-In the model the nearest control is the control wheel, about 0.33 m from the shoulder, and the farthest is
-the cabin air control, about 0.74 m: the only one that takes a lean. No control of this table is out of reach
-of the left seat, as it should be in an aircraft that one pilot flies. The red tint is there for a seat or an
-arm that differs from these estimates.
+In the model the nearest control is the control wheel, about 0.42 m from the shoulder; the flap lever is
+at 0.70 m, just within the arm. Three controls take a lean: the fuel selector on the floor (by a hair), cabin
+heat and cabin air, the farthest at about 0.81 m. No control of this table is out of reach of the left seat, as
+it should be in an aircraft that one pilot flies. The red tint is there for a seat or an arm that differs from
+these estimates.
 
 The mouse wheel over a control moves it one step: the throttle and mixture by 4 %, the trim by a hundredth of
 its travel, the flap lever, the key and the fuel selector by one position.
+
+## A pilot who was measured
+
+The eye, the reach of the arm and the shoulders can be replaced by measurements of a pilot sitting in the
+aircraft: the eye from the face of the instrument panel, from the cabin centreline and from the floor; the
+arm from the shoulder joint to the fist. See [10_flight_survey.md](10_flight_survey.md). The drawer then says
+what was measured. None is today.
 
 ## What is not modelled
 
@@ -111,5 +119,6 @@ its travel, the flap lever, the key and the fuel selector by one position.
 | `js/cockpit_controls.js` | What each control does when it is pressed, clicked, dragged or wheeled. Plain logic. |
 | `js/cockpit.js` | The camera at the eye, the pointer on the controls, the tint and the name under the pointer. |
 | `js/app.js`, `js/flightmode.js` | What the controls act on: the model on the apron, the flight in the air. |
+| `js/survey.js` | A survey of the pilot in the seat, replacing the estimates ([10_flight_survey.md](10_flight_survey.md)). |
 | `tests/cockpit.test.mjs` | 11 tests: limits, eye, lean, reach; every control worked through all its positions. |
 | `tests/e2e.mjs` | In a browser, on the model: the eye at its place, the limits, the cabin clear of the eye, the reach of each control, and the controls worked with the pointer. |

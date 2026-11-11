@@ -20,6 +20,8 @@ Three flight lessons use it: a stall and its recovery, a go-around and an engine
 checked step by step against the handbook's procedure and each with a demonstration. The cockpit is a
 [pilot's seat](08_realistic_digital_twin/docs/09_pilots_seat.md): the head turns and the body leans within
 limits, and the hand works the controls it can reach, on the model itself; those limits are estimates.
+Nothing in the flight model or the seat is measured: [the survey that would change that](08_realistic_digital_twin/docs/10_flight_survey.md)
+is ready to receive an aircraft's numbers and has none.
 
 ```bash
 python3 -m http.server 8000
@@ -46,7 +48,7 @@ python3 -m http.server 8000
 | **08** | [**`08_realistic_digital_twin/`**](08_realistic_digital_twin/) | Blender-scripted realistic model (editable `.blend`, three Draco GLB quality levels, generated PBR textures), full cockpit and O-320 engine assembly, PBR viewer with HDR sky, shadows and AO, bilingual part catalogue, Phase 7 simulation and scenarios, Playwright and CI rebuild checks |
 | 09 | [`09_book_figures/`](09_book_figures/) | Book figures: [the figure plan](09_book_figures/PLAN.md), a browser-based build to print-ready PDF/SVG in English and Arabic, and four sample figures (instrument from data, system schematic, two labelled illustrations drawn from the Phase 8 model) |
 
-| 10 | [`shared/js/`](shared/js/), [`08_realistic_digital_twin/`](08_realistic_digital_twin/docs/08_flight_model.md) | Flight: a six-degree-of-freedom flight model from the handbook's numbers, flown in the Phase 8 viewer together with the systems simulation; a scripted pilot that flies the handbook's takeoff, landing and stall; three flight lessons (stall and recovery, go-around, engine failure after takeoff) with demonstrations; a first-person pilot's seat with head limits and reachable controls; tests that state the tolerances |
+| 10 | [`shared/js/`](shared/js/), [`08_realistic_digital_twin/`](08_realistic_digital_twin/docs/08_flight_model.md) | Flight: a six-degree-of-freedom flight model from the handbook's numbers, flown in the Phase 8 viewer together with the systems simulation; a scripted pilot that flies the handbook's takeoff, landing and stall; three flight lessons (stall and recovery, go-around, engine failure after takeoff) with demonstrations; a first-person pilot's seat with head limits and reachable controls; the intake for a survey of the aircraft and the pilot (no record yet); tests that state the tolerances |
 
 Folders 01–06 are the original release packages, imported unchanged; see
 [RELEASES.md](RELEASES.md). Their integrity is checked against

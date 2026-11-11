@@ -29,7 +29,8 @@
     "part:list": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/part.py -- list",
     "threeview8": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 08_realistic_digital_twin/blender/threeview.py --",
     "figures:render": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/render_figure.py -- --all",
-    "flight:doc": "node 08_realistic_digital_twin/scripts/flight_doc.mjs"
+    "flight:doc": "node 08_realistic_digital_twin/scripts/flight_doc.mjs",
+    "survey": "node 08_realistic_digital_twin/scripts/flight_survey.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"

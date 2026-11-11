@@ -9,6 +9,8 @@ import { dialGauge, altimeter, attitude, heading, turnCoordinator } from './gaug
 import { FlightMode, readySystems } from './flightmode.js';
 import { FirstPerson } from './cockpit.js';
 import { cgStation, FM } from './flight.js';
+import { applySurvey } from './survey.js';
+import { HEAD } from './seat.js';
 import { FM_NOTES_AR } from './flight_notes_ar.js';
 import { LESSONS } from './lessons.js';
 
@@ -20,10 +22,15 @@ if (!STRINGS[lang]) lang = 'ar';
 const T = () => STRINGS[lang];
 const tx = (o) => (o ? o[lang] ?? o.en : '');
 
-const [INSTR, CATALOG] = await Promise.all([
+const [INSTR, CATALOG, SURVEYED] = await Promise.all([
   fetch('data/instruments.json').then((r) => r.json()).then((j) => j.instruments),
   fetch('data/parts_catalog.json').then((r) => r.json()).then((j) => j.entries.map((e) => ({ ...e, re: new RegExp(e.match) }))).catch(() => []),
+  fetch('data/flight_survey.json').then((r) => r.json()).catch(() => null),
 ]);
+// The survey of the aircraft and of the pilot: its verified ground and seat measurements replace the model's own
+// numbers, which then read "measured". The file has no record until an aircraft is surveyed. An unsound file is left out whole.
+let surveyed = { flight: [], seat: [], records: [] };
+if (SURVEYED) { try { surveyed = applySurvey(SURVEYED); } catch (e) { console.warn(String(e.message || e)); } }
 
 // ------------------------------------------------------------------ state
 let sim = createState();
@@ -49,6 +56,7 @@ const rigReady = (async () => {
 let rig = null, flight = null, seat = null;
 rigReady.then((r) => {
   rig = r; buildTree(); setMode('exterior', true);
+  rig.travel = { elevatorUp: FM.elevatorUpDeg.v, elevatorDown: FM.elevatorDownDeg.v };      // the model's elevator moves as far as the flight model's
   flight = new FlightMode({ viewer, rig, hud: $('fhud'), pad: $('fpad') });
   seat = new FirstPerson({ viewer, rig, host: seatHost, tip: $('fptip'), cabinPitchDeg: FM.groundPitchDeg.v });
   flight.cockpit = seat;
@@ -65,6 +73,7 @@ function applyLang() {
   document.title = T().title8;
   $('quality').innerHTML = ['high', 'medium', 'low'].map((q) => `<option value="${q}" ${q === quality ? 'selected' : ''}>${T()['q_' + q]}</option>`).join('');
   $('sources').textContent = T().srcText;
+  $('fpNote').textContent = HEAD.measured ? T().fp_noteMeasured.replace('{0}', HEAD.measured.join(', ')) : T().fp_note;
   syncFlightUI();
   fillScenarios();
   if (rig) { rig.lang = lang; rig.buildLabels(lang); buildTree(); showInfo(selected); }
@@ -82,7 +91,7 @@ const CAMS = {
   nose: { pos: [-3.0, 1.81, 4.55], tgt: [0.0, 1.15, 0.87] },
   tail: { pos: [3.5, 2.06, -7.56], tgt: [0.0, 1.35, -4.54] },
   gear: { pos: [-3.2, 0.82, 1.48], tgt: [-0.8, 0.41, -0.41] },
-  pilot: { pos: [0.28, 1.55, 0.015], tgt: [0.1, 1.23, 0.56] },      // the pilot's eye: the occupant sits at station 37 (POH Figure 6-3)
+  pilot: { pos: [0.28, 1.63, -0.05], tgt: [0.1, 1.23, 0.56] },      // the pilot's seat (js/seat.js): this button goes to the Cockpit mode
   panel: { pos: [0.0, 1.4, -0.24], tgt: [0.0, 1.29, 0.51] },
   engine: { pos: [-2.4, 1.99, 3.74], tgt: [0.0, 1.2, 0.67] },
 };
@@ -523,4 +532,4 @@ applyLang(); syncUI();
 // test hook
 window.__twin = { ready: false, get lessons() { return LESSONS; },
   /** test hook: advance the whole viewer by a number of seconds without waiting for frames */
-  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, get seat() { return seat; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
+  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, get seat() { return seat; }, get surveyed() { return surveyed; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };

@@ -71,6 +71,7 @@ page. The sources are:
 | **POH** | read from the handbook |
 | **POH-derived** | worked out from handbook numbers by the rule stated in the note |
 | **estimated** | a representative value for an aircraft of this type; not from the handbook, not measured |
+| **measured** | read off one surveyed aircraft on the ground. **No number is measured today.** Three can be: the elevator's travel up and down and the speed of the flaps ([10_flight_survey.md](10_flight_survey.md)) |
 
 The derivations, in the order they depend on each other:
 

@@ -675,3 +675,33 @@ export function stallSpeedKcas({ flapDeg = 0, weightLb = K.maxWeightLb, cgFrac =
 export function coefficientTable() {
   return Object.entries(FM).map(([name, e]) => ({ name, value: e.v, source: e.src, note: e.note, ref: e.ref }));
 }
+
+/**
+ * The numbers a survey of one aircraft can replace: each can be read off the aircraft on the ground, and nothing
+ * else in the model was fitted through it, so replacing it needs no refit. A number replaced this way is the
+ * only kind that carries the source 'measured'.
+ */
+export const MEASURABLE = ['elevatorUpDeg', 'elevatorDownDeg', 'flapRateDegS'];
+const AS_BUILT = {};
+
+/**
+ * Replace numbers by measurements of the aircraft: { name: { v, ref } }, ref naming the survey record.
+ * Returns the names replaced. Names outside MEASURABLE are refused.
+ */
+export function applyMeasured(numbers) {
+  const done = [];
+  for (const [name, m] of Object.entries(numbers || {})) {
+    if (!MEASURABLE.includes(name)) throw new Error(`${name} is not a number a ground survey can replace`);
+    if (!Number.isFinite(m.v)) throw new Error(`${name}: not a number`);
+    if (!AS_BUILT[name]) AS_BUILT[name] = FM[name];
+    FM[name] = { ...AS_BUILT[name], v: m.v, src: 'measured', ref: m.ref || 'survey', was: AS_BUILT[name].v };
+    K[name] = m.v;
+    done.push(name);
+  }
+  return done;
+}
+
+/** Put back the numbers the model was built with. */
+export function resetMeasured() {
+  for (const [name, e] of Object.entries(AS_BUILT)) { FM[name] = e; K[name] = e.v; delete AS_BUILT[name]; }
+}

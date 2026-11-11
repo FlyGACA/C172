@@ -179,11 +179,23 @@ try {
       return min;
     });
     assert.ok(clear.d >= 0.06, `the eye comes within ${(clear.d * 100).toFixed(1)} cm of ${clear.part}: ${JSON.stringify(clear)}`);
+    // the floor and the panel of the model are where a survey of the pilot's eye takes them to be (js/seat.js, CABIN)
+    const cabin = await page.evaluate(async () => {
+      const THREE = await import('three'), S = await import('./js/seat.js');
+      const root = window.__twin.rig.root, ray = new THREE.Raycaster(), part = (h) => { let o = h.object; while (o && !o.userData.system) o = o.parent; return o ? o.name : '?'; };
+      const first = (from, dir, name) => { ray.set(new THREE.Vector3(...from), new THREE.Vector3(...dir)); const h = ray.intersectObject(root, true).find((i) => i.object.visible && part(i) === name); return h ? h.point.toArray() : null; };
+      const out = { floor: [], want: [] };
+      for (const z of [-0.05, 0.3]) { out.floor.push(first([0.28, 1.0, z], [0, -1, 0], 'INTERIOR.floor')[1]); out.want.push(S.floorAt(z)); }
+      out.panel = first([0.05, 1.22, 0.0], [0, 0, 1], 'PANEL.upper_panel')[2]; out.panelWant = S.CABIN.panelFaceZ;
+      return out;
+    });
+    cabin.floor.forEach((y, i) => assert.ok(Math.abs(y - cabin.want[i]) < 0.004, `floor ${y} against ${cabin.want[i]}`));
+    assert.ok(Math.abs(cabin.panel - cabin.panelWant) < 0.006, `panel face ${cabin.panel} against ${cabin.panelWant}`);
     // what the hand reaches from the seat
     const reach = await page.evaluate(() => { const s = window.__twin.seat; return Object.fromEntries(Object.keys(s.controls).map((n) => [n, s.reach(n)])); });
     assert.ok(Object.keys(reach).length >= 22, `${Object.keys(reach).length} controls`);
-    for (const n of ['PANEL.throttle', 'PANEL.mixture', 'PANEL.carb_heat', 'PANEL.ignition_switch', 'PANEL.master_bat', 'PANEL.master_alt', 'PANEL.switch_beacon', 'PANEL.primer', 'PANEL.flap_switch', 'INTERIOR.trim_wheel', 'INTERIOR.yoke_L', 'INTERIOR.parking_brake', 'FUEL.selector_handle', 'INTERIOR.door_inner_handle_L']) assert.equal(reach[n], 'near', n);
-    assert.equal(reach['PANEL.cabin_air'], 'lean', 'the cabin air control, on the far side of the panel, takes a lean');
+    for (const n of ['PANEL.throttle', 'PANEL.mixture', 'PANEL.carb_heat', 'PANEL.ignition_switch', 'PANEL.master_bat', 'PANEL.master_alt', 'PANEL.switch_beacon', 'PANEL.primer', 'PANEL.flap_switch', 'INTERIOR.trim_wheel', 'INTERIOR.yoke_L', 'INTERIOR.parking_brake', 'INTERIOR.door_inner_handle_L', 'INTERIOR.door_inner_handle_R']) assert.equal(reach[n], 'near', n);
+    for (const n of ['PANEL.cabin_air', 'PANEL.cabin_heat']) assert.equal(reach[n], 'lean', `${n}, on the far side of the panel, takes a lean`);
     assert.ok(!Object.values(reach).includes('far'), `one pilot flies it: no control is out of reach of the left seat: ${JSON.stringify(reach)}`);
     // the hand, with the pointer of the browser
     const look = (view) => page.evaluate((v) => { const s = window.__twin.seat; s.lookAt(v, true); s.place(); }, view);
@@ -235,7 +247,7 @@ try {
     assert.match(await tip(), /^lean: Cabin air.*out of reach/);
     await page.mouse.click(p.x, p.y);
     assert.equal((await controls()).cabinAir, 0, 'a control out of reach does not move');
-    await page.evaluate(() => { const s = window.__twin.seat; s.lean(0.08, -0.08); for (let i = 0; i < 60; i++) s.tick(0.05); s.place(); });
+    await page.evaluate(() => { const s = window.__twin.seat; s.lean(0.2, -0.14); for (let i = 0; i < 60; i++) s.tick(0.05); s.place(); });
     p = await locate('PANEL.cabin_air');
     assert.equal(p.reach, 'near');
     await page.mouse.click(p.x, p.y);
@@ -275,6 +287,7 @@ try {
     await page.evaluate(() => window.__twin.startScenario(''));
     await page.close();   // stop this page's render loop before the next pages load (software GL shares the CPU)
   });
+  if (!page.isClosed()) await page.close();   // also when the check above was skipped (E2E_ONLY)
 
   await check('Arabic RTL default', async () => {
     const p2 = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -379,6 +392,44 @@ try {
     assert.deepEqual(end, { active: false, parent: 'Scene', pos: [0, 0, 0], dynamic: false, far: 300, manual: false, hud: true, fov: 42 });
     assert.deepEqual(errs, []);
     await pf.close();
+  });
+
+  await check('a survey fed in: its verified ground and seat measurements read "measured" in the viewer', async () => {
+    // a survey made up for this test, served in place of the file (which has no record): none of it is a measurement
+    const rec = (id, parameter, value, unit) => ({ id, parameter, value, unit, tolerance: 1, conditions: {}, method: 'test fixture', recorded_at: '2026-01-01', recorded_by: 'test', verification_status: 'verified', notes: '' });
+    const fixture = { schema_version: 1, aircraft: { tail_number: 'TEST', serial_number: 'TEST' },
+      records: [rec('up', 'elevator_up_deg', 26, 'deg'), rec('flaps', 'flap_time_s', 10, 's'), rec('panel', 'eye_to_panel_in', 22.5, 'in'), rec('reach', 'arm_reach_in', 27, 'in'), { ...rec('down', 'elevator_down_deg', 20, 'deg'), verification_status: 'raw' }] };
+    const ps = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+    await ps.route('**/data/flight_survey.json', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify(fixture) }));
+    const { errors: errs } = await open(ps, 'lang=en&q=low');
+    const got = await ps.evaluate(async () => {
+      const F = await import('./js/flight.js'), S = await import('./js/seat.js'); const t = window.__twin;
+      return { surveyed: t.surveyed, up: [F.FM.elevatorUpDeg.v, F.FM.elevatorUpDeg.src], down: [F.FM.elevatorDownDeg.v, F.FM.elevatorDownDeg.src], rate: F.FM.flapRateDegS.v, reach: S.HEAD.reach, eye: S.HEAD.eye, panel: S.CABIN.panelFaceZ, travel: t.rig.travel, note: document.getElementById('fpNote').textContent };
+    });
+    assert.deepEqual(got.surveyed, { flight: ['elevatorUpDeg', 'flapRateDegS'], seat: ['eye', 'reach'], records: ['up', 'flaps', 'panel', 'reach'] });
+    assert.deepEqual(got.up, [26, 'measured']); assert.deepEqual(got.down, [23, 'estimated'], 'a record not yet verified changes nothing'); assert.equal(got.rate, 4);
+    assert.ok(Math.abs(got.reach - 27 * 0.0254) < 1e-9 && Math.abs(got.eye[2] - (got.panel - 22.5 * 0.0254)) < 1e-9, JSON.stringify(got));
+    assert.deepEqual(got.travel, { elevatorUp: 26, elevatorDown: 23 }, 'the drawn elevator moves as far as the measured one');
+    assert.match(got.note, /^Measured on the pilot in the seat: eye, reach\./);
+    // the table of the model's numbers: two read "measured" and name their records
+    await ps.evaluate(() => window.__twin.setMode('flight'));
+    await ps.click('#flCoef');
+    const rows = await ps.evaluate(() => [...document.querySelectorAll('#coefTable tbody tr')].filter((tr) => tr.querySelector('.badge.measured')).map((tr) => [tr.cells[0].textContent, tr.cells[1].textContent, tr.cells[2].textContent, tr.cells[4].textContent]));
+    assert.deepEqual(rows, [['elevatorUpDeg', '26', 'measured', 'survey: up'], ['flapRateDegS', '4', 'measured', 'survey: flaps']]);
+    await ps.click('#coefClose');
+    // the flight flies with them: the wheel fully back gives the measured travel, and the pilot's eye is where it was measured
+    const flown = await ps.evaluate(async () => {
+      const S = await import('./js/seat.js'); const t = window.__twin, f = t.flight;
+      t.beginFlight('cruise'); f.stick.dragging = true; f.stick.y = 1; t.advance(0.5);
+      const elevator = f.deck.flight.out.elevatorDeg; f.stick.dragging = false; f.stick.y = 0;
+      f.setCamera('cockpit', true); f.place();
+      const eye = t.viewer.model.worldToLocal(t.viewer.camera.position.clone()).toArray(), want = S.eyePosition(S.REST);
+      return { elevator, off: Math.hypot(eye[0] - want[0], eye[1] - want[1], eye[2] - want[2]) };
+    });
+    assert.ok(flown.elevator < -24.5 && flown.elevator >= -26.001, `elevator ${flown.elevator}° with the wheel fully back`);
+    assert.ok(flown.off < 1e-6, `the eye is ${flown.off} m from where it was measured`);
+    assert.deepEqual(errs, []);
+    await ps.close();
   });
 
   await check('medium LOD loads', async () => {

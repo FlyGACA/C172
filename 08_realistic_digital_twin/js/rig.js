@@ -20,6 +20,7 @@ export class Rig {
       theta: 0, propAngle: 0, ind: null, controls: null, truth: null, running: false, cranking: false, magsFiring: [], flying: false,
       flapLever: null, parkingBrake: 0, primer: 0, cabinHeat: 0, cabinAir: 0 };
     this.explode = 0; this.xray = false; this.showLabels = false;
+    this.travel = { elevatorUp: 28, elevatorDown: 23 };      // degrees; the application sets them from the flight model
     this.hiddenSystems = new Set();   // systems whose parts are not drawn
     this.tmpQ = new THREE.Quaternion(); this.tmpV = new THREE.Vector3();
     root.traverse((o) => {
@@ -122,7 +123,7 @@ export class Rig {
     // control surfaces
     const ail = s.aileron * 20;
     this.hinge('WING_L.aileron', -ail * 0.85); this.hinge('WING_R.aileron', ail * 0.85);
-    this.hinge('EMPENNAGE.elevator', s.elevator > 0 ? -s.elevator * 28 : -s.elevator * 23);
+    this.hinge('EMPENNAGE.elevator', s.elevator > 0 ? -s.elevator * this.travel.elevatorUp : -s.elevator * this.travel.elevatorDown);
     this.hinge('EMPENNAGE.rudder', s.rudder * 16);
     this.hinge('EMPENNAGE.trim_tab', -s.trim * 20);
     this.hinge('WING_L.flap', s.flaps); this.hinge('WING_R.flap', s.flaps);

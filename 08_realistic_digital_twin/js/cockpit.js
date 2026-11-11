@@ -100,7 +100,7 @@ export class FirstPerson {
   /** Metres from the nearer shoulder to a control. */
   distance(name) { return reachDistance(this.point(name), this.head); }
   /** 'near': within reach now; 'lean': within reach with a lean; 'far': out of reach from this seat. */
-  reach(name) { const p = this.point(name); return reachDistance(p, this.head) <= REACH ? 'near' : leanToReach(p) ? 'lean' : 'far'; }
+  reach(name) { const p = this.point(name); return reachDistance(p, this.head) <= HEAD.reach ? 'near' : leanToReach(p) ? 'lean' : 'far'; }
 
   // ---- each frame
   /** Move the head: the keys, and the easing toward where it was sent. */

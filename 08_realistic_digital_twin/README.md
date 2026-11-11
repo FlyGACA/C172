@@ -41,6 +41,9 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
   Engine (upper cowl removed) · Systems (X-ray with the scenario drawer) · **Flight** (the flight model
   flies the aircraft: runway, cruise or approach; keys or the on-screen wheel; outside or pilot's-eye camera;
   see [docs/08_flight_model.md](docs/08_flight_model.md)). The flight model has no certified fidelity.
+- **Survey of the aircraft** ([docs/10_flight_survey.md](docs/10_flight_survey.md)): what to measure on the
+  ground, in the seat and in flight, the sheet to fill in, and the tool that checks it and sets it beside the
+  model. Nothing in the flight model or the seat is measured until a survey is recorded; the file is empty.
 - **Flight lessons** (in the scenario list): stall and recovery, go-around, engine failure after takeoff.
   Their steps are checked live against the handbook's procedures; each records how it was flown and can be
   demonstrated by the scripted pilot. The engine failure is a fault of the fault panel.
@@ -123,8 +126,9 @@ js/seat.js, cockpit_controls.js, cockpit.js   the pilot's seat: limits and reach
 ../shared/js/                canonical Phase 7/8 simulation, scenarios and SVG gauges
 data/                       instruments.json, parts_catalog.json (69 bilingual entries), poh_references.json
 data/measurement_schema.json, aircraft_measurements.json, measurement_template.csv
+data/flight_survey.json, flight_survey_template.csv   the survey for the flight model and the pilot's seat (no record yet); js/survey.js, scripts/flight_survey.mjs
 tests/, scripts/            Python tests, node tests, Playwright test, GLB validator, build comparison
-docs/                       audit, architecture, validation report, shape reference, parts index, under the skin, flight model, pilot's seat, renders
+docs/                       audit, architecture, validation report, shape reference, parts index, under the skin, flight model, pilot's seat, survey, renders
 ```
 
 ## Limits (read before using this for instruction)

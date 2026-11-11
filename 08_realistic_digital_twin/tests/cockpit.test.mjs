@@ -82,7 +82,7 @@ test('the arm and the seat are those of an adult: plausible numbers, labelled as
   assert.ok(REACH > 0.6 && REACH < 0.8, `reach ${REACH} m`);
   assert.ok(HEAD.shoulderAside * 2 > 0.3 && HEAD.shoulderAside * 2 < 0.45, 'shoulder width');
   assert.ok(HEAD.torso > 0.6 && HEAD.torso < 0.9);
-  assert.deepEqual(HEAD.eye, [0.28, 1.55, 0.015], 'the eye of the Phase 8 model: the front seat occupant at station 37');
+  assert.deepEqual(HEAD.eye, [0.28, 1.63, -0.05], 'the eye of an adult on the seat as the model draws it');
   // the eye never travels farther than this from the datum, whatever the head does: the browser test checks the cabin around it
   let worst = 0;
   for (const yaw of [HEAD.yaw[0], -90, 0, 90, HEAD.yaw[1]]) for (const pitch of [HEAD.pitch[0], 0, HEAD.pitch[1]]) for (const forward of HEAD.leanForward) for (const side of HEAD.leanSide) {
