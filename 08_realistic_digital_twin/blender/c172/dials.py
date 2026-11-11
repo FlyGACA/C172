@@ -36,8 +36,9 @@ def draw_dial(img, box, spec, title=None, subtitle=None, font_scale=1.0):
     cx, cy, R = (x0 + x1) / 2, (y0 + y1) / 2, S * 0.47
     d = ImageDraw.Draw(img, "RGBA")
     d.ellipse([cx - R, cy - R, cx + R, cy + R], fill=(12, 12, 13, 255))
-    # arcs
-    for arc in spec.get("arcs", []):
+    # arcs: the outer band first. Each arc clears the dial inside its ring, so an inner arc (the white arc of the airspeed
+    # indicator) drawn before an outer one would be wiped out where the two overlap in angle
+    for arc in sorted(spec.get("arcs", []), key=lambda a: a.get("band") != "outer"):
         a0 = value_to_angle(spec, arc["from"]); a1 = value_to_angle(spec, arc["to"])
         ro = R * (0.97 if arc.get("band") == "outer" else 0.84); ri = R * (0.90 if arc.get("band") == "outer" else 0.78)
         d.pieslice([cx - ro, cy - ro, cx + ro, cy + ro], a0 - 90, a1 - 90, fill=COLORS[arc["color"]])
@@ -104,9 +105,12 @@ def dials_atlas(path, size=2048):
     x0, y0, x1, y1 = box("TC"); cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     f = ImageFont.truetype(FONT_BOLD, int(cs * 0.08))
     d.text((cx - R * 0.78, cy + R * 0.25), "L", fill=(240, 240, 240), font=f, anchor="mm"); d.text((cx + R * 0.78, cy + R * 0.25), "R", fill=(240, 240, 240), font=f, anchor="mm")
-    d.text((cx, cy + R * 0.62), "NO PITCH INFORMATION", fill=(200, 200, 200), font=ImageFont.truetype(FONT, int(cs * 0.04)), anchor="mm")
-    # inclinometer tube
-    d.arc([cx - R * 0.5, cy + R * 0.25, cx + R * 0.5, cy + R * 0.75], 200, 340, fill=(200, 200, 200), width=max(2, cs // 60))
+    d.text((cx, cy + R * 0.84), "NO PITCH INFORMATION", fill=(200, 200, 200), font=ImageFont.truetype(FONT, int(cs * 0.034)), anchor="mm")
+    # inclinometer tube: a shallow curve, lowest in the middle, where the ball rests (the ball is a part, 0.61 R below the centre);
+    # two marks a ball's width apart
+    d.arc([cx - R * 1.2, cy - R * 1.78, cx + R * 1.2, cy + R * 0.62], 65.4, 114.6, fill=(200, 200, 200), width=max(2, cs // 150))
+    for sx in (-1, 1):
+        d.line([cx + sx * R * 0.145, cy + R * 0.50, cx + sx * R * 0.145, cy + R * 0.70], fill=(235, 235, 235), width=max(2, cs // 170))
     # ---- attitude indicator ball (sky/ground with pitch ladder) and mask
     x0, y0, x1, y1 = box("AI_BALL"); cx, cy = (x0 + x1) / 2, (y0 + y1) / 2; Rb = cs * 0.49
     d.ellipse([cx - Rb, cy - Rb, cx + Rb, cy + Rb], fill=(120, 80, 40, 255))

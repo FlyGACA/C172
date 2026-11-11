@@ -292,10 +292,10 @@ def build_panel(ctx):
         lip = [(r + RIM, 0.0), (r + RIM - 0.0007, 0.0026), (r + RIM - 0.0024, 0.0045), (r + 0.0028, 0.0050), (r + 0.0012, 0.0041), (r + 0.0003, 0.0018)]
         return lip + ([(r + 0.0003, 0.0006)] if blank else [(r + 0.0003, -DIAL_DEPTH - 0.0006)])
 
-    pointer_of = {"ASI": (0.80, 0.0052, 0.20, "pointer", 0), "VSI": (0.80, 0.0052, 0.20, "pointer", 0), "TACH": (0.80, 0.0052, 0.20, "pointer", 0),
-                  "SUCTION": (0.74, 0.0036, 0.20, "pointer", 0),
-                  "ALT_10000": (0.90, 0.0016, 0.0, "marker", 0), "ALT_1000": (0.52, 0.0100, 0.0, "spade", 1), "ALT_100": (0.86, 0.0044, 0.16, "pointer", 2),
-                  "CLOCK_H": (0.48, 0.0034, 0.0, "pointer", 0), "CLOCK_M": (0.74, 0.0026, 0.0, "pointer", 1)}
+    pointer_of = {"ASI": (0.80, 0.0036, 0.20, "pointer", 0), "VSI": (0.80, 0.0036, 0.20, "pointer", 0), "TACH": (0.80, 0.0036, 0.20, "pointer", 0),
+                  "SUCTION": (0.74, 0.0030, 0.20, "pointer", 0),
+                  "ALT_10000": (0.90, 0.0014, 0.0, "marker", 0), "ALT_1000": (0.52, 0.0085, 0.0, "spade", 1), "ALT_100": (0.86, 0.0034, 0.16, "pointer", 2),
+                  "CLOCK_H": (0.48, 0.0030, 0.0, "pointer", 0), "CLOCK_M": (0.74, 0.0022, 0.0, "pointer", 1)}
     which = {"ALT_10000": (" (tens of thousands of feet)", " (عشرات آلاف الأقدام)"), "ALT_1000": (" (thousands of feet)", " (آلاف الأقدام)"), "ALT_100": (" (hundreds of feet)", " (مئات الأقدام)"),
              "CLOCK_H": (" (hours)", " (الساعات)"), "CLOCK_M": (" (minutes)", " (الدقائق)")}
     y_pointer = PANEL_Y - DIAL_DEPTH + 0.0030
