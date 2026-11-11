@@ -1,23 +1,23 @@
 {
  "lod": "low",
- "objects": 333,
- "triangles": 86896,
+ "objects": 342,
+ "triangles": 96787,
  "systems": {
-  "AIRFRAME": 20,
+  "AIRFRAME": 22,
   "WING_L": 5,
   "FUEL": 7,
   "ELECTRICAL": 32,
   "PITOT_STATIC": 2,
   "WING_R": 5,
   "EMPENNAGE": 5,
-  "INTERIOR": 36,
+  "INTERIOR": 40,
   "GEAR": 24,
-  "POWERPLANT": 7,
-  "ENGINE": 47,
+  "POWERPLANT": 8,
+  "INDUCTION": 9,
+  "ENGINE": 48,
   "PANEL": 112,
   "IGNITION": 18,
   "OIL": 4,
-  "INDUCTION": 8,
   "VACUUM": 1
  },
  "parts": [
@@ -26,10 +26,11 @@
    "label_en": "Fuselage",
    "label_ar": "جسم الطائرة",
    "status": "estimated",
-   "note": "Envelope from POH Fig 1-1; cross-sections estimated from photographs",
+   "note": "Overall dimensions from POH Fig 1-1; outline and sections estimated from the manufacturer's three-views",
    "id": "AIRFRAME.fuselage",
+   "detail": 0,
    "name": "AIRFRAME.fuselage",
-   "triangles": 10284,
+   "triangles": 11976,
    "parent": "AIRFRAME"
   },
   {
@@ -39,8 +40,9 @@
    "status": "estimated",
    "kind": "glass",
    "id": "AIRFRAME.windshield",
+   "detail": 0,
    "name": "AIRFRAME.windshield",
-   "triangles": 796,
+   "triangles": 1501,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -50,8 +52,9 @@
    "status": "estimated",
    "kind": "glass",
    "id": "AIRFRAME.rear_window",
+   "detail": 0,
    "name": "AIRFRAME.rear_window",
-   "triangles": 482,
+   "triangles": 828,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -61,8 +64,9 @@
    "status": "estimated",
    "kind": "glass",
    "id": "AIRFRAME.window_rear_R",
+   "detail": 0,
    "name": "AIRFRAME.window_rear_R",
-   "triangles": 328,
+   "triangles": 164,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -72,8 +76,9 @@
    "status": "estimated",
    "kind": "glass",
    "id": "AIRFRAME.window_rear_L",
+   "detail": 0,
    "name": "AIRFRAME.window_rear_L",
-   "triangles": 328,
+   "triangles": 165,
    "parent": "AIRFRAME.fuselage"
   },
   {
@@ -88,9 +93,11 @@
     65
    ],
    "animate": "door",
+   "note": "Opening 37 in wide at the sill, 32 in at the top, 40-41 in high (POH Fig 6-4); position from the 172S side view",
    "id": "AIRFRAME.door_L",
+   "detail": 0,
    "name": "AIRFRAME.door_L",
-   "triangles": 596,
+   "triangles": 422,
    "parent": "AIRFRAME"
   },
   {
@@ -100,8 +107,9 @@
    "status": "estimated",
    "kind": "glass",
    "id": "AIRFRAME.door_window_L",
+   "detail": 0,
    "name": "AIRFRAME.door_window_L",
-   "triangles": 288,
+   "triangles": 130,
    "parent": "AIRFRAME.door_L"
   },
   {
@@ -110,6 +118,7 @@
    "label_ar": "مقبض الباب",
    "status": "estimated",
    "id": "AIRFRAME.door_handle_L",
+   "detail": 0,
    "name": "AIRFRAME.door_handle_L",
    "triangles": 12,
    "parent": "AIRFRAME.door_L"
@@ -126,9 +135,11 @@
     65
    ],
    "animate": "door",
+   "note": "Opening 37 in wide at the sill, 32 in at the top, 40-41 in high (POH Fig 6-4); position from the 172S side view",
    "id": "AIRFRAME.door_R",
+   "detail": 0,
    "name": "AIRFRAME.door_R",
-   "triangles": 614,
+   "triangles": 422,
    "parent": "AIRFRAME"
   },
   {
@@ -138,8 +149,9 @@
    "status": "estimated",
    "kind": "glass",
    "id": "AIRFRAME.door_window_R",
+   "detail": 0,
    "name": "AIRFRAME.door_window_R",
-   "triangles": 292,
+   "triangles": 130,
    "parent": "AIRFRAME.door_R"
   },
   {
@@ -148,34 +160,68 @@
    "label_ar": "مقبض الباب",
    "status": "estimated",
    "id": "AIRFRAME.door_handle_R",
+   "detail": 0,
    "name": "AIRFRAME.door_handle_R",
    "triangles": 12,
    "parent": "AIRFRAME.door_R"
+  },
+  {
+   "system": "AIRFRAME",
+   "label_en": "Baggage door (left side)",
+   "label_ar": "باب الأمتعة (الجانب الأيسر)",
+   "status": "poh",
+   "ref": "p.6-8 (Fig 6-4), p.7-10",
+   "hinge_axis": "y",
+   "hinge_sign": 1,
+   "range_deg": [
+    0,
+    100
+   ],
+   "animate": "baggage_door",
+   "note": "Opening 15¼ in wide, 22 in high in front and 21 in behind (POH Fig 6-4); position from the 172S side view",
+   "id": "AIRFRAME.baggage_door",
+   "detail": 0,
+   "name": "AIRFRAME.baggage_door",
+   "triangles": 392,
+   "parent": "AIRFRAME"
+  },
+  {
+   "system": "AIRFRAME",
+   "label_en": "Baggage door latch and lock",
+   "label_ar": "مزلاج وقفل باب الأمتعة",
+   "status": "estimated",
+   "id": "AIRFRAME.baggage_door_latch",
+   "detail": 0,
+   "name": "AIRFRAME.baggage_door_latch",
+   "triangles": 38,
+   "parent": "AIRFRAME.baggage_door"
   },
   {
    "system": "WING_L",
    "label_en": "Left wing",
    "label_ar": "الجناح الأيسر",
    "status": "type_data",
-   "note": "NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout (type data); planform estimated",
+   "note": "NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout, 64 in root chord (type data); taper from BL 100 and the leading-edge sweep estimated from the manufacturer's three-view",
    "id": "WING_L.wing",
+   "detail": 0,
    "name": "WING_L.wing",
-   "triangles": 2699,
+   "triangles": 2518,
    "parent": "WING_L"
   },
   {
    "system": "WING_L",
-   "label_en": "Left flap (0°/10°/20°/30°)",
+   "label_en": "Left flap (0° to 40°)",
    "label_ar": "القلاب الأيسر",
    "status": "estimated",
    "hinge_axis": "x",
    "hinge_sign": -1,
    "range_deg": [
     0,
-    30
+    40
    ],
    "animate": "flap",
    "id": "WING_L.flap",
+   "detail": 0,
    "name": "WING_L.flap",
    "triangles": 526,
    "parent": "WING_L"
@@ -193,6 +239,7 @@
    ],
    "animate": "aileron",
    "id": "WING_L.aileron",
+   "detail": 0,
    "name": "WING_L.aileron",
    "triangles": 670,
    "parent": "WING_L"
@@ -202,7 +249,9 @@
    "label_en": "Wing strut",
    "label_ar": "دعامة الجناح",
    "status": "estimated",
+   "note": "Ends placed from the manufacturer's side and front views: fuselage frame at the foot of the front door post, front spar at BL 100.5",
    "id": "WING_L.strut",
+   "detail": 0,
    "name": "WING_L.strut",
    "triangles": 280,
    "parent": "WING_L"
@@ -213,8 +262,9 @@
    "label_ar": "غطاء جذر الجناح الانسيابي",
    "status": "estimated",
    "id": "WING_L.root_fairing",
+   "detail": 0,
    "name": "WING_L.root_fairing",
-   "triangles": 335,
+   "triangles": 144,
    "parent": "WING_L"
   },
   {
@@ -224,6 +274,7 @@
    "status": "poh",
    "ref": "p.1-4, 7-28",
    "id": "WING_L.fuel_cap",
+   "detail": 0,
    "name": "WING_L.fuel_cap",
    "triangles": 72,
    "parent": "WING_L"
@@ -235,6 +286,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "WING_L.nav_light",
+   "detail": 0,
    "name": "WING_L.nav_light",
    "triangles": 48,
    "parent": "WING_L"
@@ -244,10 +296,11 @@
    "label_en": "Wingtip strobe light",
    "label_ar": "ضوء الوميض في طرف الجناح",
    "status": "poh",
-   "ref": "p.7-27",
+   "ref": "p.1-2 (wing span shown with strobe lights installed), p.7-27",
    "id": "WING_L.strobe",
+   "detail": 0,
    "name": "WING_L.strobe",
-   "triangles": 24,
+   "triangles": 42,
    "parent": "WING_L"
   },
   {
@@ -256,6 +309,7 @@
    "label_ar": "حلقة ربط الجناح",
    "status": "estimated",
    "id": "WING_L.tiedown",
+   "detail": 0,
    "name": "WING_L.tiedown",
    "triangles": 24,
    "parent": "WING_L"
@@ -267,6 +321,7 @@
    "status": "poh",
    "ref": "p.7-31",
    "id": "PITOT_STATIC.pitot_tube",
+   "detail": 0,
    "name": "PITOT_STATIC.pitot_tube",
    "triangles": 812,
    "parent": "WING_L"
@@ -278,6 +333,7 @@
    "status": "poh",
    "ref": "p.7-11",
    "id": "AIRFRAME.stall_warning",
+   "detail": 0,
    "name": "AIRFRAME.stall_warning",
    "triangles": 6,
    "parent": "WING_L"
@@ -289,6 +345,7 @@
    "status": "poh",
    "ref": "p.7-28",
    "id": "FUEL.vent_line",
+   "detail": 0,
    "name": "FUEL.vent_line",
    "triangles": 28,
    "parent": "WING_L"
@@ -298,25 +355,27 @@
    "label_en": "Right wing",
    "label_ar": "الجناح الأيمن",
    "status": "type_data",
-   "note": "NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout (type data); planform estimated",
+   "note": "NACA 2412 root / 0012 tip, 1°44′ dihedral, 3° washout, 64 in root chord (type data); taper from BL 100 and the leading-edge sweep estimated from the manufacturer's three-view",
    "id": "WING_R.wing",
+   "detail": 0,
    "name": "WING_R.wing",
-   "triangles": 2699,
+   "triangles": 2518,
    "parent": "WING_R"
   },
   {
    "system": "WING_R",
-   "label_en": "Right flap (0°/10°/20°/30°)",
+   "label_en": "Right flap (0° to 40°)",
    "label_ar": "القلاب الأيمن",
    "status": "estimated",
    "hinge_axis": "x",
    "hinge_sign": -1,
    "range_deg": [
     0,
-    30
+    40
    ],
    "animate": "flap",
    "id": "WING_R.flap",
+   "detail": 0,
    "name": "WING_R.flap",
    "triangles": 526,
    "parent": "WING_R"
@@ -334,6 +393,7 @@
    ],
    "animate": "aileron",
    "id": "WING_R.aileron",
+   "detail": 0,
    "name": "WING_R.aileron",
    "triangles": 670,
    "parent": "WING_R"
@@ -343,7 +403,9 @@
    "label_en": "Wing strut",
    "label_ar": "دعامة الجناح",
    "status": "estimated",
+   "note": "Ends placed from the manufacturer's side and front views: fuselage frame at the foot of the front door post, front spar at BL 100.5",
    "id": "WING_R.strut",
+   "detail": 0,
    "name": "WING_R.strut",
    "triangles": 280,
    "parent": "WING_R"
@@ -354,8 +416,9 @@
    "label_ar": "غطاء جذر الجناح الانسيابي",
    "status": "estimated",
    "id": "WING_R.root_fairing",
+   "detail": 0,
    "name": "WING_R.root_fairing",
-   "triangles": 335,
+   "triangles": 144,
    "parent": "WING_R"
   },
   {
@@ -365,6 +428,7 @@
    "status": "poh",
    "ref": "p.1-4, 7-28",
    "id": "WING_R.fuel_cap",
+   "detail": 0,
    "name": "WING_R.fuel_cap",
    "triangles": 72,
    "parent": "WING_R"
@@ -376,6 +440,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "WING_R.nav_light",
+   "detail": 0,
    "name": "WING_R.nav_light",
    "triangles": 48,
    "parent": "WING_R"
@@ -385,10 +450,11 @@
    "label_en": "Wingtip strobe light",
    "label_ar": "ضوء الوميض في طرف الجناح",
    "status": "poh",
-   "ref": "p.7-27",
+   "ref": "p.1-2 (wing span shown with strobe lights installed), p.7-27",
    "id": "WING_R.strobe",
+   "detail": 0,
    "name": "WING_R.strobe",
-   "triangles": 24,
+   "triangles": 42,
    "parent": "WING_R"
   },
   {
@@ -397,6 +463,7 @@
    "label_ar": "حلقة ربط الجناح",
    "status": "estimated",
    "id": "WING_R.tiedown",
+   "detail": 0,
    "name": "WING_R.tiedown",
    "triangles": 24,
    "parent": "WING_R"
@@ -405,9 +472,11 @@
    "system": "EMPENNAGE",
    "label_en": "Horizontal stabilizer",
    "label_ar": "المثبت الأفقي",
-   "status": "type_data",
-   "note": "span 11 ft 4 in (type data); chord/sweep estimated",
+   "status": "poh",
+   "ref": "Fig 1-1 (span 11 ft 4 in)",
+   "note": "Chords, sweep and position estimated from the manufacturer's three-view",
    "id": "EMPENNAGE.stabilizer",
+   "detail": 0,
    "name": "EMPENNAGE.stabilizer",
    "triangles": 1942,
    "parent": "EMPENNAGE"
@@ -426,8 +495,9 @@
    "animate": "elevator",
    "ref": "p.2-x travel",
    "id": "EMPENNAGE.elevator",
+   "detail": 0,
    "name": "EMPENNAGE.elevator",
-   "triangles": 1438,
+   "triangles": 1918,
    "parent": "EMPENNAGE"
   },
   {
@@ -444,24 +514,27 @@
    ],
    "animate": "trim_tab",
    "id": "EMPENNAGE.trim_tab",
+   "detail": 0,
    "name": "EMPENNAGE.trim_tab",
-   "triangles": 222,
+   "triangles": 350,
    "parent": "EMPENNAGE.elevator"
   },
   {
    "system": "EMPENNAGE",
-   "label_en": "Vertical fin with dorsal fillet",
+   "label_en": "Vertical fin with dorsal fin",
    "label_ar": "المثبت الرأسي مع الزعنفة الظهرية",
    "status": "estimated",
+   "note": "Outline from the manufacturer's side view; section thickness estimated",
    "id": "EMPENNAGE.fin",
+   "detail": 0,
    "name": "EMPENNAGE.fin",
-   "triangles": 1582,
+   "triangles": 2234,
    "parent": "EMPENNAGE"
   },
   {
    "system": "EMPENNAGE",
-   "label_en": "Rudder (with balance horn)",
-   "label_ar": "الدفة (مع ذراع الموازنة)",
+   "label_en": "Rudder",
+   "label_ar": "الدفة",
    "status": "estimated",
    "hinge_axis": "y",
    "hinge_sign": 1,
@@ -470,9 +543,11 @@
     16
    ],
    "animate": "rudder",
+   "note": "Outline and hinge line from the manufacturer's side view",
    "id": "EMPENNAGE.rudder",
+   "detail": 0,
    "name": "EMPENNAGE.rudder",
-   "triangles": 1054,
+   "triangles": 700,
    "parent": "EMPENNAGE"
   },
   {
@@ -482,6 +557,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "ELECTRICAL.tail_nav_light",
+   "detail": 0,
    "name": "ELECTRICAL.tail_nav_light",
    "triangles": 24,
    "parent": "EMPENNAGE.rudder"
@@ -493,6 +569,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "ELECTRICAL.beacon",
+   "detail": 0,
    "name": "ELECTRICAL.beacon",
    "triangles": 64,
    "parent": "EMPENNAGE"
@@ -503,6 +580,7 @@
    "label_ar": "حلقة ربط الذيل",
    "status": "estimated",
    "id": "AIRFRAME.tail_tiedown",
+   "detail": 0,
    "name": "AIRFRAME.tail_tiedown",
    "triangles": 24,
    "parent": "EMPENNAGE"
@@ -513,6 +591,7 @@
    "label_ar": "هوائي الاتصال",
    "status": "estimated",
    "id": "ELECTRICAL.comm_antenna",
+   "detail": 0,
    "name": "ELECTRICAL.comm_antenna",
    "triangles": 108,
    "parent": "AIRFRAME"
@@ -523,6 +602,7 @@
    "label_ar": "هوائي جهاز تحديد موقع الطوارئ",
    "status": "estimated",
    "id": "ELECTRICAL.elt_antenna",
+   "detail": 0,
    "name": "ELECTRICAL.elt_antenna",
    "triangles": 14,
    "parent": "AIRFRAME"
@@ -533,6 +613,7 @@
    "label_ar": "سلك هوائي ADF",
    "status": "estimated",
    "id": "ELECTRICAL.adf_sense_wire",
+   "detail": 0,
    "name": "ELECTRICAL.adf_sense_wire",
    "triangles": 10,
    "parent": "AIRFRAME"
@@ -544,49 +625,32 @@
    "status": "poh",
    "ref": "p.7-31",
    "id": "PITOT_STATIC.static_port",
+   "detail": 0,
    "name": "PITOT_STATIC.static_port",
    "triangles": 32,
    "parent": "AIRFRAME"
   },
   {
    "system": "AIRFRAME",
-   "label_en": "Refuelling step (left)",
-   "label_ar": "درجة التزود بالوقود",
-   "status": "estimated",
-   "id": "AIRFRAME.step_L",
-   "name": "AIRFRAME.step_L",
-   "triangles": 78,
-   "parent": "AIRFRAME"
-  },
-  {
-   "system": "AIRFRAME",
-   "label_en": "Handhold (left)",
-   "label_ar": "مقبض اليد",
-   "status": "estimated",
-   "id": "AIRFRAME.handhold_L",
-   "name": "AIRFRAME.handhold_L",
-   "triangles": 38,
-   "parent": "AIRFRAME"
-  },
-  {
-   "system": "AIRFRAME",
-   "label_en": "Cabin ventilation air inlet",
-   "label_ar": "فتحة تهوية المقصورة",
+   "label_en": "Cabin ventilation air inlet (wing root leading edge)",
+   "label_ar": "فتحة تهوية المقصورة (مقدمة جذر الجناح)",
    "status": "estimated",
    "id": "AIRFRAME.cabin_vent_R",
+   "detail": 0,
    "name": "AIRFRAME.cabin_vent_R",
-   "triangles": 6,
-   "parent": "AIRFRAME"
+   "triangles": 40,
+   "parent": "WING_R"
   },
   {
    "system": "AIRFRAME",
-   "label_en": "Cabin ventilation air inlet",
-   "label_ar": "فتحة تهوية المقصورة",
+   "label_en": "Cabin ventilation air inlet (wing root leading edge)",
+   "label_ar": "فتحة تهوية المقصورة (مقدمة جذر الجناح)",
    "status": "estimated",
    "id": "AIRFRAME.cabin_vent_L",
+   "detail": 0,
    "name": "AIRFRAME.cabin_vent_L",
-   "triangles": 6,
-   "parent": "AIRFRAME"
+   "triangles": 40,
+   "parent": "WING_L"
   },
   {
    "system": "INTERIOR",
@@ -594,8 +658,43 @@
    "label_ar": "بطانة المقصورة الداخلية",
    "status": "estimated",
    "id": "INTERIOR.cabin_liner",
+   "detail": 0,
    "name": "INTERIOR.cabin_liner",
-   "triangles": 3348,
+   "triangles": 6358,
+   "parent": "INTERIOR"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Left door trim panel",
+   "label_ar": "بطانة الباب الأيسر",
+   "status": "estimated",
+   "id": "INTERIOR.door_panel_L",
+   "detail": 0,
+   "name": "INTERIOR.door_panel_L",
+   "triangles": 360,
+   "parent": "AIRFRAME.door_L"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Right door trim panel",
+   "label_ar": "بطانة الباب الأيمن",
+   "status": "estimated",
+   "id": "INTERIOR.door_panel_R",
+   "detail": 0,
+   "name": "INTERIOR.door_panel_R",
+   "triangles": 360,
+   "parent": "AIRFRAME.door_R"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Headliner (cabin ceiling)",
+   "label_ar": "بطانة السقف",
+   "status": "estimated",
+   "note": "Level with the underside of the wing root; the carry-through spars lie above it",
+   "id": "INTERIOR.headliner",
+   "detail": 0,
+   "name": "INTERIOR.headliner",
+   "triangles": 70,
    "parent": "INTERIOR"
   },
   {
@@ -604,8 +703,9 @@
    "label_ar": "أرضية المقصورة",
    "status": "estimated",
    "id": "INTERIOR.floor",
+   "detail": 0,
    "name": "INTERIOR.floor",
-   "triangles": 6,
+   "triangles": 46,
    "parent": "INTERIOR"
   },
   {
@@ -615,6 +715,7 @@
    "status": "poh",
    "ref": "p.7-10",
    "id": "GEAR.main_leg_L",
+   "detail": 0,
    "name": "GEAR.main_leg_L",
    "triangles": 1056,
    "parent": "GEAR"
@@ -626,8 +727,9 @@
    "status": "estimated",
    "optional": true,
    "id": "GEAR.main_leg_fairing_L",
+   "detail": 0,
    "name": "GEAR.main_leg_fairing_L",
-   "triangles": 840,
+   "triangles": 760,
    "parent": "GEAR"
   },
   {
@@ -638,6 +740,7 @@
    "spin_axis": "x",
    "animate": "wheel",
    "id": "GEAR.main_wheel_L.tyre",
+   "detail": 0,
    "name": "GEAR.main_wheel_L.tyre",
    "triangles": 960,
    "parent": "GEAR"
@@ -648,6 +751,7 @@
    "label_ar": "جنط العجلة",
    "status": "type_data",
    "id": "GEAR.main_wheel_L.hub",
+   "detail": 0,
    "name": "GEAR.main_wheel_L.hub",
    "triangles": 128,
    "parent": "GEAR.main_wheel_L.tyre"
@@ -658,6 +762,7 @@
    "label_ar": "قرص الفرامل",
    "status": "estimated",
    "id": "GEAR.main_wheel_L.brake_disc",
+   "detail": 0,
    "name": "GEAR.main_wheel_L.brake_disc",
    "triangles": 64,
    "parent": "GEAR.main_wheel_L.tyre"
@@ -669,6 +774,7 @@
    "status": "poh",
    "ref": "p.7-10",
    "id": "GEAR.main_wheel_L.brake_caliper",
+   "detail": 0,
    "name": "GEAR.main_wheel_L.brake_caliper",
    "triangles": 6,
    "parent": null
@@ -681,8 +787,9 @@
    "optional": true,
    "note": "Wheel fairings were optional equipment",
    "id": "GEAR.main_wheel_fairing_L",
+   "detail": 0,
    "name": "GEAR.main_wheel_fairing_L",
-   "triangles": 2638,
+   "triangles": 3165,
    "parent": "GEAR"
   },
   {
@@ -691,9 +798,21 @@
    "label_ar": "خط الفرامل الهيدروليكي",
    "status": "estimated",
    "id": "GEAR.brake_line_L",
+   "detail": 0,
    "name": "GEAR.brake_line_L",
    "triangles": 102,
    "parent": "GEAR"
+  },
+  {
+   "system": "AIRFRAME",
+   "label_en": "Cabin entry step (left main gear leg)",
+   "label_ar": "درجة الصعود إلى المقصورة (ساق العجلة اليسرى)",
+   "status": "estimated",
+   "id": "AIRFRAME.step_L",
+   "detail": 0,
+   "name": "AIRFRAME.step_L",
+   "triangles": 20,
+   "parent": "AIRFRAME"
   },
   {
    "system": "GEAR",
@@ -702,6 +821,7 @@
    "status": "poh",
    "ref": "p.7-10",
    "id": "GEAR.main_leg_R",
+   "detail": 0,
    "name": "GEAR.main_leg_R",
    "triangles": 1056,
    "parent": "GEAR"
@@ -713,8 +833,9 @@
    "status": "estimated",
    "optional": true,
    "id": "GEAR.main_leg_fairing_R",
+   "detail": 0,
    "name": "GEAR.main_leg_fairing_R",
-   "triangles": 840,
+   "triangles": 760,
    "parent": "GEAR"
   },
   {
@@ -725,6 +846,7 @@
    "spin_axis": "x",
    "animate": "wheel",
    "id": "GEAR.main_wheel_R.tyre",
+   "detail": 0,
    "name": "GEAR.main_wheel_R.tyre",
    "triangles": 960,
    "parent": "GEAR"
@@ -735,6 +857,7 @@
    "label_ar": "جنط العجلة",
    "status": "type_data",
    "id": "GEAR.main_wheel_R.hub",
+   "detail": 0,
    "name": "GEAR.main_wheel_R.hub",
    "triangles": 128,
    "parent": "GEAR.main_wheel_R.tyre"
@@ -745,6 +868,7 @@
    "label_ar": "قرص الفرامل",
    "status": "estimated",
    "id": "GEAR.main_wheel_R.brake_disc",
+   "detail": 0,
    "name": "GEAR.main_wheel_R.brake_disc",
    "triangles": 64,
    "parent": "GEAR.main_wheel_R.tyre"
@@ -756,6 +880,7 @@
    "status": "poh",
    "ref": "p.7-10",
    "id": "GEAR.main_wheel_R.brake_caliper",
+   "detail": 0,
    "name": "GEAR.main_wheel_R.brake_caliper",
    "triangles": 6,
    "parent": null
@@ -768,8 +893,9 @@
    "optional": true,
    "note": "Wheel fairings were optional equipment",
    "id": "GEAR.main_wheel_fairing_R",
+   "detail": 0,
    "name": "GEAR.main_wheel_fairing_R",
-   "triangles": 2638,
+   "triangles": 3165,
    "parent": "GEAR"
   },
   {
@@ -778,9 +904,21 @@
    "label_ar": "خط الفرامل الهيدروليكي",
    "status": "estimated",
    "id": "GEAR.brake_line_R",
+   "detail": 0,
    "name": "GEAR.brake_line_R",
    "triangles": 102,
    "parent": "GEAR"
+  },
+  {
+   "system": "AIRFRAME",
+   "label_en": "Cabin entry step (right main gear leg)",
+   "label_ar": "درجة الصعود إلى المقصورة (ساق العجلة اليمنى)",
+   "status": "estimated",
+   "id": "AIRFRAME.step_R",
+   "detail": 0,
+   "name": "AIRFRAME.step_R",
+   "triangles": 20,
+   "parent": "AIRFRAME"
   },
   {
    "system": "GEAR",
@@ -796,6 +934,7 @@
    ],
    "animate": "nose_steer",
    "id": "GEAR.nose_strut",
+   "detail": 0,
    "name": "GEAR.nose_strut",
    "triangles": 78,
    "parent": "GEAR"
@@ -806,6 +945,7 @@
    "label_ar": "مكبس الدعامة",
    "status": "estimated",
    "id": "GEAR.nose_piston",
+   "detail": 0,
    "name": "GEAR.nose_piston",
    "triangles": 38,
    "parent": "GEAR.nose_strut"
@@ -816,6 +956,7 @@
    "label_ar": "شوكة عجلة المقدمة",
    "status": "estimated",
    "id": "GEAR.nose_fork",
+   "detail": 0,
    "name": "GEAR.nose_fork",
    "triangles": 18,
    "parent": "GEAR.nose_strut"
@@ -826,6 +967,7 @@
    "label_ar": "وصلات العزم",
    "status": "estimated",
    "id": "GEAR.nose_torque_links",
+   "detail": 0,
    "name": "GEAR.nose_torque_links",
    "triangles": 56,
    "parent": "GEAR.nose_strut"
@@ -838,6 +980,7 @@
    "spin_axis": "x",
    "animate": "wheel",
    "id": "GEAR.nose_wheel.tyre",
+   "detail": 0,
    "name": "GEAR.nose_wheel.tyre",
    "triangles": 960,
    "parent": "GEAR.nose_strut"
@@ -848,6 +991,7 @@
    "label_ar": "جنط العجلة",
    "status": "type_data",
    "id": "GEAR.nose_wheel.hub",
+   "detail": 0,
    "name": "GEAR.nose_wheel.hub",
    "triangles": 128,
    "parent": "GEAR.nose_wheel.tyre"
@@ -860,8 +1004,9 @@
    "optional": true,
    "note": "Wheel fairings were optional equipment",
    "id": "GEAR.nose_wheel_fairing",
+   "detail": 0,
    "name": "GEAR.nose_wheel_fairing",
-   "triangles": 2628,
+   "triangles": 3176,
    "parent": "GEAR.nose_strut"
   },
   {
@@ -870,6 +1015,7 @@
    "label_ar": "مخمد اهتزاز عجلة المقدمة",
    "status": "estimated",
    "id": "GEAR.shimmy_damper",
+   "detail": 0,
    "name": "GEAR.shimmy_damper",
    "triangles": 18,
    "parent": "GEAR"
@@ -881,18 +1027,20 @@
    "status": "estimated",
    "removable": true,
    "id": "POWERPLANT.cowl_upper",
+   "detail": 0,
    "name": "POWERPLANT.cowl_upper",
-   "triangles": 1734,
+   "triangles": 2142,
    "parent": "POWERPLANT"
   },
   {
    "system": "POWERPLANT",
-   "label_en": "Lower engine cowl (inlets, landing/taxi light)",
-   "label_ar": "غطاء المحرك السفلي (فتحات الهواء وضوء الهبوط)",
+   "label_en": "Lower engine cowl (cooling inlets, landing light, carburetor air inlet)",
+   "label_ar": "غطاء المحرك السفلي (فتحات التبريد وضوء الهبوط ومدخل هواء المكربن)",
    "status": "estimated",
    "id": "POWERPLANT.cowl_lower",
+   "detail": 0,
    "name": "POWERPLANT.cowl_lower",
-   "triangles": 1788,
+   "triangles": 2347,
    "parent": "POWERPLANT"
   },
   {
@@ -901,6 +1049,7 @@
    "label_ar": "فتحة هواء التبريد",
    "status": "estimated",
    "id": "POWERPLANT.inlet_duct_R",
+   "detail": 0,
    "name": "POWERPLANT.inlet_duct_R",
    "triangles": 35,
    "parent": "POWERPLANT"
@@ -911,19 +1060,33 @@
    "label_ar": "فتحة هواء التبريد",
    "status": "estimated",
    "id": "POWERPLANT.inlet_duct_L",
+   "detail": 0,
    "name": "POWERPLANT.inlet_duct_L",
    "triangles": 34,
    "parent": "POWERPLANT"
   },
   {
+   "system": "POWERPLANT",
+   "label_en": "Landing light recess",
+   "label_ar": "تجويف ضوء الهبوط",
+   "status": "estimated",
+   "id": "POWERPLANT.landing_light_recess",
+   "detail": 0,
+   "name": "POWERPLANT.landing_light_recess",
+   "triangles": 41,
+   "parent": "POWERPLANT.cowl_lower"
+  },
+  {
    "system": "ELECTRICAL",
-   "label_en": "Landing / taxi light (nose cowl)",
-   "label_ar": "ضوء الهبوط والتدرج",
+   "label_en": "Landing light (cowl nose cap)",
+   "label_ar": "ضوء الهبوط (مقدمة غطاء المحرك)",
    "status": "poh",
    "ref": "p.7-27",
+   "note": "A single landing light is standard; dual landing/taxi lights were an option",
    "id": "ELECTRICAL.landing_light",
+   "detail": 0,
    "name": "ELECTRICAL.landing_light",
-   "triangles": 40,
+   "triangles": 72,
    "parent": "POWERPLANT"
   },
   {
@@ -932,9 +1095,22 @@
    "label_ar": "عدسة ضوء الهبوط",
    "status": "estimated",
    "id": "ELECTRICAL.landing_light_lens",
+   "detail": 0,
    "name": "ELECTRICAL.landing_light_lens",
-   "triangles": 54,
+   "triangles": 48,
    "parent": "POWERPLANT"
+  },
+  {
+   "system": "INDUCTION",
+   "label_en": "Carburetor air inlet (lower cowl)",
+   "label_ar": "مدخل هواء المكربن (غطاء المحرك السفلي)",
+   "status": "poh",
+   "ref": "p.7-24",
+   "id": "INDUCTION.air_inlet_duct",
+   "detail": 0,
+   "name": "INDUCTION.air_inlet_duct",
+   "triangles": 20,
+   "parent": "POWERPLANT.cowl_lower"
   },
   {
    "system": "AIRFRAME",
@@ -943,6 +1119,7 @@
    "status": "poh",
    "ref": "p.6-x datum",
    "id": "AIRFRAME.firewall",
+   "detail": 0,
    "name": "AIRFRAME.firewall",
    "triangles": 78,
    "parent": "AIRFRAME"
@@ -956,8 +1133,9 @@
    "spin_sign": 1,
    "animate": "prop",
    "id": "POWERPLANT.spinner",
+   "detail": 0,
    "name": "POWERPLANT.spinner",
-   "triangles": 2360,
+   "triangles": 2680,
    "parent": "POWERPLANT"
   },
   {
@@ -966,6 +1144,7 @@
    "label_ar": "صفيحة القمع الخلفية",
    "status": "estimated",
    "id": "POWERPLANT.spinner_backplate",
+   "detail": 0,
    "name": "POWERPLANT.spinner_backplate",
    "triangles": 80,
    "parent": "POWERPLANT.spinner"
@@ -981,6 +1160,7 @@
    "animate": "prop",
    "note": "Blade planform, twist and airfoil are illustrative",
    "id": "POWERPLANT.propeller",
+   "detail": 0,
    "name": "POWERPLANT.propeller",
    "triangles": 2832,
    "parent": "POWERPLANT.spinner"
@@ -991,6 +1171,7 @@
    "label_ar": "ماسورة العادم",
    "status": "estimated",
    "id": "ENGINE.exhaust_tailpipe",
+   "detail": 0,
    "name": "ENGINE.exhaust_tailpipe",
    "triangles": 180,
    "parent": "POWERPLANT"
@@ -1001,8 +1182,9 @@
    "label_ar": "لوحة العدادات العلوية",
    "status": "estimated",
    "id": "PANEL.upper_panel",
+   "detail": 0,
    "name": "PANEL.upper_panel",
-   "triangles": 54,
+   "triangles": 114,
    "parent": "PANEL"
   },
   {
@@ -1011,6 +1193,7 @@
    "label_ar": "اللوحة السفلية (المفاتيح وأدوات التحكم بالمحرك)",
    "status": "estimated",
    "id": "PANEL.lower_panel",
+   "detail": 0,
    "name": "PANEL.lower_panel",
    "triangles": 6,
    "parent": "PANEL"
@@ -1022,6 +1205,7 @@
    "status": "estimated",
    "instrument": "ASI",
    "id": "PANEL.ASI.bezel",
+   "detail": 0,
    "name": "PANEL.ASI.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1034,6 +1218,7 @@
    "instrument": "ASI",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.ASI.face",
+   "detail": 0,
    "name": "PANEL.ASI.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1045,6 +1230,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.ASI.glass",
+   "detail": 0,
    "name": "PANEL.ASI.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1059,6 +1245,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.ASI.needle_ASI",
+   "detail": 0,
    "name": "PANEL.ASI.needle_ASI",
    "triangles": 10,
    "parent": "PANEL"
@@ -1070,6 +1257,7 @@
    "status": "estimated",
    "instrument": "AI",
    "id": "PANEL.AI.bezel",
+   "detail": 0,
    "name": "PANEL.AI.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1084,6 +1272,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.AI.ball",
+   "detail": 0,
    "name": "PANEL.AI.ball",
    "triangles": 38,
    "parent": "PANEL"
@@ -1096,6 +1285,7 @@
    "ref": "p.7-34",
    "instrument": "AI",
    "id": "PANEL.AI.mask",
+   "detail": 0,
    "name": "PANEL.AI.mask",
    "triangles": 38,
    "parent": "PANEL"
@@ -1107,6 +1297,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.AI.glass",
+   "detail": 0,
    "name": "PANEL.AI.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1118,6 +1309,7 @@
    "status": "estimated",
    "instrument": "ALT",
    "id": "PANEL.ALT.bezel",
+   "detail": 0,
    "name": "PANEL.ALT.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1130,6 +1322,7 @@
    "instrument": "ALT",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.ALT.face",
+   "detail": 0,
    "name": "PANEL.ALT.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1141,6 +1334,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.ALT.glass",
+   "detail": 0,
    "name": "PANEL.ALT.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1155,6 +1349,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.ALT.needle_ALT_100",
+   "detail": 0,
    "name": "PANEL.ALT.needle_ALT_100",
    "triangles": 10,
    "parent": "PANEL"
@@ -1169,6 +1364,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.ALT.needle_ALT_1000",
+   "detail": 0,
    "name": "PANEL.ALT.needle_ALT_1000",
    "triangles": 10,
    "parent": "PANEL"
@@ -1183,6 +1379,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.ALT.needle_ALT_10000",
+   "detail": 0,
    "name": "PANEL.ALT.needle_ALT_10000",
    "triangles": 10,
    "parent": "PANEL"
@@ -1194,6 +1391,7 @@
    "status": "estimated",
    "instrument": "TC",
    "id": "PANEL.TC.bezel",
+   "detail": 0,
    "name": "PANEL.TC.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1206,6 +1404,7 @@
    "instrument": "TC",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.TC.face",
+   "detail": 0,
    "name": "PANEL.TC.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1217,6 +1416,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.TC.glass",
+   "detail": 0,
    "name": "PANEL.TC.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1232,6 +1432,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.TC.needle_TC",
+   "detail": 0,
    "name": "PANEL.TC.needle_TC",
    "triangles": 18,
    "parent": "PANEL"
@@ -1244,6 +1445,7 @@
    "ref": "p.7-34",
    "animate": "tc_ball",
    "id": "PANEL.TC.ball",
+   "detail": 0,
    "name": "PANEL.TC.ball",
    "triangles": 24,
    "parent": "PANEL"
@@ -1255,6 +1457,7 @@
    "status": "estimated",
    "instrument": "DG",
    "id": "PANEL.DG.bezel",
+   "detail": 0,
    "name": "PANEL.DG.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1269,6 +1472,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.DG.card",
+   "detail": 0,
    "name": "PANEL.DG.card",
    "triangles": 38,
    "parent": "PANEL"
@@ -1281,6 +1485,7 @@
    "ref": "p.7-34",
    "instrument": "DG",
    "id": "PANEL.DG.mask",
+   "detail": 0,
    "name": "PANEL.DG.mask",
    "triangles": 38,
    "parent": "PANEL"
@@ -1292,6 +1497,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.DG.glass",
+   "detail": 0,
    "name": "PANEL.DG.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1303,6 +1509,7 @@
    "status": "estimated",
    "instrument": "VSI",
    "id": "PANEL.VSI.bezel",
+   "detail": 0,
    "name": "PANEL.VSI.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1315,6 +1522,7 @@
    "instrument": "VSI",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.VSI.face",
+   "detail": 0,
    "name": "PANEL.VSI.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1326,6 +1534,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.VSI.glass",
+   "detail": 0,
    "name": "PANEL.VSI.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1340,6 +1549,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.VSI.needle_VSI",
+   "detail": 0,
    "name": "PANEL.VSI.needle_VSI",
    "triangles": 10,
    "parent": "PANEL"
@@ -1351,6 +1561,7 @@
    "status": "estimated",
    "instrument": "CLOCK",
    "id": "PANEL.CLOCK.bezel",
+   "detail": 0,
    "name": "PANEL.CLOCK.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1363,6 +1574,7 @@
    "instrument": "CLOCK",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.CLOCK.face",
+   "detail": 0,
    "name": "PANEL.CLOCK.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1374,6 +1586,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.CLOCK.glass",
+   "detail": 0,
    "name": "PANEL.CLOCK.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1388,6 +1601,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.CLOCK.needle_CLOCK_H",
+   "detail": 0,
    "name": "PANEL.CLOCK.needle_CLOCK_H",
    "triangles": 10,
    "parent": "PANEL"
@@ -1402,6 +1616,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.CLOCK.needle_CLOCK_M",
+   "detail": 0,
    "name": "PANEL.CLOCK.needle_CLOCK_M",
    "triangles": 10,
    "parent": "PANEL"
@@ -1413,6 +1628,7 @@
    "status": "estimated",
    "instrument": "FUEL_L",
    "id": "PANEL.FUEL_L.bezel",
+   "detail": 0,
    "name": "PANEL.FUEL_L.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1425,6 +1641,7 @@
    "instrument": "FUEL_L",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.FUEL_L.face",
+   "detail": 0,
    "name": "PANEL.FUEL_L.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1436,6 +1653,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.FUEL_L.glass",
+   "detail": 0,
    "name": "PANEL.FUEL_L.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1450,6 +1668,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.FUEL_L.needle_FUEL_L",
+   "detail": 0,
    "name": "PANEL.FUEL_L.needle_FUEL_L",
    "triangles": 10,
    "parent": "PANEL"
@@ -1461,6 +1680,7 @@
    "status": "estimated",
    "instrument": "FUEL_R",
    "id": "PANEL.FUEL_R.bezel",
+   "detail": 0,
    "name": "PANEL.FUEL_R.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1473,6 +1693,7 @@
    "instrument": "FUEL_R",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.FUEL_R.face",
+   "detail": 0,
    "name": "PANEL.FUEL_R.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1484,6 +1705,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.FUEL_R.glass",
+   "detail": 0,
    "name": "PANEL.FUEL_R.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1498,6 +1720,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.FUEL_R.needle_FUEL_R",
+   "detail": 0,
    "name": "PANEL.FUEL_R.needle_FUEL_R",
    "triangles": 10,
    "parent": "PANEL"
@@ -1509,6 +1732,7 @@
    "status": "estimated",
    "instrument": "OIL_T",
    "id": "PANEL.OIL_T.bezel",
+   "detail": 0,
    "name": "PANEL.OIL_T.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1521,6 +1745,7 @@
    "instrument": "OIL_T",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.OIL_T.face",
+   "detail": 0,
    "name": "PANEL.OIL_T.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1532,6 +1757,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.OIL_T.glass",
+   "detail": 0,
    "name": "PANEL.OIL_T.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1546,6 +1772,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.OIL_T.needle_OIL_T",
+   "detail": 0,
    "name": "PANEL.OIL_T.needle_OIL_T",
    "triangles": 10,
    "parent": "PANEL"
@@ -1557,6 +1784,7 @@
    "status": "estimated",
    "instrument": "OIL_P",
    "id": "PANEL.OIL_P.bezel",
+   "detail": 0,
    "name": "PANEL.OIL_P.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1569,6 +1797,7 @@
    "instrument": "OIL_P",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.OIL_P.face",
+   "detail": 0,
    "name": "PANEL.OIL_P.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1580,6 +1809,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.OIL_P.glass",
+   "detail": 0,
    "name": "PANEL.OIL_P.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1594,6 +1824,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.OIL_P.needle_OIL_P",
+   "detail": 0,
    "name": "PANEL.OIL_P.needle_OIL_P",
    "triangles": 10,
    "parent": "PANEL"
@@ -1605,6 +1836,7 @@
    "status": "estimated",
    "instrument": "AMMETER",
    "id": "PANEL.AMMETER.bezel",
+   "detail": 0,
    "name": "PANEL.AMMETER.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1617,6 +1849,7 @@
    "instrument": "AMMETER",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.AMMETER.face",
+   "detail": 0,
    "name": "PANEL.AMMETER.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1628,6 +1861,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.AMMETER.glass",
+   "detail": 0,
    "name": "PANEL.AMMETER.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1642,6 +1876,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.AMMETER.needle_AMMETER",
+   "detail": 0,
    "name": "PANEL.AMMETER.needle_AMMETER",
    "triangles": 10,
    "parent": "PANEL"
@@ -1653,6 +1888,7 @@
    "status": "estimated",
    "instrument": "SUCTION",
    "id": "PANEL.SUCTION.bezel",
+   "detail": 0,
    "name": "PANEL.SUCTION.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1665,6 +1901,7 @@
    "instrument": "SUCTION",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.SUCTION.face",
+   "detail": 0,
    "name": "PANEL.SUCTION.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1676,6 +1913,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.SUCTION.glass",
+   "detail": 0,
    "name": "PANEL.SUCTION.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1690,6 +1928,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.SUCTION.needle_SUCTION",
+   "detail": 0,
    "name": "PANEL.SUCTION.needle_SUCTION",
    "triangles": 10,
    "parent": "PANEL"
@@ -1701,6 +1940,7 @@
    "status": "estimated",
    "instrument": "TACH",
    "id": "PANEL.TACH.bezel",
+   "detail": 0,
    "name": "PANEL.TACH.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1713,6 +1953,7 @@
    "instrument": "TACH",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.TACH.face",
+   "detail": 0,
    "name": "PANEL.TACH.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1724,6 +1965,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.TACH.glass",
+   "detail": 0,
    "name": "PANEL.TACH.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1738,6 +1980,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.TACH.needle_TACH",
+   "detail": 0,
    "name": "PANEL.TACH.needle_TACH",
    "triangles": 10,
    "parent": "PANEL"
@@ -1749,6 +1992,7 @@
    "status": "estimated",
    "instrument": "OAT",
    "id": "PANEL.OAT.bezel",
+   "detail": 0,
    "name": "PANEL.OAT.bezel",
    "triangles": 160,
    "parent": "PANEL"
@@ -1761,6 +2005,7 @@
    "instrument": "OAT",
    "ref": "Fig 2-2 / 2-3 markings",
    "id": "PANEL.OAT.face",
+   "detail": 0,
    "name": "PANEL.OAT.face",
    "triangles": 38,
    "parent": "PANEL"
@@ -1772,6 +2017,7 @@
    "status": "estimated",
    "kind": "glass",
    "id": "PANEL.OAT.glass",
+   "detail": 0,
    "name": "PANEL.OAT.glass",
    "triangles": 60,
    "parent": "PANEL"
@@ -1786,6 +2032,7 @@
    "spin_sign": 1,
    "animate": "needle",
    "id": "PANEL.OAT.needle_OAT",
+   "detail": 0,
    "name": "PANEL.OAT.needle_OAT",
    "triangles": 10,
    "parent": "PANEL"
@@ -1797,6 +2044,7 @@
    "status": "estimated",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number",
    "id": "PANEL.radio_COMNAV1",
+   "detail": 0,
    "name": "PANEL.radio_COMNAV1",
    "triangles": 6,
    "parent": "PANEL"
@@ -1810,6 +2058,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_COMNAV1.knob_L",
+   "detail": 0,
    "name": "PANEL.radio_COMNAV1.knob_L",
    "triangles": 28,
    "parent": "PANEL.radio_COMNAV1"
@@ -1823,6 +2072,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_COMNAV1.knob_R",
+   "detail": 0,
    "name": "PANEL.radio_COMNAV1.knob_R",
    "triangles": 28,
    "parent": "PANEL.radio_COMNAV1"
@@ -1834,6 +2084,7 @@
    "status": "estimated",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number",
    "id": "PANEL.radio_COMNAV2",
+   "detail": 0,
    "name": "PANEL.radio_COMNAV2",
    "triangles": 6,
    "parent": "PANEL"
@@ -1847,6 +2098,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_COMNAV2.knob_L",
+   "detail": 0,
    "name": "PANEL.radio_COMNAV2.knob_L",
    "triangles": 28,
    "parent": "PANEL.radio_COMNAV2"
@@ -1860,6 +2112,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_COMNAV2.knob_R",
+   "detail": 0,
    "name": "PANEL.radio_COMNAV2.knob_R",
    "triangles": 28,
    "parent": "PANEL.radio_COMNAV2"
@@ -1871,6 +2124,7 @@
    "status": "estimated",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number",
    "id": "PANEL.radio_ADF",
+   "detail": 0,
    "name": "PANEL.radio_ADF",
    "triangles": 6,
    "parent": "PANEL"
@@ -1884,6 +2138,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_ADF.knob_L",
+   "detail": 0,
    "name": "PANEL.radio_ADF.knob_L",
    "triangles": 28,
    "parent": "PANEL.radio_ADF"
@@ -1897,6 +2152,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_ADF.knob_R",
+   "detail": 0,
    "name": "PANEL.radio_ADF.knob_R",
    "triangles": 28,
    "parent": "PANEL.radio_ADF"
@@ -1908,6 +2164,7 @@
    "status": "estimated",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number",
    "id": "PANEL.radio_XPDR",
+   "detail": 0,
    "name": "PANEL.radio_XPDR",
    "triangles": 6,
    "parent": "PANEL"
@@ -1921,6 +2178,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_XPDR.knob_L",
+   "detail": 0,
    "name": "PANEL.radio_XPDR.knob_L",
    "triangles": 28,
    "parent": "PANEL.radio_XPDR"
@@ -1934,6 +2192,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_XPDR.knob_R",
+   "detail": 0,
    "name": "PANEL.radio_XPDR.knob_R",
    "triangles": 28,
    "parent": "PANEL.radio_XPDR"
@@ -1945,6 +2204,7 @@
    "status": "estimated",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number",
    "id": "PANEL.radio_AUDIO",
+   "detail": 0,
    "name": "PANEL.radio_AUDIO",
    "triangles": 6,
    "parent": "PANEL"
@@ -1958,6 +2218,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_AUDIO.knob_L",
+   "detail": 0,
    "name": "PANEL.radio_AUDIO.knob_L",
    "triangles": 28,
    "parent": "PANEL.radio_AUDIO"
@@ -1971,6 +2232,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_AUDIO.knob_R",
+   "detail": 0,
    "name": "PANEL.radio_AUDIO.knob_R",
    "triangles": 28,
    "parent": "PANEL.radio_AUDIO"
@@ -1982,6 +2244,7 @@
    "status": "estimated",
    "note": "Period-correct radio stack representation; specific installed avionics vary by serial number",
    "id": "PANEL.radio_MARKER",
+   "detail": 0,
    "name": "PANEL.radio_MARKER",
    "triangles": 6,
    "parent": "PANEL"
@@ -1995,6 +2258,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_MARKER.knob_L",
+   "detail": 0,
    "name": "PANEL.radio_MARKER.knob_L",
    "triangles": 28,
    "parent": "PANEL.radio_MARKER"
@@ -2008,6 +2272,7 @@
    "spin_axis": "z",
    "spin_sign": 1,
    "id": "PANEL.radio_MARKER.knob_R",
+   "detail": 0,
    "name": "PANEL.radio_MARKER.knob_R",
    "triangles": 28,
    "parent": "PANEL.radio_MARKER"
@@ -2019,6 +2284,7 @@
    "status": "poh",
    "ref": "p.7-26",
    "id": "PANEL.low_volt",
+   "detail": 0,
    "name": "PANEL.low_volt",
    "triangles": 2,
    "parent": "PANEL"
@@ -2030,6 +2296,7 @@
    "status": "estimated",
    "ref": "",
    "id": "PANEL.flap_ind",
+   "detail": 0,
    "name": "PANEL.flap_ind",
    "triangles": 2,
    "parent": "PANEL"
@@ -2041,6 +2308,7 @@
    "status": "estimated",
    "ref": "",
    "id": "PANEL.hourmeter",
+   "detail": 0,
    "name": "PANEL.hourmeter",
    "triangles": 2,
    "parent": "PANEL"
@@ -2052,6 +2320,7 @@
    "status": "poh",
    "ref": "",
    "id": "PANEL.placard_speed",
+   "detail": 0,
    "name": "PANEL.placard_speed",
    "triangles": 2,
    "parent": "PANEL"
@@ -2063,6 +2332,7 @@
    "status": "estimated",
    "ref": "",
    "id": "PANEL.ignition",
+   "detail": 0,
    "name": "PANEL.ignition",
    "triangles": 2,
    "parent": "PANEL"
@@ -2081,6 +2351,7 @@
     15
    ],
    "id": "PANEL.master_bat",
+   "detail": 0,
    "name": "PANEL.master_bat",
    "triangles": 12,
    "parent": "PANEL"
@@ -2099,6 +2370,7 @@
     15
    ],
    "id": "PANEL.master_alt",
+   "detail": 0,
    "name": "PANEL.master_alt",
    "triangles": 12,
    "parent": "PANEL"
@@ -2117,6 +2389,7 @@
     15
    ],
    "id": "PANEL.switch_beacon",
+   "detail": 0,
    "name": "PANEL.switch_beacon",
    "triangles": 12,
    "parent": "PANEL"
@@ -2135,6 +2408,7 @@
     15
    ],
    "id": "PANEL.switch_nav_lights",
+   "detail": 0,
    "name": "PANEL.switch_nav_lights",
    "triangles": 12,
    "parent": "PANEL"
@@ -2153,6 +2427,7 @@
     15
    ],
    "id": "PANEL.switch_strobe",
+   "detail": 0,
    "name": "PANEL.switch_strobe",
    "triangles": 12,
    "parent": "PANEL"
@@ -2171,6 +2446,7 @@
     15
    ],
    "id": "PANEL.switch_taxi_light",
+   "detail": 0,
    "name": "PANEL.switch_taxi_light",
    "triangles": 12,
    "parent": "PANEL"
@@ -2189,6 +2465,7 @@
     15
    ],
    "id": "PANEL.switch_landing_light",
+   "detail": 0,
    "name": "PANEL.switch_landing_light",
    "triangles": 12,
    "parent": "PANEL"
@@ -2207,6 +2484,7 @@
     15
    ],
    "id": "PANEL.switch_pitot_heat",
+   "detail": 0,
    "name": "PANEL.switch_pitot_heat",
    "triangles": 12,
    "parent": "PANEL"
@@ -2225,6 +2503,7 @@
     15
    ],
    "id": "PANEL.switch_avionics_master",
+   "detail": 0,
    "name": "PANEL.switch_avionics_master",
    "triangles": 12,
    "parent": "PANEL"
@@ -2243,6 +2522,7 @@
     70
    ],
    "id": "PANEL.ignition_switch",
+   "detail": 0,
    "name": "PANEL.ignition_switch",
    "triangles": 66,
    "parent": "PANEL"
@@ -2256,6 +2536,7 @@
    "animate": "pull",
    "travel_m": 0.07,
    "id": "PANEL.carb_heat",
+   "detail": 0,
    "name": "PANEL.carb_heat",
    "triangles": 114,
    "parent": "PANEL"
@@ -2266,6 +2547,7 @@
    "label_ar": "لوحة العدادات (تجهيز)",
    "status": "estimated",
    "id": "PANEL.carb_heat_bushing",
+   "detail": 0,
    "name": "PANEL.carb_heat_bushing",
    "triangles": 40,
    "parent": "PANEL"
@@ -2279,6 +2561,7 @@
    "animate": "pull",
    "travel_m": 0.085,
    "id": "PANEL.throttle",
+   "detail": 0,
    "name": "PANEL.throttle",
    "triangles": 114,
    "parent": "PANEL"
@@ -2289,6 +2572,7 @@
    "label_ar": "لوحة العدادات (تجهيز)",
    "status": "estimated",
    "id": "PANEL.throttle_bushing",
+   "detail": 0,
    "name": "PANEL.throttle_bushing",
    "triangles": 40,
    "parent": "PANEL"
@@ -2302,6 +2586,7 @@
    "animate": "pull",
    "travel_m": 0.07,
    "id": "PANEL.mixture",
+   "detail": 0,
    "name": "PANEL.mixture",
    "triangles": 208,
    "parent": "PANEL"
@@ -2312,6 +2597,7 @@
    "label_ar": "لوحة العدادات (تجهيز)",
    "status": "estimated",
    "id": "PANEL.mixture_bushing",
+   "detail": 0,
    "name": "PANEL.mixture_bushing",
    "triangles": 40,
    "parent": "PANEL"
@@ -2325,6 +2611,7 @@
    "animate": "pull",
    "travel_m": 0.06,
    "id": "PANEL.primer",
+   "detail": 0,
    "name": "PANEL.primer",
    "triangles": 114,
    "parent": "PANEL"
@@ -2335,6 +2622,7 @@
    "label_ar": "لوحة العدادات (تجهيز)",
    "status": "estimated",
    "id": "PANEL.primer_bushing",
+   "detail": 0,
    "name": "PANEL.primer_bushing",
    "triangles": 40,
    "parent": "PANEL"
@@ -2348,6 +2636,7 @@
    "animate": "pull",
    "travel_m": 0.07,
    "id": "PANEL.cabin_heat",
+   "detail": 0,
    "name": "PANEL.cabin_heat",
    "triangles": 114,
    "parent": "PANEL"
@@ -2358,6 +2647,7 @@
    "label_ar": "لوحة العدادات (تجهيز)",
    "status": "estimated",
    "id": "PANEL.cabin_heat_bushing",
+   "detail": 0,
    "name": "PANEL.cabin_heat_bushing",
    "triangles": 40,
    "parent": "PANEL"
@@ -2371,6 +2661,7 @@
    "animate": "pull",
    "travel_m": 0.07,
    "id": "PANEL.cabin_air",
+   "detail": 0,
    "name": "PANEL.cabin_air",
    "triangles": 114,
    "parent": "PANEL"
@@ -2381,6 +2672,7 @@
    "label_ar": "لوحة العدادات (تجهيز)",
    "status": "estimated",
    "id": "PANEL.cabin_air_bushing",
+   "detail": 0,
    "name": "PANEL.cabin_air_bushing",
    "triangles": 40,
    "parent": "PANEL"
@@ -2399,6 +2691,7 @@
     0
    ],
    "id": "PANEL.flap_switch",
+   "detail": 0,
    "name": "PANEL.flap_switch",
    "triangles": 12,
    "parent": "PANEL"
@@ -2410,6 +2703,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_0",
+   "detail": 0,
    "name": "PANEL.breaker_0_0",
    "triangles": 20,
    "parent": "PANEL"
@@ -2421,6 +2715,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_0",
+   "detail": 0,
    "name": "PANEL.breaker_1_0",
    "triangles": 20,
    "parent": "PANEL"
@@ -2432,6 +2727,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_1",
+   "detail": 0,
    "name": "PANEL.breaker_0_1",
    "triangles": 20,
    "parent": "PANEL"
@@ -2443,6 +2739,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_1",
+   "detail": 0,
    "name": "PANEL.breaker_1_1",
    "triangles": 20,
    "parent": "PANEL"
@@ -2454,6 +2751,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_2",
+   "detail": 0,
    "name": "PANEL.breaker_0_2",
    "triangles": 20,
    "parent": "PANEL"
@@ -2465,6 +2763,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_2",
+   "detail": 0,
    "name": "PANEL.breaker_1_2",
    "triangles": 20,
    "parent": "PANEL"
@@ -2476,6 +2775,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_3",
+   "detail": 0,
    "name": "PANEL.breaker_0_3",
    "triangles": 20,
    "parent": "PANEL"
@@ -2487,6 +2787,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_3",
+   "detail": 0,
    "name": "PANEL.breaker_1_3",
    "triangles": 20,
    "parent": "PANEL"
@@ -2498,6 +2799,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_4",
+   "detail": 0,
    "name": "PANEL.breaker_0_4",
    "triangles": 20,
    "parent": "PANEL"
@@ -2509,6 +2811,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_4",
+   "detail": 0,
    "name": "PANEL.breaker_1_4",
    "triangles": 20,
    "parent": "PANEL"
@@ -2520,6 +2823,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_5",
+   "detail": 0,
    "name": "PANEL.breaker_0_5",
    "triangles": 20,
    "parent": "PANEL"
@@ -2531,6 +2835,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_5",
+   "detail": 0,
    "name": "PANEL.breaker_1_5",
    "triangles": 20,
    "parent": "PANEL"
@@ -2542,6 +2847,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_6",
+   "detail": 0,
    "name": "PANEL.breaker_0_6",
    "triangles": 20,
    "parent": "PANEL"
@@ -2553,6 +2859,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_1_6",
+   "detail": 0,
    "name": "PANEL.breaker_1_6",
    "triangles": 20,
    "parent": "PANEL"
@@ -2564,6 +2871,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_7",
+   "detail": 0,
    "name": "PANEL.breaker_0_7",
    "triangles": 20,
    "parent": "PANEL"
@@ -2575,6 +2883,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_8",
+   "detail": 0,
    "name": "PANEL.breaker_0_8",
    "triangles": 20,
    "parent": "PANEL"
@@ -2586,6 +2895,7 @@
    "status": "poh",
    "ref": "p.7-27",
    "id": "PANEL.breaker_0_9",
+   "detail": 0,
    "name": "PANEL.breaker_0_9",
    "triangles": 20,
    "parent": "PANEL"
@@ -2597,6 +2907,7 @@
    "status": "poh",
    "ref": "p.7-x",
    "id": "PANEL.magnetic_compass",
+   "detail": 0,
    "name": "PANEL.magnetic_compass",
    "triangles": 6,
    "parent": "PANEL"
@@ -2607,8 +2918,9 @@
    "label_ar": "واقي الوهج",
    "status": "estimated",
    "id": "INTERIOR.glareshield",
+   "detail": 0,
    "name": "INTERIOR.glareshield",
-   "triangles": 68,
+   "triangles": 74,
    "parent": "INTERIOR"
   },
   {
@@ -2618,6 +2930,7 @@
    "status": "estimated",
    "animate": "yoke_shaft",
    "id": "INTERIOR.yoke_shaft_L",
+   "detail": 0,
    "name": "INTERIOR.yoke_shaft_L",
    "triangles": 26,
    "parent": "INTERIOR"
@@ -2636,6 +2949,7 @@
     90
    ],
    "id": "INTERIOR.yoke_L",
+   "detail": 0,
    "name": "INTERIOR.yoke_L",
    "triangles": 1416,
    "parent": "INTERIOR.yoke_shaft_L"
@@ -2654,6 +2968,7 @@
     12
    ],
    "id": "INTERIOR.pedal_L_L",
+   "detail": 0,
    "name": "INTERIOR.pedal_L_L",
    "triangles": 20,
    "parent": "INTERIOR"
@@ -2672,6 +2987,7 @@
     12
    ],
    "id": "INTERIOR.pedal_L_R",
+   "detail": 0,
    "name": "INTERIOR.pedal_L_R",
    "triangles": 20,
    "parent": "INTERIOR"
@@ -2683,6 +2999,7 @@
    "status": "estimated",
    "animate": "yoke_shaft",
    "id": "INTERIOR.yoke_shaft_R",
+   "detail": 0,
    "name": "INTERIOR.yoke_shaft_R",
    "triangles": 26,
    "parent": "INTERIOR"
@@ -2701,6 +3018,7 @@
     90
    ],
    "id": "INTERIOR.yoke_R",
+   "detail": 0,
    "name": "INTERIOR.yoke_R",
    "triangles": 1416,
    "parent": "INTERIOR.yoke_shaft_R"
@@ -2719,6 +3037,7 @@
     12
    ],
    "id": "INTERIOR.pedal_R_L",
+   "detail": 0,
    "name": "INTERIOR.pedal_R_L",
    "triangles": 20,
    "parent": "INTERIOR"
@@ -2737,6 +3056,7 @@
     12
    ],
    "id": "INTERIOR.pedal_R_R",
+   "detail": 0,
    "name": "INTERIOR.pedal_R_R",
    "triangles": 20,
    "parent": "INTERIOR"
@@ -2747,6 +3067,7 @@
    "label_ar": "قاعدة أدوات التحكم",
    "status": "estimated",
    "id": "INTERIOR.pedestal",
+   "detail": 0,
    "name": "INTERIOR.pedestal",
    "triangles": 54,
    "parent": "INTERIOR"
@@ -2761,6 +3082,7 @@
    "spin_axis": "x",
    "spin_sign": 1,
    "id": "INTERIOR.trim_wheel",
+   "detail": 0,
    "name": "INTERIOR.trim_wheel",
    "triangles": 144,
    "parent": "INTERIOR"
@@ -2772,6 +3094,7 @@
    "status": "poh",
    "ref": "p.7-28",
    "id": "FUEL.selector_plate",
+   "detail": 0,
    "name": "FUEL.selector_plate",
    "triangles": 6,
    "parent": "INTERIOR"
@@ -2792,6 +3115,7 @@
     "OFF": 180
    },
    "id": "FUEL.selector_handle",
+   "detail": 0,
    "name": "FUEL.selector_handle",
    "triangles": 46,
    "parent": "INTERIOR"
@@ -2805,6 +3129,7 @@
    "animate": "pull",
    "travel_m": 0.05,
    "id": "INTERIOR.parking_brake",
+   "detail": 0,
    "name": "INTERIOR.parking_brake",
    "triangles": 38,
    "parent": "INTERIOR"
@@ -2813,8 +3138,11 @@
    "system": "INTERIOR",
    "label_en": "Pilot seat (adjustable) — seat cushion",
    "label_ar": "مقعد الطيار — وسادة المقعد",
-   "status": "estimated",
+   "status": "poh",
+   "ref": "p.6-7, 7-11",
+   "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative",
    "id": "INTERIOR.seat_pilot.cushion",
+   "detail": 0,
    "name": "INTERIOR.seat_pilot.cushion",
    "triangles": 600,
    "parent": "INTERIOR"
@@ -2823,7 +3151,8 @@
    "system": "INTERIOR",
    "label_en": "Pilot seat (adjustable) — seat back",
    "label_ar": "مقعد الطيار — ظهر المقعد",
-   "status": "estimated",
+   "status": "poh",
+   "ref": "p.7-11",
    "animate": "seat_back",
    "hinge_axis": "x",
    "hinge_sign": 1,
@@ -2831,28 +3160,33 @@
     -25,
     0
    ],
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative",
    "id": "INTERIOR.seat_pilot.back",
+   "detail": 0,
    "name": "INTERIOR.seat_pilot.back",
    "triangles": 600,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Pilot seat (adjustable) — seat frame and rails",
+   "label_en": "Pilot seat (adjustable) — seat frame",
    "label_ar": "مقعد الطيار — إطار المقعد",
    "status": "estimated",
    "id": "INTERIOR.seat_pilot.frame",
+   "detail": 0,
    "name": "INTERIOR.seat_pilot.frame",
    "triangles": 84,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Pilot seat (adjustable) — lap belt",
-   "label_ar": "مقعد الطيار — حزام الحضن",
+   "label_en": "Pilot seat (adjustable) — seat belt",
+   "label_ar": "مقعد الطيار — حزام المقعد",
    "status": "poh",
-   "ref": "p.7-8",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)",
    "id": "INTERIOR.seat_pilot.lap_belt",
+   "detail": 0,
    "name": "INTERIOR.seat_pilot.lap_belt",
    "triangles": 66,
    "parent": "INTERIOR"
@@ -2860,28 +3194,34 @@
   {
    "system": "INTERIOR",
    "label_en": "Seat belt buckle",
-   "label_ar": "مشبك حزام الأمان",
-   "status": "estimated",
+   "label_ar": "مشبك حزام المقعد",
+   "status": "poh",
+   "ref": "p.7-12 (Fig 7-4)",
    "id": "INTERIOR.seat_pilot.buckle",
+   "detail": 0,
    "name": "INTERIOR.seat_pilot.buckle",
    "triangles": 6,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Co-pilot seat (adjustable) — seat cushion",
-   "label_ar": "مقعد مساعد الطيار — وسادة المقعد",
-   "status": "estimated",
+   "label_en": "Front passenger seat (adjustable) — seat cushion",
+   "label_ar": "مقعد الراكب الأمامي — وسادة المقعد",
+   "status": "poh",
+   "ref": "p.6-7, 7-11",
+   "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative",
    "id": "INTERIOR.seat_copilot.cushion",
+   "detail": 0,
    "name": "INTERIOR.seat_copilot.cushion",
    "triangles": 600,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Co-pilot seat (adjustable) — seat back",
-   "label_ar": "مقعد مساعد الطيار — ظهر المقعد",
-   "status": "estimated",
+   "label_en": "Front passenger seat (adjustable) — seat back",
+   "label_ar": "مقعد الراكب الأمامي — ظهر المقعد",
+   "status": "poh",
+   "ref": "p.7-11",
    "animate": "seat_back",
    "hinge_axis": "x",
    "hinge_sign": 1,
@@ -2889,28 +3229,33 @@
     -25,
     0
    ],
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative",
    "id": "INTERIOR.seat_copilot.back",
+   "detail": 0,
    "name": "INTERIOR.seat_copilot.back",
    "triangles": 600,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Co-pilot seat (adjustable) — seat frame and rails",
-   "label_ar": "مقعد مساعد الطيار — إطار المقعد",
+   "label_en": "Front passenger seat (adjustable) — seat frame",
+   "label_ar": "مقعد الراكب الأمامي — إطار المقعد",
    "status": "estimated",
    "id": "INTERIOR.seat_copilot.frame",
+   "detail": 0,
    "name": "INTERIOR.seat_copilot.frame",
    "triangles": 84,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Co-pilot seat (adjustable) — lap belt",
-   "label_ar": "مقعد مساعد الطيار — حزام الحضن",
+   "label_en": "Front passenger seat (adjustable) — seat belt",
+   "label_ar": "مقعد الراكب الأمامي — حزام المقعد",
    "status": "poh",
-   "ref": "p.7-8",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)",
    "id": "INTERIOR.seat_copilot.lap_belt",
+   "detail": 0,
    "name": "INTERIOR.seat_copilot.lap_belt",
    "triangles": 66,
    "parent": "INTERIOR"
@@ -2918,28 +3263,34 @@
   {
    "system": "INTERIOR",
    "label_en": "Seat belt buckle",
-   "label_ar": "مشبك حزام الأمان",
-   "status": "estimated",
+   "label_ar": "مشبك حزام المقعد",
+   "status": "poh",
+   "ref": "p.7-12 (Fig 7-4)",
    "id": "INTERIOR.seat_copilot.buckle",
+   "detail": 0,
    "name": "INTERIOR.seat_copilot.buckle",
    "triangles": 6,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Rear bench seat — seat cushion",
-   "label_ar": "المقعد الخلفي — وسادة المقعد",
-   "status": "estimated",
+   "label_en": "Rear seat (fixed, split-backed) — seat cushion",
+   "label_ar": "المقعد الخلفي (ثابت بظهرين) — وسادة المقعد",
+   "status": "poh",
+   "ref": "p.6-7, 7-11",
+   "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative",
    "id": "INTERIOR.seat_rear.cushion",
+   "detail": 0,
    "name": "INTERIOR.seat_rear.cushion",
    "triangles": 600,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Rear bench seat — seat back",
-   "label_ar": "المقعد الخلفي — ظهر المقعد",
-   "status": "estimated",
+   "label_en": "Rear seat (fixed, split-backed) — left seat back",
+   "label_ar": "المقعد الخلفي (ثابت بظهرين) — ظهر المقعد الأيسر",
+   "status": "poh",
+   "ref": "p.7-11",
    "animate": "seat_back",
    "hinge_axis": "x",
    "hinge_sign": 1,
@@ -2947,28 +3298,53 @@
     -25,
     0
    ],
-   "id": "INTERIOR.seat_rear.back",
-   "name": "INTERIOR.seat_rear.back",
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative",
+   "id": "INTERIOR.seat_rear.back_L",
+   "detail": 0,
+   "name": "INTERIOR.seat_rear.back_L",
    "triangles": 600,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Rear bench seat — seat frame and rails",
-   "label_ar": "المقعد الخلفي — إطار المقعد",
+   "label_en": "Rear seat (fixed, split-backed) — right seat back",
+   "label_ar": "المقعد الخلفي (ثابت بظهرين) — ظهر المقعد الأيمن",
+   "status": "poh",
+   "ref": "p.7-11",
+   "animate": "seat_back",
+   "hinge_axis": "x",
+   "hinge_sign": 1,
+   "range_deg": [
+    -25,
+    0
+   ],
+   "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative",
+   "id": "INTERIOR.seat_rear.back_R",
+   "detail": 0,
+   "name": "INTERIOR.seat_rear.back_R",
+   "triangles": 600,
+   "parent": "INTERIOR"
+  },
+  {
+   "system": "INTERIOR",
+   "label_en": "Rear seat (fixed, split-backed) — seat frame",
+   "label_ar": "المقعد الخلفي (ثابت بظهرين) — إطار المقعد",
    "status": "estimated",
    "id": "INTERIOR.seat_rear.frame",
+   "detail": 0,
    "name": "INTERIOR.seat_rear.frame",
    "triangles": 84,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Rear bench seat — lap belt",
-   "label_ar": "المقعد الخلفي — حزام الحضن",
+   "label_en": "Rear seat (fixed, split-backed) — seat belt",
+   "label_ar": "المقعد الخلفي (ثابت بظهرين) — حزام المقعد",
    "status": "poh",
-   "ref": "p.7-8",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "All seat positions have seat belts, attached to fittings on the floorboard (POH p.7-12)",
    "id": "INTERIOR.seat_rear.lap_belt",
+   "detail": 0,
    "name": "INTERIOR.seat_rear.lap_belt",
    "triangles": 66,
    "parent": "INTERIOR"
@@ -2976,84 +3352,104 @@
   {
    "system": "INTERIOR",
    "label_en": "Seat belt buckle",
-   "label_ar": "مشبك حزام الأمان",
-   "status": "estimated",
+   "label_ar": "مشبك حزام المقعد",
+   "status": "poh",
+   "ref": "p.7-12 (Fig 7-4)",
    "id": "INTERIOR.seat_rear.buckle",
+   "detail": 0,
    "name": "INTERIOR.seat_rear.buckle",
    "triangles": 6,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Shoulder harness (inertia reel)",
-   "label_ar": "حزام الكتف",
+   "label_en": "Shoulder harness of the pilot's seat",
+   "label_ar": "حزام الكتف لمقعد الطيار",
    "status": "poh",
-   "ref": "p.7-8",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "Attached to the rear door post above the window line; it snaps onto the retaining stud of the seat belt link (POH p.7-12, 7-14)",
    "id": "INTERIOR.shoulder_harness_L",
+   "detail": 0,
    "name": "INTERIOR.shoulder_harness_L",
    "triangles": 74,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Shoulder harness (inertia reel)",
-   "label_ar": "حزام الكتف",
+   "label_en": "Shoulder harness of the front passenger's seat",
+   "label_ar": "حزام الكتف لمقعد الراكب الأمامي",
    "status": "poh",
-   "ref": "p.7-8",
+   "ref": "p.7-12 (Fig 7-4)",
+   "note": "Attached to the rear door post above the window line; it snaps onto the retaining stud of the seat belt link (POH p.7-12, 7-14)",
    "id": "INTERIOR.shoulder_harness_R",
+   "detail": 0,
    "name": "INTERIOR.shoulder_harness_R",
    "triangles": 74,
    "parent": "INTERIOR"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Door armrest",
+   "label_en": "Door arm rest",
    "label_ar": "مسند ذراع الباب",
-   "status": "estimated",
+   "status": "poh",
+   "ref": "p.7-15",
+   "note": "The inside door handle is combined with the arm rest (POH p.7-15); form representative",
    "id": "INTERIOR.armrest_L",
+   "detail": 0,
    "name": "INTERIOR.armrest_L",
    "triangles": 94,
    "parent": "AIRFRAME.door_L"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Door inner handle",
-   "label_ar": "مقبض الباب الداخلي",
-   "status": "estimated",
+   "label_en": "Inside door handle (OPEN, CLOSE, LOCK)",
+   "label_ar": "مقبض الباب الداخلي (OPEN ،CLOSE ،LOCK)",
+   "status": "poh",
+   "ref": "p.7-15",
+   "note": "Three positions: spring-loaded to CLOSE (up); rotated forward to LOCK it lies flush with the arm rest; rotated aft it opens the door (POH p.7-15)",
    "id": "INTERIOR.door_inner_handle_L",
+   "detail": 0,
    "name": "INTERIOR.door_inner_handle_L",
    "triangles": 6,
    "parent": "AIRFRAME.door_L"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Door armrest",
+   "label_en": "Door arm rest",
    "label_ar": "مسند ذراع الباب",
-   "status": "estimated",
+   "status": "poh",
+   "ref": "p.7-15",
+   "note": "The inside door handle is combined with the arm rest (POH p.7-15); form representative",
    "id": "INTERIOR.armrest_R",
+   "detail": 0,
    "name": "INTERIOR.armrest_R",
    "triangles": 94,
    "parent": "AIRFRAME.door_R"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Door inner handle",
-   "label_ar": "مقبض الباب الداخلي",
-   "status": "estimated",
+   "label_en": "Inside door handle (OPEN, CLOSE, LOCK)",
+   "label_ar": "مقبض الباب الداخلي (OPEN ،CLOSE ،LOCK)",
+   "status": "poh",
+   "ref": "p.7-15",
+   "note": "Three positions: spring-loaded to CLOSE (up); rotated forward to LOCK it lies flush with the arm rest; rotated aft it opens the door (POH p.7-15)",
    "id": "INTERIOR.door_inner_handle_R",
+   "detail": 0,
    "name": "INTERIOR.door_inner_handle_R",
    "triangles": 6,
    "parent": "AIRFRAME.door_R"
   },
   {
    "system": "INTERIOR",
-   "label_en": "Baggage compartment aft bulkhead (120 lb area)",
-   "label_ar": "الحاجز الخلفي لمقصورة الأمتعة",
+   "label_en": "Rear cabin wall: the aft bulkhead of baggage area 1",
+   "label_ar": "الجدار الخلفي للمقصورة: الحاجز الخلفي لمنطقة الأمتعة 1",
    "status": "poh",
-   "ref": "p.6-x baggage",
+   "ref": "p.6-7 (Fig 6-3), 7-11",
+   "note": "Baggage area 1 extends from the back of the rear seats (station 82) to the rear cabin wall (approximately station 108); baggage area 2 lies behind it",
    "id": "INTERIOR.baggage_bulkhead",
+   "detail": 0,
    "name": "INTERIOR.baggage_bulkhead",
-   "triangles": 6,
+   "triangles": 34,
    "parent": "INTERIOR"
   },
   {
@@ -3063,6 +3459,7 @@
    "status": "estimated",
    "xray": true,
    "id": "ENGINE.crankcase_L",
+   "detail": 0,
    "name": "ENGINE.crankcase_L",
    "triangles": 542,
    "parent": "ENGINE"
@@ -3074,6 +3471,7 @@
    "status": "estimated",
    "xray": true,
    "id": "ENGINE.crankcase_R",
+   "detail": 0,
    "name": "ENGINE.crankcase_R",
    "triangles": 542,
    "parent": "ENGINE"
@@ -3084,6 +3482,7 @@
    "label_ar": "علبة الملحقات الخلفية",
    "status": "estimated",
    "id": "ENGINE.accessory_housing",
+   "detail": 0,
    "name": "ENGINE.accessory_housing",
    "triangles": 94,
    "parent": "ENGINE"
@@ -3095,6 +3494,7 @@
    "status": "poh",
    "ref": "p.1-4, 7-24",
    "id": "OIL.sump",
+   "detail": 0,
    "name": "OIL.sump",
    "triangles": 94,
    "parent": "ENGINE"
@@ -3108,6 +3508,7 @@
    "spin_sign": 1,
    "animate": "prop",
    "id": "ENGINE.crank_flange_pulley",
+   "detail": 0,
    "name": "ENGINE.crank_flange_pulley",
    "triangles": 112,
    "parent": "ENGINE"
@@ -3120,6 +3521,7 @@
    "cyl": 1,
    "xray": true,
    "id": "ENGINE.cylinder_barrel_1",
+   "detail": 0,
    "name": "ENGINE.cylinder_barrel_1",
    "triangles": 896,
    "parent": "ENGINE"
@@ -3132,6 +3534,7 @@
    "cyl": 1,
    "xray": true,
    "id": "ENGINE.cylinder_head_1",
+   "detail": 0,
    "name": "ENGINE.cylinder_head_1",
    "triangles": 406,
    "parent": "ENGINE"
@@ -3143,6 +3546,7 @@
    "status": "estimated",
    "cyl": 1,
    "id": "ENGINE.rocker_cover_1",
+   "detail": 0,
    "name": "ENGINE.rocker_cover_1",
    "triangles": 94,
    "parent": "ENGINE"
@@ -3154,6 +3558,7 @@
    "status": "estimated",
    "cyl": 1,
    "id": "ENGINE.pushrod_tubes_1",
+   "detail": 0,
    "name": "ENGINE.pushrod_tubes_1",
    "triangles": 36,
    "parent": "ENGINE"
@@ -3168,6 +3573,7 @@
    "magneto": "L",
    "animate": "plug",
    "id": "ENGINE.plug_top_1",
+   "detail": 0,
    "name": "ENGINE.plug_top_1",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3180,6 +3586,7 @@
    "cyl": 1,
    "magneto": "L",
    "id": "ENGINE.plug_lead_top_1",
+   "detail": 0,
    "name": "ENGINE.plug_lead_top_1",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3194,6 +3601,7 @@
    "magneto": "R",
    "animate": "plug",
    "id": "ENGINE.plug_bottom_1",
+   "detail": 0,
    "name": "ENGINE.plug_bottom_1",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3206,6 +3614,7 @@
    "cyl": 1,
    "magneto": "R",
    "id": "ENGINE.plug_lead_bottom_1",
+   "detail": 0,
    "name": "ENGINE.plug_lead_bottom_1",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3218,6 +3627,7 @@
    "ref": "p.7-24",
    "cyl": 1,
    "id": "INDUCTION.intake_pipe_1",
+   "detail": 0,
    "name": "INDUCTION.intake_pipe_1",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3229,6 +3639,7 @@
    "status": "estimated",
    "cyl": 1,
    "id": "ENGINE.exhaust_stack_1",
+   "detail": 0,
    "name": "ENGINE.exhaust_stack_1",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3242,6 +3653,7 @@
    "animate": "piston",
    "internal": true,
    "id": "ENGINE.piston_1",
+   "detail": 0,
    "name": "ENGINE.piston_1",
    "triangles": 336,
    "parent": "ENGINE"
@@ -3255,6 +3667,7 @@
    "animate": "rod",
    "internal": true,
    "id": "ENGINE.rod_1",
+   "detail": 0,
    "name": "ENGINE.rod_1",
    "triangles": 78,
    "parent": "ENGINE"
@@ -3269,6 +3682,7 @@
    "valve": "intake",
    "internal": true,
    "id": "ENGINE.valve_intake_1",
+   "detail": 0,
    "name": "ENGINE.valve_intake_1",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3283,6 +3697,7 @@
    "valve": "exhaust",
    "internal": true,
    "id": "ENGINE.valve_exhaust_1",
+   "detail": 0,
    "name": "ENGINE.valve_exhaust_1",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3295,6 +3710,7 @@
    "cyl": 2,
    "xray": true,
    "id": "ENGINE.cylinder_barrel_2",
+   "detail": 0,
    "name": "ENGINE.cylinder_barrel_2",
    "triangles": 896,
    "parent": "ENGINE"
@@ -3307,6 +3723,7 @@
    "cyl": 2,
    "xray": true,
    "id": "ENGINE.cylinder_head_2",
+   "detail": 0,
    "name": "ENGINE.cylinder_head_2",
    "triangles": 406,
    "parent": "ENGINE"
@@ -3318,6 +3735,7 @@
    "status": "estimated",
    "cyl": 2,
    "id": "ENGINE.rocker_cover_2",
+   "detail": 0,
    "name": "ENGINE.rocker_cover_2",
    "triangles": 94,
    "parent": "ENGINE"
@@ -3329,6 +3747,7 @@
    "status": "estimated",
    "cyl": 2,
    "id": "ENGINE.pushrod_tubes_2",
+   "detail": 0,
    "name": "ENGINE.pushrod_tubes_2",
    "triangles": 36,
    "parent": "ENGINE"
@@ -3343,6 +3762,7 @@
    "magneto": "R",
    "animate": "plug",
    "id": "ENGINE.plug_top_2",
+   "detail": 0,
    "name": "ENGINE.plug_top_2",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3355,6 +3775,7 @@
    "cyl": 2,
    "magneto": "R",
    "id": "ENGINE.plug_lead_top_2",
+   "detail": 0,
    "name": "ENGINE.plug_lead_top_2",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3369,6 +3790,7 @@
    "magneto": "L",
    "animate": "plug",
    "id": "ENGINE.plug_bottom_2",
+   "detail": 0,
    "name": "ENGINE.plug_bottom_2",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3381,6 +3803,7 @@
    "cyl": 2,
    "magneto": "L",
    "id": "ENGINE.plug_lead_bottom_2",
+   "detail": 0,
    "name": "ENGINE.plug_lead_bottom_2",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3393,6 +3816,7 @@
    "ref": "p.7-24",
    "cyl": 2,
    "id": "INDUCTION.intake_pipe_2",
+   "detail": 0,
    "name": "INDUCTION.intake_pipe_2",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3404,6 +3828,7 @@
    "status": "estimated",
    "cyl": 2,
    "id": "ENGINE.exhaust_stack_2",
+   "detail": 0,
    "name": "ENGINE.exhaust_stack_2",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3417,6 +3842,7 @@
    "animate": "piston",
    "internal": true,
    "id": "ENGINE.piston_2",
+   "detail": 0,
    "name": "ENGINE.piston_2",
    "triangles": 336,
    "parent": "ENGINE"
@@ -3430,6 +3856,7 @@
    "animate": "rod",
    "internal": true,
    "id": "ENGINE.rod_2",
+   "detail": 0,
    "name": "ENGINE.rod_2",
    "triangles": 78,
    "parent": "ENGINE"
@@ -3444,6 +3871,7 @@
    "valve": "intake",
    "internal": true,
    "id": "ENGINE.valve_intake_2",
+   "detail": 0,
    "name": "ENGINE.valve_intake_2",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3458,6 +3886,7 @@
    "valve": "exhaust",
    "internal": true,
    "id": "ENGINE.valve_exhaust_2",
+   "detail": 0,
    "name": "ENGINE.valve_exhaust_2",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3470,6 +3899,7 @@
    "cyl": 3,
    "xray": true,
    "id": "ENGINE.cylinder_barrel_3",
+   "detail": 0,
    "name": "ENGINE.cylinder_barrel_3",
    "triangles": 896,
    "parent": "ENGINE"
@@ -3482,6 +3912,7 @@
    "cyl": 3,
    "xray": true,
    "id": "ENGINE.cylinder_head_3",
+   "detail": 0,
    "name": "ENGINE.cylinder_head_3",
    "triangles": 406,
    "parent": "ENGINE"
@@ -3493,6 +3924,7 @@
    "status": "estimated",
    "cyl": 3,
    "id": "ENGINE.rocker_cover_3",
+   "detail": 0,
    "name": "ENGINE.rocker_cover_3",
    "triangles": 94,
    "parent": "ENGINE"
@@ -3504,6 +3936,7 @@
    "status": "estimated",
    "cyl": 3,
    "id": "ENGINE.pushrod_tubes_3",
+   "detail": 0,
    "name": "ENGINE.pushrod_tubes_3",
    "triangles": 36,
    "parent": "ENGINE"
@@ -3518,6 +3951,7 @@
    "magneto": "L",
    "animate": "plug",
    "id": "ENGINE.plug_top_3",
+   "detail": 0,
    "name": "ENGINE.plug_top_3",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3530,6 +3964,7 @@
    "cyl": 3,
    "magneto": "L",
    "id": "ENGINE.plug_lead_top_3",
+   "detail": 0,
    "name": "ENGINE.plug_lead_top_3",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3544,6 +3979,7 @@
    "magneto": "R",
    "animate": "plug",
    "id": "ENGINE.plug_bottom_3",
+   "detail": 0,
    "name": "ENGINE.plug_bottom_3",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3556,6 +3992,7 @@
    "cyl": 3,
    "magneto": "R",
    "id": "ENGINE.plug_lead_bottom_3",
+   "detail": 0,
    "name": "ENGINE.plug_lead_bottom_3",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3568,6 +4005,7 @@
    "ref": "p.7-24",
    "cyl": 3,
    "id": "INDUCTION.intake_pipe_3",
+   "detail": 0,
    "name": "INDUCTION.intake_pipe_3",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3579,6 +4017,7 @@
    "status": "estimated",
    "cyl": 3,
    "id": "ENGINE.exhaust_stack_3",
+   "detail": 0,
    "name": "ENGINE.exhaust_stack_3",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3592,6 +4031,7 @@
    "animate": "piston",
    "internal": true,
    "id": "ENGINE.piston_3",
+   "detail": 0,
    "name": "ENGINE.piston_3",
    "triangles": 336,
    "parent": "ENGINE"
@@ -3605,6 +4045,7 @@
    "animate": "rod",
    "internal": true,
    "id": "ENGINE.rod_3",
+   "detail": 0,
    "name": "ENGINE.rod_3",
    "triangles": 78,
    "parent": "ENGINE"
@@ -3619,6 +4060,7 @@
    "valve": "intake",
    "internal": true,
    "id": "ENGINE.valve_intake_3",
+   "detail": 0,
    "name": "ENGINE.valve_intake_3",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3633,6 +4075,7 @@
    "valve": "exhaust",
    "internal": true,
    "id": "ENGINE.valve_exhaust_3",
+   "detail": 0,
    "name": "ENGINE.valve_exhaust_3",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3645,6 +4088,7 @@
    "cyl": 4,
    "xray": true,
    "id": "ENGINE.cylinder_barrel_4",
+   "detail": 0,
    "name": "ENGINE.cylinder_barrel_4",
    "triangles": 896,
    "parent": "ENGINE"
@@ -3657,6 +4101,7 @@
    "cyl": 4,
    "xray": true,
    "id": "ENGINE.cylinder_head_4",
+   "detail": 0,
    "name": "ENGINE.cylinder_head_4",
    "triangles": 406,
    "parent": "ENGINE"
@@ -3668,6 +4113,7 @@
    "status": "estimated",
    "cyl": 4,
    "id": "ENGINE.rocker_cover_4",
+   "detail": 0,
    "name": "ENGINE.rocker_cover_4",
    "triangles": 94,
    "parent": "ENGINE"
@@ -3679,6 +4125,7 @@
    "status": "estimated",
    "cyl": 4,
    "id": "ENGINE.pushrod_tubes_4",
+   "detail": 0,
    "name": "ENGINE.pushrod_tubes_4",
    "triangles": 36,
    "parent": "ENGINE"
@@ -3693,6 +4140,7 @@
    "magneto": "R",
    "animate": "plug",
    "id": "ENGINE.plug_top_4",
+   "detail": 0,
    "name": "ENGINE.plug_top_4",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3705,6 +4153,7 @@
    "cyl": 4,
    "magneto": "R",
    "id": "ENGINE.plug_lead_top_4",
+   "detail": 0,
    "name": "ENGINE.plug_lead_top_4",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3719,6 +4168,7 @@
    "magneto": "L",
    "animate": "plug",
    "id": "ENGINE.plug_bottom_4",
+   "detail": 0,
    "name": "ENGINE.plug_bottom_4",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3731,6 +4181,7 @@
    "cyl": 4,
    "magneto": "L",
    "id": "ENGINE.plug_lead_bottom_4",
+   "detail": 0,
    "name": "ENGINE.plug_lead_bottom_4",
    "triangles": 134,
    "parent": "ENGINE"
@@ -3743,6 +4194,7 @@
    "ref": "p.7-24",
    "cyl": 4,
    "id": "INDUCTION.intake_pipe_4",
+   "detail": 0,
    "name": "INDUCTION.intake_pipe_4",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3754,6 +4206,7 @@
    "status": "estimated",
    "cyl": 4,
    "id": "ENGINE.exhaust_stack_4",
+   "detail": 0,
    "name": "ENGINE.exhaust_stack_4",
    "triangles": 178,
    "parent": "ENGINE"
@@ -3767,6 +4220,7 @@
    "animate": "piston",
    "internal": true,
    "id": "ENGINE.piston_4",
+   "detail": 0,
    "name": "ENGINE.piston_4",
    "triangles": 336,
    "parent": "ENGINE"
@@ -3780,6 +4234,7 @@
    "animate": "rod",
    "internal": true,
    "id": "ENGINE.rod_4",
+   "detail": 0,
    "name": "ENGINE.rod_4",
    "triangles": 78,
    "parent": "ENGINE"
@@ -3794,6 +4249,7 @@
    "valve": "intake",
    "internal": true,
    "id": "ENGINE.valve_intake_4",
+   "detail": 0,
    "name": "ENGINE.valve_intake_4",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3808,6 +4264,7 @@
    "valve": "exhaust",
    "internal": true,
    "id": "ENGINE.valve_exhaust_4",
+   "detail": 0,
    "name": "ENGINE.valve_exhaust_4",
    "triangles": 46,
    "parent": "ENGINE"
@@ -3823,6 +4280,7 @@
    "spin_sign": 1,
    "internal": true,
    "id": "ENGINE.crankshaft",
+   "detail": 0,
    "name": "ENGINE.crankshaft",
    "triangles": 392,
    "parent": "ENGINE"
@@ -3837,6 +4295,7 @@
    "spin_sign": 1,
    "internal": true,
    "id": "ENGINE.camshaft",
+   "detail": 0,
    "name": "ENGINE.camshaft",
    "triangles": 268,
    "parent": "ENGINE"
@@ -3848,6 +4307,7 @@
    "status": "poh",
    "ref": "p.7-18/19",
    "id": "IGNITION.dual_magneto",
+   "detail": 0,
    "name": "IGNITION.dual_magneto",
    "triangles": 78,
    "parent": "ENGINE"
@@ -3859,6 +4319,7 @@
    "status": "poh",
    "ref": "p.7-18",
    "id": "ELECTRICAL.starter",
+   "detail": 0,
    "name": "ELECTRICAL.starter",
    "triangles": 60,
    "parent": "ENGINE"
@@ -3870,6 +4331,7 @@
    "status": "poh",
    "ref": "p.7-26",
    "id": "ELECTRICAL.alternator",
+   "detail": 0,
    "name": "ELECTRICAL.alternator",
    "triangles": 100,
    "parent": "ENGINE"
@@ -3880,8 +4342,9 @@
    "label_ar": "سير المولد",
    "status": "estimated",
    "id": "ELECTRICAL.alternator_belt",
+   "detail": 0,
    "name": "ELECTRICAL.alternator_belt",
-   "triangles": 303,
+   "triangles": 304,
    "parent": "ENGINE"
   },
   {
@@ -3891,17 +4354,19 @@
    "status": "poh",
    "ref": "p.7-24",
    "id": "OIL.oil_filter",
+   "detail": 0,
    "name": "OIL.oil_filter",
    "triangles": 40,
    "parent": "ENGINE"
   },
   {
    "system": "OIL",
-   "label_en": "Oil cooler (on the right rear baffle, cooling air from the inlet)",
-   "label_ar": "مبرّد الزيت",
+   "label_en": "Oil cooler (on the lower right side of the firewall)",
+   "label_ar": "مبرّد الزيت (على الجانب الأيمن السفلي لجدار الحريق)",
    "status": "poh",
-   "ref": "p.7-24",
+   "ref": "p.7-18",
    "id": "OIL.oil_cooler",
+   "detail": 0,
    "name": "OIL.oil_cooler",
    "triangles": 66,
    "parent": "ENGINE"
@@ -3913,6 +4378,7 @@
    "status": "poh",
    "ref": "p.8-x",
    "id": "OIL.dipstick_filler",
+   "detail": 0,
    "name": "OIL.dipstick_filler",
    "triangles": 42,
    "parent": "ENGINE"
@@ -3924,6 +4390,7 @@
    "status": "poh",
    "ref": "p.7-23",
    "id": "INDUCTION.carburetor",
+   "detail": 0,
    "name": "INDUCTION.carburetor",
    "triangles": 54,
    "parent": "ENGINE"
@@ -3935,6 +4402,7 @@
    "status": "poh",
    "ref": "p.7-24",
    "id": "INDUCTION.airbox",
+   "detail": 0,
    "name": "INDUCTION.airbox",
    "triangles": 6,
    "parent": "ENGINE"
@@ -3946,6 +4414,7 @@
    "status": "poh",
    "ref": "p.7-24",
    "id": "INDUCTION.air_filter",
+   "detail": 0,
    "name": "INDUCTION.air_filter",
    "triangles": 6,
    "parent": "ENGINE"
@@ -3956,19 +4425,34 @@
    "label_ar": "قناة الهواء المفلتر",
    "status": "estimated",
    "id": "INDUCTION.filter_duct",
+   "detail": 0,
    "name": "INDUCTION.filter_duct",
-   "triangles": 26,
+   "triangles": 152,
    "parent": "ENGINE"
   },
   {
    "system": "ENGINE",
-   "label_en": "Muffler with heat shroud (source of cabin and carburetor heat)",
-   "label_ar": "كاتم الصوت مع غلاف التسخين",
+   "label_en": "Exhaust muffler",
+   "label_ar": "كاتم صوت العادم",
    "status": "poh",
-   "ref": "p.7-24/35",
+   "ref": "p.7-30 (Fig 7-8)",
    "id": "ENGINE.muffler",
+   "detail": 0,
    "name": "ENGINE.muffler",
-   "triangles": 142,
+   "triangles": 48,
+   "parent": "ENGINE"
+  },
+  {
+   "system": "ENGINE",
+   "label_en": "Exhaust muffler shroud: the air heated in it goes to the cabin heater valve and to the carburetor heat valve",
+   "label_ar": "غلاف كاتم صوت العادم: الهواء المسخَّن فيه يذهب إلى صمام تدفئة المقصورة وصمام تسخين المكربن",
+   "status": "poh",
+   "ref": "p.7-30 (Fig 7-8)",
+   "note": "Named in the cabin heating figure; form representative",
+   "id": "ENGINE.muffler_shroud",
+   "detail": 0,
+   "name": "ENGINE.muffler_shroud",
+   "triangles": 94,
    "parent": "ENGINE"
   },
   {
@@ -3977,6 +4461,7 @@
    "label_ar": "حامل المحرك (هيكل أنابيب فولاذية)",
    "status": "estimated",
    "id": "ENGINE.engine_mount",
+   "detail": 0,
    "name": "ENGINE.engine_mount",
    "triangles": 208,
    "parent": "AIRFRAME"
@@ -3988,6 +4473,7 @@
    "status": "poh",
    "ref": "p.7-25",
    "id": "ENGINE.baffles",
+   "detail": 0,
    "name": "ENGINE.baffles",
    "triangles": 36,
    "parent": "ENGINE"
@@ -3998,6 +4484,7 @@
    "label_ar": "أختام الحواجز المطاطية",
    "status": "estimated",
    "id": "ENGINE.baffle_seals",
+   "detail": 0,
    "name": "ENGINE.baffle_seals",
    "triangles": 24,
    "parent": "ENGINE"
@@ -4009,6 +4496,7 @@
    "status": "poh",
    "ref": "p.7-34",
    "id": "VACUUM.engine_driven_pump",
+   "detail": 0,
    "name": "VACUUM.engine_driven_pump",
    "triangles": 32,
    "parent": "ENGINE"
@@ -4020,6 +4508,7 @@
    "status": "poh",
    "ref": "p.7-28, 8-x",
    "id": "FUEL.strainer",
+   "detail": 0,
    "name": "FUEL.strainer",
    "triangles": 28,
    "parent": "ENGINE"
@@ -4031,8 +4520,9 @@
    "status": "poh",
    "ref": "p.7-28",
    "id": "FUEL.line_to_carburetor",
+   "detail": 0,
    "name": "FUEL.line_to_carburetor",
-   "triangles": 102,
+   "triangles": 166,
    "parent": "ENGINE"
   },
   {
@@ -4042,12 +4532,13 @@
    "status": "poh",
    "ref": "p.7-26",
    "id": "ELECTRICAL.battery",
+   "detail": 0,
    "name": "ELECTRICAL.battery",
    "triangles": 54,
    "parent": "ENGINE"
   }
  ],
  "file": "C172N_realistic_low.glb",
- "bytes": 2046160,
- "build_seconds": 16.1
+ "bytes": 2127480,
+ "build_seconds": 15.1
 }

@@ -1,32 +1,43 @@
 """Cycles reference renders of the built scene (run after build.py in the same Blender session or on the .blend).
-    blender -b models/C172N_realistic.blend --python blender/render_preview.py -- --out docs/renders --samples 64 --views all
+    blender -b models/C172N_realistic.blend --python blender/render_preview.py -- --out docs/renders --samples 64 --views reference
+
+--views takes view names separated by commas, or one of the sets in VIEW_SETS: "reference" (the
+images in docs/renders), "gallery" (docs/gallery) or "all". The engine views leave the upper cowl
+off and the exploded views move the parts apart; every other view shows the complete aircraft.
 """
 import argparse, math, os, sys
 import bpy
 from mathutils import Vector
 
+# Camera positions and targets in Blender world coordinates (m): +x left wing, -y nose, z up from the ground.
 VIEWS = {
-    "front_quarter": dict(pos=(-9.5, -9.0, 3.2), target=(0, 1.2, 1.2), fov=36),
-    "rear_quarter": dict(pos=(8.5, 9.5, 3.0), target=(0, 1.4, 1.3), fov=36),
-    "side": dict(pos=(-14.0, 1.2, 1.6), target=(0, 1.2, 1.4), fov=32),
-    "front": dict(pos=(0, -13.0, 2.0), target=(0, 0.5, 1.4), fov=40),
-    "top": dict(pos=(0.0, 1.5, 16.0), target=(0, 1.5, 1.0), fov=44),
-    "nose_detail": dict(pos=(-3.2, -4.2, 1.7), target=(0, -0.6, 1.3), fov=35),
-    "tail_detail": dict(pos=(4.0, 7.5, 2.2), target=(0, 5.0, 1.8), fov=35),
-    "gear_detail": dict(pos=(-3.5, -1.0, 0.6), target=(-1.0, 0.5, 0.35), fov=35),
-    "cockpit": dict(pos=(0.0, 0.95, 1.78), target=(0.0, -1.6, 1.30), fov=80),
-    "cockpit_pilot": dict(pos=(0.30, 0.30, 1.74), target=(0.12, -1.6, 1.36), fov=68),
-    "cockpit_side": dict(pos=(1.4, 0.3, 1.5), target=(-0.2, -0.2, 1.3), fov=60),
-    "engine": dict(pos=(-2.2, -3.6, 1.9), target=(0, -0.5, 1.35), fov=40),
-    "engine_right": dict(pos=(2.4, -2.6, 1.6), target=(0, -0.55, 1.35), fov=40),
+    "front_quarter": dict(pos=(-9.5, -9.0, 2.9), target=(0, 1.1, 0.95), fov=36),
+    "rear_quarter": dict(pos=(9.5, 10.6, 3.0), target=(0, 2.1, 1.0), fov=36),
+    "side": dict(pos=(-14.0, 1.95, 1.3), target=(0, 1.95, 1.1), fov=34),
+    "front": dict(pos=(0, -13.0, 1.7), target=(0, 0.5, 1.1), fov=40),
+    "top": dict(pos=(0.0, 1.95, 21.0), target=(0, 1.95, 1.0), fov=44),
+    "nose_detail": dict(pos=(-3.2, -4.15, 1.65), target=(0.0, -0.57, 1.14), fov=35),
+    "tail_detail": dict(pos=(4.4, 8.66, 2.03), target=(0.0, 5.24, 1.37), fov=38),
+    "gear_detail": dict(pos=(-3.5, -0.98, 0.7), target=(-1.0, 0.51, 0.41), fov=35),
+    "cockpit": dict(pos=(0.0, 1.0, 1.55), target=(0.0, -1.57, 1.14), fov=80),
+    "cockpit_pilot": dict(pos=(0.28, -0.015, 1.55), target=(0.12, -1.57, 1.2), fov=84),     # the pilot's eye: the occupant sits at station 37 (POH Figure 6-3)
+    "cockpit_side": dict(pos=(-0.18, 0.02, 1.42), target=(0.26, -0.47, 1.17), fov=78),      # from the right seat, across to the pilot's side
+    "engine": dict(pos=(-2.2, -3.55, 1.88), target=(0.0, -0.46, 1.29), fov=40, hide=("POWERPLANT.cowl_upper",)),
+    "engine_right": dict(pos=(2.4, -2.55, 1.6), target=(0.0, -0.51, 1.29), fov=40, hide=("POWERPLANT.cowl_upper",)),
     # gallery views: long lens so wings read as lines in profile, hero three-quarter
-    "side_long": dict(pos=(-42.0, 1.4, 1.8), target=(0, 1.9, 1.35), fov=13),
-    "hero": dict(pos=(-9.0, -8.6, 3.4), target=(0, 1.0, 1.25), fov=30),
-    "rear_long": dict(pos=(30.0, 32.0, 6.0), target=(0, 1.4, 1.3), fov=12),
-    "front_long": dict(pos=(0.3, -42.0, 2.2), target=(0, 0.5, 1.35), fov=16),
-    "top_long": dict(pos=(0.0, 1.6, 48.0), target=(0, 1.6, 1.0), fov=15),
-    "exploded": dict(pos=(-16.0, -13.0, 7.0), target=(0.3, 1.0, 1.6), fov=36),
-    "exploded_side": dict(pos=(-46.0, 2.0, 4.0), target=(0, 1.8, 1.8), fov=15),
+    "side_long": dict(pos=(-42.0, 1.95, 1.5), target=(0, 1.95, 1.1), fov=13),
+    "hero": dict(pos=(-9.2, -8.4, 3.1), target=(0, 1.3, 1.0), fov=31),
+    "rear_long": dict(pos=(30.0, 32.6, 5.7), target=(0, 1.95, 1.05), fov=12),
+    "front_long": dict(pos=(0.3, -42.0, 1.9), target=(0, 0.5, 1.1), fov=16),
+    "top_long": dict(pos=(0.0, 1.95, 62.0), target=(0, 1.95, 1.0), fov=15),
+    "exploded": dict(pos=(-16.0, -13.0, 7.0), target=(0.3, 0.9, 1.3), fov=36, explode=1.0),
+    "exploded_side": dict(pos=(-46.0, 2.0, 4.0), target=(0, 1.7, 1.5), fov=15, explode=1.0),
+}
+VIEW_SETS = {
+    "reference": ["front_quarter", "rear_quarter", "side", "front", "top", "nose_detail", "tail_detail", "gear_detail",
+                  "cockpit", "cockpit_pilot", "cockpit_side", "engine", "engine_right"],
+    "gallery": ["hero", "side_long", "front_long", "top_long", "rear_long", "cockpit_pilot", "engine", "exploded", "exploded_side"],
+    "all": list(VIEWS),
 }
 
 def setup_world(hdr):
@@ -95,7 +106,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default="docs/renders"); ap.add_argument("--samples", type=int, default=64)
     ap.add_argument("--views", default="front_quarter,rear_quarter,side"); ap.add_argument("--res", default="1280x720"); ap.add_argument("--prefix", default="phase8_")
     ap.add_argument("--hdr", default=None); ap.add_argument("--hide", default="")
-    ap.add_argument("--explode", type=float, default=0.0, help="exploded-assembly factor 0..1 (same rule as the viewer)")
+    ap.add_argument("--explode", type=float, default=0.0, help="exploded-assembly factor 0..1 for every view (same rule as the viewer)")
     ap.add_argument("--white", action="store_true", help="plain white studio background")
     ap.add_argument("--transparent", action="store_true", help="transparent background with a shadow catcher (print/gallery)")
     ap.add_argument("--fill", type=float, default=0.0, help="soft fill light strength (W) from the camera side")
@@ -121,18 +132,25 @@ def main():
         fl2 = bpy.data.lights.new("rim", "AREA"); fl2.energy = a.fill * 0.6; fl2.size = 10
         fo2 = bpy.data.objects.new("rim", fl2); sc.collection.objects.link(fo2)
         fo2.location = (10, 12, 7); fo2.rotation_euler = (Vector((-10, -12, -7)).to_track_quat("-Z", "Y").to_euler())
-    if a.explode > 0:
-        explode(a.explode)
     if a.white:
         white_world()
         sc.view_settings.look = "AgX - Base"
-    for n in a.hide.split(","):
-        if n and bpy.data.objects.get(n):
-            bpy.data.objects[n].hide_render = True
+    always_hidden = [n for n in a.hide.split(",") if n]
     cam = bpy.data.cameras.new("cam"); co = bpy.data.objects.new("cam", cam); sc.collection.objects.link(co); sc.camera = co
-    views = list(VIEWS) if a.views == "all" else a.views.split(",")
+    views = VIEW_SETS.get(a.views) or a.views.split(",")
     for v in views:
         spec = VIEWS[v]
+        # per-view state: parts left off, parts moved apart; both are undone after the render
+        hidden = []
+        for name in list(spec.get("hide", ())) + always_hidden:
+            ob = bpy.data.objects.get(name)
+            if ob is not None and not ob.hide_render:
+                ob.hide_render = True; hidden.append(ob)
+        factor = max(a.explode, spec.get("explode", 0.0))
+        placed = {}
+        if factor > 0:      # explode() moves the direct children of the system groups
+            placed = {o: o.matrix_world.copy() for g in bpy.data.objects if g.type == "EMPTY" and g.get("group") for o in g.children}
+            explode(factor)
         co.location = spec["pos"]
         d = Vector(spec["target"]) - Vector(spec["pos"])
         co.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
@@ -140,5 +158,11 @@ def main():
         sc.render.filepath = os.path.join(a.out, f"{a.prefix}{v}.png")
         bpy.ops.render.render(write_still=True)
         print("rendered", sc.render.filepath)
+        for ob in hidden:
+            ob.hide_render = False
+        for ob, matrix in placed.items():
+            ob.matrix_world = matrix
+        if placed:
+            bpy.context.view_layer.update()
 
 main()

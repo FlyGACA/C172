@@ -116,3 +116,59 @@ def interp_table(table, s):
             t = (s - s0) / (s1 - s0)
             t = t * t * (3 - 2 * t)  # smooth
             return [a + (b - a) * t for a, b in zip(table[i][1:], table[i + 1][1:])]
+
+def interp_linear(table, s):
+    """Straight-line interpolation in a table of (s, value...) rows, clamped at both ends."""
+    if s <= table[0][0]:
+        return list(table[0][1:])
+    if s >= table[-1][0]:
+        return list(table[-1][1:])
+    for i in range(len(table) - 1):
+        s0, s1 = table[i][0], table[i + 1][0]
+        if s0 <= s <= s1:
+            t = (s - s0) / (s1 - s0)
+            return [a + (b - a) * t for a, b in zip(table[i][1:], table[i + 1][1:])]
+
+def _pchip_slopes(xs, ys):
+    n = len(xs)
+    h = [xs[i + 1] - xs[i] for i in range(n - 1)]
+    delta = [(ys[i + 1] - ys[i]) / h[i] for i in range(n - 1)]
+    if n == 2:
+        return [delta[0], delta[0]]
+    d = [0.0] * n
+    for k in range(1, n - 1):
+        if delta[k - 1] * delta[k] > 0:
+            w1 = 2 * h[k] + h[k - 1]; w2 = h[k] + 2 * h[k - 1]
+            d[k] = (w1 + w2) / (w1 / delta[k - 1] + w2 / delta[k])
+    for end, a, b in ((0, 0, 1), (n - 1, n - 2, n - 3)):
+        slope = ((2 * h[a] + h[b]) * delta[a] - h[a] * delta[b]) / (h[a] + h[b])
+        if slope * delta[a] <= 0:
+            slope = 0.0
+        elif delta[a] * delta[b] <= 0 and abs(slope) > 3 * abs(delta[a]):
+            slope = 3 * delta[a]
+        d[end] = slope
+    return d
+
+def interp_pchip(table, s):
+    """Shape-preserving cubic interpolation in a table of (s, value...) rows (Fritsch-Carlson).
+
+    The curve passes through every row, is smooth across rows and never overshoots them. Use it
+    for outlines: interp_table eases in and out of every row, which puts a flat spot at each one
+    and shows as a row of kinks along an edge that should be straight or evenly curved.
+    """
+    n = len(table)
+    if s <= table[0][0]:
+        return list(table[0][1:])
+    if s >= table[-1][0]:
+        return list(table[-1][1:])
+    xs = [row[0] for row in table]
+    i = max(j for j in range(n - 1) if xs[j] <= s)
+    h = xs[i + 1] - xs[i]; t = (s - xs[i]) / h
+    h00 = 2 * t ** 3 - 3 * t ** 2 + 1; h10 = t ** 3 - 2 * t ** 2 + t
+    h01 = -2 * t ** 3 + 3 * t ** 2; h11 = t ** 3 - t ** 2
+    out = []
+    for col in range(1, len(table[0])):
+        ys = [row[col] for row in table]
+        d = _pchip_slopes(xs, ys)
+        out.append(h00 * ys[i] + h10 * h * d[i] + h01 * ys[i + 1] + h11 * h * d[i + 1])
+    return out

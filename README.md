@@ -5,6 +5,23 @@ Reference aircraft: **Cessna 172N, 1979 model**, factory-standard educational ba
 the configuration of a specific serial number is not verified.
 
 **Latest: [Phase 8 — realistic digital twin (Blender-built airframe, cockpit, engine)](08_realistic_digital_twin/)**
+and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe follows the
+manufacturer's three-view drawing ([how](08_realistic_digital_twin/docs/05_shape_reference.md)), and the
+model goes under the skin: structure, control runs, systems, the insides of the engine and of the
+instruments, cabin air and lights, seats, doors and baggage fittings, avionics, and fasteners, as 1,174 separate named parts,
+any of which can be drawn or exported on its own ([parts index](08_realistic_digital_twin/docs/06_parts_index.md),
+[atlas](09_book_figures/atlas/README.md)).
+
+**The viewer flies.** A small six-degree-of-freedom flight model moves the aircraft, its control surfaces and
+its instruments. Its numbers come from the Pilot's Operating Handbook where the handbook has them, and each one
+is labelled POH, POH-derived or estimated; it has no certified fidelity
+([the model, its validation against the handbook and every number](08_realistic_digital_twin/docs/08_flight_model.md)).
+Three flight lessons use it: a stall and its recovery, a go-around and an engine failure after takeoff, each
+checked step by step against the handbook's procedure and each with a demonstration. The cockpit is a
+[pilot's seat](08_realistic_digital_twin/docs/09_pilots_seat.md): the head turns and the body leans within
+limits, and the hand works the controls it can reach, on the model itself; those limits are estimates.
+Nothing in the flight model or the seat is measured: [the survey that would change that](08_realistic_digital_twin/docs/10_flight_survey.md)
+is ready to receive an aircraft's numbers and has none.
 
 ```bash
 python3 -m http.server 8000
@@ -12,6 +29,8 @@ python3 -m http.server 8000
 ```
 
 ![Phase 8 exterior](08_realistic_digital_twin/docs/renders/phase8_front_quarter.png)
+
+![Book figure S-4: major components of the aircraft](09_book_figures/out/preview/aircraft-exterior.en.png)
 
 ## Phases
 
@@ -27,6 +46,9 @@ python3 -m http.server 8000
 | 06 | [`06_interactive_twin/`](06_interactive_twin/) | 224-part GLB, Three.js viewer, manifest |
 | 07 | [`07_kinematic_twin/`](07_kinematic_twin/) | Rebuilt model with pivots and Lycoming-correct engine, crank-driven animation, documented systems simulation, 10 guided POH scenarios, offline viewer, tests |
 | **08** | [**`08_realistic_digital_twin/`**](08_realistic_digital_twin/) | Blender-scripted realistic model (editable `.blend`, three Draco GLB quality levels, generated PBR textures), full cockpit and O-320 engine assembly, PBR viewer with HDR sky, shadows and AO, bilingual part catalogue, Phase 7 simulation and scenarios, Playwright and CI rebuild checks |
+| 09 | [`09_book_figures/`](09_book_figures/) | Book figures: [the figure plan](09_book_figures/PLAN.md), a browser-based build to print-ready PDF/SVG in English and Arabic, and four sample figures (instrument from data, system schematic, two labelled illustrations drawn from the Phase 8 model) |
+
+| 10 | [`shared/js/`](shared/js/), [`08_realistic_digital_twin/`](08_realistic_digital_twin/docs/08_flight_model.md) | Flight: a six-degree-of-freedom flight model from the handbook's numbers, flown in the Phase 8 viewer together with the systems simulation; a scripted pilot that flies the handbook's takeoff, landing and stall; three flight lessons (stall and recovery, go-around, engine failure after takeoff) with demonstrations; a first-person pilot's seat with head limits and reachable controls; the intake for a survey of the aircraft and the pilot (no record yet); tests that state the tolerances |
 
 Folders 01–06 are the original release packages, imported unchanged; see
 [RELEASES.md](RELEASES.md). Their integrity is checked against
@@ -41,14 +63,21 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | `npm run build:model8` | Rebuild the Phase 8 `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
 | `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
-| `npm run validate:geometry8` | Check mesh health, aircraft bounds, fairing normals and critical skin attachments |
-| `npm run quality` | Validate bilingual metadata, provenance, generated indexes and asset budgets |
+| `npm run validate:geometry8` | Check mesh health, published dimensions of the built model, attachments, and that nothing inside shows through the skin |
+| `npm run quality` | Validate bilingual metadata, provenance, generated indexes, the parts list and asset budgets |
+| `npm run parts:index` | Write the parts index (`08_realistic_digital_twin/docs/06_parts_index.md`) from the built model's parts list |
+| `npm run part:list` / `npm run part -- render ...` / `npm run part -- export ...` | List every part of the Phase 8 model; draw any part, assembly or system on its own or in the phantom aircraft; export it as a GLB |
+| `python3 09_book_figures/atlas.py` | Redraw the atlas: one picture of every assembly under the skin |
+| `npm run threeview8 -- --out DIR` | Scaled outline drawings of the model, to lay over the handbook three-view |
 | `npm run measurements:validate` / `npm run measurements:report` | Validate the aircraft survey and compare it with model references |
 | `npm run test:e2e8` | Phase 8 browser test (three quality levels, phone width, Arabic) |
-| `npm run render8` | Cycles reference renders of the Phase 8 model |
+| `npm run render8` / `npm run gallery8` | Cycles reference renders and print-size gallery views of the Phase 8 model |
+| `npm run figures` | Build the book figures (PDF, SVG, review PNG; English and Arabic) into `09_book_figures/out/` |
+| `npm run figures:render` | Re-render the 3D-derived book illustrations and their label anchors in Blender |
+| `npm run figures:check` / `npm run test:figures:py` | Build every figure into a temporary folder (fails if text runs off a figure) / test the ink-line rules of the illustrations |
 | `npm run verify:model` | Rebuild in a temp dir and compare with the committed GLB |
 | `npm run verify:checksums` | Verify the archived phase packages |
-| `npm test` | Unit tests: kinematics, POH-referenced simulation behaviour, scenarios |
+| `npm test` | Unit tests: kinematics, POH-referenced simulation behaviour, scenarios, book-figure manifest and provenance |
 | `npm run test:e2e` | Browser test with Playwright (`npm ci && npx playwright install chromium` first) |
 
 The Phase 7 and Phase 8 viewers share their simulation, scenarios, and SVG gauges from

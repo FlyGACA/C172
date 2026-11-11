@@ -1,0 +1,282 @@
+{
+ "figure": "aircraft-exterior",
+ "image": "aircraft-exterior.png",
+ "width": 2400,
+ "height": 1080,
+ "model": "C172N_realistic.blend",
+ "anchors": {
+  "propeller": {
+   "ids": [
+    "POWERPLANT.propeller"
+   ],
+   "visible": true,
+   "label_en": "McCauley two-blade fixed-pitch propeller, 75 in",
+   "label_ar": "مروحة ماكولي ثابتة الخطوة ذات شفرتين",
+   "system": "POWERPLANT",
+   "status": "poh",
+   "x": 652.7,
+   "cx": 652.5,
+   "x0": 606.1,
+   "x1": 978.2,
+   "y": 693.7,
+   "cy": 693.5,
+   "y0": 664.7,
+   "y1": 762.9
+  },
+  "cowl": {
+   "ids": [
+    "POWERPLANT.cowl_upper",
+    "POWERPLANT.cowl_lower"
+   ],
+   "visible": true,
+   "label_en": "Upper engine cowl (quick-release fasteners, oil door)",
+   "label_ar": "غطاء المحرك العلوي (مشابك سريعة، باب الزيت)",
+   "system": "POWERPLANT",
+   "status": "estimated",
+   "x": 875.9,
+   "cx": 873.7,
+   "x0": 733.3,
+   "x1": 1044.0,
+   "y": 710.3,
+   "cy": 720.2,
+   "y0": 605.5,
+   "y1": 855.7
+  },
+  "nose_wheel": {
+   "ids": [
+    "GEAR.nose_wheel_fairing",
+    "GEAR.nose_wheel.tyre"
+   ],
+   "visible": true,
+   "label_en": "Nose wheel fairing",
+   "label_ar": "غطاء عجلة المقدمة",
+   "system": "GEAR",
+   "status": "estimated",
+   "x": 917.6,
+   "cx": 917.9,
+   "x0": 851.5,
+   "x1": 983.1,
+   "y": 954.9,
+   "cy": 954.9,
+   "y0": 906.3,
+   "y1": 1007.8
+  },
+  "main_wheel": {
+   "ids": [
+    "GEAR.main_wheel_fairing_L",
+    "GEAR.main_wheel_L.tyre"
+   ],
+   "visible": true,
+   "label_en": "Left main wheel fairing",
+   "label_ar": "غطاء العجلة الرئيسية اليسرى",
+   "system": "GEAR",
+   "status": "estimated",
+   "x": 1432.2,
+   "cx": 1431.8,
+   "x0": 1355.0,
+   "x1": 1510.9,
+   "y": 905.9,
+   "cy": 903.8,
+   "y0": 844.5,
+   "y1": 968.2
+  },
+  "windshield": {
+   "ids": [
+    "AIRFRAME.windshield"
+   ],
+   "visible": true,
+   "label_en": "Windshield (acrylic)",
+   "label_ar": "الزجاج الأمامي",
+   "system": "AIRFRAME",
+   "status": "estimated",
+   "x": 1015.4,
+   "cx": 1014.5,
+   "x0": 914.4,
+   "x1": 1199.9,
+   "y": 545.8,
+   "cy": 545.2,
+   "y0": 463.2,
+   "y1": 652.0
+  },
+  "door": {
+   "ids": [
+    "AIRFRAME.door_L"
+   ],
+   "visible": true,
+   "label_en": "Left cabin door",
+   "label_ar": "باب المقصورة الأيسر",
+   "system": "AIRFRAME",
+   "status": "estimated",
+   "x": 1247.8,
+   "cx": 1248.3,
+   "x0": 1171.7,
+   "x1": 1329.8,
+   "y": 724.9,
+   "cy": 724.5,
+   "y0": 539.5,
+   "y1": 796.7
+  },
+  "strut": {
+   "ids": [
+    "WING_R.strut"
+   ],
+   "visible": true,
+   "label_en": "Wing strut",
+   "label_ar": "دعامة الجناح",
+   "system": "WING_R",
+   "status": "estimated",
+   "x": 683.6,
+   "cx": 684.2,
+   "x0": 619.8,
+   "x1": 804.9,
+   "y": 451.8,
+   "cy": 453.8,
+   "y0": 389.0,
+   "y1": 578.7
+  },
+  "wing": {
+   "ids": [
+    "WING_R.wing"
+   ],
+   "visible": true,
+   "label_en": "Right wing",
+   "label_ar": "الجناح الأيمن",
+   "system": "WING_R",
+   "status": "type_data",
+   "x": 372.1,
+   "cx": 370.5,
+   "x0": 123.0,
+   "x1": 1226.0,
+   "y": 297.3,
+   "cy": 293.4,
+   "y0": 204.9,
+   "y1": 478.9
+  },
+  "aileron": {
+   "ids": [
+    "WING_R.aileron"
+   ],
+   "visible": true,
+   "label_en": "Right aileron",
+   "label_ar": "الجنيح الأيمن",
+   "system": "WING_R",
+   "status": "estimated",
+   "x": 559.7,
+   "cx": 559.7,
+   "x0": 290.9,
+   "x1": 842.4,
+   "y": 261.1,
+   "cy": 262.7,
+   "y0": 206.9,
+   "y1": 324.6
+  },
+  "flap": {
+   "ids": [
+    "WING_L.flap"
+   ],
+   "visible": true,
+   "label_en": "Left flap (0° to 40°)",
+   "label_ar": "القلاب الأيسر",
+   "system": "WING_L",
+   "status": "estimated",
+   "x": 1702.5,
+   "cx": 1712.1,
+   "x0": 1429.3,
+   "x1": 1819.5,
+   "y": 519.4,
+   "cy": 508.7,
+   "y0": 475.6,
+   "y1": 539.8
+  },
+  "fuselage": {
+   "ids": [
+    "AIRFRAME.fuselage"
+   ],
+   "visible": true,
+   "label_en": "Fuselage",
+   "label_ar": "جسم الطائرة",
+   "system": "AIRFRAME",
+   "status": "estimated",
+   "x": 1090.8,
+   "cx": 1083.0,
+   "x0": 896.5,
+   "x1": 1820.4,
+   "y": 719.2,
+   "cy": 718.1,
+   "y0": 428.7,
+   "y1": 851.9
+  },
+  "fin": {
+   "ids": [
+    "EMPENNAGE.fin"
+   ],
+   "visible": true,
+   "label_en": "Vertical fin with dorsal fin",
+   "label_ar": "المثبت الرأسي مع الزعنفة الظهرية",
+   "system": "EMPENNAGE",
+   "status": "estimated",
+   "x": 1891.6,
+   "cx": 1894.2,
+   "x0": 1472.1,
+   "x1": 1937.4,
+   "y": 253.0,
+   "cy": 244.9,
+   "y0": 110.3,
+   "y1": 485.2
+  },
+  "rudder": {
+   "ids": [
+    "EMPENNAGE.rudder"
+   ],
+   "visible": true,
+   "label_en": "Rudder",
+   "label_ar": "الدفة",
+   "system": "EMPENNAGE",
+   "status": "estimated",
+   "x": 1912.8,
+   "cx": 1911.2,
+   "x0": 1818.6,
+   "x1": 1971.5,
+   "y": 209.5,
+   "cy": 202.1,
+   "y0": 109.7,
+   "y1": 444.7
+  },
+  "stabilizer": {
+   "ids": [
+    "EMPENNAGE.stabilizer"
+   ],
+   "visible": true,
+   "label_en": "Horizontal stabilizer",
+   "label_ar": "المثبت الأفقي",
+   "system": "EMPENNAGE",
+   "status": "poh",
+   "x": 1961.0,
+   "cx": 1970.7,
+   "x0": 1466.9,
+   "x1": 2112.8,
+   "y": 482.0,
+   "cy": 468.4,
+   "y0": 392.5,
+   "y1": 544.8
+  },
+  "elevator": {
+   "ids": [
+    "EMPENNAGE.elevator"
+   ],
+   "visible": true,
+   "label_en": "Elevator (with balance horns)",
+   "label_ar": "الرافع (مع أذرع الموازنة)",
+   "system": "EMPENNAGE",
+   "status": "estimated",
+   "x": 2112.9,
+   "cx": 2112.1,
+   "x0": 1447.8,
+   "x1": 2171.1,
+   "y": 501.7,
+   "cy": 492.2,
+   "y0": 381.8,
+   "y1": 549.5
+  }
+ }
+}

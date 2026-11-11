@@ -1,0 +1,177 @@
+{
+  "_doc": "Text for the major-components figure. The picture and the label positions come from the 3D model (see aircraft_exterior.render.json); 'components' gives each of the five components its tint (the same colour as its 'highlights' entry in the render recipe, checked by the tests) and the stronger colour of its label dots. {engine} and {rating} are filled from data/poh_references.json when the figure is drawn.",
+  "render": "renders/aircraft-exterior.anchors.json",
+  "poh_keys": [
+    "engine.model",
+    "engine.rating",
+    "propeller",
+    "fuel.standard_tanks"
+  ],
+  "catalog_refs": [
+    "^GEAR\\.main_leg"
+  ],
+  "components": [
+    {
+      "key": "fuselage",
+      "color": "#E3E6E9",
+      "dot": "#5F6B78"
+    },
+    {
+      "key": "wings",
+      "color": "#8DB7E2",
+      "dot": "#2F7FC1"
+    },
+    {
+      "key": "empennage",
+      "color": "#8FCBA8",
+      "dot": "#2E9E6B"
+    },
+    {
+      "key": "gear",
+      "color": "#E8C06A",
+      "dot": "#B9860F"
+    },
+    {
+      "key": "powerplant",
+      "color": "#E8A07C",
+      "dot": "#D9622B"
+    }
+  ],
+  "callouts": [
+    {
+      "anchor": "aileron",
+      "side": "left",
+      "component": "wings"
+    },
+    {
+      "anchor": "wing",
+      "side": "left",
+      "component": "wings"
+    },
+    {
+      "anchor": "strut",
+      "side": "left",
+      "component": "wings"
+    },
+    {
+      "anchor": "windshield",
+      "side": "left",
+      "component": "fuselage"
+    },
+    {
+      "anchor": "propeller",
+      "side": "left",
+      "component": "powerplant"
+    },
+    {
+      "anchor": "cowl",
+      "side": "left",
+      "component": "powerplant"
+    },
+    {
+      "anchor": "fuselage",
+      "side": "left",
+      "component": "fuselage"
+    },
+    {
+      "anchor": "nose_wheel",
+      "side": "left",
+      "component": "gear"
+    },
+    {
+      "anchor": "rudder",
+      "side": "right",
+      "component": "empennage"
+    },
+    {
+      "anchor": "fin",
+      "side": "right",
+      "component": "empennage"
+    },
+    {
+      "anchor": "stabilizer",
+      "side": "right",
+      "component": "empennage"
+    },
+    {
+      "anchor": "elevator",
+      "side": "right",
+      "component": "empennage"
+    },
+    {
+      "anchor": "flap",
+      "side": "right",
+      "component": "wings"
+    },
+    {
+      "anchor": "door",
+      "side": "right",
+      "component": "fuselage"
+    },
+    {
+      "anchor": "main_wheel",
+      "side": "right",
+      "component": "gear"
+    }
+  ],
+  "strings": {
+    "en": {
+      "name_aileron": "Aileron",
+      "name_wing": "Wing",
+      "name_strut": "Wing strut",
+      "name_windshield": "Windshield",
+      "name_propeller": "Propeller",
+      "name_cowl": "Engine cowling",
+      "name_nose_wheel": "Nose wheel",
+      "name_rudder": "Rudder",
+      "name_fin": "Fin",
+      "name_stabilizer": "Horizontal stabilizer",
+      "name_elevator": "Elevator",
+      "name_fuselage": "Fuselage",
+      "name_flap": "Flap",
+      "name_door": "Cabin door",
+      "name_main_wheel": "Main wheel",
+      "head_component": "COMPONENT",
+      "head_role": "WHAT IT IS FOR",
+      "fuselage": "Fuselage",
+      "fuselage_role": "The body of the aircraft: the cabin for the pilot, passengers and baggage. The wings, tail, landing gear and engine are all attached to it.",
+      "wings": "Wings",
+      "wings_role": "Produce the lift and hold the fuel tanks. Ailerons and flaps are hinged to the trailing edge; a strut braces each wing to the fuselage.",
+      "empennage": "Empennage (tail)",
+      "empennage_role": "The fin and the horizontal stabilizer keep the aircraft steady in flight; the rudder and the elevator are hinged to them.",
+      "gear": "Landing gear",
+      "gear_role": "Fixed tricycle gear: a steerable nose wheel and two main wheels with brakes on spring-steel legs.",
+      "powerplant": "Powerplant",
+      "powerplant_role": "{engine} engine of {rating} driving a fixed-pitch propeller. The cowling encloses the engine and guides the cooling air."
+    },
+    "ar": {
+      "name_aileron": "الجنيح",
+      "name_wing": "الجناح",
+      "name_strut": "دعامة الجناح",
+      "name_windshield": "الزجاج الأمامي",
+      "name_propeller": "المروحة",
+      "name_cowl": "غطاء المحرك",
+      "name_nose_wheel": "عجلة المقدمة",
+      "name_rudder": "الدفة",
+      "name_fin": "المثبت الرأسي",
+      "name_stabilizer": "المثبت الأفقي",
+      "name_elevator": "الرافع",
+      "name_fuselage": "جسم الطائرة",
+      "name_flap": "القلاب",
+      "name_door": "باب المقصورة",
+      "name_main_wheel": "العجلة الرئيسية",
+      "head_component": "المكوِّن",
+      "head_role": "وظيفته",
+      "fuselage": "جسم الطائرة",
+      "fuselage_role": "بدن الطائرة: مقصورة الطيار والركاب والأمتعة. يُثبَّت عليه الجناحان والذيل وعجلات الهبوط والمحرك.",
+      "wings": "الجناحان",
+      "wings_role": "يولّدان قوة الرفع ويحويان خزاني الوقود. الجنيحان والقلابان مفصلية على الحافة الخلفية، وتسند كل جناح دعامة إلى جسم الطائرة.",
+      "empennage": "مجموعة الذيل",
+      "empennage_role": "المثبت الرأسي والمثبت الأفقي يحفظان اتزان الطائرة في الطيران، والدفة والرافع مفصليان عليهما.",
+      "gear": "عجلات الهبوط",
+      "gear_role": "ثلاثية ثابتة: عجلة مقدمة قابلة للتوجيه وعجلتان رئيسيتان بفرامل على ساقين من الفولاذ النابضي.",
+      "powerplant": "مجموعة القدرة",
+      "powerplant_role": "محرك {engine} بقدرة {rating} يدير مروحة ثابتة الخطوة. غطاء المحرك يحيط به ويوجّه هواء التبريد."
+    }
+  }
+}

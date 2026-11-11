@@ -45,11 +45,11 @@ export class Viewer {
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.03, 300);
-    this.camera.position.set(-9, 3.5, 9);
+    this.camera.position.set(-9, 3.2, 9);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true; this.controls.dampingFactor = 0.08;
     this.controls.maxPolarAngle = Math.PI * 0.49; this.controls.minDistance = 0.05; this.controls.maxDistance = 60;
-    this.controls.target.set(0, 1.3, 0);
+    this.controls.target.set(0, 1.0, 0);
 
     // sun matching the generated sky (elevation 42°, azimuth 35°)
     const el = THREE.MathUtils.degToRad(42), az = THREE.MathUtils.degToRad(35);
@@ -137,7 +137,7 @@ export class Viewer {
     const loop = () => {
       const dt = Math.min(0.1, this.clock.getDelta());
       for (const f of this.onFrame) f(dt);
-      this.controls.update();
+      if (!this.manualCamera) this.controls.update();      // the cockpit camera of the flight mode places itself
       this.renderer.info.reset();
       if (this.composer && this.aoEnabled) this.composer.render(); else this.renderer.render(this.scene, this.camera);
       this.labels.render(this.scene, this.camera);

@@ -89,6 +89,7 @@ def build_library(tex_dir):
     M["metal"] = pbr("metal_aluminium", T("metal_albedo.jpg"), T("metal_orm.png"), T("metal_normal.png"), tile=2.0)
     M["rubber"] = pbr("rubber_tyre", T("rubber_albedo.jpg"), T("rubber_orm.png"), T("rubber_normal.png"), tile=1.0)
     M["apron"] = pbr("apron_asphalt", T("apron_albedo.jpg"), T("apron_orm.png"), T("apron_normal.png"), tile=12.0)
+    M["apron"].use_fake_user = True      # no part uses it: keep it in the saved scene for the ground of the reference renders
     M["paint_white"] = pbr("paint_white", color=(0.90, 0.90, 0.89, 1), rough=0.38, clearcoat=0.1)
     M["paint_navy"] = pbr("paint_navy", color=(0.06, 0.13, 0.32, 1), rough=0.35, clearcoat=0.2)
     M["glass"] = pbr("glass_acrylic", color=(0.35, 0.45, 0.52, 1), rough=0.03, alpha=0.22, specular=0.9, double_sided=True)

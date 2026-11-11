@@ -13,7 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 P8 = ROOT / "08_realistic_digital_twin"
 LODS = ("high", "medium", "low")
-MODEL_BUDGETS = {"high": 5_000_000, "medium": 3_600_000, "low": 2_300_000}
+LOD_DETAIL = {"high": 1, "medium": 0, "low": 0}      # highest detail level each quality level carries (blender/c172/export.py)
+# Download size ceilings. High carries the structure and mechanisms under the skin (detail level 1);
+# medium and low are the basic model, for tablets and phones.
+MODEL_BUDGETS = {"high": 9_000_000, "medium": 3_600_000, "low": 2_300_000}
 IMAGE_BUDGET = 3_000_000
 STATUS = {"measured", "poh", "type_data", "estimated"}
 
@@ -86,6 +89,7 @@ def validate_instruments(gate: Gate) -> None:
 
 def validate_models(gate: Gate) -> None:
     part_sets: dict[str, set[str]] = {}
+    details: dict[str, dict[str, int]] = {}
     for lod in LODS:
         model = P8 / "models" / f"C172N_realistic_{lod}.glb"
         index = gate.json(f"models/model_index_{lod}.json")
@@ -102,9 +106,37 @@ def validate_models(gate: Gate) -> None:
             gate.check(part.get("status") != "measured" or bool(part.get("measurement_id")), f"{lod}: {part.get('name')}: measured part lacks measurement_id")
             gate.check(bool(part.get("label_en")), f"{lod}: {part.get('name')}: missing English label")
             gate.check(bool(part.get("label_ar")), f"{lod}: {part.get('name')}: missing Arabic label")
+        for part in parts:
+            gate.check(part.get("detail", 0) <= LOD_DETAIL[lod], f"{lod}: {part.get('name')}: detail level {part.get('detail')} does not belong in this quality level")
         part_sets[lod] = set(names)
+        details[lod] = {part.get("name"): part.get("detail", 0) for part in parts}
     for lod in LODS[1:]:
-        gate.check(part_sets.get(lod) == part_sets.get("high"), f"{lod}: part set differs from high LOD")
+        expected = {name for name, level in details.get("high", {}).items() if level <= LOD_DETAIL[lod]}
+        gate.check(part_sets.get(lod) == expected, f"{lod}: part set differs from the high model's parts of detail level <= {LOD_DETAIL[lod]}")
+
+
+def validate_parts_list(gate: Gate) -> None:
+    """models/parts_all.json lists every part of the editable scene, all detail levels; the parts index is written from it."""
+    data = gate.json("models/parts_all.json")
+    parts = [part for part in data.get("parts", []) if "detail" in part]
+    gate.check(bool(parts), "parts list is empty")
+    ids = [part.get("id", "") for part in parts]
+    gate.check(len(ids) == len(set(ids)), "parts list: duplicate ids")
+    for part in parts:
+        gate.check(part.get("status") in STATUS, f"parts list: {part.get('id')}: invalid status")
+        gate.check(bool(part.get("en")) and bool(part.get("ar")), f"parts list: {part.get('id')}: incomplete bilingual label")
+        gate.check(part.get("detail") in (0, 1, 2), f"parts list: {part.get('id')}: invalid detail level")
+        gate.check(part.get("status") != "poh" or bool(part.get("ref")) or part.get("detail") == 0, f"parts list: {part.get('id')}: a part documented from the POH needs its page (ref)")
+    high = {part.get("name") for part in gate.json("models/model_index_high.json").get("parts", [])}
+    in_web_model = {part["id"] for part in parts if part["detail"] <= LOD_DETAIL["high"]}
+    gate.check(in_web_model == high, "parts list: the parts of detail level 0-1 differ from the high web model")
+    path = P8 / "scripts" / "parts_index.py"
+    spec = importlib.util.spec_from_file_location("quality_parts_index", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    index = P8 / "docs" / "06_parts_index.md"
+    gate.check(index.is_file() and bool(data) and index.read_text(encoding="utf-8") == module.render(data),
+               "docs/06_parts_index.md is out of date: run python3 08_realistic_digital_twin/scripts/parts_index.py")
 
 
 def validate_manifest_and_assets(gate: Gate) -> None:
@@ -137,6 +169,7 @@ def main() -> int:
     validate_references(gate)
     validate_instruments(gate)
     validate_models(gate)
+    validate_parts_list(gate)
     validate_manifest_and_assets(gate)
     validate_measurements(gate)
     if gate.errors:
@@ -144,7 +177,7 @@ def main() -> int:
         for error in gate.errors:
             print(f"  - {error}")
         return 1
-    print("Quality gate OK: catalog, provenance, instruments, LOD indexes, manifests and asset budgets")
+    print("Quality gate OK: catalog, provenance, instruments, LOD indexes, parts list, manifests and asset budgets")
     return 0
 
 

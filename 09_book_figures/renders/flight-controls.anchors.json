@@ -1,0 +1,135 @@
+{
+ "figure": "flight-controls",
+ "image": "flight-controls.png",
+ "width": 1800,
+ "height": 1395,
+ "model": "C172N_realistic.blend",
+ "anchors": {
+  "aileron_L": {
+   "ids": [
+    "WING_L.aileron"
+   ],
+   "visible": true,
+   "label_en": "Left aileron",
+   "label_ar": "الجنيح الأيسر",
+   "system": "WING_L",
+   "status": "estimated",
+   "x": 305.2,
+   "cx": 298.5,
+   "x0": 80.6,
+   "x1": 497.7,
+   "y": 538.0,
+   "cy": 537.5,
+   "y0": 490.2,
+   "y1": 584.4
+  },
+  "aileron_R": {
+   "ids": [
+    "WING_R.aileron"
+   ],
+   "visible": true,
+   "label_en": "Right aileron",
+   "label_ar": "الجنيح الأيمن",
+   "system": "WING_R",
+   "status": "estimated",
+   "x": 1494.8,
+   "cx": 1500.5,
+   "x0": 1302.3,
+   "x1": 1719.4,
+   "y": 538.0,
+   "cy": 537.6,
+   "y0": 490.2,
+   "y1": 584.4
+  },
+  "flap_L": {
+   "ids": [
+    "WING_L.flap"
+   ],
+   "visible": true,
+   "label_en": "Left flap (0° to 40°)",
+   "label_ar": "القلاب الأيسر",
+   "system": "WING_L",
+   "status": "estimated",
+   "x": 658.6,
+   "cx": 662.3,
+   "x0": 507.1,
+   "x1": 810.0,
+   "y": 555.1,
+   "cy": 555.2,
+   "y0": 530.3,
+   "y1": 584.9
+  },
+  "flap_R": {
+   "ids": [
+    "WING_R.flap"
+   ],
+   "visible": true,
+   "label_en": "Right flap (0° to 40°)",
+   "label_ar": "القلاب الأيمن",
+   "system": "WING_R",
+   "status": "estimated",
+   "x": 1141.4,
+   "cx": 1138.5,
+   "x0": 990.0,
+   "x1": 1292.9,
+   "y": 555.1,
+   "cy": 555.1,
+   "y0": 530.3,
+   "y1": 584.9
+  },
+  "elevator": {
+   "ids": [
+    "EMPENNAGE.elevator"
+   ],
+   "visible": true,
+   "label_en": "Elevator (with balance horns)",
+   "label_ar": "الرافع (مع أذرع الموازنة)",
+   "system": "EMPENNAGE",
+   "status": "estimated",
+   "x": 755.4,
+   "cx": 763.0,
+   "x0": 630.1,
+   "x1": 1170.3,
+   "y": 1172.6,
+   "cy": 1173.9,
+   "y0": 1061.6,
+   "y1": 1210.9
+  },
+  "rudder": {
+   "ids": [
+    "EMPENNAGE.rudder"
+   ],
+   "visible": true,
+   "label_en": "Rudder",
+   "label_ar": "الدفة",
+   "system": "EMPENNAGE",
+   "status": "estimated",
+   "x": 899.8,
+   "cx": 900.1,
+   "x0": 897.2,
+   "x1": 902.8,
+   "y": 1283.7,
+   "cy": 1284.1,
+   "y0": 1267.8,
+   "y1": 1309.6
+  },
+  "trim_tab": {
+   "ids": [
+    "EMPENNAGE.trim_tab"
+   ],
+   "visible": true,
+   "label_en": "Elevator trim tab (right side)",
+   "label_ar": "لسان موازنة الرافع",
+   "system": "EMPENNAGE",
+   "status": "poh",
+   "x": 1075.3,
+   "cx": 1068.8,
+   "x0": 949.7,
+   "x1": 1106.7,
+   "y": 1184.1,
+   "cy": 1184.4,
+   "y0": 1167.3,
+   "y1": 1205.0
+  }
+ }
+}

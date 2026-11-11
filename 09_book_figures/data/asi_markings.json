@@ -1,0 +1,30 @@
+{
+  "_doc": "Text for the airspeed-indicator figure. Every number on the figure is read at build time from 08_realistic_digital_twin/data/instruments.json (ASI arcs and red line), so the art cannot drift from the simulation or the 3D dial. Strings may use {white}, {green}, {yellow}, {red}, {va} and {weight}; V_{NE} sets a subscript; \\n breaks a line.",
+  "instrument": "ASI",
+  "va": { "kias": 97, "weight_lb": 2300, "poh_key": "airspeed.limits_KIAS" },
+  "poh_keys": ["airspeed.markings_KIAS", "airspeed.limits_KIAS"],
+  "strings": {
+    "en": {
+      "white_title": "White arc · {white}",
+      "white_lines": "Full-flap operating range\nFrom V_{S0} (stall, landing\nconfiguration) up to V_{FE}\n(flaps-extended limit)",
+      "green_title": "Green arc · {green}",
+      "green_lines": "Normal operating range\nFrom V_{S1} (stall, flaps up)\nup to V_{NO} (maximum\nstructural cruising speed)",
+      "yellow_title": "Yellow arc · {yellow}",
+      "yellow_lines": "Caution range\nSmooth air only",
+      "red_title": "Red line · {red}",
+      "red_lines": "V_{NE} — never exceed",
+      "note": "Not marked on the dial: V_{A} (manoeuvring speed) — {va} at {weight}"
+    },
+    "ar": {
+      "white_title": "القوس الأبيض · {white}",
+      "white_lines": "نطاق التشغيل والقلابات ممدودة بالكامل\nمن V_{S0} (سرعة الانهيار في\nوضعية الهبوط) إلى V_{FE}\n(الحد الأقصى والقلابات ممدودة)",
+      "green_title": "القوس الأخضر · {green}",
+      "green_lines": "نطاق التشغيل العادي\nمن V_{S1} (سرعة الانهيار والقلابات\nمرفوعة) إلى V_{NO} (أقصى سرعة\nطواف يتحملها الهيكل)",
+      "yellow_title": "القوس الأصفر · {yellow}",
+      "yellow_lines": "نطاق الحذر\nفي الهواء الهادئ فقط",
+      "red_title": "الخط الأحمر · {red}",
+      "red_lines": "V_{NE} — سرعة لا يجوز تجاوزها",
+      "note": "غير معلَّمة على المؤشر: V_{A} (سرعة المناورة) — {va} عند وزن {weight}"
+    }
+  }
+}

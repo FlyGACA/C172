@@ -7,6 +7,9 @@ workflow.
 The named profile is **HZ-C172**. Its initial records are document references and type data,
 not a physical survey; the serial number and installed configuration remain unverified.
 
+The flight model and the pilot's seat have their own survey, which does not rebuild the 3D model:
+[10_flight_survey.md](10_flight_survey.md).
+
 ## Recording a survey
 
 1. Complete the identity fields in `data/aircraft_measurements.json`, including registration and
