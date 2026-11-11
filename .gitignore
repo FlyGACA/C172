@@ -9,3 +9,5 @@ e2e-screenshots/
 08_realistic_digital_twin/models/*.blend1
 # position maps of the painted skins: written by blender/posmaps.py, read by the texture generator
 08_realistic_digital_twin/assets/posmaps/
+# the handbook plates: the finer dial artwork is rebuilt (python3 09_book_figures/handbook/fine_textures.py)
+09_book_figures/handbook/cache/

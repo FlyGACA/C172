@@ -1,0 +1,751 @@
+{
+ "_doc": "Plates for the handbook (the book repository's handbook/ppl/figures/): pictures from the 3D twin with numbered callouts and no words, in the format that book uses. The book's two editions share one file; each edition explains the numbers in a list under the figure (the legend below is what the English edition says today). render: the recipe for blender/render_plate.py (build frame of the model, metres). overlays: drawn over the render by build_plates.py, in canvas units (the canvas is `canvas` units wide; one unit is 1/640 of the width of the book's figures). A figure keeps the file name and the callout numbers of the one it replaces, so the book's text does not change.",
+ "palette": {
+  "marker": "#283FA9",
+  "lift": "#1F8A5B",
+  "weight": "#B4531E",
+  "thrust": "#283FA9",
+  "drag": "#B3262B",
+  "ink": "#1E2A44"
+ },
+ "backgrounds": {
+  "sky": {
+   "type": "gradient",
+   "top": [
+    190,
+    212,
+    239
+   ],
+   "bottom": [
+    231,
+    238,
+    246
+   ]
+  },
+  "pale": {
+   "type": "flat",
+   "colour": [
+    249,
+    250,
+    254
+   ]
+  }
+ },
+ "plates": [
+  {
+   "id": "fig-05-01-four-forces",
+   "replaces": "fig-05-01-four-forces.svg",
+   "caption": "Figure 5-1. The four forces in straight-and-level flight",
+   "desc": "The aeroplane seen from the side in level flight, with arrows for lift, weight, thrust and drag, the centre of gravity, and the small downward force on the horizontal tail.",
+   "legend": [
+    "Lift, acting through the centre of lift.",
+    "Weight, acting down through the CG.",
+    "Thrust, along the thrust line.",
+    "Drag.",
+    "The centre of gravity.",
+    "The small downward force on the horizontal tail that balances the aeroplane in pitch."
+   ],
+   "canvas": [
+    640,
+    320
+   ],
+   "background": "sky",
+   "render": {
+    "camera": {
+     "view": "side",
+     "target": [
+      0,
+      2.0,
+      1.65
+     ],
+     "width": 11.9,
+     "azimuth": 0,
+     "elevation": 0
+    },
+    "size": [
+     2560,
+     1280
+    ],
+    "light": "outdoor",
+    "pitch": {
+     "deg": 3.0,
+     "about": [
+      0,
+      0,
+      1.3
+     ]
+    },
+    "propeller": {
+     "turn": 62
+    },
+    "samples": 160,
+    "anchors": {
+     "cg": [
+      0,
+      0.0,
+      1.3
+     ],
+     "cl": [
+      0,
+      0.13,
+      2.22
+     ],
+     "lift_head": {
+      "from": "cl",
+      "add": [
+       0,
+       0,
+       1.55
+      ]
+     },
+     "weight_head": {
+      "from": "cg",
+      "add": [
+       0,
+       0,
+       -1.65
+      ]
+     },
+     "thrust_tail": [
+      0,
+      -2.3,
+      1.626
+     ],
+     "thrust_head": {
+      "from": "thrust_tail",
+      "add": [
+       0,
+       -0.9,
+       0
+      ]
+     },
+     "drag_tail": [
+      0,
+      6.1,
+      1.626
+     ],
+     "drag_head": {
+      "from": "drag_tail",
+      "add": [
+       0,
+       0.9,
+       0
+      ]
+     },
+     "tail_force": [
+      0,
+      5.15,
+      1.3
+     ],
+     "tail_force_head": {
+      "from": "tail_force",
+      "add": [
+       0,
+       0,
+       -0.62
+      ]
+     },
+     "tail_force_mid": {
+      "from": "tail_force",
+      "add": [
+       0,
+       0,
+       -0.31
+      ]
+     }
+    }
+   },
+   "overlays": [
+    {
+     "type": "arrow",
+     "from": "cl",
+     "to": "lift_head",
+     "colour": "lift",
+     "width": 3.4
+    },
+    {
+     "type": "arrow",
+     "from": "cg",
+     "to": "weight_head",
+     "colour": "weight",
+     "width": 3.4
+    },
+    {
+     "type": "arrow",
+     "from": "thrust_tail",
+     "to": "thrust_head",
+     "colour": "thrust",
+     "width": 3.4
+    },
+    {
+     "type": "arrow",
+     "from": "drag_tail",
+     "to": "drag_head",
+     "colour": "drag",
+     "width": 3.4
+    },
+    {
+     "type": "arrow",
+     "from": "tail_force",
+     "to": "tail_force_head",
+     "colour": "weight",
+     "width": 2.4,
+     "head": 9
+    },
+    {
+     "type": "cg",
+     "at": "cg",
+     "r": 10
+    },
+    {
+     "type": "marker",
+     "n": 1,
+     "at": "lift_head",
+     "offset": [
+      22,
+      -4
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 2,
+     "at": "weight_head",
+     "offset": [
+      22,
+      6
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 3,
+     "at": "thrust_head",
+     "offset": [
+      4,
+      -24
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 4,
+     "at": "drag_head",
+     "offset": [
+      -4,
+      -24
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 5,
+     "at": "cg",
+     "offset": [
+      -46,
+      44
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 6,
+     "at": "tail_force_mid",
+     "offset": [
+      36,
+      16
+     ],
+     "leader": true
+    }
+   ]
+  },
+  {
+   "id": "fig-10-03-airspeed-indicator-markings",
+   "replaces": "fig-10-03-airspeed-indicator-markings.svg",
+   "caption": "Figure 10-3. Colour markings on a typical light-aeroplane airspeed indicator",
+   "desc": "An airspeed indicator seen square on, with its white, green and yellow arcs and its red line.",
+   "legend": [
+    "White arc: flap operating range.",
+    "Green arc: normal operating range.",
+    "Yellow arc: caution range, for smooth air only.",
+    "Red line: VNE, never-exceed speed.",
+    "Bottom of the white arc: VS0, stall speed in the landing configuration.",
+    "Bottom of the green arc: VS1, stall speed in a specified configuration, normally clean.",
+    "Top of the white arc: VFE, maximum flaps-extended speed.",
+    "Top of the green arc: VNO, maximum structural cruising speed."
+   ],
+   "canvas": [
+    640,
+    360
+   ],
+   "background": "pale",
+   "render": {
+    "camera": {
+     "view": "panel",
+     "target": [
+      0.383,
+      -0.5415,
+      1.69
+     ],
+     "width": 0.248,
+     "azimuth": 0,
+     "elevation": 0,
+     "distance": 0.3
+    },
+    "size": [
+     2560,
+     1440
+    ],
+    "light": "instrument",
+    "show": [
+     "PANEL.ASI.bezel",
+     "PANEL.ASI.face",
+     "PANEL.ASI.glass",
+     "PANEL.ASI.needle_ASI"
+    ],
+    "instrument_glass": "clear",
+    "pose": {
+     "ASI": 105
+    },
+    "fine_textures": true,
+    "samples": 192,
+    "anchors": {
+     "white_arc": {
+      "dial": "ASI",
+      "angle": 84.6,
+      "radius": 0.81
+     },
+     "green_arc": {
+      "dial": "ASI",
+      "angle": 208.1,
+      "radius": 0.935
+     },
+     "yellow_arc": {
+      "dial": "ASI",
+      "angle": 277.0,
+      "radius": 0.935
+     },
+     "red_line": {
+      "dial": "ASI",
+      "angle": 315.0,
+      "radius": 0.89
+     },
+     "vs0": {
+      "dial": "ASI",
+      "angle": 32.4,
+      "radius": 0.81
+     },
+     "vs1": {
+      "dial": "ASI",
+      "angle": 46.6,
+      "radius": 0.935
+     },
+     "vfe": {
+      "dial": "ASI",
+      "angle": 137.4,
+      "radius": 0.81
+     },
+     "vno": {
+      "dial": "ASI",
+      "angle": 239.0,
+      "radius": 0.935
+     },
+     "centre": {
+      "dial": "ASI",
+      "angle": 0,
+      "radius": 0
+     }
+    }
+   },
+   "overlays": [
+    {
+     "type": "marker",
+     "n": 1,
+     "at": "white_arc",
+     "polar": [
+      "centre",
+      95,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 2,
+     "at": "green_arc",
+     "polar": [
+      "centre",
+      205,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 3,
+     "at": "yellow_arc",
+     "polar": [
+      "centre",
+      272,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 4,
+     "at": "red_line",
+     "polar": [
+      "centre",
+      320,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 5,
+     "at": "vs0",
+     "polar": [
+      "centre",
+      18,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 6,
+     "at": "vs1",
+     "polar": [
+      "centre",
+      52,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 7,
+     "at": "vfe",
+     "polar": [
+      "centre",
+      132,
+      142
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 8,
+     "at": "vno",
+     "polar": [
+      "centre",
+      240,
+      142
+     ],
+     "leader": true
+    }
+   ]
+  },
+  {
+   "id": "fig-10-01-instrument-panel",
+   "replaces": "fig-10-01-instrument-panel.svg",
+   "caption": "Figure 10-1. The six flight instruments, here in straight and level cruise",
+   "desc": "The six flight instruments on the panel of the training aeroplane, in two rows of three: airspeed indicator, attitude indicator and altimeter above; turn coordinator, heading indicator and vertical speed indicator below.",
+   "legend": [
+    "Airspeed indicator: 105 kt.",
+    "Attitude indicator: wings level, nose on the horizon.",
+    "Altimeter: 3,500 ft.",
+    "Turn coordinator: no turn, ball centred.",
+    "Heading indicator: 120°.",
+    "Vertical speed indicator: zero, neither climbing nor descending.",
+    "The basic T: the attitude indicator in the centre, airspeed to its left, altitude to its right and heading below it."
+   ],
+   "canvas": [
+    640,
+    440
+   ],
+   "background": "pale",
+   "render": {
+    "camera": {
+     "view": "panel",
+     "target": [
+      0.288,
+      -0.5415,
+      1.643
+     ],
+     "width": 0.36,
+     "azimuth": 0,
+     "elevation": 0,
+     "distance": 0.3
+    },
+    "size": [
+     2560,
+     1760
+    ],
+    "light": "panel",
+    "show": [
+     "PANEL.upper_panel",
+     "PANEL.instrument_screws",
+     "PANEL.ASI.*",
+     "PANEL.AI.*",
+     "PANEL.ALT.*",
+     "PANEL.TC.*",
+     "PANEL.DG.*",
+     "PANEL.VSI.*"
+    ],
+    "panel_window": [
+     0.14,
+     0.4205,
+     1.54,
+     1.74
+    ],
+    "panel_extend": [
+     0.12,
+     0.12
+    ],
+    "panel_grain": [
+     4.0,
+     0.9
+    ],
+    "instrument_glass": "clear",
+    "pose": {
+     "ASI": 105,
+     "ALT": 3500,
+     "VSI": 0,
+     "heading": 120,
+     "turn": 0
+    },
+    "fine_textures": true,
+    "samples": 192,
+    "anchors": {
+     "asi": {
+      "dial": "ASI",
+      "angle": 0,
+      "radius": 0
+     },
+     "ai": {
+      "dial": "AI",
+      "angle": 0,
+      "radius": 0
+     },
+     "alt": {
+      "dial": "ALT",
+      "angle": 0,
+      "radius": 0
+     },
+     "tc": {
+      "dial": "TC",
+      "angle": 0,
+      "radius": 0
+     },
+     "dg": {
+      "dial": "DG",
+      "angle": 0,
+      "radius": 0
+     },
+     "vsi": {
+      "dial": "VSI",
+      "angle": 0,
+      "radius": 0
+     }
+    }
+   },
+   "overlays": [
+    {
+     "type": "tee",
+     "points": [
+      "asi",
+      "ai",
+      "alt",
+      "dg"
+     ],
+     "lead": [
+      36,
+      136.4
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 1,
+     "at": "asi",
+     "pos": [
+      151,
+      26
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 2,
+     "at": "ai",
+     "pos": [
+      320,
+      26
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 3,
+     "at": "alt",
+     "pos": [
+      489,
+      26
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 4,
+     "at": "tc",
+     "pos": [
+      151,
+      414
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 5,
+     "at": "dg",
+     "pos": [
+      320,
+      414
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 6,
+     "at": "vsi",
+     "pos": [
+      489,
+      414
+     ]
+    },
+    {
+     "type": "marker",
+     "n": 7,
+     "at": "asi",
+     "pos": [
+      36,
+      136.4
+     ],
+     "leader": false
+    }
+   ]
+  },
+  {
+   "id": "fig-05-02-airfoil-angle-of-attack",
+   "replaces": "fig-05-02-airfoil-angle-of-attack.svg",
+   "caption": "Figure 5-2. Airfoil terms, relative wind and angle of attack",
+   "desc": "A cambered wing section seen from the side with its chord line, mean camber line, the relative wind, the flight path, the angle of attack, lift and drag.",
+   "legend": [
+    "Leading edge.",
+    "Trailing edge.",
+    "Chord line, extended ahead of the wing.",
+    "Mean camber line.",
+    "Relative wind, opposite the flight path.",
+    "Angle of attack (α).",
+    "Flight path.",
+    "Lift, perpendicular to the relative wind.",
+    "Drag, parallel to the relative wind."
+   ],
+   "canvas": [
+    640,
+    360
+   ],
+   "background": "sky",
+   "drawing": "vector_plates.py"
+  },
+  {
+   "id": "plate-07-01-airframe",
+   "replaces": "plate-07-01-airframe.jpg",
+   "caption": "Colour plate 7-1. The five major components on the handbook's high-wing trainer",
+   "desc": "The training aeroplane seen from the front left and above, with its five major components in colour: wings, tail group, landing gear and powerplant; the fuselage is white.",
+   "legend": [
+    "Wing.",
+    "Fuselage.",
+    "Powerplant.",
+    "Landing gear.",
+    "Empennage."
+   ],
+   "canvas": [
+    640,
+    288
+   ],
+   "px_per_unit": 3.75,
+   "background": "pale",
+   "source": {
+    "image": "../renders/aircraft-exterior.png",
+    "anchors": "../renders/aircraft-exterior.anchors.json"
+   },
+   "overlays": [
+    {
+     "type": "marker",
+     "n": 1,
+     "at": "wing",
+     "pos": [
+      106,
+      32
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 2,
+     "at": "fuselage",
+     "pos": [
+      304,
+      252
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 3,
+     "at": "cowl",
+     "pos": [
+      176,
+      140
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 4,
+     "at": "main_wheel",
+     "pos": [
+      426,
+      266
+     ],
+     "leader": true
+    },
+    {
+     "type": "marker",
+     "n": 5,
+     "at": "fin",
+     "pos": [
+      555,
+      32
+     ],
+     "leader": true
+    }
+   ]
+  },
+  {
+   "id": "plate-07-02-control-surfaces",
+   "replaces": "plate-07-02-control-surfaces.jpg",
+   "caption": "Colour plate 7-2. Movable control surfaces: primary controls in amber and flaps in blue",
+   "desc": "The training aeroplane seen from above, with the ailerons, the elevator and the rudder in amber and the flaps in blue.",
+   "legend": [
+    "Primary controls (ailerons, elevator, rudder): amber.",
+    "Flaps: blue."
+   ],
+   "colour_coded": true,
+   "canvas": [
+    640,
+    496
+   ],
+   "px_per_unit": 3.75,
+   "background": "pale",
+   "source": {
+    "image": "renders/plate-07-02-control-surfaces.png"
+   },
+   "overlays": []
+  }
+ ]
+}

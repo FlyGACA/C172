@@ -55,6 +55,16 @@ To work on one figure, serve the repository root (`npm run serve`) and open
    preview in half a minute for choosing the camera; `--anchors-only` moves labels without rendering.
 5. `npm run figures && npm test`.
 
+## Plates for the handbook
+
+The handbook (the book repository) takes figures that are numbered callouts over a picture, with no words in the artwork.
+[`handbook/`](handbook/README.md) makes them from the twin: renders of the aircraft, of its panel and of single instruments, and a
+drawing of the airfoil, each under the file name of the figure it replaces, with the callout numbers of that figure's list.
+
+```bash
+npm run plates:render && npm run plates:build && npm run test:plates:py
+```
+
 ## Any part on its own
 
 The model goes under the skin: structure, control runs, system components, the insides of the

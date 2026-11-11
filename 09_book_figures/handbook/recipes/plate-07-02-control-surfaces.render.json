@@ -1,0 +1,61 @@
+{
+ "_doc": "Colour plate 7-2 of the handbook: the movable control surfaces seen from above, the primary controls (ailerons, elevator, rudder) in amber and the flaps in blue. Same camera and ink rules as the flight-controls figure; only the colours differ. The trim tab is left white: it is not named by the plate's caption.",
+ "id": "plate-07-02-control-surfaces",
+ "camera": {
+  "type": "ortho",
+  "pos": [
+   0,
+   2.14,
+   60
+  ],
+  "target": [
+   0,
+   2.14,
+   1
+  ],
+  "ortho_scale": 11.5,
+  "roll_deg": 180
+ },
+ "resolution": [
+  2400,
+  1860
+ ],
+ "samples": 96,
+ "ambient": 0.55,
+ "key": 1.25,
+ "key_rotation": [
+  38,
+  0,
+  150
+ ],
+ "ground_shadow": false,
+ "ink": {
+  "outer_px": 4.6,
+  "part_px": 2.4,
+  "fine_px": 1.5
+ },
+ "highlights": [
+  {
+   "key": "primary",
+   "ids": [
+    "WING_L.aileron",
+    "WING_R.aileron",
+    "EMPENNAGE.elevator",
+    "EMPENNAGE.rudder"
+   ],
+   "color": "#E8A524"
+  },
+  {
+   "key": "flaps",
+   "ids": [
+    "WING_L.flap",
+    "WING_R.flap"
+   ],
+   "color": "#4C8FD6"
+  }
+ ],
+ "anchors": [],
+ "hide": [
+  "ELECTRICAL.adf_sense_wire"
+ ]
+}
