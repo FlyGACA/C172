@@ -19,10 +19,14 @@ sys.path.insert(0, HERE)
 ROOT = os.path.dirname(HERE)
 
 from c172 import units as U                       # noqa: E402
-from c172 import materials, airframe, gear, powerplant, export  # noqa: E402
+from c172 import materials, airframe, gear, powerplant, export, atlas  # noqa: E402
 from c172.shapes import empty                      # noqa: E402
 
 AXIS_MAP = {"x": ("x", 1), "y": ("z", -1), "z": ("y", 1)}   # Blender local axis -> glTF local axis, sign
+GROUPS = [("AIRFRAME", "Airframe", "هيكل الطائرة"), ("WING_R", "Right wing", "الجناح الأيمن"), ("WING_L", "Left wing", "الجناح الأيسر"),
+          ("EMPENNAGE", "Empennage", "الذيل"), ("GEAR", "Landing gear", "عجلات الهبوط"), ("POWERPLANT", "Powerplant", "مجموعة القدرة"),
+          ("ENGINE", "Engine", "المحرك"), ("INTERIOR", "Interior", "المقصورة الداخلية"), ("PANEL", "Instrument panel", "لوحة العدادات"),
+          ("SYSTEMS", "Aircraft systems", "أنظمة الطائرة")]
 
 
 class Ctx:
@@ -63,11 +67,10 @@ def build_scene(subsurf, assets, detail=0):
     sc.unit_settings.system = "METRIC"; sc.unit_settings.length_unit = "METERS"
     ctx = Ctx(subsurf)
     ctx.detail_level = detail            # the basic builders may fit themselves to the detail packs (seat frames on their rails)
+    ctx.assets = assets                  # where the position maps of the painted skins are (c172/posmap.py)
+    atlas.use_cells(os.path.join(assets, "textures", "atlas_cells.json"))      # where the texture generator laid out the lettering
     ctx.mats = materials.build_library(os.path.join(assets, "textures"))
-    for name, en, ar in [("AIRFRAME", "Airframe", "هيكل الطائرة"), ("WING_R", "Right wing", "الجناح الأيمن"), ("WING_L", "Left wing", "الجناح الأيسر"),
-                         ("EMPENNAGE", "Empennage", "الذيل"), ("GEAR", "Landing gear", "عجلات الهبوط"), ("POWERPLANT", "Powerplant", "مجموعة القدرة"),
-                         ("ENGINE", "Engine", "المحرك"), ("INTERIOR", "Interior", "المقصورة الداخلية"), ("PANEL", "Instrument panel", "لوحة العدادات"),
-                         ("SYSTEMS", "Aircraft systems", "أنظمة الطائرة")]:
+    for name, en, ar in GROUPS:
         ctx.group(name, en, ar)
     t = time.time()
     airframe.build_fuselage(ctx); print("fuselage", round(time.time() - t, 1)); t = time.time()
@@ -81,6 +84,8 @@ def build_scene(subsurf, assets, detail=0):
     engine.build(ctx); print("engine", round(time.time() - t, 1)); t = time.time()
     from c172 import detail as detail_packs
     detail_packs.build_all(ctx, detail); print("detail packs", round(time.time() - t, 1)); t = time.time()
+    from c172 import decals
+    decals.build(ctx); print("markings", round(time.time() - t, 1)); t = time.time()
     # helper meshes created without an explicit tag inherit their parent's system/label
     for ob in ctx.col.objects:
         if ob.type == "MESH" and "system" not in ob:
@@ -128,9 +133,11 @@ def main():
     os.makedirs(args.out, exist_ok=True)
     tex_dir = os.path.join(args.assets, "textures")
     if not args.skip_textures or not os.path.exists(os.path.join(tex_dir, "fuselage_albedo.jpg")):
-        from c172 import textures   # needs Pillow: run `python3 -m c172.textures assets` with the system Python if Blender's lacks it
+        # needs Pillow and the position maps: run blender/posmaps.py, then `python3 -m c172.textures assets` with the
+        # system Python (npm run build:model8 does all three in order)
+        from c172 import textures
         textures.generate_all(tex_dir, os.path.join(args.assets, "hdri"), size=2048)
-        textures.downscale_sets(tex_dir, (1024, 512))
+        textures.downscale_sets(tex_dir, (1024,))
     lods = list(export.LODS) if args.lod == "all" else [args.lod]
     for lod in lods:
         spec = export.LODS[lod]
@@ -146,10 +153,14 @@ def main():
                 if ob.get("detail", 0) > export.SHOWN_DETAIL:
                     ob.hide_render = True
             blend = args.blend or os.path.join(args.out, "C172N_realistic.blend")
+            from c172 import cockpit
+            cockpit.pose_pointers(ctx.col.objects, True)         # the saved scene shows a parked aircraft: engine stopped, master switch off
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             bpy.ops.file.make_paths_relative()
             bpy.ops.wm.save_as_mainfile(filepath=blend, compress=True)
             print("saved", blend)
+            cockpit.pose_pointers(ctx.col.objects, False)        # the web model carries its pointers at zero: the viewer turns them
+            bpy.context.view_layer.update()
             export.write_json(os.path.join(args.out, "parts_all.json"), export.parts_list(ctx))      # every part, all detail levels
             keep = min(top, spec["detail"])
             if keep < top:
@@ -160,6 +171,9 @@ def main():
             ctx = build_scene(spec["subsurf"], args.assets, spec["detail"] if args.detail is None else min(args.detail, spec["detail"]))
         if spec["decimate"]:
             export.apply_decimate(ctx, spec["decimate"])
+        # shade the cabin and the outside (after the editable scene is saved: it does not carry the baked shade)
+        from c172 import ao
+        t1 = time.time(); n = ao.bake(list(ctx.col.objects)); print(f"baked shade on {n} vertices in {time.time() - t1:.1f} s")
         export.retarget_textures(tex_dir, spec["tex"])
         glb = os.path.join(args.out, f"C172N_realistic_{lod}.glb")
         export.export_glb(glb, draco=not args.no_draco)

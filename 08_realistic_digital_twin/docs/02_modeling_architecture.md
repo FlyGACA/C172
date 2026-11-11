@@ -7,7 +7,9 @@ blender/build.py  ──(bpy, headless Blender 4.5 LTS)──►  models/C172N_r
        │                                                 models/C172N_realistic_{high,medium,low}.glb
        │  c172/units.py      reference dimensions with status (measured / poh / type_data / estimated)
        │  c172/shapes.py     airfoils, cross-sections, lofts, bmesh helpers, UV projection
-       │  c172/textures.py   numpy/PIL texture generation (atlases, normal maps, dials, sky HDR)
+       │  posmaps.py         where each texel of the painted skins lies (run first: the paint is laid from it)
+       │  c172/textures.py   numpy/PIL texture generation (paint scheme, atlases, normal maps, dials, sky HDR)
+       │  c172/decals.py     markings laid on the skin as separate pieces; c172/ao.py shade baked into the GLB
        │  c172/materials.py  Principled BSDF materials wired to the generated textures
        │  c172/airframe.py   fuselage, windows, doors, wings, control surfaces, tail, fairings
        │  c172/gear.py       main gear, nose gear, wheels, fairings, brakes
@@ -40,7 +42,10 @@ can be rebuilt identically on a developer machine or in CI.
 |---|---|---|---|---|
 | high | 2 | 2048 px | desktop | ≤ 600 k triangles, ≤ 25 MB |
 | medium | 1 | 1024 px | laptop / tablet | ≤ 250 k triangles, ≤ 12 MB |
-| low | 0 + decimate | 512 px | mobile | ≤ 100 k triangles, ≤ 5 MB |
+| low | 1 + decimate (painted skins and propeller left whole) | 1024 px | telephone | ≤ 150 k triangles, ≤ 6 MB |
+
+The paint of the fuselage is twice the size given (4096 px / 2048 px). `scripts/quality_gate.py` holds the
+download sizes closer than this table: 9.6 / 5.9 / 5.4 MB.
 
 Draco compression on all three; the viewer picks a level from device memory/GPU and the
 user can override it.

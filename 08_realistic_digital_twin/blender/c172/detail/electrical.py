@@ -103,13 +103,13 @@ def build(ctx):
         ("ELECTRICAL.cable_starter", "Starter cable: starter contactor to starter", "كابل بادئ الحركة: من الملامس إلى بادئ الحركة", "hose_red",
          [starter_contactor + Vector((-0.016, 0, 0.022)), starter_contactor + Vector((-0.016, -0.004, 0.10)), Vector((starter.x - 0.048, starter_contactor.y - 0.012, starter.z))]),
         ("ELECTRICAL.cable_bus_feed", "Bus feed cable: battery contactor through the firewall to the bus bar", "كابل تغذية القضيب: من ملامس البطارية عبر جدار الحريق إلى قضيب التوزيع", "hose_red",
-         [battery_contactor + Vector((0.0, 0.0, 0.022)), Vector((0.10, front - 0.01, 1.455)), Vector((0.10, aft + 0.05, 1.455)), Vector((-0.18, fs(8.0), 1.47)), bus_a + Vector((0.01, -0.06, 0.02)),
-          bus_a + Vector((0.0, -0.004, 0.0))]),
+         [battery_contactor + Vector((0.0, 0.0, 0.022)), Vector((0.10, front - 0.01, 1.455)), Vector((0.10, aft + 0.05, 1.455)), Vector((0.17, fs(9.0), 1.43)), bus_b + Vector((-0.004, -0.06, 0.012)),
+          bus_b + Vector((-0.004, -0.004, 0.0))]),            # to the inboard end of the bus bar, which lies behind the breakers on the left of the subpanel
         ("ELECTRICAL.cable_alternator", "Alternator output cable: alternator to the firewall", "كابل خرج المولّد: من المولّد إلى جدار الحريق", "hose_red",
          [alternator + Vector((0.03, 0.118, -0.058)), Vector((0.26, alternator.y + 0.12, 1.39)), Vector((0.42, alternator.y + 0.20, 1.39)), Vector((0.42, battery.y - 0.10, 1.32)),
           Vector((0.40, front - 0.02, 1.32)), Vector((0.40, aft + 0.02, 1.33)), acu + Vector((0.03, 0.0, -0.035))]),
         ("ELECTRICAL.cable_alternator_to_bus", "Cable: alternator control unit to the bus bar", "كابل: من وحدة التحكم بالمولّد إلى قضيب التوزيع", "hose_red",
-         [acu + Vector((-0.03, 0.015, 0.02)), Vector((0.2, fs(6.5), 1.49)), Vector((-0.2, fs(9.5), 1.49)), bus_b + Vector((0.03, -0.07, 0.03)), bus_b + Vector((0.01, -0.004, 0.0))]),
+         [acu + Vector((-0.03, 0.015, 0.02)), Vector((0.345, fs(8.0), 1.40)), bus_a + Vector((-0.004, -0.06, 0.012)), bus_a + Vector((-0.004, -0.004, 0.0))]),      # straight aft, under the tachometer
         ("ELECTRICAL.ground_strap", "Battery ground strap: battery to the airframe", "شريط تأريض البطارية: من البطارية إلى هيكل الطائرة", "hose_black",
          [battery + Vector((0.07, 0.03, 0.205)), battery + Vector((0.07, 0.08, 0.25)), Vector((battery.x + 0.07, front - 0.003, 1.62))]),
     ]
@@ -152,8 +152,11 @@ def build(ctx):
         where_en, where_ar = ("left", "الأيسر") if sx > 0 else ("right", "الأيمن")
         root = lanes.wing_point("wiring", sx, 0.51 / IN)
         start = (bus_a if sx > 0 else bus_b) + Vector((0.0, -0.05, 0.03))
-        corners = [start] + ([Vector((-0.14, start.y - 0.007, 1.452)), Vector((0.06, start.y - 0.007, 1.452))] if sx > 0 else [])            # the left one passes under the radio stack
-        corners += [Vector((sx * 0.44, fs(15.5), 1.50)), SF.side_point(17.5, 47.6, sx, SKIN + 0.012), SF.side_point(22.0, 47.3, sx, SKIN + 0.008),
+        if sx > 0:        # the left one goes out under the tachometer and up behind the small indicators at the edge of the panel
+            corners = [start, Vector((0.445, start.y, start.z + 0.006)), Vector((0.47, fs(15.5), 1.50))]
+        else:             # the right one passes under the radio stack
+            corners = [start, Vector((0.06, start.y - 0.007, 1.44)), Vector((-0.34, start.y - 0.007, 1.44)), Vector((-0.44, fs(15.5), 1.50))]      # and under the bearing of the right control wheel shaft
+        corners += [SF.side_point(17.5, 47.6, sx, SKIN + 0.012), SF.side_point(22.0, 47.3, sx, SKIN + 0.008),
                    SF.side_point(28.0, 47.3, sx, SKIN + 0.008)]
         corners += [SF.post_point("fwd", sx, w, shift=-SF.POST_SHIFT) for w in (47.3, 52.0, 58.0, 66.0)]    # the foremost run in the post
         corners += [root]

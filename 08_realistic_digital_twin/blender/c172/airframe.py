@@ -16,62 +16,10 @@ K_RING = 40          # points around fuselage sections
 K_WING = 72          # points around wing box sections
 K_CTRL = 48          # points around control-surface sections
 
-# Fuselage sections, build frame: FS, half width, WL of the bottom, WL of the top, WL of the widest
-# point (all inches), then the superellipse exponents of the upper and lower half.
-# Status: estimated. Sources, laid under the model (docs/05_shape_reference.md):
-#   belly and cowl deck   photo-profile, confirmed by the 172S side view (within 0.3 in over FS 0-240)
-#   windshield, roof slope, tailcone top, tail end   172S side view
-#   widths                172S top view (20.3 in at the firewall, 21.6 in at the doors, then a straight
-#                         taper of 0.119 in per inch from FS 94 to the tail); POH Fig 6-4 agrees at FS 142
-#   cabin roof            the upper surface of the wing root, which the cabin top is flush with
-# The cabin is slab-sided with a flat belly and tight lower corners; the tailcone is widest near the
-# top and narrows toward a rounded keel. The fuselage ends at the bulkhead that carries the rudder.
-_FUS_IN = [
-    (0.0,   20.30, 19.80, 57.80, 41.0, 2.6, 3.0),
-    (4.0,   20.60, 19.40, 57.80, 40.6, 2.6, 3.2),
-    (8.0,   20.75, 19.00, 57.80, 40.2, 2.6, 3.4),
-    (10.3,  20.80, 18.75, 57.85, 40.0, 2.6, 3.5),     # foot of the windshield
-    (13.0,  21.00, 18.60, 61.60, 40.0, 2.5, 3.6),
-    (16.0,  21.20, 18.30, 64.40, 40.0, 2.8, 3.8),
-    (19.7,  21.40, 17.95, 67.00, 40.0, 3.2, 4.0),
-    (22.5,  21.50, 17.75, 68.60, 40.0, 3.6, 4.0),
-    (25.5,  21.60, 17.55, 69.90, 40.0, 4.2, 4.0),
-    (28.0,  21.60, 17.35, 70.90, 40.0, 5.0, 4.0),
-    (31.0,  21.60, 17.15, 72.20, 40.5, 7.0, 4.0),     # top of the windshield, just behind the wing leading edge
-    (34.0,  21.60, 16.95, 72.60, 41.5, 10.0, 4.0),
-    (37.0,  21.60, 16.90, 72.95, 42.0, 14.0, 4.0),
-    (43.0,  21.60, 16.90, 73.45, 42.0, 14.0, 4.0),
-    (49.0,  21.60, 16.90, 73.30, 42.0, 14.0, 4.0),
-    (55.5,  21.60, 16.95, 72.80, 42.0, 14.0, 4.0),
-    (62.0,  21.60, 17.05, 71.90, 42.0, 14.0, 4.0),
-    (68.5,  21.35, 17.40, 70.85, 42.0, 14.0, 4.0),
-    (75.0,  21.10, 17.75, 69.60, 42.0, 12.0, 4.0),
-    (81.0,  20.75, 18.15, 68.25, 42.0, 10.0, 3.9),
-    (87.5,  20.25, 18.55, 66.60, 42.0, 8.0, 3.7),
-    (93.8,  19.50, 19.00, 64.60, 42.0, 5.5, 3.5),     # wing trailing edge: the rear window slopes down from here ...
-    (97.0,  19.10, 19.20, 62.60, 41.5, 5.0, 3.4),
-    (101.0, 18.60, 19.50, 60.50, 41.0, 4.5, 3.3),
-    (105.0, 18.10, 19.75, 58.40, 40.0, 4.0, 3.2),
-    (109.0, 17.65, 20.00, 56.20, 39.0, 3.6, 3.0),
-    (112.5, 17.25, 20.20, 54.40, 38.0, 3.3, 2.9),
-    (115.5, 16.90, 20.35, 52.80, 37.5, 3.0, 2.8),     # ... to the top of the tailcone
-    (120.0, 16.35, 20.70, 52.00, 38.2, 3.0, 2.5),
-    (130.0, 15.15, 21.30, 51.00, 39.0, 3.0, 2.1),
-    (140.0, 13.95, 21.90, 50.10, 39.5, 3.0, 1.9),
-    (150.0, 12.80, 22.60, 49.30, 39.8, 3.0, 1.8),
-    (165.0, 11.00, 23.45, 47.85, 39.6, 3.0, 1.75),
-    (180.0, 9.20,  24.40, 46.60, 39.5, 3.0, 1.7),
-    (200.0, 6.80,  25.70, 44.60, 38.8, 3.0, 1.7),
-    (215.0, 5.05,  26.65, 43.10, 38.0, 3.0, 1.7),
-    (225.0, 3.85,  27.20, 41.60, 37.0, 2.8, 1.8),
-    (231.5, 3.10,  27.30, 40.60, 36.0, 2.6, 2.0),
-]
-# FS(in) -> half width, z bottom, z top, z of the widest point (m, build frame), n_top, n_bottom
-FUS_TABLE = [(s, w * IN, wl(zb), wl(zt), wl(zc), nt, nb) for s, w, zb, zt, zc, nt, nb in _FUS_IN]
+from .sections import _FUS_IN, FUS_TABLE, FUS_UV_END_FS      # the section tables of the fuselage and the cowl live together
 FUS_STATIONS = [0, 3, 6, 10.3, 12.5, 15, 17.5, 20, 22.5, 25.5, 28, 31, 34, 37, 43, 49, 55.5, 62, 68.5, 75, 81, 87.5,
                 93.8, 96, 99, 102, 105, 108, 111, 113.5, 115.5, 117.5, 121, 127, 135, 145, 160, 180, 200, 215, 225, 231.5]
 FUS_END_FS = FUS_STATIONS[-1]          # the bulkhead that carries the rudder; nothing of the fuselage lies aft of it
-FUS_UV_END_FS = 283                    # texture v = 1 (kept from the first layout so the livery atlas stays valid)
 
 def fus_ring(s, k=K_RING):
     w, zb, zt, zc, nt, nb = interp_pchip(FUS_TABLE, s)
@@ -221,6 +169,8 @@ def build_fuselage(ctx):
         ob = obj_from_bm(name, bm, ctx.col, mat=M["fuselage"])
         add_subsurf(ob, ctx.subsurf)
         add_solidify(ob, thickness)
+        if thickness > 0.01:
+            ob["keep_faces"] = True      # painted skin: thinned out for the low quality level, the stripes waver across its faces
         return ob
 
     def crisp(ob):
@@ -491,8 +441,10 @@ def build_wing(ctx, side):
     xcap = 34.5 * IN
     cap_top = wing_surface_point(xcap, side, 0.25, upper=True)
     bm = new_bm()
-    revolve(bm, [(0.0, 0.0), (0.055, 0.0), (0.055, 0.006), (0.02, 0.008), (0.0, 0.009)], axis="Z", origin=(cap_top.x, cap_top.y, cap_top.z - 0.002), segs=24)
-    cap = obj_from_bm(f"WING_{name}.fuel_cap", bm, ctx.col, pivot=cap_top, mat=M["bare_alu"])
+    # a flush cap 8 cm across with its locking tab lying across it
+    revolve(bm, [(0.0, 0.0), (0.040, 0.0), (0.040, 0.004), (0.036, 0.006), (0.0, 0.006)], axis="Z", origin=(cap_top.x, cap_top.y, cap_top.z - 0.002), segs=24)
+    box(bm, (0.012, 0.052, 0.005), center=(cap_top.x, cap_top.y, cap_top.z + 0.006))
+    cap = obj_from_bm(f"WING_{name}.fuel_cap", bm, ctx.col, pivot=cap_top, mat=M["cast_alu"])
     parent_keep(cap, grp)
     ctx.tag(cap, "FUEL", f"{'Left' if side > 0 else 'Right'} fuel filler cap (21.5 gal tank)", "غطاء خزان الوقود " + ("الأيسر" if side > 0 else "الأيمن"), status="poh", ref="p.1-4, 7-28")
     # navigation light on the leading corner of the tip, strobe light behind it. The strobes are what
@@ -754,11 +706,12 @@ def build_empennage(ctx):
               55.9, 56.4, 57.2, 57.9, 58.6, 59.3, 60.0, 60.9, 61.7, 63.5, 66.6, 70.0, 73.5, 76.5, 80.0, 83.0, 86.0, 89.0, 91.0, 92.5,
               93.5, 94.2, 94.7, 95.0, 95.15]
     rings = [_fin_ring(w, 26) for w in levels]
-    visible0 = 51.6
-    uv_v = [max(0.0, (w - visible0) / (FIN_TIP_WL - visible0)) for w in levels]
+    # texture v runs over the whole height: each texel lies at one place, which the paint is laid from (posmap.py)
+    uv_v = [(w - levels[0]) / (FIN_TIP_WL - levels[0]) for w in levels]
     bm = new_bm()
     loft(bm, rings, close=True, cap_start=True, cap_end=True, uv_v=uv_v)
     fin = obj_from_bm("EMPENNAGE.fin", bm, ctx.col, pivot=(0, fs(215), wl(55)), mat=M["fin"])
+    fin["keep_faces"] = True
     parent_keep(fin, grp)
     ctx.tag(fin, "EMPENNAGE", "Vertical fin with dorsal fin", "المثبت الرأسي مع الزعنفة الظهرية", status="estimated",
             note="Outline from the manufacturer's side view; section thickness estimated")
@@ -769,7 +722,8 @@ def build_empennage(ctx):
     bm = new_bm()
     loft(bm, rr, close=True, cap_start=True, cap_end=True, uv_v=[(w - levels[0]) / (levels[-1] - levels[0]) for w in levels])
     h0 = Vector((0, fs(RUD_HINGE[0][0]), wl(RUD_HINGE[0][1]))); h1 = Vector((0, fs(RUD_HINGE[1][0]), wl(RUD_HINGE[1][1])))
-    rud = obj_from_bm("EMPENNAGE.rudder", bm, ctx.col, pivot=h0, z_axis=(h1 - h0), mat=M["control"])
+    rud = obj_from_bm("EMPENNAGE.rudder", bm, ctx.col, pivot=h0, z_axis=(h1 - h0), mat=M["rudder"])
+    rud["keep_faces"] = True
     parent_keep(rud, grp)
     ctx.tag(rud, "EMPENNAGE", "Rudder", "الدفة", status="estimated", hinge_axis="z", hinge_sign=1, range_deg=[-16, 16], animate="rudder",
             note="Outline and hinge line from the manufacturer's side view")
@@ -783,10 +737,13 @@ def build_empennage(ctx):
     bc_fs = 253.2
     bc_pos = (0, fs(bc_fs), wl(_line(FIN_TOP[0], FIN_TOP[1], bc_fs, 0)) - 0.012)
     bm = new_bm()
-    revolve(bm, [(0.0, 0.0), (0.035, 0.0), (0.035, 0.015), (0.03, 0.04), (0.012, 0.06), (0.0, 0.065)], axis="Z", origin=bc_pos, segs=16)
+    # A red dome 8.4 cm across standing 8 cm above the fin cap. POH Fig 1-1 gives the maximum height with the
+    # flashing beacon installed, so the beacon is part of that dimension (blender/validate_geometry.py).
+    revolve(bm, [(0.0, 0.0), (0.042, 0.0), (0.042, 0.024), (0.038, 0.058), (0.022, 0.085), (0.0, 0.093)], axis="Z", origin=bc_pos, segs=16)
     bc = obj_from_bm("ELECTRICAL.beacon", bm, ctx.col, pivot=bc_pos, mat=M["nav_red"])
     parent_keep(bc, grp)
-    ctx.tag(bc, "ELECTRICAL", "Flashing beacon (fin tip)", "منارة الوميض (قمة المثبت)", status="poh", ref="p.7-27")
+    ctx.tag(bc, "ELECTRICAL", "Flashing beacon (fin tip)", "منارة الوميض (قمة المثبت)", status="poh", ref="p.7-27, Fig 1-1",
+            note="Fitted on the fin tip (POH p.7-27); its size is estimated. The maximum height of POH Fig 1-1 is measured over it")
     # tail tie-down ring under the tailcone
     td_pos = (0, fs(229), fus_surface_z(229, 0.0) + 0.004)
     bm = new_bm()
@@ -860,13 +817,15 @@ def build_details(ctx):
     # ---- cabin interior liner (dark) so windows show a cabin, not the outside through the shell
     y0, y1 = fs(2), fs(116)
     rings = []
-    for s in [2, 6, 10.3, 13, 16, 20, 25, 31, 37, 45, 55, 62, 70, 78, 86, 93.8, 97, 101, 105, 109, 112.5, 116]:
+    liner_stations = [2, 6, 10.3, 13, 16, 20, 25, 31, 37, 45, 55, 62, 70, 78, 86, 93.8, 97, 101, 105, 109, 112.5, 116]
+    for s in liner_stations:
         w, zb, zt, zc, nt, nb = interp_pchip(FUS_TABLE, s)
         rings.append([Vector((x, fs(s), z)) for x, z in superellipse(w - 0.03, zc - zb - 0.03, zt - zc - 0.03, zc, nt, nb, K_RING)])
+    liner_v = [(s - liner_stations[0]) / (liner_stations[-1] - liner_stations[0]) for s in liner_stations]      # texture v runs evenly with the station (textures.liner_set)
     def liner_shell(name):
         bm = new_bm()
-        loft(bm, rings, close=True, cap_start=True, cap_end=True, flip=True)
-        ob = obj_from_bm(name, bm, ctx.col, mat=M["interior_tan"])
+        loft(bm, rings, close=True, cap_start=True, cap_end=True, flip=True, uv_v=liner_v)
+        ob = obj_from_bm(name, bm, ctx.col, mat=M["liner"])      # painted where it lies: carpet low down, tan to the sills, cream above
         add_subsurf(ob, max(1, ctx.subsurf - 1))
         add_solidify(ob, 0.008)
         return ob
@@ -896,7 +855,7 @@ def build_details(ctx):
         rings.append([Vector((half, fs(st), z)), Vector((half * 0.5, fs(st), z + 0.004)), Vector((-half * 0.5, fs(st), z + 0.004)), Vector((-half, fs(st), z)),
                       Vector((-half, fs(st), z + 0.006)), Vector((half, fs(st), z + 0.006))])
     loft(bm, rings, close=True, cap_start=True, cap_end=True)
-    headliner = obj_from_bm("INTERIOR.headliner", bm, ctx.col, mat=M["interior_tan"], smooth=False)
+    headliner = obj_from_bm("INTERIOR.headliner", bm, ctx.col, mat=M["headliner"], smooth=False)
     parent_keep(headliner, ctx.groups["INTERIOR"])
     ctx.tag(headliner, "INTERIOR", "Headliner (cabin ceiling)", "بطانة السقف", status="estimated",
             note="Level with the underside of the wing root; the carry-through spars lie above it")

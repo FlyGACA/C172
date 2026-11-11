@@ -41,21 +41,22 @@ let mode = 'exterior';
 const ui = { strobe: false, parking: false, doors: { L: 0, R: 0 } };      // what the simulation does not hold: the parking brake on the apron, where the doors are going
 
 // ------------------------------------------------------------------ viewer
-const viewer = new Viewer($('viewport'), quality, { test: qs.has('test') });
+const viewer = new Viewer($('viewport'), quality, { test: qs.has('test'), fx: qs.has('fx') ? qs.get('fx') !== '0' : undefined });
 const rigReady = (async () => {
   await viewer.loadEnvironment('assets/hdri/sky.hdr');
   viewer.addGround('assets/textures');
   const root = await viewer.loadModel(QUALITY[quality].file, (f) => { $('loading').querySelector('i').style.width = `${Math.round(f * 100)}%`; });
   const rig = new Rig(root, INSTR, lang);
   rig.buildLabels(lang);
-  viewer.setAO(!qs.has('test'));   // software GL in CI cannot afford the AO pass
-  if (qs.has('test')) $('ao').classList.remove('on');
+  viewer.setAO(true);              // where the level and the renderer afford it: a software renderer (the tests) does not
+  $('ao').classList.toggle('on', viewer.aoEnabled);
   $('loading').classList.add('hide');
   return rig;
 })();
 let rig = null, flight = null, seat = null;
 rigReady.then((r) => {
   rig = r; buildTree(); setMode('exterior', true);
+  viewer.placeStand(new THREE.Box3().setFromObject(rig.part('GEAR.nose_wheel.tyre')).getCenter(new THREE.Vector3()).z);      // the stop bar under the nose wheel
   rig.travel = { elevatorUp: FM.elevatorUpDeg.v, elevatorDown: FM.elevatorDownDeg.v };      // the model's elevator moves as far as the flight model's
   flight = new FlightMode({ viewer, rig, hud: $('fhud'), pad: $('fpad') });
   seat = new FirstPerson({ viewer, rig, host: seatHost, tip: $('fptip'), cabinPitchDeg: FM.groundPitchDeg.v });
@@ -499,9 +500,10 @@ function advance(dt) {
   const key = JSON.stringify(ctx.done || []) + (ctx.magResult ? 'm' : '') + (scenario.lesson ? `${scenario.report(ctx).length}:${Math.floor((ctx.reportClock || 0) / 2)}` : '');
   if (key !== lastStepState) { lastStepState = key; renderScenario(); } else evaluateSteps(scenario, sim, ctx);
 }
-viewer.onFrame.push((dt) => {
-  // in steps of a thirtieth of a second at most: a slow frame or a fast clock must not coarsen the controls
-  if (!paused) for (let left = dt * timeScale; left > 1e-6; left -= 1 / 30) advance(Math.min(1 / 30, left));
+viewer.onFrame.push((dt, elapsed = dt) => {
+  // the simulation keeps time with the clock, in steps of a thirtieth of a second at most: a slow frame or a fast
+  // clock must not coarsen the controls
+  if (!paused) for (let left = elapsed * timeScale; left > 1e-6; left -= 1 / 30) advance(Math.min(1 / 30, left));
   viewer.tickCamera(dt);
   if (explodeAnim) { explodeAnim.t = Math.min(1, explodeAnim.t + dt / 1.6); const k = 1 - Math.pow(1 - explodeAnim.t, 3); const v = explodeAnim.from + (explodeAnim.to - explodeAnim.from) * k; $('explode').value = v; rig && rig.setExplode(v); if (explodeAnim.t >= 1) explodeAnim = null; }
   if (seat && seat.enabled) seat.tick(dt);

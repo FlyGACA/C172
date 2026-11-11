@@ -10,7 +10,7 @@ import bpy
 LODS = {
     "high":   dict(subsurf=2, tex=2048, decimate=None, detail=1),
     "medium": dict(subsurf=1, tex=1024, decimate=None, detail=0),
-    "low":    dict(subsurf=1, tex=512, decimate=0.5, detail=0),
+    "low":    dict(subsurf=1, tex=1024, decimate=0.5, detail=0),
 }
 BLEND_DETAIL = 2
 SHOWN_DETAIL = 1             # parts above this level are hidden in the saved scene until a picture asks for them
@@ -22,7 +22,7 @@ def hide_cutters(ctx):
 
 def apply_decimate(ctx, ratio):
     for ob in ctx.col.objects:
-        if ob.type != "MESH" or ob.get("detail", 0) > 0:      # detail parts are already drawn with few faces
+        if ob.type != "MESH" or ob.get("detail", 0) > 0 or ob.get("keep_faces"):      # detail parts are already drawn with few faces; a marking's texels are its picture
             continue
         m = ob.modifiers.new("decimate", "DECIMATE")
         m.ratio = ratio
@@ -46,7 +46,9 @@ def export_glb(path, draco=True):
         export_texcoords=True, export_normals=True, export_tangents=False, export_animations=False,
         export_lights=False, export_cameras=False, export_skins=False, export_morph=False,
         export_draco_mesh_compression_enable=draco, export_draco_mesh_compression_level=6,
-        export_draco_position_quantization=14, export_draco_normal_quantization=10, export_draco_texcoord_quantization=12,
+        export_draco_position_quantization=14, export_draco_normal_quantization=10, export_draco_texcoord_quantization=14,
+        # the baked shade (c172/ao.py) travels as the vertex colour
+        export_vertex_color="ACTIVE", export_all_vertex_colors=False, export_active_vertex_color_when_no_material=False, export_draco_color_quantization=8,
     )
 
 def _plain(v):

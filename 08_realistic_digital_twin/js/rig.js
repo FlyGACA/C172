@@ -220,7 +220,7 @@ export class Rig {
     const now = new Date();
     const val = {
       ASI: ind.ias, VSI: ind.vsi, TACH: ind.rpm, SUCTION: ind.suction, AMMETER: ind.ammeter, OIL_P: ind.oilP, OIL_T: ind.oilT,
-      FUEL_L: ind.fuelL, FUEL_R: ind.fuelR, OAT: 3,
+      FUEL_L: ind.fuelL, FUEL_R: ind.fuelR,
     };
     for (const n of this.needles) {
       let ang = 0;
@@ -231,7 +231,6 @@ export class Rig {
       else if (n.key === 'TC') ang = (ind.tcFlag ? 0 : ind.tc) * 20;
       else if (n.key === 'CLOCK_H') ang = ((now.getHours() % 12) + now.getMinutes() / 60) * 30;
       else if (n.key === 'CLOCK_M') ang = (now.getMinutes() + now.getSeconds() / 60) * 6;
-      else if (n.key === 'OAT') ang = valueToAngle({ map: [[0, 0], [12, 360]] }, 3.2);
       this._spin(n.obj, ang * D2R);
     }
     const ball = this.parts.get('PANEL.AI.ball');

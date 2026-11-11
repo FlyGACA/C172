@@ -95,6 +95,14 @@ def flat_material(name, rgb, rough=0.6, alpha=1.0):
     return mat
 
 
+PICTURE_SHEETS = ("markings", "panel_placards")     # materials of the sheets that carry paint or lettering (Phase 8: c172/decals.py, cockpit.py)
+
+
+def is_picture_sheet(ob):
+    """Whether a part is a sheet of markings or lettering laid on a surface, not a shape of its own."""
+    return ob.type == "MESH" and any(m is not None and m.name in PICTURE_SHEETS for m in ob.data.materials)
+
+
 def resolve(ids, hidden=False):
     """Mesh objects named in ids, plus everything parented below them. An id is
         a part or group name            "ENGINE.piston_1", "WING_L"
@@ -199,6 +207,13 @@ def setup_scene(spec, quick):
         for ob in bpy.data.objects:
             if ob.type == "MESH" and "detail" in ob and ob.name != GROUND and not ob.get("kit"):      # the hardware kit is shown only when named
                 ob.hide_render = ob.hide_viewport = int(ob["detail"]) > int(spec["detail"])
+    # Markings and panel lettering are sheets that carry a picture, laid a millimetre over the surface they are on.
+    # An ink drawing shows shapes, not paint: left in, each would be drawn as an outlined rectangle. A recipe that
+    # wants them says "markings": true.
+    if not spec.get("markings"):
+        for ob in bpy.data.objects:
+            if is_picture_sheet(ob):
+                ob.hide_render = ob.hide_viewport = True
     for ob in resolve(spec.get("hide", [])):
         ob.hide_render = True
         ob.hide_viewport = True

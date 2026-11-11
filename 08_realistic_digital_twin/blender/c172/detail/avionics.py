@@ -107,8 +107,8 @@ def build_bus(ctx, scene, backs):
         status="poh", ref="p.7-23 to 7-27 (Fig 7-7)", smooth=False, system="ELECTRICAL", note="The avionics power switch connects the avionics bus to the primary bus (POH Figure 7-7); where the bus is mounted is representative")
     switch = scene["PANEL.switch_avionics_master"].matrix_world.translation.copy()
     bm = new_bm()
-    pipe(bm, [Vector((switch.x, switch.y - 0.035, switch.z)), Vector((switch.x - 0.03, y_bus, switch.z + 0.055)), Vector((x_bus + 0.03, y_bus, low + 0.012)), Vector((x_bus + 0.002, y_bus, low + 0.012))],
-         WIRE, bend=0.02)
+    pipe(bm, [Vector((switch.x, switch.y - 0.035, switch.z)), Vector((switch.x, y_bus - 0.012, switch.z)), Vector((switch.x - 0.03, y_bus - 0.012, switch.z + 0.07)),
+              Vector((x_bus + 0.03, y_bus, low + 0.012)), Vector((x_bus + 0.002, y_bus, low + 0.012))], WIRE, bend=0.02)          # forward under the primary bus bar, then up and across to the avionics bus
     add(ctx, "ELECTRICAL.wire_avionics_feed", bm, "SYSTEMS", "Avionics feed wire: from the avionics power switch to the avionics bus", "سلك تغذية الأفيونكس: من مفتاح طاقة الأفيونكس إلى قضيب الأفيونكس", "hose_red",
          status="poh", ref="p.7-23 to 7-27 (Fig 7-7)", system="ELECTRICAL", joins="ELECTRICAL.avionics_bus", note="Route representative")
 

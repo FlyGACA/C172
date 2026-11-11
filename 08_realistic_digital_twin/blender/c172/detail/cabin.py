@@ -267,22 +267,24 @@ def build_baggage(ctx):
 # ----------------------------------------------------------------------------- control lock
 
 def build_control_lock(ctx, scene):
-    shaft = scene["INTERIOR.yoke_shaft_L"].matrix_world.translation.copy()       # on the axis of the pilot's control wheel shaft, at the panel
-    panel_face = scene["PANEL.ignition_switch"].matrix_world.translation.y + 0.018       # aft face of the lower panel
+    shaft = scene["INTERIOR.yoke_shaft_L"].matrix_world.translation.copy()       # on the axis of the pilot's control wheel shaft, at the face of the instrument panel
+    panel_face = shaft.y
+    switch = scene["PANEL.ignition_switch"].matrix_world.translation.copy()
+    lower_face = switch.y + C.LOWER_FACE                                            # aft face of the subpanel
     # ---- the collar of each control wheel shaft on the instrument panel
     bm = new_bm()
     for sx in (1, -1):
         disc(bm, (sx * abs(shaft.x), panel_face + 0.015, shaft.z), Y, 0.021, 0.03, segs=20, bore=0.0135)
-    part(ctx, "PANEL.control_wheel_collars", bm, "PANEL", "INTERIOR", "Shaft collars of the control wheels, on the instrument panel", "طوقا عمودي عجلتي القيادة على لوحة العدادات", "bare_alu",
+    part(ctx, "PANEL.control_wheel_collars", bm, "PANEL", "INTERIOR", "Shaft collars of the control wheels, on the instrument panel", "طوقا عمودي عجلتي القيادة على لوحة العدادات", "black_plastic",
          status="poh", ref="p.7-16", assembly="control_lock", count=2, smooth=True, note="The hole in the top of the pilot's shaft collar takes the control lock (POH p.7-16); form representative")
-    # ---- the lock: a rod through collar and shaft, bent over to a red flag in front of the ignition switch
-    switch = scene["PANEL.ignition_switch"].matrix_world.translation.copy()
+    # ---- the lock: a rod through collar and shaft, bent over and down to a red flag in front of the ignition switch
     y_lock = panel_face + 0.015
-    y_flag = panel_face + 0.024
+    y_flag = lower_face + 0.046                                                   # clear of the key
+    top = shaft.z + 0.050
     bm = new_bm()
-    pipe(bm, [Vector((shaft.x, y_lock, shaft.z - 0.026)), Vector((shaft.x, y_lock, shaft.z + 0.055)), Vector((switch.x - 0.045, y_flag, shaft.z + 0.07)), Vector((switch.x + 0.02, y_flag, shaft.z + 0.07))],
+    pipe(bm, [Vector((shaft.x, y_lock, shaft.z - 0.026)), Vector((shaft.x, y_lock, top)), Vector((switch.x, y_flag, top)), Vector((switch.x, y_flag, switch.z + 0.040))],
          0.0035, bend=0.012)
-    box(bm, (0.08, 0.002, 0.088), center=(switch.x, y_flag, shaft.z + 0.07 - 0.044))
+    box(bm, (0.08, 0.002, 0.088), center=(switch.x, y_flag, switch.z))
     part(ctx, "INTERIOR.control_lock", bm, "INTERIOR", "INTERIOR", "Control lock: a steel rod with a red flag, through the pilot's control wheel shaft and its collar",
          "قفل التحكم: قضيب فولاذي بعلم أحمر، يمر عبر عمود عجلة قيادة الطيار وطوقه", "knob_red", detail=2, status="poh", ref="p.7-16", assembly="control_lock",
          note="Locks the ailerons and the elevator in neutral while the airplane is parked. Its flag, labelled CONTROL LOCK, REMOVE BEFORE STARTING ENGINE, covers the ignition switch "
@@ -295,33 +297,33 @@ def build_control_lock(ctx, scene):
 # ----------------------------------------------------------------------------- on and under the instrument panel
 
 def build_panel_items(ctx, scene):
-    face = scene["PANEL.ignition_switch"].matrix_world.translation.y + 0.018       # aft face of the lower panel
+    face = scene["PANEL.ignition_switch"].matrix_world.translation.y + C.LOWER_FACE       # aft face of the subpanel
 
     def panel(name, bm, en, ar, mat, ref, system="PANEL", group="PANEL", **tags):
         return part(ctx, name, bm, group, system, en, ar, mat, status=tags.pop("status", "poh"), ref=ref, smooth=tags.pop("smooth", True), **tags)
 
     # ---- the two rheostat knobs of the instrument and radio lights
     bm = new_bm()
-    for x in (0.05, -0.05):
-        disc(bm, (x, face + 0.002, 1.345), Y, 0.011, 0.004, segs=16)
-        disc(bm, (x, face + 0.011, 1.345), Y, 0.008, 0.014, segs=14)
+    for x in (-0.037, -0.060):                 # under the throttle, on its right
+        disc(bm, (x, face + 0.002, 1.336), Y, 0.0095, 0.004, segs=16)
+        disc(bm, (x, face + 0.010, 1.336), Y, 0.0070, 0.012, segs=14)
     panel("PANEL.light_rheostats", bm, "Instrument and radio dial light rheostat control knobs (PANEL LT, RADIO LT)", "مقبضا التحكم بشدة إضاءة العدادات وأقراص الراديو (PANEL LT و RADIO LT)", "black_plastic",
           "p.7-7 (Fig 7-2), 7-28", system="ELECTRICAL", assembly="lighting", count=2, note="Two rheostat knobs set the intensity of the instrument panel lighting and of the radio lighting (POH p.7-28); "
                                                                                              "their place on the panel is representative")
     # ---- lighter and map compartment
     bm = new_bm()
-    disc(bm, (-0.155, face + 0.002, 1.352), Y, 0.011, 0.004, segs=16)
-    disc(bm, (-0.155, face + 0.010, 1.352), Y, 0.0085, 0.012, segs=14)
+    disc(bm, (-0.262, face + 0.002, 1.362), Y, 0.011, 0.004, segs=16)
+    disc(bm, (-0.262, face + 0.010, 1.362), Y, 0.0085, 0.012, segs=14)
     panel("PANEL.lighter", bm, "Lighter", "ولاعة", "chrome", "p.7-7 (Fig 7-2)", note="Named in the instrument panel figure; its place on the panel is representative")
     bm = new_bm()
-    box(bm, (0.086, 0.003, 0.074), center=(-0.451, face + 0.0015, 1.364))
-    disc(bm, (-0.416, face + 0.006, 1.364), Y, 0.005, 0.006, segs=10)
+    box(bm, (0.086, 0.003, 0.074), center=(-0.445, face + 0.0015, 1.3775))
+    disc(bm, (-0.410, face + 0.006, 1.3775), Y, 0.005, 0.006, segs=10)
     panel("PANEL.map_compartment", bm, "Map compartment (door)", "حجرة الخرائط (الباب)", "panel_grey", "p.7-7 (Fig 7-2), 7-9", smooth=False,
           note="The right side of the subpanel contains the map compartment (POH p.7-9); size representative")
     # ---- microphone and phone jacks near the lower left corner of the panel
     bm = new_bm()
-    for z in (1.340, 1.363):
-        disc(bm, (0.480, face + 0.003, z), Y, 0.007, 0.006, segs=12, bore=0.003)
+    for z in (1.375, 1.398):
+        disc(bm, (0.485, face + 0.003, z), Y, 0.007, 0.006, segs=12, bore=0.003)
     panel("PANEL.microphone_jacks", bm, "Microphone and phone jacks, near the lower left corner of the instrument panel", "مقبسا الميكروفون والسماعة، قرب الزاوية السفلية اليسرى من لوحة العدادات",
           "chrome", "p.7-7 (Fig 7-2), 7-38", system="AVIONICS", assembly="avionics", count=2, note="The microphone and headset jacks are located near the lower left corner of the instrument panel (POH p.7-38)")
     # ---- hand microphone on its bracket on the pedestal
@@ -345,7 +347,7 @@ def build_panel_items(ctx, scene):
     yoke = scene["INTERIOR.yoke_L"]
     hub = yoke.matrix_world.translation.copy()
     bm = new_bm()
-    box(bm, (0.009, 0.009, 0.014), center=hub + Vector((0.134, 0.086, 0.137)))
+    box(bm, (0.009, 0.007, 0.013), center=hub + Vector((0.171, 0.0325, 0.086)))            # on the aft face of the left grip, under the thumb
     panel("INTERIOR.microphone_switch", bm, "Microphone keying switch, on the left side of the pilot's control wheel", "مفتاح تشغيل الميكروفون، على الجانب الأيسر من عجلة قيادة الطيار", "knob_red",
           "p.7-37, 7-38", system="AVIONICS", group="INTERIOR", assembly="avionics", optional=True, parent=yoke, smooth=False,
           note="Part of the microphone-headset combination: the pilot can transmit without taking a hand from the control wheel (POH p.7-37, 7-38)")

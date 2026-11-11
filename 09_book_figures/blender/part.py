@@ -85,6 +85,8 @@ def command_render(args):
     spec = dict(id=name, resolution=[width, height], samples=args.samples, ground_shadow=False, anchors=[],
                 ink=dict(outer_px=4.2, part_px=2.2, fine_px=1.4), only=chosen_names,
                 camera=dict(type="auto", azimuth_deg=args.azimuth, elevation_deg=args.elevation, fov=args.fov, margin=args.margin))
+    if any(RF.is_picture_sheet(ob) for ob in chosen):   # a marking asked for by name is drawn
+        spec["markings"] = True
     if args.tint:
         spec["highlights"] = [dict(key="part", ids=chosen_names, color=args.tint)]
     if args.grow:

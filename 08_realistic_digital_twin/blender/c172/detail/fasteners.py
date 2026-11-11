@@ -320,11 +320,11 @@ def build_screws(ctx, scene):
 
     # instrument mounting screws: four round each instrument, on the face of the panel
     deps = bpy.context.evaluated_depsgraph_get()
-    for bezel in sorted((ob for ob in scene if ob.name.startswith("PANEL.") and ob.name.endswith(".bezel")), key=lambda ob: ob.name):
+    for bezel in sorted((ob for ob in scene if ob.name.startswith("PANEL.") and ob.name.endswith(".bezel") and not ob.get("no_screws")), key=lambda ob: ob.name):
         corners = [bezel.matrix_world @ Vector(corner) for corner in bezel.evaluated_get(deps).bound_box]
         xs, ys, zs = ([c[i] for c in corners] for i in range(3))
         radius = 0.5 * (max(xs) - min(xs))
-        centre = Vector((0.5 * (max(xs) + min(xs)), min(ys) + 0.0006, 0.5 * (max(zs) + min(zs))))
+        centre = Vector((0.5 * (max(xs) + min(xs)), bezel.matrix_world.translation.y + 0.0006, 0.5 * (max(zs) + min(zs))))      # the rim stands on the face of the panel
         reach = radius * 0.79
         spots = [(centre + Vector((sx * reach, 0, sz * reach)), Y) for sx in (-1, 1) for sz in (-1, 1)]
         instrument = bezel.name.split(".")[1]

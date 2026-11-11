@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { stepDeck, beginFlight, STARTS, readySystems } from './flightdeck.js';
 import { setWind, FM, gearGeometry, cgStation, coefficientTable, propellerBalance } from './flight.js';
 import { createPilot, pilotStep } from './pilot.js';
+import { HAZE } from './sky.js';
 
 export { readySystems };
 const D2R = Math.PI / 180, FT = 0.3048;
@@ -112,7 +113,7 @@ export class FlightMode {
       v.scene.add(this.pivot); this.pivot.add(v.model); v.model.position.copy(this.cgModel).multiplyScalar(-1);
       this.saved = { far: v.camera.far, near: v.camera.near, fov: v.camera.fov, fog: v.scene.fog, maxPolar: v.controls.maxPolarAngle, maxDistance: v.controls.maxDistance, groundVisible: v.ground ? v.ground.visible : true };
       v.camera.far = 45000; v.camera.updateProjectionMatrix();
-      v.scene.fog = new THREE.Fog(0xc3d2e2, 3500, 32000);
+      v.scene.fog = new THREE.Fog(HAZE, 3500, 32000);
       v.controls.maxPolarAngle = Math.PI * 0.97; v.controls.maxDistance = 400;
       if (v.ground) v.ground.visible = false;
       this.world.visible = true;

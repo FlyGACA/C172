@@ -1,0 +1,671 @@
+"""Colour plates for the handbook: Cycles renders of the model on a transparent background, with the
+places of named points of the aircraft in the picture, for handbook/build_plates.mjs to draw on.
+
+    blender -b 08_realistic_digital_twin/models/C172N_realistic.blend \
+        --python 09_book_figures/blender/render_plate.py -- --all            (or --plate <id>, --quick)
+
+Each plate of handbook/plates.json that has a "render" recipe gives handbook/renders/<id>.png and
+handbook/renders/<id>.anchors.json. A recipe works in the build frame of the model (metres; x to the left
+wing, y aft, z up; see 08_realistic_digital_twin/blender/c172/units.py): the aircraft is taken out of its
+attitude on the ground first, so a side view is a view of level flight and the panel stands upright.
+
+    camera   {"view": "side"|"panel"|"eye" ("eye": [point], "look": [x, y, z], "fov": degrees across: a lens at the pilot's eye), "target": [x, y, z] or an anchor spec (a part of the aircraft), "width": metres across the picture,
+              "azimuth": deg, "elevation": deg, "roll": deg, "up": [x, y, z] (the way the top of the picture points, for a view from above)}      side: from the right, nose to the right of the picture;
+                                                      panel: from the cabin, square on to the instrument panel
+    mirror   true: the picture is of the left side, the sun and the fill light come from that side
+    parked   true: the aeroplane stays as it stands on the ground (the default is level flight); force: parts of detail level 1 and 2 to draw anyway
+    props    simple things the model does not have (chocks, plugs, covers), see make_props; ground  {"z": metres or a point}: a plane that catches the shadow
+    show     only these parts are drawn (glob patterns on part names); hide: these are left out. Parts of detail
+             level 1 and 2 (what lies under the skin, fasteners) are never drawn unless "detail": true
+    pitch    {"deg": nose up, "bank": right wing down, "about": [x, y, z]}: the aircraft is turned about that point (level flight: 3 degrees,
+             which brings the fuselage reference line level)
+    panel_window  [x0, x1, z0, z1]: only the openings of the panel inside this window are cut (the other instruments
+                  are not drawn, and their holes would show the cabin behind); panel_extend [up, down] metres: the
+                  panel plate is made taller, so that a picture of a few instruments is all panel
+    pose     what the instruments show: {"ASI": kt, "ALT": ft, "VSI": ft/min, "TACH": rpm, "heading": deg, ...}
+    propeller "disc": the blades give way to a faint disc, as the eye sees a turning propeller; "none": no propeller
+    smooth   [{"parts": [globs], "angle": 35}]: these parts are shaded smooth except across edges sharper than the angle, where a
+             close-up would show the facets of a coarse round part in its highlights (the bezels of the instruments)
+    curves   {name: {"line": [point, ...]} | {"arc": {"centre": point, "axis": [x, y, z], "ref": [x, y, z], "radius": m,
+             "from": deg, "to": deg, "n": 40}}}: 3D curves, projected by the camera into the anchors file, for the plate to draw as an
+             axis, a turning arrow or a track (a point is any anchor spec; "axis" and "ref" are directions in the aircraft's own frame)
+    glow     [{"parts": [globs], "colour": "#RRGGBB", "strength": 30}]: these parts shine in one colour (position lights, a beacon);
+             light "night" lights the scene by the moon
+    tint     [{"parts": [globs], "colour": "#RRGGBB", "emission": 0.3, "glow": "#RRGGBB"}]: these parts are painted one colour (semi-gloss, lit and
+             shaded as the rest, with a little light of its own if "emission" is given), to show which surface a plate is about
+    light    "outdoor" | "cockpit" (the sky, and a light under the roof) | "night" | "panel" | "instrument"
+    opaque   true: the sky and the ground of the world are in the picture (the default is a transparent background)
+    sky      {"zenith": [r, g, b], "horizon": [...], "ground_near": [...], "ground_far": [...]} (linear): a sky and a ground of the recipe's own
+    anchors  {name: [x, y, z] | {"fs": in, "bl": in, "wl": in} | {"part": id, "at": [u, v, w]} |
+              {"from": anchor, "add": [dx, dy, dz]} | {"dial": instrument, "angle": deg, "radius": fraction}}:
+             a point is in the build frame of the aircraft (turned with it by "pitch"); u, v, w are fractions of the
+             part's bounding box along x, y, z; "from"/"add" is an offset in the picture's own frame (z up, whatever
+             the pitch); "dial" is a point on the face of an instrument, angle clockwise from 12 o'clock as the pilot
+             sees it (or "value": a reading of the instrument's scale), radius as a fraction of the dial's radius;
+             {"visible": part, "at": [across, down]} is the vertex of that part which the camera really sees (nothing in front
+             of it) nearest to where `at` points in the part's visible extent in the picture (fractions, 0 to 1; default 0.5, 0.5)
+"""
+import argparse
+import fnmatch
+import json
+import math
+import os
+import sys
+
+import bpy
+from bpy_extras.object_utils import world_to_camera_view
+from mathutils import Matrix, Vector
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(HERE))
+TWIN = os.path.join(ROOT, "08_realistic_digital_twin")
+sys.path.insert(0, os.path.join(TWIN, "blender"))
+from c172 import units as U                              # noqa: E402
+from c172.dials import instrument_specs, value_to_angle  # noqa: E402
+
+PLATES = os.path.join(os.path.dirname(HERE), "handbook")
+sys.path.insert(0, PLATES)
+
+
+def specs_of_the_book():
+    """Instrument data of the model, with the book's own values laid over it (plates.json "dials")."""
+    with open(os.path.join(PLATES, "plates.json"), encoding="utf-8") as f:
+        return instrument_specs(json.load(f).get("dials", {}))
+
+
+def level_the_aircraft():
+    """Undo the attitude at rest that build.py gave the saved scene: back to the build frame."""
+    pivot_y, pivot_z = U.fs(U.GROUND_PIVOT_FS), U.wl(-U.GROUND_DROP_IN)
+    at_rest = (Matrix.Translation((0, pivot_y, 0)) @ Matrix.Rotation(-math.radians(U.GROUND_PITCH_DEG), 4, "X")
+               @ Matrix.Translation((0, -pivot_y, -pivot_z)))
+    undo = at_rest.inverted()
+    for ob in bpy.data.objects:
+        if ob.parent is None:
+            ob.matrix_world = undo @ ob.matrix_world
+    bpy.context.view_layer.update()
+
+
+PITCH = Matrix.Identity(4)           # what "pitch" did to the aircraft: points given in its own frame are turned the same way
+ANCHORS = {}
+
+
+def turn_aircraft(deg, about, bank=0.0):
+    """Nose up by deg and the right wing down by bank, about a point (build frame): every root object, so the cutters stay where they were."""
+    global PITCH
+    about = Vector(about)
+    PITCH = Matrix.Translation(about) @ Matrix.Rotation(-math.radians(deg), 4, "X") @ Matrix.Rotation(-math.radians(bank), 4, "Y") @ Matrix.Translation(-about)
+    for ob in bpy.data.objects:
+        if ob.parent is None:
+            ob.matrix_world = PITCH @ ob.matrix_world
+    bpy.context.view_layer.update()
+
+
+def dial_point(spec):
+    """A point on the face of an instrument, in the build frame (before the pitch)."""
+    face = bpy.data.objects[f"PANEL.{spec['dial']}.face"] if f"PANEL.{spec['dial']}.face" in bpy.data.objects else bpy.data.objects[f"PANEL.{spec['dial']}.bezel"]
+    centre = face.matrix_world.translation.copy()
+    bezel = bpy.data.objects[f"PANEL.{spec['dial']}.bezel"]
+    deps = bpy.context.evaluated_depsgraph_get()
+    corners = [bezel.evaluated_get(deps).matrix_world @ Vector(c) for c in bezel.evaluated_get(deps).bound_box]
+    radius = 0.5 * (max(c.x for c in corners) - min(c.x for c in corners)) - 0.007            # the dial: inside the moulded rim
+    angle = value_to_angle(specs_of_the_book()[spec["dial"]], spec["value"]) if "value" in spec else spec["angle"]     # "value": a reading of the scale
+    a = math.radians(angle); rho = radius * 0.984 * spec.get("radius", 1.0)                   # the drawn dial stops at 0.984 of the opening
+    return Vector((centre.x - rho * math.sin(a), centre.y, centre.z + rho * math.cos(a)))
+
+
+CAMERA = None                        # the plate's camera, set before the anchors are worked out
+TARGET = Vector((0, 0, 0))          # the point the camera looks at (a recipe may name it by a part of the aircraft)
+
+
+def visible_point(spec):
+    """The vertex of a part that the camera really sees (a ray from the camera reaches it first), nearest to where
+    spec["at"] points in the visible extent of the part in the picture: a callout never lands on a hidden surface."""
+    sc = bpy.context.scene
+    deps = bpy.context.evaluated_depsgraph_get()
+    ob = bpy.data.objects[spec["visible"]]
+    ev = ob.evaluated_get(deps)
+    mesh = ev.to_mesh()
+    forward = CAMERA.matrix_world.to_quaternion() @ Vector((0.0, 0.0, -1.0))          # the camera is orthographic
+    seen = []
+    for index in range(0, len(mesh.vertices), max(1, len(mesh.vertices) // 4000)):
+        world = ev.matrix_world @ mesh.vertices[index].co
+        ndc = world_to_camera_view(sc, CAMERA, world)
+        if not (0.0 <= ndc.x <= 1.0 and 0.0 <= ndc.y <= 1.0 and ndc.z > 0.0):
+            continue
+        origin, travelled, hit_ob = world - forward * ndc.z, 0.0, None
+        while travelled < ndc.z + 0.05:
+            hit, location, _n, _i, hit_ob, _m = sc.ray_cast(deps, origin, forward, distance=ndc.z + 0.05 - travelled)
+            if not hit or not (hit_ob.hide_render or hit_ob.name.startswith("_")):            # parts left out of the picture do not hide anything
+                break
+            travelled += (location - origin).length + 1e-4
+            origin = location + forward * 1e-4
+        if hit and (hit_ob.name == ob.name or (location - world).length < 0.012):
+            seen.append((ndc.x, 1.0 - ndc.y, world.copy()))
+    ev.to_mesh_clear()
+    if not seen:
+        raise SystemExit(f"no part of {spec['visible']} is visible in this picture")
+    x0, x1 = min(p[0] for p in seen), max(p[0] for p in seen)
+    y0, y1 = min(p[1] for p in seen), max(p[1] for p in seen)
+    at = spec.get("at", [0.5, 0.5])
+    tx, ty = x0 + (x1 - x0) * at[0], y0 + (y1 - y0) * at[1]
+    aspect = sc.render.resolution_x / sc.render.resolution_y
+    return min(seen, key=lambda p: ((p[0] - tx) * aspect) ** 2 + (p[1] - ty) ** 2)[2]
+
+
+def curve_points(spec):
+    """The 3D points of a curve of a recipe, in the build frame (turned with the aircraft by the pitch)."""
+    if "line" in spec:
+        return [point(p) for p in spec["line"]]
+    a = spec["arc"]
+    centre = point(a["centre"])
+    axis = (PITCH.to_3x3() @ Vector(a["axis"])).normalized()
+    ref = (PITCH.to_3x3() @ Vector(a["ref"])).normalized()
+    n = a.get("n", 40)
+    return [centre + a["radius"] * (Matrix.Rotation(math.radians(a["from"] + (a["to"] - a["from"]) * i / (n - 1)), 3, axis) @ ref) for i in range(n)]
+
+
+def point(spec):
+    """A point of a recipe, in the build frame (turned with the aircraft by the pitch)."""
+    if isinstance(spec, dict) and "from" in spec:
+        return ANCHORS[spec["from"]] + Vector(spec["add"])
+    if isinstance(spec, dict) and "dial" in spec:
+        return dial_point(spec)
+    if isinstance(spec, dict) and "visible" in spec:
+        return visible_point(spec)
+    if isinstance(spec, dict) and "part" in spec:
+        ob = bpy.data.objects[spec["part"]]
+        ev = ob.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        corners = [ev.matrix_world @ Vector(c) for c in ev.bound_box]
+        low = Vector([min(c[i] for c in corners) for i in range(3)]); high = Vector([max(c[i] for c in corners) for i in range(3)])
+        at = spec.get("at", [0.5, 0.5, 0.5])
+        found = Vector([low[i] + (high[i] - low[i]) * at[i] for i in range(3)])
+        return found + PITCH.to_3x3() @ Vector(spec["add"]) if "add" in spec else found       # "add": metres in the aeroplane's own frame
+    if isinstance(spec, dict):
+        return PITCH @ Vector((spec.get("bl", 0.0) * U.IN, U.fs(spec["fs"]), U.wl(spec["wl"])))
+    return PITCH @ Vector(spec)
+
+
+def choose_parts(recipe):
+    show, hide = recipe.get("show"), recipe.get("hide", [])
+    for ob in bpy.data.objects:
+        if ob.type != "MESH":
+            continue
+        if ob.get("detail", 0) > 0 and not recipe.get("detail") and not any(fnmatch.fnmatchcase(ob.name, p) for p in recipe.get("force", [])):
+            ob.hide_render = True
+        if show is not None and not any(fnmatch.fnmatchcase(ob.name, p) for p in show):
+            ob.hide_render = True
+        if any(fnmatch.fnmatchcase(ob.name, p) for p in hide):
+            ob.hide_render = True
+
+
+def trim_panel_openings(window):
+    """Keep only the openings of the panel, and the screws of the instruments, that lie inside window = [x0, x1, z0, z1]."""
+    for name in ("_cut_panel_openings", "PANEL.instrument_screws"):
+        trim_loose_parts(bpy.data.objects.get(name), window)
+
+
+def trim_loose_parts(cutter, window):
+    import bmesh
+    if cutter is None:
+        return
+    bm = bmesh.new(); bm.from_mesh(cutter.data)
+    seen, drop = set(), []
+    for start in bm.verts:
+        if start.index in seen:
+            continue
+        stack, comp = [start], []
+        seen.add(start.index)
+        while stack:
+            v = stack.pop(); comp.append(v)
+            for e in v.link_edges:
+                w = e.other_vert(v)
+                if w.index not in seen:
+                    seen.add(w.index); stack.append(w)
+        centre = sum((cutter.matrix_world @ v.co for v in comp), Vector()) / len(comp)
+        if not (window[0] <= centre.x <= window[1] and window[2] <= centre.z <= window[3]):
+            drop += comp
+    bmesh.ops.delete(bm, geom=drop, context="VERTS")
+    bm.to_mesh(cutter.data); bm.free(); cutter.data.update()
+
+
+def extend_panel(up, down):
+    """Make the panel plate taller: its top edge up by `up` metres, its bottom edge down by `down`. The texture of its
+    two faces is laid again from where each point now lies (the build maps them from x and z in metres, before the cabin
+    was lifted by CABIN_LIFT)."""
+    panel = bpy.data.objects.get("PANEL.upper_panel")
+    if panel is None:
+        return
+    me = panel.data
+    zs = [(panel.matrix_world @ v.co).z for v in me.vertices]
+    mid = 0.5 * (min(zs) + max(zs))
+    inverse = panel.matrix_world.inverted().to_3x3()
+    for v, z in zip(me.vertices, zs):
+        v.co += inverse @ Vector((0.0, 0.0, up if z > mid else -down))
+    me.update()
+    uv = me.uv_layers.active
+    for poly in me.polygons:
+        if abs((panel.matrix_world.to_3x3() @ poly.normal).y) > 0.5:
+            for i in poly.loop_indices:
+                p = panel.matrix_world @ me.vertices[me.loops[i].vertex_index].co
+                uv.data[i].uv = (0.5 + p.x, 0.5 + p.z - 0.10)
+
+
+def finer_panel_grain(factor, strength):
+    """The wrinkle finish is a tile made for the cabin seen from a seat: in a close-up it looks like bark. Finer and
+    flatter."""
+    mat = bpy.data.materials.get("panel_grey")
+    if mat is None or not mat.use_nodes:
+        return
+    for node in mat.node_tree.nodes:
+        if node.type == "MAPPING":
+            scale = node.inputs["Scale"].default_value
+            node.inputs["Scale"].default_value = (scale[0] * factor, scale[1] * factor, 1.0)
+        elif node.type == "NORMAL_MAP":
+            node.inputs["Strength"].default_value = strength
+
+
+def clear_instrument_glass():
+    """Instrument glass as the eye sees it: clear, with the faint reflection of a surface of glass (Fresnel), not the
+    pale veil of the viewer's alpha-blended glass."""
+    mat = bpy.data.materials.new("plate_instrument_glass"); mat.use_nodes = True
+    nt = mat.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    fres = nt.nodes.new("ShaderNodeFresnel"); fres.inputs["IOR"].default_value = 1.45
+    gloss = nt.nodes.new("ShaderNodeBsdfGlossy"); gloss.inputs["Roughness"].default_value = 0.32        # a soft sheen: a mirror would show the edge of a lamp
+    gloss.inputs["Color"].default_value = (0.42, 0.44, 0.47, 1.0)
+    clear = nt.nodes.new("ShaderNodeBsdfTransparent")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(fres.outputs["Fac"], mix.inputs[0]); nt.links.new(clear.outputs[0], mix.inputs[1])
+    nt.links.new(gloss.outputs[0], mix.inputs[2]); nt.links.new(mix.outputs[0], out.inputs["Surface"])
+    for ob in bpy.data.objects:
+        if ob.type == "MESH" and ob.name.startswith("PANEL.") and ob.name.endswith(".glass"):
+            ob.data.materials.clear(); ob.data.materials.append(mat)
+
+
+def smooth(rules):
+    """Shade the named parts smooth except across sharp edges: a round bezel has few facets in the model, and flat shading
+    shows each of them in the highlights of a close-up. (Subdividing it instead would round off the recess of the dial.)"""
+    for rule in rules:
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
+                mesh = ob.data
+                mesh.polygons.foreach_set("use_smooth", [True] * len(mesh.polygons))
+                mesh.set_sharp_from_angle(angle=math.radians(rule.get("angle", 35.0)))
+                mesh.update()
+
+
+def glow(rules):
+    """Parts that give light of their own, in one colour: position lights, a beacon, a landing light, runway lights.
+    [{"parts": [globs], "colour": "#RRGGBB", "strength": 30}]"""
+    for number, rule in enumerate(rules):
+        mat = bpy.data.materials.new(f"_glow_{number}"); mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        bsdf.inputs["Base Color"].default_value = (0.0, 0.0, 0.0, 1.0)
+        bsdf.inputs["Emission Color"].default_value = (*hex_to_linear(rule["colour"]), 1.0)
+        bsdf.inputs["Emission Strength"].default_value = rule.get("strength", 30.0)
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
+                ob.hide_render = False
+                ob.data.materials.clear(); ob.data.materials.append(mat)
+
+
+def make_ground(spec):
+    """A plane that only catches shadows: the picture has the shadow of the aeroplane on the ground and nothing else of it."""
+    z = spec["z"] if not isinstance(spec["z"], dict) else point(spec["z"]).z
+    bpy.ops.mesh.primitive_plane_add(size=spec.get("size", 80.0), location=(0.0, 0.0, z))
+    ob = bpy.context.active_object; ob.name = "_ground"
+    ob.is_shadow_catcher = True
+
+
+def make_props(props):
+    """Simple things the model does not have (chocks, plugs, covers, streamers): {"kind": "box"|"wedge"|"cylinder"|"cone", "at": point, "size": metres,
+    "rot": degrees about x, y, z, "colour": "#RRGGBB"}. A box is [x, y, z]; a wedge [across, along, high] rising toward +y; a cylinder or cone [radius, length]
+    along y. The point is the middle of the base (wedge) or of the thing."""
+    import bmesh
+    for number, spec in enumerate(props):
+        kind, size, loc = spec["kind"], spec["size"], point(spec["at"])
+        mesh = bpy.data.meshes.new(f"_prop{number}"); ob = bpy.data.objects.new(f"_prop{number}", mesh)
+        bpy.context.scene.collection.objects.link(ob)
+        bm = bmesh.new()
+        if kind == "box":
+            bmesh.ops.create_cube(bm, size=1.0); bmesh.ops.scale(bm, vec=Vector(size), verts=bm.verts)
+        elif kind == "wedge":
+            w, l, h = size
+            pts = [(-w / 2, -l / 2, 0), (w / 2, -l / 2, 0), (w / 2, l / 2, 0), (-w / 2, l / 2, 0), (-w / 2, l / 2, h), (w / 2, l / 2, h)]
+            v = [bm.verts.new(p) for p in pts]
+            for face in ((0, 1, 2, 3), (0, 1, 5, 4), (3, 2, 5, 4), (0, 3, 4), (1, 2, 5)):
+                bm.faces.new([v[i] for i in face])
+        elif kind in ("cylinder", "cone"):
+            r, l = size
+            bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=32, radius1=r, radius2=(0.0 if kind == "cone" else r), depth=l)
+            bmesh.ops.rotate(bm, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(90), 3, "X"), verts=bm.verts)      # along y
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        bm.normal_update(); bm.to_mesh(mesh); bm.free()
+        for poly in mesh.polygons:
+            poly.use_smooth = kind in ("cylinder", "cone")
+        mat = bpy.data.materials.new(f"_prop{number}"); mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        bsdf.inputs["Base Color"].default_value = (*hex_to_linear(spec["colour"]), 1.0)
+        bsdf.inputs["Roughness"].default_value = spec.get("roughness", 0.55)
+        mesh.materials.append(mat)
+        rx, ry, rz = (math.radians(a) for a in spec.get("rot", (0, 0, 0)))
+        ob.rotation_euler = (rx, ry, rz)
+        ob.location = loc
+
+
+def hex_to_linear(code):
+    channels = [int(code.lstrip("#")[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+    return tuple(((c + 0.055) / 1.055) ** 2.4 if c > 0.04045 else c / 12.92 for c in channels)
+
+
+def tint(rules):
+    """Paint the parts named by each rule one colour, a semi-gloss paint that the light shades like the rest."""
+    for number, rule in enumerate(rules):
+        mat = bpy.data.materials.new(f"_tint_{number}"); mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        bsdf.inputs["Base Color"].default_value = (*hex_to_linear(rule["colour"]), 1.0)
+        bsdf.inputs["Roughness"].default_value = rule.get("roughness", 0.7)
+        bsdf.inputs["Specular IOR Level"].default_value = rule.get("specular", 0.04)     # matte: a sheen of sun and sky washes the colour out of an upward face
+        if rule.get("emission"):                      # a little light of its own: a shaded face keeps its colour, a sunlit one does not wash out
+            bsdf.inputs["Emission Color"].default_value = (*hex_to_linear(rule.get("glow", rule["colour"])), 1.0)
+            bsdf.inputs["Emission Strength"].default_value = rule["emission"]
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
+                ob.data.materials.clear(); ob.data.materials.append(mat)
+
+
+def pose(readings):
+    """Turn the pointers, the card of the directional indicator and the horizon to the readings given."""
+    specs = specs_of_the_book()
+    alt = readings.get("ALT", 0.0)
+    special = {"ALT_100": (alt % 1000.0) * 0.36, "ALT_1000": (alt % 10000.0) * 0.036, "ALT_10000": alt * 0.0036,
+               "TC": readings.get("turn", 0.0) * 20.0,
+               "CLOCK_H": (readings.get("clock", [10, 10])[0] % 12 + readings.get("clock", [10, 10])[1] / 60.0) * 30.0,
+               "CLOCK_M": readings.get("clock", [10, 10])[1] * 6.0}
+    for ob in bpy.data.objects:
+        kind = ob.get("needle")
+        if not kind:
+            continue
+        if kind in special:
+            angle = special[kind]
+        elif kind in specs and kind in readings:
+            angle = value_to_angle(specs[kind], readings[kind])
+        else:
+            continue
+        ob.rotation_euler = (0.0, -math.radians(angle), 0.0)        # clockwise as the pilot sees it
+    card = bpy.data.objects.get("PANEL.DG.card")
+    if card is not None and "heading" in readings:
+        card.rotation_euler = (0.0, math.radians(readings["heading"]), 0.0)
+    ball = bpy.data.objects.get("PANEL.AI.ball")
+    if ball is not None and ("pitch" in readings or "bank" in readings):
+        ball.rotation_euler = (0.0, math.radians(readings.get("bank", 0.0)), 0.0)
+        ball.location.z -= max(-30.0, min(30.0, readings.get("pitch", 0.0))) * 0.0003       # at 30 degrees the ball still stays behind the bezel
+    bpy.context.view_layer.update()
+
+
+def propeller_disc():
+    """The blades give way to a thin disc that lets most of the light through."""
+    prop = bpy.data.objects.get("POWERPLANT.propeller")
+    if prop is None:
+        return
+    ev = prop.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    corners = [ev.matrix_world @ Vector(c) for c in ev.bound_box]
+    radius = 0.5 * max(max(c.x for c in corners) - min(c.x for c in corners), max(c.z for c in corners) - min(c.z for c in corners))
+    centre = prop.matrix_world.translation.copy()
+    prop.hide_render = True
+    bpy.ops.mesh.primitive_cylinder_add(vertices=96, radius=radius, depth=0.010, location=centre, rotation=(math.radians(90), 0, 0))
+    disc = bpy.context.active_object; disc.name = "_propeller_disc"
+    mat = bpy.data.materials.new("_propeller_disc"); mat.use_nodes = True
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs["Base Color"].default_value = (0.10, 0.10, 0.11, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.5
+    bsdf.inputs["Alpha"].default_value = 0.13
+    disc.data.materials.append(mat)
+    disc.visible_shadow = False
+
+
+def use_textures(folder):
+    """Finer copies of the dial and panel artwork, where a plate looks at an instrument from close by."""
+    if not folder or not os.path.isdir(folder):
+        return
+    for img in bpy.data.images:
+        name = os.path.basename(img.filepath or "")
+        fine = os.path.join(folder, name)
+        if name and os.path.exists(fine):
+            img.filepath = fine
+            img.reload()
+
+
+def area_light(name, location, target, energy, size, colour=(1.0, 0.98, 0.95)):
+    light = bpy.data.lights.new(name, "AREA"); light.energy = energy; light.size = size; light.color = colour
+    ob = bpy.data.objects.new(name, light); bpy.context.scene.collection.objects.link(ob)
+    ob.location = location
+    ob.rotation_euler = (Vector(target) - Vector(location)).to_track_quat("-Z", "Y").to_euler()
+    return ob
+
+
+SUN_ELEVATION = 50.0                 # degrees above the horizon (a recipe may say "sun_elevation")
+MIRROR = False                       # a view from the left of the aeroplane: the light comes from that side too
+SKY = None                           # a recipe's own sky: colours for the zenith, the horizon and the ground (an eye view needs ground below its horizon)
+
+
+def sky_image(spec):
+    """An environment picture: blue overhead, pale at the horizon, a ground colour under it."""
+    import numpy as np
+    key = "_sky"
+    if key in bpy.data.images:
+        return bpy.data.images[key]
+    w, h = 1024, 512
+    elev = ((np.arange(h) + 0.5) / h - 0.5) * 180.0
+    zenith, horizon = np.array(spec["zenith"]), np.array(spec["horizon"])
+    near, far = np.array(spec["ground_near"]), np.array(spec["ground_far"])
+    column = np.zeros((h, 3))
+    for i, e in enumerate(elev):
+        if e >= 0:
+            t = (e / 90.0) ** 0.5
+            column[i] = horizon * (1 - t) + zenith * t
+        else:
+            t = min(1.0, -e / 40.0) ** 0.7
+            column[i] = near * (1 - t) + far * t
+    rgba = np.concatenate([np.repeat(column[:, None, :], w, axis=1), np.ones((h, w, 1))], axis=2).astype(np.float32)
+    img = bpy.data.images.new(key, w, h, alpha=False, float_buffer=True)
+    img.colorspace_settings.name = "Linear Rec.709"
+    img.pixels.foreach_set(rgba.ravel())
+    return img
+
+
+def lights(kind, target):
+    sc = bpy.context.scene
+    world = sc.world or bpy.data.worlds.new("World"); sc.world = world
+    world.use_nodes = True
+    nt = world.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    bg = nt.nodes.new("ShaderNodeBackground"); out = nt.nodes.new("ShaderNodeOutputWorld")
+    nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
+    tx, ty, tz = target
+    if kind in ("outdoor", "cockpit"):
+        env = nt.nodes.new("ShaderNodeTexEnvironment")
+        env.image = sky_image(SKY) if SKY else bpy.data.images.load(os.path.join(TWIN, "assets", "hdri", "sky.hdr"), check_existing=True)
+        nt.links.new(env.outputs["Color"], bg.inputs["Color"]); bg.inputs["Strength"].default_value = 1.0
+        sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 4.0; sun.angle = math.radians(2.0)
+        so = bpy.data.objects.new("sun", sun); sc.collection.objects.link(so)
+        so.rotation_euler = (math.radians(SUN_ELEVATION), 0, math.radians(180 - 215 if MIRROR else 215))          # high, from ahead of the camera's side
+        if kind == "outdoor":
+            area_light("fill", (tx + (14 if MIRROR else -14), ty - 6, tz + 5), target, 900.0, 12.0, (0.92, 0.96, 1.0))     # opens the shade under the wing
+        else:                                                                                           # in the cabin, a light under the roof: the eye sees the panel as well as the sky
+            area_light("cabin", (tx + 0.02, ty - 0.30, tz + 0.30), (tx, ty - 0.55, tz - 0.14), 16.0, 0.7, (1.0, 0.97, 0.92))
+    elif kind == "night":                           # a moonlit apron: dark blue air, a cold light from high up and a little from the side
+        bg.inputs["Color"].default_value = (0.020, 0.032, 0.075, 1.0); bg.inputs["Strength"].default_value = 1.0
+        moon = bpy.data.lights.new("moon", "SUN"); moon.energy = 0.9; moon.angle = math.radians(1.5); moon.color = (0.62, 0.75, 1.0)
+        mo = bpy.data.objects.new("moon", moon); sc.collection.objects.link(mo)
+        mo.rotation_euler = (math.radians(35), 0, math.radians(215))
+        area_light("fill", (tx - 10, ty - 6, tz + 6), target, 260.0, 12.0, (0.55, 0.68, 1.0))
+    else:
+        bg.inputs["Color"].default_value = (0.55, 0.60, 0.68, 1.0); bg.inputs["Strength"].default_value = 0.22 if kind == "panel" else 0.30
+        reach = 0.55 if kind == "panel" else 0.42
+        area_light("key", (tx + 0.10, ty + reach, tz + reach * 0.85), target, 9.0 if kind == "panel" else 5.0, 0.55)
+        area_light("fill", (tx + 0.28, ty + reach * 0.9, tz - 0.08), target, 2.2 if kind == "panel" else 1.4, 0.5, (0.90, 0.95, 1.0))
+
+
+def camera(recipe, size):
+    cam = bpy.data.cameras.new("plate"); ob = bpy.data.objects.new("plate", cam)
+    bpy.context.scene.collection.objects.link(ob); bpy.context.scene.camera = ob
+    spec = recipe["camera"]
+    global TARGET
+    if "target" not in spec:
+        spec["target"] = spec["eye"]                       # (an eye view: the light looks at the eye)
+    target = point(spec["target"]) if isinstance(spec["target"], dict) else Vector(spec["target"])        # a point of the aircraft (an instrument, a part) or a place in metres
+    TARGET = target.copy()
+    cam.type = "ORTHO"; cam.ortho_scale = spec.get("width", 1.0); cam.clip_start = 0.01; cam.clip_end = 200.0
+    az, el = math.radians(spec.get("azimuth", 0.0)), math.radians(spec.get("elevation", 0.0))
+    if spec["view"] == "eye":           # from a place in the aeroplane (the pilot's eye), looking along it: a lens, not a parallel view
+        cam.type = "PERSP"; cam.sensor_fit = "HORIZONTAL"; cam.angle = math.radians(spec.get("fov", 65.0)); cam.clip_start = 0.02; cam.clip_end = 400.0
+        ob.location = point(spec["eye"])
+        forward = (PITCH.to_3x3() @ Vector(spec.get("look", [0.0, -1.0, 0.0]))).normalized()
+        up = PITCH.to_3x3() @ Vector((0.0, 0.0, 1.0))
+        right = forward.cross(up).normalized()
+        ob.rotation_euler = Matrix((right, right.cross(forward), -forward)).transposed().to_euler()
+        return ob
+    if spec["view"] == "side":          # from the right of the aircraft: azimuth swings the camera toward the nose
+        away = Vector((-math.cos(el) * math.cos(az), -math.cos(el) * math.sin(az), math.sin(el)))
+        distance = 40.0
+    else:                               # from the cabin, looking forward at the panel
+        away = Vector((math.cos(el) * math.sin(az), math.cos(el) * math.cos(az), math.sin(el)))
+        distance = spec.get("distance", 0.20)
+    ob.location = target + away * distance
+    if spec.get("up"):                                          # a view from straight above has no up of its own: say which way the top of the picture points
+        back = away.normalized()
+        right = Vector(spec["up"]).cross(back).normalized()
+        ob.rotation_euler = Matrix((right, back.cross(right), back)).transposed().to_euler()
+    else:
+        ob.rotation_euler = (-away).to_track_quat("-Z", "Y").to_euler()
+    if spec.get("roll"):                                       # turn the picture about the line of sight (a plan view with the nose up)
+        ob.rotation_euler.rotate_axis("Z", math.radians(spec["roll"]))
+    return ob
+
+
+def render(plate, quick, textures, anchors_only=False):
+    """plate = {"id": ..., "render": recipe}: one picture (a plate, or one layer of a composite plate)."""
+    global PITCH
+    bpy.ops.wm.revert_mainfile()
+    PITCH = Matrix.Identity(4); ANCHORS.clear()
+    recipe = plate["render"]
+    global SKY, MIRROR, SUN_ELEVATION
+    SKY = recipe.get("sky")
+    SUN_ELEVATION = float(recipe.get("sun_elevation", 50.0))
+    MIRROR = bool(recipe.get("mirror"))
+    sc = bpy.context.scene
+    if not recipe.get("parked"):                  # (a parked aeroplane stays as it stands on its wheels: nose wheel and mainwheels on the ground)
+        level_the_aircraft()
+    choose_parts(recipe)
+    if recipe.get("panel_window"):
+        trim_panel_openings(recipe["panel_window"])
+    if recipe.get("panel_extend"):
+        extend_panel(*recipe["panel_extend"])
+    if recipe.get("panel_grain"):
+        finer_panel_grain(*recipe["panel_grain"])
+    if recipe.get("instrument_glass") == "clear":
+        clear_instrument_glass()
+    if recipe.get("tint"):
+        tint(recipe["tint"])
+    if recipe.get("glow"):
+        glow(recipe["glow"])
+    if recipe.get("smooth"):
+        smooth(recipe["smooth"])
+    if recipe.get("props"):
+        make_props(recipe["props"])
+    if recipe.get("ground"):
+        make_ground(recipe["ground"])
+    if recipe.get("pitch"):
+        turn_aircraft(recipe["pitch"]["deg"], recipe["pitch"]["about"], recipe["pitch"].get("bank", 0.0))
+    if recipe.get("pose"):
+        pose(recipe["pose"])
+    prop = recipe.get("propeller")
+    if prop == "disc":
+        propeller_disc()
+    elif prop == "none":                                     # a view from behind: the propeller is at the far end and its disc would only dull the picture
+        blade = bpy.data.objects.get("POWERPLANT.propeller")
+        if blade is not None:
+            blade.hide_render = True
+    elif isinstance(prop, dict) and "turn" in prop:         # the blades stopped at an angle: seen from the side they are then a blade, not a stub
+        blade = bpy.data.objects.get("POWERPLANT.propeller")
+        if blade is not None:
+            blade.rotation_mode = "XYZ"
+            blade.rotation_euler = (0.0, math.radians(prop["turn"]), 0.0) if blade.parent is None else blade.rotation_euler
+            if blade.parent is not None:
+                blade.matrix_world = Matrix.Translation(blade.matrix_world.translation) @ Matrix.Rotation(math.radians(prop["turn"]), 4, "Y") @ blade.matrix_world.to_3x3().to_4x4()
+            bpy.context.view_layer.update()
+    if recipe.get("fine_textures"):
+        use_textures(textures)
+    width, height = recipe.get("size", [1920, 1080])
+    cam = camera(recipe, (width, height))
+    global CAMERA
+    CAMERA = cam
+    lights(recipe.get("light", "outdoor"), tuple(TARGET))
+    sc.render.engine = "CYCLES"
+    sc.cycles.samples = 24 if quick else recipe.get("samples", 128)
+    sc.cycles.use_denoising = True
+    sc.cycles.max_bounces = 6
+    sc.render.resolution_x, sc.render.resolution_y = (width // 2, height // 2) if quick else (width, height)
+    sc.render.resolution_percentage = 100
+    sc.render.film_transparent = not recipe.get("opaque", False)          # (an eye view shows the sky: the world is part of the picture)
+    sc.render.image_settings.file_format = "PNG"; sc.render.image_settings.color_mode = "RGBA"
+    sc.view_settings.view_transform = "AgX"; sc.view_settings.look = recipe.get("look", "AgX - Medium High Contrast")
+    sc.view_settings.exposure = recipe.get("exposure", 0.0)
+    out = os.path.join(PLATES, "renders")
+    os.makedirs(out, exist_ok=True)
+    sc.render.filepath = os.path.join(out, plate["id"] + ".png")
+    bpy.context.view_layer.update()
+    if not anchors_only:
+        bpy.ops.render.render(write_still=True)
+    anchors, curves = {}, {}
+    for name, spec in recipe.get("anchors", {}).items():
+        ANCHORS[name] = point(spec)
+        u, v, depth = world_to_camera_view(sc, cam, ANCHORS[name])
+        anchors[name] = [round(u, 5), round(1.0 - v, 5)]                 # fractions of the picture, from its top left
+    for name, spec in recipe.get("curves", {}).items():
+        curves[name] = []
+        for q in curve_points(spec):
+            u, v, depth = world_to_camera_view(sc, cam, q)
+            curves[name].append([round(u, 5), round(1.0 - v, 5)])
+    with open(os.path.join(out, plate["id"] + ".anchors.json"), "w", encoding="utf-8") as f:
+        json.dump({"id": plate["id"], "size": [width, height], "anchors": anchors, "curves": curves}, f, indent=1)
+        f.write("\n")
+    print("plate", plate["id"], "anchors only" if anchors_only else "rendered", "(quick)" if quick else "")
+
+
+def jobs_of(spec):
+    """Every picture to render: a plate with a render recipe, or each layer of a composite plate that has one."""
+    jobs = []
+    for p in spec["plates"]:
+        if "layers" in p:
+            jobs += [{"id": f"{p['id']}__{layer['name']}", "render": layer["render"]} for layer in p["layers"] if "render" in layer]
+        elif "render" in p:
+            jobs.append({"id": p["id"], "render": p["render"]})
+    jobs += [{"id": sprite["id"], "render": sprite["render"]} for sprite in spec.get("sprites", [])]
+    return jobs
+
+
+def main():
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--plate", default=None, help="a plate id, or several separated by commas (a composite plate: all its layers, or plate__layer)")
+    ap.add_argument("--all", action="store_true")
+    ap.add_argument("--quick", action="store_true", help="half size and few samples, for choosing a camera")
+    ap.add_argument("--anchors-only", action="store_true", help="work out the anchors and curves again without rendering")
+    ap.add_argument("--textures", default=os.path.join(PLATES, "cache"), help="folder with finer dials.png and panel_misc.png (handbook/fine_textures.py)")
+    a = ap.parse_args(argv)
+    import plates_spec
+    jobs = jobs_of(plates_spec.load())
+    wanted = [w for w in (a.plate or "").split(",") if w]
+    chosen = jobs if a.all else [j for j in jobs if j["id"] in wanted or j["id"].split("__")[0] in wanted]
+    if not chosen:
+        raise SystemExit(f"no plate to render: {a.plate!r} (pictures with a render recipe: {[j['id'] for j in jobs]})")
+    for job in chosen:
+        render(job, a.quick, a.textures, a.anchors_only)
+
+
+main()

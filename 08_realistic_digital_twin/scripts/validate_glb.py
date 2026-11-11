@@ -7,8 +7,9 @@ import struct
 import sys
 import os
 
-BUDGET_MB = {"high": 25, "medium": 12, "low": 5}
-TRI_BUDGET = {"high": 600_000, "medium": 250_000, "low": 100_000}
+BUDGET_MB = {"high": 25, "medium": 12, "low": 6}
+# the low level keeps every face of the painted skins and of the propeller (a stripe wavers across thinned-out faces)
+TRI_BUDGET = {"high": 600_000, "medium": 250_000, "low": 150_000}
 
 def read_glb(path):
     with open(path, "rb") as f:

@@ -37,6 +37,8 @@ jobs:
           python 08_realistic_digital_twin/scripts/quality_gate.py
       - name: Book figures — ink-line rules (numpy only)
         run: python 09_book_figures/tests/test_ink.py
+      - name: "Book figures — handbook plates (the book's rules for artwork: numbered callouts, no words)"
+        run: python 09_book_figures/tests/test_plates.py
 
       - name: Verify release archive and checksums
         run: python -m unittest discover -s tests -v
@@ -89,6 +91,8 @@ jobs:
       - name: Regenerate textures and rebuild the model (all quality levels)
         run: |
           sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libsm6 > /dev/null
+          # where each texel of the painted skins lies (read off the built surfaces), then the textures, then the model
+          "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b --python 08_realistic_digital_twin/blender/posmaps.py
           cd 08_realistic_digital_twin/blender && python -m c172.textures ../assets && cd ../..
           "$(08_realistic_digital_twin/scripts/get_blender.sh)" -b --python 08_realistic_digital_twin/blender/build.py -- --lod all --skip-textures --out /tmp/p8models
       - name: Compare the rebuilt model with the committed one

@@ -9,26 +9,14 @@ from .shapes import (parent_keep, new_bm, loft, revolve, tube, box, bezier, obj_
 from .profiles import interp_pchip
 from .airframe import K_RING, FUS_TABLE
 
-# FS -> half width, z bottom, z top, ring centre z, n_top, n_bottom   (build frame). Status: estimated.
-# Top and bottom lines follow the photo-profile side elevation: an almost straight top falling 6 in
-# from the firewall to the nose, and an underside that sweeps up from the firewall to the spinner.
-# The section is widest at crank height with square shoulders, to clear the cylinder heads; the widths
-# follow the plan view of the manufacturer's three-view (20.3 in half width at the firewall).
-COWL_TABLE = [
-    (-33.6, 0.335, 1.468, 1.726, 1.612, 2.6, 2.0),
-    (-32,   0.385, 1.405, 1.734, 1.610, 3.0, 2.0),
-    (-30,   0.426, 1.330, 1.742, 1.608, 3.6, 2.0),
-    (-27,   0.446, 1.205, 1.760, 1.605, 4.4, 2.05),
-    (-23,   0.460, 1.075, 1.783, 1.600, 4.6, 2.2),
-    (-19,   0.474, 0.988, 1.795, 1.590, 4.6, 2.4),
-    (-10,   0.498, 0.913, 1.823, 1.540, 3.8, 2.7),
-    (-4,    0.510, 0.890, 1.836, 1.470, 3.0, 2.9),
-    FUS_TABLE[0],                 # the cowl meets the fuselage section at the firewall exactly
-]
-COWL_STATIONS = [-33.6, -33, -32, -30.5, -28.5, -26, -23, -19.5, -15, -10, -5, 0]
-NOSE_Y = fs(-34.3)
+from .sections import COWL_TABLE, COWL_STATIONS, NOSE_FS, NOSE_MID_FS, NOSE_INNER, NOSE_MID, cowl_uv_v
+NOSE_Y = fs(NOSE_FS)
 SPINNER_R = 0.115                       # 9 in spinner (estimated)
 SPINNER_BASE_FS = -34.6
+# The propeller disc stands in the forward two thirds of the spinner, clear of the nose bowl: the blades leave the
+# spinner through its side, and their trailing edges pass 5 cm ahead of the cowl (estimated from ramp photographs).
+PROP_PLANE_FS = -38.6
+TIP_BAND = 0.916           # the warning band at each tip begins at this part of the radius
 # Openings in the chin of the nose cap, both on the centreline (ramp photograph of a 1970s 172):
 INLET = dict(x=0.222, z=U.PROP_Z + 0.012, w=0.205, h=0.112)      # cooling-air inlets either side of the spinner
 LIGHT = dict(z=U.PROP_Z - 0.275, r=0.057)                        # single landing light below the spinner (POH p.7-27)
@@ -82,11 +70,11 @@ def build_cowl(ctx):
     centre = Vector((0, 0, U.PROP_Z))
     def toward_axis(p, f, y):
         return Vector((centre.x + (p.x - centre.x) * f, y, centre.z + (p.z - centre.z) * f))
-    inner = [toward_axis(p, 0.40, NOSE_Y) for p in front]
-    mid = [toward_axis(p, 0.74, fs(-34.15)) for p in front]
+    inner = [toward_axis(p, NOSE_INNER, NOSE_Y) for p in front]
+    mid = [toward_axis(p, NOSE_MID, fs(NOSE_MID_FS)) for p in front]
     all_rings = [inner, mid] + rings
     nvs = len(all_rings)
-    uv_v = [0.0, 0.03] + [0.06 + 0.94 * (s - COWL_STATIONS[0]) / (0 - COWL_STATIONS[0]) for s in COWL_STATIONS]
+    uv_v = cowl_uv_v()
     q = k // 4
     def half(name, idx, label_en, label_ar, y_pivot):
         rr = [[r[i % k] for i in idx] for r in all_rings]
@@ -97,6 +85,7 @@ def build_cowl(ctx):
         ob = obj_from_bm(name, bm, ctx.col, pivot=(0, fs(0), y_pivot), mat=M["cowl"])
         # keep the four corners of each half where they are, or the halves part at both ends of the side seam
         add_subsurf(ob, ctx.subsurf).boundary_smooth = "PRESERVE_CORNERS"
+        ob["keep_faces"] = True          # painted skin: see airframe.build_fuselage
         return ob
     upper = half("POWERPLANT.cowl_upper", list(range(q, 3 * q + 1)), "Upper cowl (removable)", "غطاء المحرك العلوي", COWL_TABLE[-1][3])
     lower = half("POWERPLANT.cowl_lower", list(range(3 * q, 5 * q + 1)), "Lower cowl", "غطاء المحرك السفلي", COWL_TABLE[-1][2])
@@ -166,7 +155,7 @@ def build_cowl(ctx):
 def build_spinner_prop(ctx):
     M = ctx.mats
     grp = ctx.groups["POWERPLANT"]
-    hub = Vector((0, fs(-36.4), U.PROP_Z))
+    hub = Vector((0, fs(PROP_PLANE_FS), U.PROP_Z))
     # spinner (pointed ogive) with backplate
     prof = []
     n = 16
@@ -177,7 +166,7 @@ def build_spinner_prop(ctx):
     prof.append((SPINNER_R, base_y))
     bm = new_bm()
     revolve(bm, prof, axis="Y", origin=(0, 0, U.PROP_Z), segs=40, cap_start=False, cap_end=False)
-    sp = obj_from_bm("POWERPLANT.spinner", bm, ctx.col, pivot=hub, mat=M["paint_white"])
+    sp = obj_from_bm("POWERPLANT.spinner", bm, ctx.col, pivot=hub, mat=M["paint_navy"])
     add_subsurf(sp, 1)
     _link(sp, grp)
     ctx.tag(sp, "POWERPLANT", "Spinner", "القمع الأمامي (السبينر)", status="estimated", spin_axis="y", spin_sign=-1, animate="prop")
@@ -188,20 +177,21 @@ def build_spinner_prop(ctx):
     ctx.tag(bp, "POWERPLANT", "Spinner backplate", "صفيحة القمع الخلفية", status="estimated")
     # propeller: two blades, pivot on the crank axis
     bm = new_bm()
-    af = naca4("4412", 24)
     def blade(sign):
         rings = []
         R = U.PROP_R
-        stations = [0.06, 0.09, 0.13, 0.19, 0.27, 0.36, 0.46, 0.56, 0.66, 0.76, 0.85, 0.92, 0.97, 1.0]
+        stations = [0.07, 0.10, 0.14, 0.20, 0.28, 0.37, 0.47, 0.57, 0.67, 0.77, 0.85, TIP_BAND, 0.965, 1.0]      # a ring where the tip band begins
         for rt in stations:
             r = R * rt
-            if rt < 0.12:
-                c = 0.085; prof = resample_loop(ellipse(0.5, 0.42, 24), 24); beta = math.radians(58)
+            if rt < 0.13:
+                # the shank: nearly round where it leaves the hub
+                c = 0.080; prof = resample_loop(ellipse(0.5, 0.40, 24), 24); beta = math.radians(60)
                 prof = [(x + 0.5, y) for x, y in prof]
             else:
-                c = interp_table([(0.12, 0.085), (0.3, 0.135), (0.5, 0.14), (0.75, 0.125), (0.92, 0.095), (1.0, 0.028)], rt)[0]
-                beta = math.radians(interp_table([(0.12, 52), (0.3, 36), (0.5, 26), (0.75, 18), (1.0, 13)], rt)[0])
-                thick = interp_table([(0.12, 0.20), (0.3, 0.10), (0.6, 0.07), (1.0, 0.05)], rt)[0]
+                # widest a little beyond half the radius, then a long taper to a rounded tip
+                c = interp_table([(0.13, 0.082), (0.28, 0.112), (0.45, 0.128), (0.62, 0.130), (0.78, 0.116), (0.90, 0.094), (0.96, 0.072), (1.0, 0.034)], rt)[0]
+                beta = math.radians(interp_table([(0.13, 54), (0.3, 37), (0.5, 26), (0.75, 18), (1.0, 13)], rt)[0])
+                thick = interp_table([(0.13, 0.22), (0.3, 0.11), (0.6, 0.07), (1.0, 0.045)], rt)[0]
                 base = naca4("44%02d" % int(round(thick * 100)), 24)
                 prof = resample_loop(base, 24)
             ec = Vector((0, math.sin(beta), math.cos(beta)))       # chord LE->TE (TE aft & up for the +x blade)
@@ -213,22 +203,26 @@ def build_spinner_prop(ctx):
             rings.append([hub + p for p in ring])
         loft(bm, rings, close=True, cap_start=True, cap_end=True, flip=(sign < 0))
     blade(1); blade(-1)
-    # hub barrel
-    revolve(bm, [(0.0, fs(-38.2)), (0.07, fs(-38.2)), (0.07, fs(-34.8)), (0.0, fs(-34.8))], axis="Y", origin=(0, 0, U.PROP_Z), segs=24)
+    # hub barrel: back to the crankshaft flange, which stands where it did (the barrel is the spacer between them)
+    revolve(bm, [(0.0, fs(PROP_PLANE_FS - 1.8)), (0.07, fs(PROP_PLANE_FS - 1.8)), (0.07, fs(-34.8)), (0.0, fs(-34.8))], axis="Y", origin=(0, 0, U.PROP_Z), segs=24)
     prop = obj_from_bm("POWERPLANT.propeller", bm, ctx.col, pivot=hub, mat=M["prop_black"])
-    # painted tips (yellow) on the outer 12 % of each blade, polished hub
-    prop.data.materials.append(M["prop_tip"]); prop.data.materials.append(M["bare_alu"])
+    # The face the pilot sees is flat black against glare, the forward face black with a sheen, each tip
+    # carries a warning band 8 cm wide, and the hub is bare metal.
+    prop.data.materials.append(M["prop_tip"]); prop.data.materials.append(M["bare_alu"]); prop.data.materials.append(M["prop_face"])
     R = U.PROP_R
     for poly in prop.data.polygons:
         xs = [abs(prop.data.vertices[v].co.x) for v in poly.vertices]
-        if max(xs) > 0.88 * R:
+        if min(xs) > (TIP_BAND - 0.002) * R:
             poly.material_index = 1
-        elif max(xs) < 0.08:
+        elif max(xs) < 0.075:
             poly.material_index = 2
+        elif poly.normal.y < -0.15:
+            poly.material_index = 3
     add_subsurf(prop, 1)
+    prop["keep_faces"] = True            # the low quality level keeps every face: thinned out, the edge of the tip band wavers
     parent_keep(prop, sp)
     ctx.tag(prop, "POWERPLANT", "McCauley two-blade fixed-pitch propeller, 75 in", "مروحة ماكولي ثابتة الخطوة ذات شفرتين", status="poh", ref="p.1-3", spin_axis="y", spin_sign=-1, animate="prop",
-            note="Blade planform, twist and airfoil are illustrative")
+            note="Blade planform, twist and airfoil are illustrative; the disc stands in the spinner, ahead of the nose bowl")
     # exhaust tailpipe: from the right end of the muffler, out through the lower cowl just ahead of the firewall,
     # pointing down, aft and slightly outboard
     ex_x = -0.16

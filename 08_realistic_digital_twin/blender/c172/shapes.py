@@ -15,7 +15,9 @@ def new_bm():
 
 def loft(bm, rings, close=True, cap_start=False, cap_end=False, uv_u_scale=1.0, uv_v=None, flip=False, uv_u_offset=0.0):
     """Connect successive rings (lists of Vector) with quads. Rings must have equal length.
-    Adds UVs: u around the ring (offset + scale * position), v along the loft. Returns the created faces."""
+    Adds UVs: u around the ring (offset + scale * position), v along the loft. Returns the created faces.
+    The end caps take their texture coordinates one whole texture up (v + 1): the texture repeats, so they show
+    the same texels as before, and what lies between v = 0 and v = 1 is the lofted skin alone (posmap.py)."""
     uv = bm.loops.layers.uv.active
     k = len(rings[0]); m = len(rings)
     verts = [[bm.verts.new(p) for p in ring] for ring in rings]
@@ -44,11 +46,11 @@ def loft(bm, rings, close=True, cap_start=False, cap_end=False, uv_u_scale=1.0, 
     if cap_start:
         f = bm.faces.new(list(reversed(verts[0])) if not flip else verts[0]); f.smooth = False; faces.append(f)
         for l in f.loops:
-            l[uv].uv = (0.5 + 0.1 * l.vert.co.x, 0.5 + 0.1 * l.vert.co.z)
+            l[uv].uv = (0.5 + 0.1 * l.vert.co.x, 1.5 + 0.1 * l.vert.co.z)
     if cap_end:
         f = bm.faces.new(verts[-1] if not flip else list(reversed(verts[-1]))); f.smooth = False; faces.append(f)
         for l in f.loops:
-            l[uv].uv = (0.5 + 0.1 * l.vert.co.x, 0.5 + 0.1 * l.vert.co.z)
+            l[uv].uv = (0.5 + 0.1 * l.vert.co.x, 1.5 + 0.1 * l.vert.co.z)
     return faces
 
 def extrude_profile(bm, pts2d, axis_u, axis_v, origin, depth_axis, d0, d1, uv_scale=1.0, smooth_sides=True):

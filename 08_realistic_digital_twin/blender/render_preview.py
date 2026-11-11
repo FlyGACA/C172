@@ -10,6 +10,7 @@ import bpy
 from mathutils import Vector
 
 # Camera positions and targets in Blender world coordinates (m): +x left wing, -y nose, z up from the ground.
+CABIN_LIGHT = 30.0
 VIEWS = {
     "front_quarter": dict(pos=(-9.5, -9.0, 2.9), target=(0, 1.1, 0.95), fov=36),
     "rear_quarter": dict(pos=(9.5, 10.6, 3.0), target=(0, 2.1, 1.0), fov=36),
@@ -19,9 +20,11 @@ VIEWS = {
     "nose_detail": dict(pos=(-3.2, -4.15, 1.65), target=(0.0, -0.57, 1.14), fov=35),
     "tail_detail": dict(pos=(4.4, 8.66, 2.03), target=(0.0, 5.24, 1.37), fov=38),
     "gear_detail": dict(pos=(-3.5, -0.98, 0.7), target=(-1.0, 0.51, 0.41), fov=35),
-    "cockpit": dict(pos=(0.0, 1.0, 1.55), target=(0.0, -1.57, 1.14), fov=80),
-    "cockpit_pilot": dict(pos=(0.28, -0.015, 1.55), target=(0.12, -1.57, 1.2), fov=84),     # the pilot's eye: the occupant sits at station 37 (POH Figure 6-3)
-    "cockpit_side": dict(pos=(-0.18, 0.02, 1.42), target=(0.26, -0.47, 1.17), fov=78),      # from the right seat, across to the pilot's side
+    # in the cabin a soft light under the roof (cabin, in watts) stands in for the daylight that the eye, unlike a camera
+    # exposed for the sky, sees the panel by
+    "cockpit": dict(pos=(0.0, 1.0, 1.55), target=(0.0, -1.57, 1.14), fov=80, cabin=CABIN_LIGHT),
+    "cockpit_pilot": dict(pos=(0.28, -0.015, 1.55), target=(0.12, -1.57, 1.2), fov=84, cabin=CABIN_LIGHT),     # the pilot's eye: the occupant sits at station 37 (POH Figure 6-3)
+    "cockpit_side": dict(pos=(-0.18, 0.02, 1.42), target=(0.26, -0.47, 1.17), fov=78, cabin=CABIN_LIGHT),      # from the right seat, across to the pilot's side
     "engine": dict(pos=(-2.2, -3.55, 1.88), target=(0.0, -0.46, 1.29), fov=40, hide=("POWERPLANT.cowl_upper",)),
     "engine_right": dict(pos=(2.4, -2.55, 1.6), target=(0.0, -0.51, 1.29), fov=40, hide=("POWERPLANT.cowl_upper",)),
     # gallery views: long lens so wings read as lines in profile, hero three-quarter
@@ -135,6 +138,9 @@ def main():
     if a.white:
         white_world()
         sc.view_settings.look = "AgX - Base"
+    cabin = bpy.data.lights.new("cabin", "AREA"); cabin.size = 0.5; cabin.color = (1.0, 0.97, 0.93)
+    cabin_ob = bpy.data.objects.new("cabin", cabin); sc.collection.objects.link(cabin_ob)
+    cabin_ob.location = (0.0, 0.42, 1.88); cabin_ob.rotation_euler = (Vector((0.05, -0.52, 1.36)) - Vector(cabin_ob.location)).to_track_quat("-Z", "Y").to_euler()
     always_hidden = [n for n in a.hide.split(",") if n]
     cam = bpy.data.cameras.new("cam"); co = bpy.data.objects.new("cam", cam); sc.collection.objects.link(co); sc.camera = co
     views = VIEW_SETS.get(a.views) or a.views.split(",")
@@ -151,6 +157,7 @@ def main():
         if factor > 0:      # explode() moves the direct children of the system groups
             placed = {o: o.matrix_world.copy() for g in bpy.data.objects if g.type == "EMPTY" and g.get("group") for o in g.children}
             explode(factor)
+        cabin.energy = spec.get("cabin", 0.0); cabin_ob.hide_render = cabin.energy <= 0
         co.location = spec["pos"]
         d = Vector(spec["target"]) - Vector(spec["pos"])
         co.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
