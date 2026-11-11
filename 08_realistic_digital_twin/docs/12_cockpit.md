@@ -40,6 +40,10 @@ the same kind: the pointer is pivoted below the middle of the face, under a cove
 the top. Their scales, like those of
 the round dials, are drawn from `data/instruments.json` (limits and arcs from POH Section 2).
 
+In the editable scene the pointers stand where they do on a parked aircraft, engine stopped and master
+switch off (`REST_READINGS` in `cockpit.py`), so a render of the cockpit shows no climb and no running
+engine. In the web model they are at zero, and the viewer turns them from its simulation.
+
 The radios are plain sets of their kind for the period, with small readouts, legends and knobs; they copy
 no maker's set, and the avionics of an aircraft vary. The omni course indicators and the ADF bearing
 indicator are plain faces too: the viewer's simulation has no radio aids, so their pointers do not move.
