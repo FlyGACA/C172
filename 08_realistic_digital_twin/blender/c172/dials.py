@@ -55,10 +55,10 @@ def draw_dial(img, box, spec, title=None, subtitle=None, font_scale=1.0):
         d.line([_pol(cx, cy, R * 0.90, a), _pol(cx, cy, R * 0.84, a)], fill=(230, 230, 230), width=max(1, int(S * 0.006)))
     for v in t.get("major", []):
         a = value_to_angle(spec, v)
-        d.line([_pol(cx, cy, R * 0.92, a), _pol(cx, cy, R * 0.78, a)], fill=(245, 245, 245), width=max(2, int(S * 0.012)))
+        d.line([_pol(cx, cy, R * 0.92, a), _pol(cx, cy, R * spec.get("major_inner", 0.78), a)], fill=(245, 245, 245), width=max(2, int(S * 0.012)))
     for rl in spec.get("redlines", []):
         a = value_to_angle(spec, rl["value"])
-        d.line([_pol(cx, cy, R * 0.98, a), _pol(cx, cy, R * 0.80, a)], fill=COLORS["red"], width=max(2, int(S * 0.018)))
+        d.line([_pol(cx, cy, R * 0.98, a), _pol(cx, cy, R * 0.80, a)], fill=COLORS["red"], width=max(2, int(S * rl.get("width", 0.018))))
     f = ImageFont.truetype(FONT_BOLD, int(S * 0.085 * font_scale))
     for v in spec.get("labels", []):
         a = value_to_angle(spec, v)
@@ -71,21 +71,30 @@ def draw_dial(img, box, spec, title=None, subtitle=None, font_scale=1.0):
         d.text((px, py), txt, fill=(240, 240, 240), font=f, anchor="mm")
     fs = ImageFont.truetype(FONT, int(S * 0.055 * font_scale))
     if title:
-        d.text((cx, cy - R * 0.33), title, fill=(220, 220, 220), font=fs, anchor="mm")
+        d.text((cx, cy - R * spec.get("title_y", 0.33)), title, fill=(220, 220, 220), font=fs, anchor="mm")
     if subtitle:
         d.text((cx, cy + R * 0.36), subtitle, fill=(200, 200, 200), font=fs, anchor="mm")
 
-def dials_atlas(path, size=2048):
-    from PIL import Image, ImageDraw, ImageFont
+def instrument_specs(overrides=None):
+    """The instrument data of data/instruments.json. overrides = {instrument: {field: value}} lays a plate's own fields over
+    it (the handbook's example aeroplane has its own V-speeds): the model itself always uses the file as it is."""
     with open(DATA, encoding="utf-8") as f:
-        INSTR = json.load(f)["instruments"]
+        specs = json.load(f)["instruments"]
+    for name, fields in (overrides or {}).items():
+        if not name.startswith("_"):                  # "_doc" and the like are notes
+            specs[name] = {**specs.get(name, {}), **fields}
+    return specs
+
+def dials_atlas(path, size=2048, overrides=None):
+    from PIL import Image, ImageDraw, ImageFont
+    INSTR = instrument_specs(overrides)
     cs = size // ROWS
     img = Image.new("RGBA", (cs * COLS, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img, "RGBA")
     def box(name):
         i = CELLS.index(name); c, r = i % COLS, i // COLS
         return (c * cs, r * cs, (c + 1) * cs, (r + 1) * cs)
-    draw_dial(img, box("ASI"), INSTR["ASI"], "AIRSPEED", "KNOTS")
+    draw_dial(img, box("ASI"), INSTR["ASI"], "AIRSPEED", "KNOTS", font_scale=INSTR["ASI"].get("font_scale", 1.0))
     alt = dict(INSTR["ALT"]); draw_dial(img, box("ALT"), alt, "ALTITUDE", "")
     # Kollsman window on the altimeter (3 o'clock)
     x0, y0, x1, y1 = box("ALT"); cx, cy = (x0 + x1) / 2, (y0 + y1) / 2; R = cs * 0.47
@@ -100,7 +109,7 @@ def dials_atlas(path, size=2048):
     clock = {"map": [[0, 0], [12, 360]], "min": 0, "max": 12, "ticks": {"major": list(range(0, 12)), "minor_step": 0.2, "minor_from": 0}, "labels": list(range(1, 13)), "label_text": {}}
     draw_dial(img, box("CLOCK"), clock, "", "")
     # ---- turn coordinator: face with L/R marks, wings symbol drawn by the needle mesh
-    tc = {"map": [[-1, -20], [1, 20]], "min": -1, "max": 1, "ticks": {"major": [-1, 1]}, "labels": [], "arcs": []}
+    tc = {"map": [[-1, -20], [1, 20]], "min": -1, "max": 1, "ticks": {"major": [-1, 1]}, "labels": [], "arcs": [], **(overrides or {}).get("TC", {})}
     draw_dial(img, box("TC"), tc, "TURN COORDINATOR", "2 MIN")
     x0, y0, x1, y1 = box("TC"); cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     f = ImageFont.truetype(FONT_BOLD, int(cs * 0.08))

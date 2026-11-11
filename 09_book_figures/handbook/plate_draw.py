@@ -78,6 +78,13 @@ def leader(frm, to, r=13.0, gap=0.0):
     return line + f'<circle cx="{num(to[0])}" cy="{num(to[1])}" r="3.4" fill="{c}" stroke="{HALO}" stroke-width="1.3"/>'
 
 
+def outline(points, closed=True, dash="6 4.5", width=2.4):
+    """A dashed amber outline round a group of things (the basic T of the six flight instruments), with a dark under-stroke."""
+    d = "M" + " L".join(f"{num(x)},{num(y)}" for x, y in points) + (" Z" if closed else "")
+    return (f'<path d="{d}" fill="none" stroke="#000000" stroke-width="{num(width + 1.6)}" stroke-linejoin="round" opacity=".28"/>'
+            f'<path d="{d}" fill="none" stroke="#FFC233" stroke-width="{num(width)}" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="{dash}"/>')
+
+
 def tee(points, lead=None):
     """The basic T through the centres of four instruments (airspeed, attitude, altimeter, heading): a dotted line along
     the top row and one down the middle, a dot on each instrument, and a lead from the marker that names it."""

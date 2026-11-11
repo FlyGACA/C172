@@ -99,10 +99,10 @@ def draw(plate, glyphs, spec):
 
     gradient = (f'<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb({top[0]},{top[1]},{top[2]})"/>'
                 f'<stop offset="1" stop-color="rgb({bottom[0]},{bottom[1]},{bottom[2]})"/></linearGradient></defs>')
-    title = plate["caption"].split(". ", 1)[-1].rstrip(".")
+    number = "-".join(plate["id"].split("-")[1:3])          # the book's figures name themselves by number: one file serves both editions
     return "\n".join([
         '<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {cw} {ch}" width="{cw}" height="{ch}">',
-        f"  <title>{title}</title>", f"  <desc>{plate['desc']}</desc>", f"  {gradient}",
+        f"  <title>{number}</title>", f"  <desc>{number}</desc>", f"  {gradient}",
         f'  <rect width="{cw}" height="{ch}" fill="url(#sky)"/>',
         "  " + "".join(parts), "</svg>", ""])

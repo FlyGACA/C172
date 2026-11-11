@@ -57,9 +57,10 @@ To work on one figure, serve the repository root (`npm run serve`) and open
 
 ## Plates for the handbook
 
-The handbook (the book repository) takes figures that are numbered callouts over a picture, with no words in the artwork.
-[`handbook/`](handbook/README.md) makes them from the twin: renders of the aircraft, of its panel and of single instruments, and a
-drawing of the airfoil, each under the file name of the figure it replaces, with the callout numbers of that figure's list.
+The handbook (the book repository) takes figures that are numbered callouts over a picture, with no words in the artwork, as an SVG
+of at most 40 KB or a JPEG colour plate of at most 800 KB. [`handbook/`](handbook/README.md) makes them from the twin: renders of the
+aircraft, of its panel and of single instruments, encoded as the JPEG plates the book's build accepts, and a drawing of the airfoil as
+an SVG, with the callout numbers of the list under the figure they replace. What to copy into the book is `handbook/out/book/`.
 
 ```bash
 npm run plates:render && npm run plates:build && npm run test:plates:py

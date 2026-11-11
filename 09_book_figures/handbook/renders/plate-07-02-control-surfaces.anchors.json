@@ -1,8 +1,25 @@
 {
- "figure": "plate-07-02-control-surfaces",
- "image": "plate-07-02-control-surfaces.png",
- "width": 2400,
- "height": 1860,
- "model": "C172N_realistic.blend",
- "anchors": {}
+ "id": "plate-07-02-control-surfaces",
+ "size": [
+  2560,
+  1600
+ ],
+ "anchors": {
+  "aileron": [
+   0.72355,
+   0.67106
+  ],
+  "flap": [
+   0.58149,
+   0.57001
+  ],
+  "elevator": [
+   0.28206,
+   0.82395
+  ],
+  "rudder": [
+   0.18247,
+   0.71601
+  ]
+ }
 }

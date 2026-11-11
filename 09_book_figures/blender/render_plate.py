@@ -21,13 +21,19 @@ attitude on the ground first, so a side view is a view of level flight and the p
                   panel plate is made taller, so that a picture of a few instruments is all panel
     pose     what the instruments show: {"ASI": kt, "ALT": ft, "VSI": ft/min, "TACH": rpm, "heading": deg, ...}
     propeller "disc": the blades give way to a faint disc, as the eye sees a turning propeller
+    smooth   [{"parts": [globs], "angle": 35}]: these parts are shaded smooth except across edges sharper than the angle, where a
+             close-up would show the facets of a coarse round part in its highlights (the bezels of the instruments)
+    tint     [{"parts": [globs], "colour": "#RRGGBB"}]: these parts are painted one colour (semi-gloss, lit and shaded as
+             the rest), to show which surface a plate is about
     light    "outdoor" | "panel" | "instrument"
     anchors  {name: [x, y, z] | {"fs": in, "bl": in, "wl": in} | {"part": id, "at": [u, v, w]} |
               {"from": anchor, "add": [dx, dy, dz]} | {"dial": instrument, "angle": deg, "radius": fraction}}:
              a point is in the build frame of the aircraft (turned with it by "pitch"); u, v, w are fractions of the
              part's bounding box along x, y, z; "from"/"add" is an offset in the picture's own frame (z up, whatever
              the pitch); "dial" is a point on the face of an instrument, angle clockwise from 12 o'clock as the pilot
-             sees it, radius as a fraction of the dial's radius
+             sees it (or "value": a reading of the instrument's scale), radius as a fraction of the dial's radius;
+             {"visible": part, "at": [across, down]} is the vertex of that part which the camera really sees (nothing in front
+             of it) nearest to where `at` points in the part's visible extent in the picture (fractions, 0 to 1; default 0.5, 0.5)
 """
 import argparse
 import fnmatch
@@ -45,9 +51,15 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 TWIN = os.path.join(ROOT, "08_realistic_digital_twin")
 sys.path.insert(0, os.path.join(TWIN, "blender"))
 from c172 import units as U                              # noqa: E402
-from c172.dials import DATA, value_to_angle             # noqa: E402
+from c172.dials import instrument_specs, value_to_angle  # noqa: E402
 
 PLATES = os.path.join(os.path.dirname(HERE), "handbook")
+
+
+def specs_of_the_book():
+    """Instrument data of the model, with the book's own values laid over it (plates.json "dials")."""
+    with open(os.path.join(PLATES, "plates.json"), encoding="utf-8") as f:
+        return instrument_specs(json.load(f).get("dials", {}))
 
 
 def level_the_aircraft():
@@ -85,8 +97,47 @@ def dial_point(spec):
     deps = bpy.context.evaluated_depsgraph_get()
     corners = [bezel.evaluated_get(deps).matrix_world @ Vector(c) for c in bezel.evaluated_get(deps).bound_box]
     radius = 0.5 * (max(c.x for c in corners) - min(c.x for c in corners)) - 0.007            # the dial: inside the moulded rim
-    a = math.radians(spec["angle"]); rho = radius * 0.984 * spec.get("radius", 1.0)           # the drawn dial stops at 0.984 of the opening
+    angle = value_to_angle(specs_of_the_book()[spec["dial"]], spec["value"]) if "value" in spec else spec["angle"]     # "value": a reading of the scale
+    a = math.radians(angle); rho = radius * 0.984 * spec.get("radius", 1.0)                   # the drawn dial stops at 0.984 of the opening
     return Vector((centre.x - rho * math.sin(a), centre.y, centre.z + rho * math.cos(a)))
+
+
+CAMERA = None                        # the plate's camera, set before the anchors are worked out
+
+
+def visible_point(spec):
+    """The vertex of a part that the camera really sees (a ray from the camera reaches it first), nearest to where
+    spec["at"] points in the visible extent of the part in the picture: a callout never lands on a hidden surface."""
+    sc = bpy.context.scene
+    deps = bpy.context.evaluated_depsgraph_get()
+    ob = bpy.data.objects[spec["visible"]]
+    ev = ob.evaluated_get(deps)
+    mesh = ev.to_mesh()
+    forward = CAMERA.matrix_world.to_quaternion() @ Vector((0.0, 0.0, -1.0))          # the camera is orthographic
+    seen = []
+    for index in range(0, len(mesh.vertices), max(1, len(mesh.vertices) // 4000)):
+        world = ev.matrix_world @ mesh.vertices[index].co
+        ndc = world_to_camera_view(sc, CAMERA, world)
+        if not (0.0 <= ndc.x <= 1.0 and 0.0 <= ndc.y <= 1.0 and ndc.z > 0.0):
+            continue
+        origin, travelled, hit_ob = world - forward * ndc.z, 0.0, None
+        while travelled < ndc.z + 0.05:
+            hit, location, _n, _i, hit_ob, _m = sc.ray_cast(deps, origin, forward, distance=ndc.z + 0.05 - travelled)
+            if not hit or not (hit_ob.hide_render or hit_ob.name.startswith("_")):            # parts left out of the picture do not hide anything
+                break
+            travelled += (location - origin).length + 1e-4
+            origin = location + forward * 1e-4
+        if hit and (hit_ob.name == ob.name or (location - world).length < 0.012):
+            seen.append((ndc.x, 1.0 - ndc.y, world.copy()))
+    ev.to_mesh_clear()
+    if not seen:
+        raise SystemExit(f"no part of {spec['visible']} is visible in this picture")
+    x0, x1 = min(p[0] for p in seen), max(p[0] for p in seen)
+    y0, y1 = min(p[1] for p in seen), max(p[1] for p in seen)
+    at = spec.get("at", [0.5, 0.5])
+    tx, ty = x0 + (x1 - x0) * at[0], y0 + (y1 - y0) * at[1]
+    aspect = sc.render.resolution_x / sc.render.resolution_y
+    return min(seen, key=lambda p: ((p[0] - tx) * aspect) ** 2 + (p[1] - ty) ** 2)[2]
 
 
 def point(spec):
@@ -95,6 +146,8 @@ def point(spec):
         return ANCHORS[spec["from"]] + Vector(spec["add"])
     if isinstance(spec, dict) and "dial" in spec:
         return dial_point(spec)
+    if isinstance(spec, dict) and "visible" in spec:
+        return visible_point(spec)
     if isinstance(spec, dict) and "part" in spec:
         ob = bpy.data.objects[spec["part"]]
         ev = ob.evaluated_get(bpy.context.evaluated_depsgraph_get())
@@ -196,7 +249,7 @@ def clear_instrument_glass():
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     fres = nt.nodes.new("ShaderNodeFresnel"); fres.inputs["IOR"].default_value = 1.45
     gloss = nt.nodes.new("ShaderNodeBsdfGlossy"); gloss.inputs["Roughness"].default_value = 0.32        # a soft sheen: a mirror would show the edge of a lamp
-    gloss.inputs["Color"].default_value = (0.75, 0.78, 0.82, 1.0)
+    gloss.inputs["Color"].default_value = (0.42, 0.44, 0.47, 1.0)
     clear = nt.nodes.new("ShaderNodeBsdfTransparent")
     mix = nt.nodes.new("ShaderNodeMixShader")
     nt.links.new(fres.outputs["Fac"], mix.inputs[0]); nt.links.new(clear.outputs[0], mix.inputs[1])
@@ -206,10 +259,38 @@ def clear_instrument_glass():
             ob.data.materials.clear(); ob.data.materials.append(mat)
 
 
+def smooth(rules):
+    """Shade the named parts smooth except across sharp edges: a round bezel has few facets in the model, and flat shading
+    shows each of them in the highlights of a close-up. (Subdividing it instead would round off the recess of the dial.)"""
+    for rule in rules:
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
+                mesh = ob.data
+                mesh.polygons.foreach_set("use_smooth", [True] * len(mesh.polygons))
+                mesh.set_sharp_from_angle(angle=math.radians(rule.get("angle", 35.0)))
+                mesh.update()
+
+
+def hex_to_linear(code):
+    channels = [int(code.lstrip("#")[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+    return tuple(((c + 0.055) / 1.055) ** 2.4 if c > 0.04045 else c / 12.92 for c in channels)
+
+
+def tint(rules):
+    """Paint the parts named by each rule one colour, a semi-gloss paint that the light shades like the rest."""
+    for number, rule in enumerate(rules):
+        mat = bpy.data.materials.new(f"_tint_{number}"); mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        bsdf.inputs["Base Color"].default_value = (*hex_to_linear(rule["colour"]), 1.0)
+        bsdf.inputs["Roughness"].default_value = rule.get("roughness", 0.38)
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
+                ob.data.materials.clear(); ob.data.materials.append(mat)
+
+
 def pose(readings):
     """Turn the pointers, the card of the directional indicator and the horizon to the readings given."""
-    with open(DATA, encoding="utf-8") as f:
-        specs = json.load(f)["instruments"]
+    specs = specs_of_the_book()
     alt = readings.get("ALT", 0.0)
     special = {"ALT_100": (alt % 1000.0) * 0.36, "ALT_1000": (alt % 10000.0) * 0.036, "ALT_10000": alt * 0.0036,
                "TC": readings.get("turn", 0.0) * 20.0,
@@ -336,6 +417,10 @@ def render(plate, quick, textures):
         finer_panel_grain(*recipe["panel_grain"])
     if recipe.get("instrument_glass") == "clear":
         clear_instrument_glass()
+    if recipe.get("tint"):
+        tint(recipe["tint"])
+    if recipe.get("smooth"):
+        smooth(recipe["smooth"])
     if recipe.get("pitch"):
         turn_aircraft(recipe["pitch"]["deg"], recipe["pitch"]["about"])
     if recipe.get("pose"):
@@ -355,6 +440,8 @@ def render(plate, quick, textures):
         use_textures(textures)
     width, height = recipe.get("size", [1920, 1080])
     cam = camera(recipe, (width, height))
+    global CAMERA
+    CAMERA = cam
     lights(recipe.get("light", "outdoor"), recipe["camera"]["target"])
     sc.render.engine = "CYCLES"
     sc.cycles.samples = 24 if quick else recipe.get("samples", 128)

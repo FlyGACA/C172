@@ -32,7 +32,7 @@
     "figures:render": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/render_figure.py -- --all",
     "plates:fine": "python3 09_book_figures/handbook/fine_textures.py",
     "plates:render": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b 08_realistic_digital_twin/models/C172N_realistic.blend --python 09_book_figures/blender/render_plate.py -- --all",
-    "plates:build": "python3 09_book_figures/handbook/build_plates.py && node 09_book_figures/handbook/rasterize.mjs",
+    "plates:build": "python3 09_book_figures/handbook/build_plates.py && node 09_book_figures/handbook/rasterize.mjs && python3 09_book_figures/handbook/book_plates.py",
     "test:plates:py": "python3 09_book_figures/tests/test_plates.py",
     "flight:doc": "node 08_realistic_digital_twin/scripts/flight_doc.mjs",
     "survey": "node 08_realistic_digital_twin/scripts/flight_survey.mjs"

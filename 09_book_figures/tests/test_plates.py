@@ -10,11 +10,14 @@ as many callouts as its legend has items, numbered 1 to n, and its SVG holds no 
 import json
 import os
 import re
+import sys
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PLATES = os.path.join(os.path.dirname(HERE), "handbook")
 OUT = os.path.join(PLATES, "out")
+sys.path.insert(0, PLATES)
+from book_rules import problems_of_jpeg, problems_of_svg      # noqa: E402
 with open(os.path.join(PLATES, "plates.json"), encoding="utf-8") as f:
     SPEC = json.load(f)
 with open(os.path.join(PLATES, "glyphs.json"), encoding="utf-8") as f:
@@ -58,6 +61,26 @@ class PlateSpec(unittest.TestCase):
                 if "polar" in o:
                     self.assertIn(o["polar"][0], anchors, p["id"])
 
+    def test_each_plate_names_the_file_the_book_takes(self):
+        """A render becomes plate-NN-NN-name.jpg (the book takes no SVG with a picture in it); a drawing stays fig-NN-NN-name.svg."""
+        for p in SPEC["plates"]:
+            raster = "render" in p or "source" in p
+            name = p["book_file"]
+            self.assertRegex(name, r"^plate-\d\d-\d\d-[a-z0-9-]+\.jpg$" if raster else r"^fig-\d\d-\d\d-[a-z0-9-]+\.svg$", p["id"])
+            self.assertEqual(name.split(".")[0].split("-", 1)[1], p["id"].split("-", 1)[1], f"{p['id']} and {name} number the same figure")
+
+    def test_the_book_numbers_each_plate_in_both_editions(self):
+        """The legend of a plate is what the book's list under it says; every plate in the book has numbers to point at (1 to n)."""
+        for p in SPEC["plates"]:
+            self.assertFalse(p.get("colour_coded"), f"{p['id']}: the book's editions number what the figure shows, so does the plate")
+
+    def test_the_airspeed_indicator_has_the_books_example_aeroplane_speeds(self):
+        """Figure 10-3 gives VS0 45, VS1 52, VFE 90, VNO 125 and VNE 160 kt, and chapters 11 to 13 and Part 7 build on them."""
+        asi = SPEC["dials"]["ASI"]
+        arcs = {a["color"]: (a["from"], a["to"]) for a in asi["arcs"]}
+        self.assertEqual(arcs, {"white": (45, 90), "green": (52, 125), "yellow": (125, 160)})
+        self.assertEqual([r["value"] for r in asi["redlines"]], [160])
+
     def test_glyphs_cover_the_digits_and_alpha(self):
         for ch in "0123456789α":
             self.assertIn(ch, GLYPHS["glyphs"])
@@ -100,6 +123,34 @@ class FinishedPlates(unittest.TestCase):
             if "render" in p or "source" in p:
                 with open(path, encoding="utf-8") as f:
                     self.assertIn("data:image/jpeg;base64,", f.read(), p["id"])
+
+
+class BookFiles(unittest.TestCase):
+    """What goes into the book's handbook/ppl/figures/: out/book/, by the rules of its build (book_rules.py)."""
+
+    def built(self):
+        folder = os.path.join(OUT, "book")
+        if not os.path.isdir(folder):
+            self.skipTest("no book files yet (python3 09_book_figures/handbook/book_plates.py)")
+        return [(p, os.path.join(folder, p["book_file"])) for p in SPEC["plates"] if os.path.exists(os.path.join(folder, p["book_file"]))]
+
+    def test_every_book_file_passes_the_books_rules(self):
+        for p, path in self.built():
+            if path.endswith(".jpg"):
+                with open(path, "rb") as f:
+                    problems = problems_of_jpeg(p["book_file"], f.read())
+            else:
+                with open(path, encoding="utf-8") as f:
+                    problems = problems_of_svg(p["book_file"], f.read())
+            self.assertEqual(problems, [], p["id"])
+
+    def test_the_checker_catches_what_the_book_rejects(self):
+        self.assertTrue(problems_of_svg("fig-05-01-x.svg", '<svg viewBox="0 0 1 1"><image href="data:image/png;base64,AAAA"/></svg>'))
+        self.assertTrue(problems_of_svg("fig-05-01-x.svg", '<svg viewBox="0 0 1 1"><text>Lift</text></svg>'))
+        self.assertTrue(problems_of_svg("fig-05-01-x.svg", '<svg viewBox="0 0 1 1">' + "<g/>" * 20_000 + "</svg>"))
+        self.assertEqual(problems_of_svg("fig-05-01-x.svg", '<svg viewBox="0 0 1 1"><text>105 kt</text></svg>'), ["figure fig-05-01-x.svg: the text '105 kt' is not language-neutral"])
+        self.assertTrue(problems_of_jpeg("plate-07-01-x.jpg", b"<svg/>"))
+        self.assertTrue(problems_of_jpeg("photo.jpg", b"\xff\xd8\xff\xd9"))
 
 
 if __name__ == "__main__":

@@ -6,8 +6,9 @@ laid on the figure's background, with the numbered callouts, arrows and leaders 
 
 Writes, for each plate in plates.json:
     out/<id>.svg            the figure, under the file name of the one it replaces in the book (the render is embedded
-                            as a JPEG, the callouts are vector, the digits are outlines: it looks the same everywhere)
-    out/preview/<id>.jpg    the same, flattened (rasterize.mjs), for review and for a plate-NN-NN-name.jpg if the book wants one
+                            as a JPEG, the callouts are vector, the digits are outlines: it looks the same everywhere).
+                            The book does not take an SVG with a picture in it (book_plates.py makes its JPEG)
+    cache/flat-src/<id>.svg the same with the picture embedded lossless, for rasterize.mjs (not kept)
 Needs Pillow only.
 """
 import base64
@@ -21,7 +22,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from plate_draw import SPEC, GLYPHS, arrow, centre_of_gravity, marker, leader, tee, num, colour   # noqa: E402
+from plate_draw import SPEC, GLYPHS, arrow, centre_of_gravity, marker, leader, outline, tee, num, colour   # noqa: E402
 
 PX_PER_UNIT = 3                  # the embedded picture: 3 px to a unit of the canvas (1920 px across the book's 640)
 JPEG_QUALITY = 90
@@ -42,8 +43,8 @@ def scale(plate):
     return plate.get("px_per_unit", PX_PER_UNIT)
 
 
-def picture(plate):
-    """The render on the background, as JPEG bytes."""
+def picture(plate, lossless=False):
+    """The render on the background, as JPEG bytes (or PNG bytes, for the flat copy the book's JPEG is made from)."""
     cw, ch = plate["canvas"]
     size = (round(cw * scale(plate)), round(ch * scale(plate)))
     source = os.path.join(HERE, plate["source"]["image"]) if "source" in plate else os.path.join(HERE, "renders", plate["id"] + ".png")
@@ -51,7 +52,10 @@ def picture(plate):
     base = background(SPEC["backgrounds"][plate["background"]], size).convert("RGBA")
     base.alpha_composite(render)
     buf = io.BytesIO()
-    base.convert("RGB").save(buf, "JPEG", quality=JPEG_QUALITY, subsampling=0, optimize=True, progressive=True)
+    if lossless:
+        base.convert("RGB").save(buf, "PNG", compress_level=6)
+    else:
+        base.convert("RGB").save(buf, "JPEG", quality=JPEG_QUALITY, subsampling=0, optimize=True, progressive=True)
     return buf.getvalue()
 
 
@@ -78,10 +82,12 @@ def overlays(plate, anchors):
             out.append(arrow(pts[o["from"]], pts[o["to"]], colour(o["colour"]), o.get("width", 3.4), o.get("head")))
         elif kind == "cg":
             p = pts[o["at"]]; out.append(centre_of_gravity(p[0], p[1], o.get("r", 8.5)))
+        elif kind == "outline":
+            out.append(outline([tuple(q) for q in o["path"]], o.get("closed", True), o.get("dash", "6 4.5"), o.get("width", 2.4)))
         elif kind == "tee":
             out.append(tee([pts[n] for n in o["points"]], tuple(o["lead"]) if "lead" in o else None))
         elif kind == "marker":
-            target = pts[o["at"]]
+            target = pts[o["at"]] if "at" in o else tuple(o["target"])        # an anchor of the picture, or a point of the canvas
             if "pos" in o:
                 m = tuple(o["pos"])
             elif "polar" in o:
@@ -98,29 +104,32 @@ def overlays(plate, anchors):
     return "".join(out + late)
 
 
-def svg(plate, jpeg, anchors):
+def svg(plate, picture_bytes, anchors, mime="image/jpeg"):
     cw, ch = plate["canvas"]
-    b64 = base64.b64encode(jpeg).decode("ascii")
+    b64 = base64.b64encode(picture_bytes).decode("ascii")
     title = plate["caption"].split(". ", 1)[-1].rstrip(".")
     return "\n".join([
         '<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 {cw} {ch}" width="{cw}" height="{ch}" data-px-per-unit="{scale(plate)}">',
         f"  <title>{title}</title>",
         f"  <desc>{plate['desc']}</desc>",
-        f'  <image width="{cw}" height="{ch}" preserveAspectRatio="none" href="data:image/jpeg;base64,{b64}" xlink:href="data:image/jpeg;base64,{b64}"/>',
+        f'  <image width="{cw}" height="{ch}" preserveAspectRatio="none" href="data:{mime};base64,{b64}" xlink:href="data:{mime};base64,{b64}"/>',
         f'  <g id="callouts">{overlays(plate, anchors)}</g>',
         "</svg>", ""])
 
 
 def main():
     wanted = sys.argv[1:]
-    os.makedirs(os.path.join(HERE, "out", "preview"), exist_ok=True)
+    os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
+    os.makedirs(os.path.join(HERE, "cache", "flat-src"), exist_ok=True)
     for plate in SPEC["plates"]:
         if wanted and plate["id"] not in wanted:
             continue
         if "render" in plate or "source" in plate:
             anchors = load_anchors(plate)
             text = svg(plate, picture(plate), anchors)
+            with open(os.path.join(HERE, "cache", "flat-src", plate["id"] + ".svg"), "w", encoding="utf-8") as f:
+                f.write(svg(plate, picture(plate, lossless=True), anchors, mime="image/png"))
         else:
             from vector_plates import draw          # figures that are drawings, not renders
             text = draw(plate, GLYPHS, SPEC)
