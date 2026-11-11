@@ -19,6 +19,7 @@ OUT = os.path.join(PLATES, "out")
 sys.path.insert(0, PLATES)
 from book_rules import problems_of_jpeg, problems_of_svg      # noqa: E402
 import plates_spec                                            # noqa: E402  (the first six plates of plates.json and one module per figure in figs/)
+from reskin import sprites_used                               # noqa: E402  (the pictures of the aeroplane a re-skinned plate lays on its old drawing)
 SPEC = plates_spec.load()
 with open(os.path.join(PLATES, "glyphs.json"), encoding="utf-8") as f:
     GLYPHS = json.load(f)
@@ -76,6 +77,16 @@ class PlateSpec(unittest.TestCase):
                 self.assertIn(g["type"], ("wedge", "dots", "band", "contact"), p["id"])
                 if isinstance(g.get("at"), str):
                     self.assertIn(g["at"], anchors, f"{p['id']}: ground item {g} names an anchor the recipe does not define")
+
+    def test_a_reskin_lays_only_sprites_the_catalogue_makes(self):
+        """build_plates.py waits for the renders of the sprites a re-skinned plate uses, and for no others (so one picture not rendered yet holds up only the plates that
+        lay it); every one of them must be a sprite that figs/sprites.py or a cloud that figs/clouds.py makes, or the plate could never be built."""
+        made = {s["id"] for s in SPEC["sprites"]} | {c["id"] for c in SPEC["clouds"]}
+        for p in SPEC["plates"]:
+            if "reskin" in p:
+                self.assertLessEqual(set(sprites_used(p)), made, f"{p['id']}: lays a sprite that figs/sprites.py and figs/clouds.py do not make")
+        self.assertIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-06-02-spin-phases")))
+        self.assertNotIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-26-02-normal-takeoff-landing")))
 
     def test_each_plate_names_the_file_the_book_takes(self):
         """A render becomes plate-NN-NN-name.jpg (the book takes no SVG with a picture in it); a drawing stays fig-NN-NN-name.svg."""

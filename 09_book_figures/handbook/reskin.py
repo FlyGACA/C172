@@ -62,8 +62,8 @@ def reskin(plate, sprite_markup, sprite_aspect):
         start, end = spec[0], spec[1]
         a = svg.index(start)
         b = svg.index(end, a)
-        extra = spec[2] if len(spec) > 2 else None           # {"sprites": [...], "markup": "..."} for this stretch alone; otherwise the figure's own, at the first
-        piece = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in extra.get("sprites", [])) + extra.get("markup", "") if extra else "@@INSERT@@"
+        extra = spec[2] if len(spec) > 2 else None           # {"before": "...", "sprites": [...], "markup": "..."} for this stretch alone (before: drawn under the sprites); otherwise the figure's own, at the first
+        piece = extra.get("before", "") + "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in extra.get("sprites", [])) + extra.get("markup", "") if extra else "@@INSERT@@"
         svg = svg[:a] + piece + svg[b:]
     insert = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in cfg.get("sprites", [])) + cfg.get("markup", "")
     if "@@INSERT@@" in svg:
@@ -157,3 +157,15 @@ def reskin(plate, sprite_markup, sprite_aspect):
     root = re.search(r"<svg[^>]*>", svg).group(0)
     new_root = root.replace("<svg ", '<svg xmlns:xlink="http://www.w3.org/1999/xlink" data-px-per-unit="3" ', 1) if "data-px-per-unit" not in root else root
     return svg.replace(root, new_root, 1)
+
+
+def sprites_used(plate):
+    """The names of the pictures of the aeroplane (figs/sprites.py) that a re-skinned plate lays on its old drawing. The re-skin is run with a stand-in for the
+    picture maker that only takes note of each name, so no render is needed: build_plates.py waits for these renders and for no others."""
+    names = set()
+
+    def note(o, x, y):
+        names.add(o["name"])
+        return ""
+    reskin(plate, note, lambda name: 0.3)
+    return sorted(names)

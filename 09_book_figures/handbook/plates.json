@@ -816,13 +816,13 @@
        "WING_L.*",
        "WING_R.*"
       ],
-      "colour": "#1F5FC4"
+      "colour": "#1B56C8", "glow": "#2E6CF4", "emission": 0.16
      },
      {
       "parts": [
        "EMPENNAGE.*"
       ],
-      "colour": "#2FA66B"
+      "colour": "#168A55", "glow": "#22B06A", "emission": 0.16
      },
      {
       "parts": [
@@ -830,13 +830,13 @@
        "AIRFRAME.step_L",
        "AIRFRAME.step_R"
       ],
-      "colour": "#DDA01C"
+      "colour": "#C58C10", "glow": "#E0A81F", "emission": 0.16
      },
      {
       "parts": [
        "POWERPLANT.*"
       ],
-      "colour": "#E0672E"
+      "colour": "#D4601F", "glow": "#F07A2E", "emission": 0.16
      }
     ],
     "samples": 112,
@@ -957,8 +957,8 @@
       2.05
      ],
      "width": 10.9,
-     "azimuth": -38,
-     "elevation": 26
+     "azimuth": -56,
+     "elevation": 24
     },
     "size": [
      2560,
@@ -984,14 +984,14 @@
        "EMPENNAGE.elevator",
        "EMPENNAGE.rudder"
       ],
-      "colour": "#CF7C00"
+      "colour": "#C26A00", "glow": "#F08A00", "emission": 0.18
      },
      {
       "parts": [
        "WING_L.flap",
        "WING_R.flap"
       ],
-      "colour": "#1F68D8"
+      "colour": "#1558C8", "glow": "#2E6CF4", "emission": 0.18
      }
     ],
     "samples": 160,

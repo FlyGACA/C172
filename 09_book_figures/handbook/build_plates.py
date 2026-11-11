@@ -154,12 +154,13 @@ def sprite_source(name):
 
 def sprite_image(o):
     """An overlay {"type": "sprite", "name": "sprite-top", "at": [x, y] or an anchor, "width": canvas units across the aeroplane, "angle": degrees clockwise,
-    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity"}: the
+    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity", "height" (canvas units: stretches the picture, as a thin veil of cloud)}: the
     aeroplane of figs/sprites.py as a picture, with its middle on the point. Returns (picture, its size in canvas units)."""
     k = o.get("px", 4.0)                                      # pixels to a canvas unit in the file (the plate itself is flattened at 3)
     source = sprite_source(o["name"])
     width = o["width"]
-    image = source.resize((max(2, round(width * k)), max(2, round(width * k * source.height / source.width))), Image.LANCZOS)
+    height = o.get("height", width * source.height / source.width)         # (a cloud may be stretched: a thin veil, a tall column)
+    image = source.resize((max(2, round(width * k)), max(2, round(height * k))), Image.LANCZOS)
     if o.get("tint"):                                         # a coat of another colour over the paint: other traffic, the aeroplane in question
         rgb = tuple(int(o["tint"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
         r, g, b, a = image.split()
@@ -331,10 +332,17 @@ def svg(plate, picture_bytes, anchors, mime="image/jpeg", curves=None):
         "</svg>", ""])
 
 
+def missing_sprites(plate):
+    """The pictures of the aeroplane that a re-skinned plate lays on its old drawing and that are not on disk. Only the ones it uses count (reskin.sprites_used), so a
+    picture that is not rendered yet (the spin, an instrument) holds up the plates that lay it and no others."""
+    from reskin import sprites_used
+    return [name for name in sprites_used(plate) if not os.path.exists(os.path.join(HERE, "renders", name + ".png"))]
+
+
 def has_render(plate):
     """Whether the pictures of a plate are on disk. The raw renders of new plates are not kept in git (they are large): `npm run plates:render` makes them."""
     if "reskin" in plate:
-        return all(os.path.exists(os.path.join(HERE, "renders", sprite["id"] + ".png")) for sprite in SPEC["sprites"])
+        return not missing_sprites(plate)
     if "layers" in plate:
         return all(os.path.exists(png) and os.path.exists(anchors) for _n, png, anchors, _b in layers_of(plate))
     if "source" in plate:
@@ -352,7 +360,8 @@ def main():
         if wanted and plate["id"] not in wanted:
             continue
         if not wanted and not has_render(plate):
-            print(f"skipped {plate['id']}: no render on disk (npm run plates:render makes it; the finished plate is in out/book)")
+            missing = f" ({', '.join(missing_sprites(plate))})" if "reskin" in plate else ""
+            print(f"skipped {plate['id']}: no render on disk{missing} (npm run plates:render makes it; the finished plate is in out/book)")
             continue
         if "reskin" in plate:                       # an old figure with the model's aeroplane in it (reskin.py): only the flat picture is made
             from reskin import reskin

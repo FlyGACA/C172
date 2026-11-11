@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <title>06-02</title>
+  <desc>06-02</desc>
+<defs>
+  <linearGradient id="skyBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#c5d8ee"/>
+    <stop offset="100%" stop-color="#e8eff6"/>
+  </linearGradient>
+  <linearGradient id="fuseG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#f0f4f8"/>
+    <stop offset="50%" stop-color="#c8d0da"/>
+    <stop offset="100%" stop-color="#8896a8"/>
+  </linearGradient>
+  <linearGradient id="wingG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#64748b"/>
+    <stop offset="100%" stop-color="#334155"/>
+  </linearGradient>
+  <linearGradient id="pathG" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#475569"/>
+    <stop offset="100%" stop-color="#1e293b"/>
+  </linearGradient>
+  <linearGradient id="rotG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#b45309"/>
+    <stop offset="100%" stop-color="#f59e0b"/>
+  </linearGradient>
+  <filter id="sh" x="-5%" y="-5%" width="115%" height="115%">
+    <feDropShadow dx="1" dy="1.5" stdDeviation="2" flood-color="#1e3a5f" flood-opacity="0.12"/>
+  </filter>
+  <filter id="csh" x="-25%" y="-25%" width="150%" height="150%">
+    <feDropShadow dx="0.5" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect width="640" height="360" fill="url(#skyBg)"/>
+<!-- Phase divider -->
+<line x1="250" y1="78" x2="250" y2="300" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 5"/>
+<!-- Entry trajectory -->
+<path d="M 28 104 L 92 104 C 130 104 170 96 200 82 L 224 70" fill="none" stroke="url(#pathG)" stroke-width="2.5" stroke-linecap="round"/>
+<!-- Aircraft 1 - level flight -->
+<g transform="translate(44,104) scale(0.7)" filter="url(#sh)">
+  <path d="M -18 0 L -8 -2 L 0 -1.5 L 14 -1 L 18 0 L 14 1 L 0 1.5 L -8 2 Z" fill="url(#fuseG)" stroke="#4a5568" stroke-width="1"/>
+  <line x1="-4" y1="-8" x2="4" y2="-8" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-4" y1="8" x2="4" y2="8" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-14" y1="0" x2="-14" y2="-5" stroke="#4a5568" stroke-width="1"/>
+  <circle cx="-1" cy="-8" r="1" fill="#ef4444" opacity="0.7"/>
+  <circle cx="-1" cy="8" r="1" fill="#22c55e" opacity="0.7"/>
+</g>
+<!-- Aircraft 2 - stalled -->
+<g transform="translate(190,78) rotate(-25) scale(0.7)" filter="url(#sh)">
+  <path d = "M -18 0 L -8 -2 L 0 -1.5 L 14 -1 L 18 0 L 14 1 L 0 1.5 L -8 2 Z" fill="url(#fuseG)" stroke="#4a5568" stroke-width="1"/>
+  <line x1="-4" y1="-8" x2="4" y2="-8" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-4" y1="8" x2="4" y2="8" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-14" y1="0" x2="-14" y2="-5" stroke="#4a5568" stroke-width="1"/>
+</g>
+<!-- Transition to spin -->
+<path d="M 224 70 C 235 74 245 85 250 108" fill="none" stroke="url(#pathG)" stroke-width="2.5" stroke-linecap="round"/>
+<!-- Spiral descent - outer loops -->
+<path d="M 250 108 C 272 112 290 120 297 132 C 302 142 296 152 280 156 C 262 160 240 158 225 150 C 210 142 205 130 214 120 C 220 114 232 112 245 114" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+<!-- Inner descent spiral -->
+<path d="M 245 114 C 258 118 268 128 268 140 C 268 152 258 162 244 166 C 228 170 212 166 204 156 C 196 146 198 134 210 126" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
+<!-- Second outer loop -->
+<path d="M 210 126 C 222 120 242 118 260 124 C 278 130 290 144 290 160 C 290 176 278 188 260 194 C 240 200 218 198 202 188 C 188 178 184 164 192 152" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+<!-- Second inner descent -->
+<path d="M 192 152 C 200 144 216 140 234 142 C 252 144 266 154 270 168 C 274 182 266 196 250 204 C 234 212 214 212 198 204" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
+<!-- Third outer loop -->
+<path d="M 198 204 C 210 196 230 192 252 196 C 274 200 290 212 294 228 C 298 244 288 258 270 266 C 250 274 226 274 208 264" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+<!-- Third inner descent -->
+<path d="M 208 264 C 218 258 236 254 254 258 C 272 262 282 274 282 288 C 282 300 272 308 258 312" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round"/>
+<!-- Recovery path -->
+<path d="M 258 312 C 280 316 310 320 350 326 C 400 332 460 338 520 340 L 560 342" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="574,342 562,348 562,336" fill="#1e293b"/>
+<!-- Aircraft in spin -->
+<g transform="translate(250,185) rotate(-40) scale(0.55)" filter="url(#sh)">
+  <path d="M -16 0 L -6 -2 L 0 -1.5 L 12 -1 L 16 0 L 12 1 L 0 1.5 L -6 2 Z" fill="url(#fuseG)" stroke="#4a5568" stroke-width="1"/>
+  <line x1="-3" y1="-7" x2="3" y2="-7" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-3" y1="7" x2="3" y2="7" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-12" y1="0" x2="-12" y2="-4" stroke="#4a5568" stroke-width="1"/>
+</g>
+<!-- Aircraft recovering -->
+<g transform="translate(510,340) scale(0.6)" filter="url(#sh)">
+  <path d="M -16 0 L -6 -2 L 0 -1.5 L 12 -1 L 16 0 L 12 1 L 0 1.5 L -6 2 Z" fill="url(#fuseG)" stroke="#4a5568" stroke-width="1"/>
+  <line x1="-3" y1="-7" x2="3" y2="-7" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-3" y1="7" x2="3" y2="7" stroke="url(#wingG)" stroke-width="2"/>
+  <line x1="-12" y1="0" x2="-12" y2="-4" stroke="#4a5568" stroke-width="1"/>
+</g>
+<!-- Rotation arrow -->
+<path d="M 200 175 C 210 160 230 152 255 155 C 280 158 295 172 298 190" fill="none" stroke="url(#rotG)" stroke-width="2.8" stroke-linecap="round"/>
+<polygon points="300,196 294,186 304,186" fill="#b45309"/>
+<!-- Phase brackets -->
+<path d="M 352 68 H 360 V 156 H 352" fill="none" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 352 160 H 360 V 260 H 352" fill="none" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 352 264 H 360 V 330 H 352" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Callout 1: Entry -->
+<circle cx="254" cy="48" r="13" fill="#1e40af" filter="url(#csh)"/>
+<text x="254" y="53" font-family="sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<line x1="245" y1="54" x2="228" y2="66" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 2"/>
+<!-- Callout 2: Incipient -->
+<circle cx="384" cy="114" r="13" fill="#1e40af" filter="url(#csh)"/>
+<text x="384" y="119" font-family="sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<!-- Callout 3: Developed -->
+<circle cx="384" cy="211" r="13" fill="#1e40af" filter="url(#csh)"/>
+<text x="384" y="216" font-family="sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<!-- Callout 4: Recovery -->
+<circle cx="384" cy="297" r="13" fill="#1e40af" filter="url(#csh)"/>
+<text x="384" y="302" font-family="sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<!-- Callout 5: Rotation -->
+<circle cx="146" cy="222" r="13" fill="#1e40af" filter="url(#csh)"/>
+<text x="146" y="227" font-family="sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<line x1="157" y1="220" x2="196" y2="180" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 2"/>
+</svg>

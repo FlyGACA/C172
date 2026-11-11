@@ -23,4 +23,5 @@ def load():
                 module = importlib.import_module("figs." + name[:-3])
                 spec["plates"].append(module.plate())
         spec["sprites"] = importlib.import_module("figs.sprites").sprites()
+        spec["clouds"] = importlib.import_module("figs.clouds").clouds()
     return spec
