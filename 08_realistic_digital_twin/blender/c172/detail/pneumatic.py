@@ -101,7 +101,8 @@ def build_pitot_static(ctx, scene, port):
     rod(bm, valve - Y * 0.02, valve + Y * 0.02, 0.009, segs=10)
     rod(bm, valve + Y * 0.02, valve + Y * 0.06, 0.003, segs=6)
     disc(bm, valve + Y * 0.062, Y, 0.008, 0.008, segs=10)
-    pipe(bm, [valve - Y * 0.02, valve + Vector((0.06, -0.07, 0.08)), Vector((0.40, layer + 0.015, 1.47)), inlet + (tee - inlet) * 0.5], LINE, bend=0.03)      # under the instruments, into the line from the port
+    pipe(bm, [valve - Y * 0.02, Vector((valve.x, layer - 0.062, 1.33)), Vector((0.445, layer - 0.062, 1.33)), Vector((0.445, layer - 0.03, 1.47)), inlet],
+         LINE, bend=0.03)      # forward of the control column and under the bus cables, up beside the tachometer, into the line from the port
     add("PITOT_STATIC.alternate_static_valve", bm, "SYSTEMS", "Alternate static source valve (optional equipment, next to the throttle)",
         "صمام المصدر البديل للضغط الساكن (تجهيز اختياري، بجانب الخانق)", "brass", inside="fuselage", optional=True,
         note="May be installed adjacent to the throttle; pulled ON it supplies static pressure from inside the cabin if the external port is blocked (POH p.7-31, 3-8)")
@@ -119,7 +120,7 @@ def build_vacuum(ctx, scene, port):
     pump = scene["VACUUM.engine_driven_pump"].matrix_world.translation.copy()       # on the accessory housing; it reaches aft toward the firewall
     firewall_y = fs(1.0)
     relief = Vector((0.17, firewall_y + 0.075, 1.555))
-    filter_centre = Vector((0.385, firewall_y + 0.085, 1.50))
+    filter_centre = Vector((0.33, firewall_y + 0.085, 1.60))            # over the tachometer drive cable, beside the hose from the relief valve
     suction = [port("AI", "suction"), port("DG", "suction")]
     air = [port("AI", "air"), port("DG", "air")]
 
@@ -150,7 +151,8 @@ def build_vacuum(ctx, scene, port):
         "hose_blue")
     gauge = scene["PANEL.SUCTION.bezel"].matrix_world.translation + Vector((0.0, -0.045, 0.0))
     bm = new_bm()
-    pipe(bm, [gauge, gauge + Vector((0.0, -0.04, 0.0)), Vector((tee.x - 0.03, tee.y - 0.01, gauge.z + 0.03)), tee + Vector((0, 0, -0.01))], LINE, bend=0.025)
+    side = 1.0 if gauge.x > tee.x else -1.0                 # the gage stands near the left edge of the panel: straight forward past the cases, then across to the tee
+    pipe(bm, [gauge, Vector((gauge.x, tee.y - 0.01, gauge.z)), Vector((tee.x + side * 0.03, tee.y - 0.01, gauge.z)), tee + Vector((0, 0, -0.01))], LINE, bend=0.025)
     add("VACUUM.line_suction_gauge", bm, "Suction gage line", "خط مقياس التفريغ", "bare_alu", ref="p.7-34",
         note="The suction gage shows the suction available to the gyros; normal 4.5 to 5.4 in Hg (POH p.7-34)")
     bm = new_bm()

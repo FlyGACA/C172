@@ -133,7 +133,8 @@ def build_library(tex_dir):
     M["vinyl_black"] = pbr("vinyl_black", T("vinyl_black_albedo.jpg"), normal=T("vinyl_black_normal.jpg"), rough=0.58, tile=9.0)
     M["panel_grey"] = pbr("panel_grey", T("panel_black_albedo.jpg"), normal=T("panel_black_normal.jpg"), rough=0.55, tile=11.0)      # the black wrinkle finish of the panel
     M["screw"] = pbr("screw_black_oxide", color=(0.10, 0.10, 0.11, 1), rough=0.35, metal=0.9)
-    M["woodgrain"] = pbr("woodgrain", color=(0.30, 0.17, 0.08, 1), rough=0.45, clearcoat=0.3)
+    M["woodgrain"] = pbr("woodgrain", T("wood_albedo.jpg"), rough=0.42, clearcoat=0.25)                           # the printed laminate of the subpanel
+    M["switch_ivory"] = pbr("switch_ivory", color=(0.78, 0.74, 0.62, 1), rough=0.45)                                  # rocker switches and the flap lever
     M["bezel_black"] = pbr("bezel_black", color=(0.05, 0.05, 0.05, 1), rough=0.4)
     M["knob_red"] = pbr("knob_red", color=(0.8, 0.05, 0.05, 1), rough=0.4)
     M["prop_black"] = pbr("prop_black", color=(0.022, 0.022, 0.025, 1), rough=0.66)                       # the face toward the pilot: flat black, against glare

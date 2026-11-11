@@ -32,7 +32,7 @@ def _directions(n):
 
 def shaded(ob):
     """Whether a part takes baked shade (and casts it)."""
-    if ob.type != "MESH" or ob.hide_get() or ob.get("detail", 0) > 0:
+    if ob.type != "MESH" or ob.hide_get() or ob.get("detail", 0) > 0 or ob.get("no_shade"):
         return False
     if ob.get("kind") in ("glass", "marking") or ob.get("system") not in SHADED:
         return False

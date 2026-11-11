@@ -545,10 +545,11 @@ def sky_hdr(path, w=1024, h=512, sun_elev_deg=42, sun_az_deg=35):
 def generate_all(tex_dir, hdri_dir, size=2048):
     os.makedirs(tex_dir, exist_ok=True); os.makedirs(hdri_dir, exist_ok=True)
     fuselage_set(tex_dir, size=size, colour_size=size * 2)
-    from .dials import dials_atlas, panel_misc_atlas, placard_atlas
+    from .dials import dials_atlas, panel_misc_atlas, placard_atlas, wood_panel
     dials_atlas(os.path.join(tex_dir, "dials.png"))
     panel_misc_atlas(os.path.join(tex_dir, "panel_misc.png"))
     placard_atlas(os.path.join(tex_dir, "panel_placards.png"))
+    wood_panel(os.path.join(tex_dir, "wood_albedo.jpg"))
     write_cells(os.path.join(tex_dir, "atlas_cells.json"), FONT_BOLD)      # the layout of the lettering, for the builders
     wing_set(tex_dir, size=size)
     fin_set(tex_dir, size=size // 2)

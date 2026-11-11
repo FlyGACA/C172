@@ -1,10 +1,10 @@
 {
  "summary": {
-  "parts": 1193,
+  "parts": 1198,
   "by_detail": {
-   "0": 361,
+   "0": 369,
    "1": 582,
-   "2": 250
+   "2": 247
   },
   "by_system": {
    "AIRFRAME": 89,
@@ -12,10 +12,10 @@
    "BRAKES": 8,
    "CABIN_AIR": 15,
    "CONTROLS": 126,
-   "ELECTRICAL": 65,
+   "ELECTRICAL": 66,
    "EMPENNAGE": 61,
    "ENGINE": 96,
-   "FASTENERS": 229,
+   "FASTENERS": 226,
    "FUEL": 35,
    "GEAR": 24,
    "GROUND_EQUIPMENT": 8,
@@ -25,7 +25,7 @@
    "INSTRUMENTS": 44,
    "INTERIOR": 63,
    "OIL": 13,
-   "PANEL": 116,
+   "PANEL": 123,
    "PITOT_STATIC": 6,
    "POWERPLANT": 8,
    "STALL_WARNING": 2,
@@ -51,7 +51,7 @@
    "elevator_trim": 28,
    "engine_controls": 3,
    "engine_internals": 64,
-   "fasteners": 229,
+   "fasteners": 226,
    "flap_drive": 27,
    "fuel_system": 36,
    "ground_equipment": 9,
@@ -2910,7 +2910,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 220,
+   "triangles": 156,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -3083,7 +3083,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 524,
+   "triangles": 460,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -3095,7 +3095,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "estimated",
-   "triangles": 396,
+   "triangles": 524,
    "assembly": "electrical_system",
    "note": "Route representative"
   },
@@ -3181,7 +3181,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 156,
+   "triangles": 220,
    "assembly": "avionics",
    "ref": "p.7-23 to 7-27 (Fig 7-7)",
    "note": "Route representative"
@@ -7078,7 +7078,7 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 150
+   "triangles": 218
   },
   {
    "id": "INTERIOR.harness_sheath_L",
@@ -7165,9 +7165,9 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 76,
+   "triangles": 64,
    "assembly": "brake_system",
-   "ref": "p.7-10"
+   "ref": "p.7-9, 7-10"
   },
   {
    "id": "INTERIOR.pedal_L_L",
@@ -7677,47 +7677,47 @@
   {
    "id": "INTERIOR.yoke_L",
    "system": "INTERIOR",
-   "en": "Control yoke (pilot) — ailerons by rotation, elevator by push/pull",
+   "en": "Control wheel (pilot) — ailerons by rotation, elevator by push and pull",
    "ar": "عجلة القيادة (الطيار)",
    "parent": "INTERIOR.yoke_shaft_L",
    "detail": 0,
    "status": "poh",
-   "triangles": 2832,
+   "triangles": 6240,
    "assembly": "aileron_control,elevator_control,control_lock",
-   "ref": "p.7-6"
+   "ref": "p.7-6 (Fig 7-2), 7-8"
   },
   {
    "id": "INTERIOR.yoke_R",
    "system": "INTERIOR",
-   "en": "Control yoke (co-pilot) — ailerons by rotation, elevator by push/pull",
+   "en": "Control wheel (co-pilot) — ailerons by rotation, elevator by push and pull",
    "ar": "عجلة القيادة (مساعد الطيار)",
    "parent": "INTERIOR.yoke_shaft_R",
    "detail": 0,
    "status": "poh",
-   "triangles": 2832,
+   "triangles": 6240,
    "assembly": "aileron_control,elevator_control",
-   "ref": "p.7-6"
+   "ref": "p.7-6 (Fig 7-2), 7-8"
   },
   {
    "id": "INTERIOR.yoke_shaft_L",
    "system": "INTERIOR",
-   "en": "Control yoke shaft (elevator push/pull)",
+   "en": "Control wheel shaft (elevator push and pull)",
    "ar": "عمود عجلة القيادة",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 52,
+   "triangles": 60,
    "assembly": "control_lock"
   },
   {
    "id": "INTERIOR.yoke_shaft_R",
    "system": "INTERIOR",
-   "en": "Control yoke shaft (elevator push/pull)",
+   "en": "Control wheel shaft (elevator push and pull)",
    "ar": "عمود عجلة القيادة",
    "parent": "INTERIOR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 52
+   "triangles": 60
   },
   {
    "id": "OIL.breather_line",
@@ -7878,7 +7878,7 @@
    "parent": "ENGINE",
    "detail": 1,
    "status": "poh",
-   "triangles": 248,
+   "triangles": 376,
    "assembly": "oil_system",
    "ref": "p.7-17",
    "note": "An electrical-resistance sensor works the oil temperature gage (POH p.7-17); position and route representative"
@@ -7890,6 +7890,51 @@
    "ar": "لوحة العدادات",
    "parent": null,
    "group": true
+  },
+  {
+   "id": "PANEL.ADF.bezel",
+   "system": "PANEL",
+   "en": "ADF bearing indicator: rim and recess",
+   "ar": "مؤشر اتجاه ADF: الإطار والتجويف",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 518
+  },
+  {
+   "id": "PANEL.ADF.face",
+   "system": "PANEL",
+   "en": "ADF bearing indicator: dial",
+   "ar": "مؤشر اتجاه ADF: القرص",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 120,
+   "ref": "p.7-7 (Fig 7-2)",
+   "note": "A plain face of its kind; the pointers of the radio aids are not driven"
+  },
+  {
+   "id": "PANEL.ADF.glass",
+   "system": "PANEL",
+   "en": "Instrument glass",
+   "ar": "زجاج العداد",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 120
+  },
+  {
+   "id": "PANEL.ADF.screws",
+   "system": "FASTENERS",
+   "en": "Mounting screws of the instrument (ADF)",
+   "ar": "براغي تثبيت العداد (ADF)",
+   "parent": "PANEL.ADF.bezel",
+   "detail": 2,
+   "status": "estimated",
+   "triangles": 96,
+   "assembly": "fasteners",
+   "note": "Each instrument is held in the panel by four screws; representative",
+   "count": 4
   },
   {
    "id": "PANEL.AI.air_nozzle",
@@ -7911,19 +7956,19 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 120,
    "assembly": "attitude_indicator",
    "ref": "p.7-34"
   },
   {
    "id": "PANEL.AI.bezel",
    "system": "PANEL",
-   "en": "AI bezel",
-   "ar": "إطار عداد AI",
+   "en": "Attitude indicator: rim and recess",
+   "ar": "مؤشر الوضع: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518,
    "assembly": "vacuum_system,attitude_indicator"
   },
   {
@@ -7988,12 +8033,12 @@
   {
    "id": "PANEL.AI.mask",
    "system": "PANEL",
-   "en": "Attitude indicator (miniature aeroplane)",
-   "ar": "مؤشر الوضع",
+   "en": "Attitude indicator (miniature aeroplane and bank index)",
+   "ar": "مؤشر الوضع (الطائرة المصغرة ومؤشر الميل)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 40,
    "assembly": "attitude_indicator",
    "ref": "p.7-34"
   },
@@ -8061,12 +8106,12 @@
   {
    "id": "PANEL.ALT.bezel",
    "system": "PANEL",
-   "en": "ALT bezel",
-   "ar": "إطار عداد ALT",
+   "en": "Altimeter: rim and recess",
+   "ar": "مقياس الارتفاع: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518,
    "assembly": "pitot_static,altimeter"
   },
   {
@@ -8084,14 +8129,13 @@
   {
    "id": "PANEL.ALT.face",
    "system": "PANEL",
-   "en": "ALT dial",
-   "ar": "قرص عداد ALT",
+   "en": "Altimeter: dial",
+   "ar": "مقياس الارتفاع: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "assembly": "altimeter",
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 120,
+   "assembly": "altimeter"
   },
   {
    "id": "PANEL.ALT.gear_train",
@@ -8131,30 +8175,30 @@
   {
    "id": "PANEL.ALT.needle_ALT_100",
    "system": "PANEL",
-   "en": "ALT needle (ALT_100)",
-   "ar": "إبرة ALT",
+   "en": "Altimeter: pointer (hundreds of feet)",
+   "ar": "مقياس الارتفاع: المؤشر (مئات الأقدام)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20,
+   "triangles": 102,
    "assembly": "altimeter"
   },
   {
    "id": "PANEL.ALT.needle_ALT_1000",
    "system": "PANEL",
-   "en": "ALT needle (ALT_1000)",
-   "ar": "إبرة ALT",
+   "en": "Altimeter: pointer (thousands of feet)",
+   "ar": "مقياس الارتفاع: المؤشر (آلاف الأقدام)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20,
+   "triangles": 24,
    "assembly": "altimeter"
   },
   {
    "id": "PANEL.ALT.needle_ALT_10000",
    "system": "PANEL",
-   "en": "ALT needle (ALT_10000)",
-   "ar": "إبرة ALT",
+   "en": "Altimeter: pointer (tens of thousands of feet)",
+   "ar": "مقياس الارتفاع: المؤشر (عشرات آلاف الأقدام)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
@@ -8201,24 +8245,24 @@
   {
    "id": "PANEL.AMMETER.bezel",
    "system": "PANEL",
-   "en": "AMMETER bezel",
-   "ar": "إطار عداد AMMETER",
+   "en": "Ammeter: frame",
+   "ar": "مقياس التيار: الإطار",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 60,
    "assembly": "electrical_system"
   },
   {
    "id": "PANEL.AMMETER.face",
    "system": "PANEL",
-   "en": "AMMETER dial",
-   "ar": "قرص عداد AMMETER",
+   "en": "Ammeter: dial",
+   "ar": "مقياس التيار: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 2,
+   "ref": "Fig 2-3 markings"
   },
   {
    "id": "PANEL.AMMETER.glass",
@@ -8228,40 +8272,27 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 2
   },
   {
    "id": "PANEL.AMMETER.needle_AMMETER",
    "system": "PANEL",
-   "en": "AMMETER needle (AMMETER)",
-   "ar": "إبرة AMMETER",
+   "en": "Ammeter: pointer",
+   "ar": "مقياس التيار: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
    "triangles": 20
   },
   {
-   "id": "PANEL.AMMETER.screws",
-   "system": "FASTENERS",
-   "en": "Mounting screws of the instrument (AMMETER)",
-   "ar": "براغي تثبيت العداد (AMMETER)",
-   "parent": "PANEL.AMMETER.bezel",
-   "detail": 2,
-   "status": "estimated",
-   "triangles": 96,
-   "assembly": "fasteners",
-   "note": "Each instrument is held in the panel by four screws; representative",
-   "count": 4
-  },
-  {
    "id": "PANEL.ASI.bezel",
    "system": "PANEL",
-   "en": "ASI bezel",
-   "ar": "إطار عداد ASI",
+   "en": "Airspeed indicator: rim and recess",
+   "ar": "مؤشر السرعة الجوية: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518,
    "assembly": "pitot_static,airspeed_indicator"
   },
   {
@@ -8291,12 +8322,12 @@
   {
    "id": "PANEL.ASI.face",
    "system": "PANEL",
-   "en": "ASI dial",
-   "ar": "قرص عداد ASI",
+   "en": "Airspeed indicator: dial",
+   "ar": "مؤشر السرعة الجوية: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 120,
    "assembly": "airspeed_indicator",
    "ref": "Fig 2-2 / 2-3 markings"
   },
@@ -8326,12 +8357,12 @@
   {
    "id": "PANEL.ASI.needle_ASI",
    "system": "PANEL",
-   "en": "ASI needle (ASI)",
-   "ar": "إبرة ASI",
+   "en": "Airspeed indicator: pointer",
+   "ar": "مؤشر السرعة الجوية: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20,
+   "triangles": 102,
    "assembly": "airspeed_indicator"
   },
   {
@@ -8386,23 +8417,22 @@
   {
    "id": "PANEL.CLOCK.bezel",
    "system": "PANEL",
-   "en": "CLOCK bezel",
-   "ar": "إطار عداد CLOCK",
+   "en": "Clock: rim and recess",
+   "ar": "الساعة: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320
+   "triangles": 362
   },
   {
    "id": "PANEL.CLOCK.face",
    "system": "PANEL",
-   "en": "CLOCK dial",
-   "ar": "قرص عداد CLOCK",
+   "en": "Clock: dial",
+   "ar": "الساعة: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 84
   },
   {
    "id": "PANEL.CLOCK.glass",
@@ -8412,13 +8442,13 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 84
   },
   {
    "id": "PANEL.CLOCK.needle_CLOCK_H",
    "system": "PANEL",
-   "en": "CLOCK needle (CLOCK_H)",
-   "ar": "إبرة CLOCK",
+   "en": "Clock: pointer (hours)",
+   "ar": "الساعة: المؤشر (الساعات)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
@@ -8427,12 +8457,12 @@
   {
    "id": "PANEL.CLOCK.needle_CLOCK_M",
    "system": "PANEL",
-   "en": "CLOCK needle (CLOCK_M)",
-   "ar": "إبرة CLOCK",
+   "en": "Clock: pointer (minutes)",
+   "ar": "الساعة: المؤشر (الدقائق)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20
+   "triangles": 102
   },
   {
    "id": "PANEL.CLOCK.screws",
@@ -8462,23 +8492,23 @@
   {
    "id": "PANEL.DG.bezel",
    "system": "PANEL",
-   "en": "DG bezel",
-   "ar": "إطار عداد DG",
+   "en": "Directional indicator: rim and recess",
+   "ar": "المؤشر الاتجاهي: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518,
    "assembly": "vacuum_system,directional_gyro"
   },
   {
    "id": "PANEL.DG.card",
    "system": "PANEL",
-   "en": "Directional gyro — compass card (vacuum)",
-   "ar": "الجيروسكوب الاتجاهي — بطاقة البوصلة",
+   "en": "Directional indicator — compass card (vacuum)",
+   "ar": "المؤشر الاتجاهي — بطاقة البوصلة",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 120,
    "assembly": "directional_gyro",
    "ref": "p.7-34"
   },
@@ -8544,12 +8574,12 @@
   {
    "id": "PANEL.DG.mask",
    "system": "PANEL",
-   "en": "Directional gyro (heading indicator)",
-   "ar": "مؤشر الاتجاه",
+   "en": "Directional indicator (lubber line)",
+   "ar": "المؤشر الاتجاهي (خط الاتجاه)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 40,
    "assembly": "directional_gyro",
    "ref": "p.7-34"
   },
@@ -8605,24 +8635,24 @@
   {
    "id": "PANEL.FUEL_L.bezel",
    "system": "PANEL",
-   "en": "FUEL_L bezel",
-   "ar": "إطار عداد FUEL_L",
+   "en": "Left fuel quantity indicator: frame",
+   "ar": "مؤشر كمية الوقود الأيسر: الإطار",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 60,
    "assembly": "fuel_system"
   },
   {
    "id": "PANEL.FUEL_L.face",
    "system": "PANEL",
-   "en": "FUEL_L dial",
-   "ar": "قرص عداد FUEL_L",
+   "en": "Left fuel quantity indicator: dial",
+   "ar": "مؤشر كمية الوقود الأيسر: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 2,
+   "ref": "Fig 2-3 markings"
   },
   {
    "id": "PANEL.FUEL_L.glass",
@@ -8632,52 +8662,39 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 2
   },
   {
    "id": "PANEL.FUEL_L.needle_FUEL_L",
    "system": "PANEL",
-   "en": "FUEL_L needle (FUEL_L)",
-   "ar": "إبرة FUEL_L",
+   "en": "Left fuel quantity indicator: pointer",
+   "ar": "مؤشر كمية الوقود الأيسر: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
    "triangles": 20
   },
   {
-   "id": "PANEL.FUEL_L.screws",
-   "system": "FASTENERS",
-   "en": "Mounting screws of the instrument (FUEL_L)",
-   "ar": "براغي تثبيت العداد (FUEL_L)",
-   "parent": "PANEL.FUEL_L.bezel",
-   "detail": 2,
-   "status": "estimated",
-   "triangles": 96,
-   "assembly": "fasteners",
-   "note": "Each instrument is held in the panel by four screws; representative",
-   "count": 4
-  },
-  {
    "id": "PANEL.FUEL_R.bezel",
    "system": "PANEL",
-   "en": "FUEL_R bezel",
-   "ar": "إطار عداد FUEL_R",
+   "en": "Right fuel quantity indicator: frame",
+   "ar": "مؤشر كمية الوقود الأيمن: الإطار",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 48,
    "assembly": "fuel_system"
   },
   {
    "id": "PANEL.FUEL_R.face",
    "system": "PANEL",
-   "en": "FUEL_R dial",
-   "ar": "قرص عداد FUEL_R",
+   "en": "Right fuel quantity indicator: dial",
+   "ar": "مؤشر كمية الوقود الأيمن: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 2,
+   "ref": "Fig 2-3 markings"
   },
   {
    "id": "PANEL.FUEL_R.glass",
@@ -8687,105 +8704,38 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 2
   },
   {
    "id": "PANEL.FUEL_R.needle_FUEL_R",
    "system": "PANEL",
-   "en": "FUEL_R needle (FUEL_R)",
-   "ar": "إبرة FUEL_R",
+   "en": "Right fuel quantity indicator: pointer",
+   "ar": "مؤشر كمية الوقود الأيمن: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
    "triangles": 20
-  },
-  {
-   "id": "PANEL.FUEL_R.screws",
-   "system": "FASTENERS",
-   "en": "Mounting screws of the instrument (FUEL_R)",
-   "ar": "براغي تثبيت العداد (FUEL_R)",
-   "parent": "PANEL.FUEL_R.bezel",
-   "detail": 2,
-   "status": "estimated",
-   "triangles": 96,
-   "assembly": "fasteners",
-   "note": "Each instrument is held in the panel by four screws; representative",
-   "count": 4
-  },
-  {
-   "id": "PANEL.OAT.bezel",
-   "system": "PANEL",
-   "en": "OAT bezel",
-   "ar": "إطار عداد OAT",
-   "parent": "PANEL",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 320
-  },
-  {
-   "id": "PANEL.OAT.face",
-   "system": "PANEL",
-   "en": "OAT dial",
-   "ar": "قرص عداد OAT",
-   "parent": "PANEL",
-   "detail": 0,
-   "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
-  },
-  {
-   "id": "PANEL.OAT.glass",
-   "system": "PANEL",
-   "en": "Instrument glass",
-   "ar": "زجاج العداد",
-   "parent": "PANEL",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 120
-  },
-  {
-   "id": "PANEL.OAT.needle_OAT",
-   "system": "PANEL",
-   "en": "OAT needle (OAT)",
-   "ar": "إبرة OAT",
-   "parent": "PANEL",
-   "detail": 0,
-   "status": "poh",
-   "triangles": 20
-  },
-  {
-   "id": "PANEL.OAT.screws",
-   "system": "FASTENERS",
-   "en": "Mounting screws of the instrument (OAT)",
-   "ar": "براغي تثبيت العداد (OAT)",
-   "parent": "PANEL.OAT.bezel",
-   "detail": 2,
-   "status": "estimated",
-   "triangles": 96,
-   "assembly": "fasteners",
-   "note": "Each instrument is held in the panel by four screws; representative",
-   "count": 4
   },
   {
    "id": "PANEL.OIL_P.bezel",
    "system": "PANEL",
-   "en": "OIL_P bezel",
-   "ar": "إطار عداد OIL_P",
+   "en": "Oil pressure gage: frame",
+   "ar": "مقياس ضغط الزيت: الإطار",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320
+   "triangles": 48
   },
   {
    "id": "PANEL.OIL_P.face",
    "system": "PANEL",
-   "en": "OIL_P dial",
-   "ar": "قرص عداد OIL_P",
+   "en": "Oil pressure gage: dial",
+   "ar": "مقياس ضغط الزيت: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 2,
+   "ref": "Fig 2-3 markings"
   },
   {
    "id": "PANEL.OIL_P.glass",
@@ -8795,51 +8745,38 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 2
   },
   {
    "id": "PANEL.OIL_P.needle_OIL_P",
    "system": "PANEL",
-   "en": "OIL_P needle (OIL_P)",
-   "ar": "إبرة OIL_P",
+   "en": "Oil pressure gage: pointer",
+   "ar": "مقياس ضغط الزيت: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
    "triangles": 20
   },
   {
-   "id": "PANEL.OIL_P.screws",
-   "system": "FASTENERS",
-   "en": "Mounting screws of the instrument (OIL_P)",
-   "ar": "براغي تثبيت العداد (OIL_P)",
-   "parent": "PANEL.OIL_P.bezel",
-   "detail": 2,
-   "status": "estimated",
-   "triangles": 96,
-   "assembly": "fasteners",
-   "note": "Each instrument is held in the panel by four screws; representative",
-   "count": 4
-  },
-  {
    "id": "PANEL.OIL_T.bezel",
    "system": "PANEL",
-   "en": "OIL_T bezel",
-   "ar": "إطار عداد OIL_T",
+   "en": "Oil temperature gage: frame",
+   "ar": "مقياس حرارة الزيت: الإطار",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320
+   "triangles": 60
   },
   {
    "id": "PANEL.OIL_T.face",
    "system": "PANEL",
-   "en": "OIL_T dial",
-   "ar": "قرص عداد OIL_T",
+   "en": "Oil temperature gage: dial",
+   "ar": "مقياس حرارة الزيت: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 2,
+   "ref": "Fig 2-3 markings"
   },
   {
    "id": "PANEL.OIL_T.glass",
@@ -8849,51 +8786,38 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 2
   },
   {
    "id": "PANEL.OIL_T.needle_OIL_T",
    "system": "PANEL",
-   "en": "OIL_T needle (OIL_T)",
-   "ar": "إبرة OIL_T",
+   "en": "Oil temperature gage: pointer",
+   "ar": "مقياس حرارة الزيت: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
    "triangles": 20
   },
   {
-   "id": "PANEL.OIL_T.screws",
-   "system": "FASTENERS",
-   "en": "Mounting screws of the instrument (OIL_T)",
-   "ar": "براغي تثبيت العداد (OIL_T)",
-   "parent": "PANEL.OIL_T.bezel",
-   "detail": 2,
-   "status": "estimated",
-   "triangles": 96,
-   "assembly": "fasteners",
-   "note": "Each instrument is held in the panel by four screws; representative",
-   "count": 4
-  },
-  {
    "id": "PANEL.SUCTION.bezel",
    "system": "PANEL",
-   "en": "SUCTION bezel",
-   "ar": "إطار عداد SUCTION",
+   "en": "Suction gage: rim and recess",
+   "ar": "مقياس التفريغ: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 362,
    "assembly": "vacuum_system"
   },
   {
    "id": "PANEL.SUCTION.face",
    "system": "PANEL",
-   "en": "SUCTION dial",
-   "ar": "قرص عداد SUCTION",
+   "en": "Suction gage: dial",
+   "ar": "مقياس التفريغ: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 84,
    "ref": "Fig 2-2 / 2-3 markings"
   },
   {
@@ -8904,17 +8828,17 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 120
+   "triangles": 84
   },
   {
    "id": "PANEL.SUCTION.needle_SUCTION",
    "system": "PANEL",
-   "en": "SUCTION needle (SUCTION)",
-   "ar": "إبرة SUCTION",
+   "en": "Suction gage: pointer",
+   "ar": "مقياس التفريغ: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20
+   "triangles": 102
   },
   {
    "id": "PANEL.SUCTION.screws",
@@ -8932,12 +8856,12 @@
   {
    "id": "PANEL.TACH.bezel",
    "system": "PANEL",
-   "en": "TACH bezel",
-   "ar": "إطار عداد TACH",
+   "en": "Tachometer: rim and recess",
+   "ar": "عداد دورات المحرك: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518,
    "assembly": "tachometer"
   },
   {
@@ -8980,12 +8904,12 @@
   {
    "id": "PANEL.TACH.face",
    "system": "PANEL",
-   "en": "TACH dial",
-   "ar": "قرص عداد TACH",
+   "en": "Tachometer: dial",
+   "ar": "عداد دورات المحرك: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
+   "triangles": 120,
    "assembly": "tachometer",
    "ref": "Fig 2-2 / 2-3 markings"
   },
@@ -9015,12 +8939,12 @@
   {
    "id": "PANEL.TACH.needle_TACH",
    "system": "PANEL",
-   "en": "TACH needle (TACH)",
-   "ar": "إبرة TACH",
+   "en": "Tachometer: pointer",
+   "ar": "عداد دورات المحرك: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20,
+   "triangles": 102,
    "assembly": "tachometer"
   },
   {
@@ -9051,24 +8975,24 @@
   {
    "id": "PANEL.TC.ball",
    "system": "PANEL",
-   "en": "Inclinometer ball (slip/skid)",
-   "ar": "كرة الانزلاق",
+   "en": "Inclinometer ball (slip and skid)",
+   "ar": "كرة مؤشر الانزلاق",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 48,
+   "triangles": 52,
    "assembly": "turn_coordinator",
    "ref": "p.7-34"
   },
   {
    "id": "PANEL.TC.bezel",
    "system": "PANEL",
-   "en": "TC bezel",
-   "ar": "إطار عداد TC",
+   "en": "Turn coordinator: rim and recess",
+   "ar": "منسق الانعطاف: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518,
    "assembly": "turn_coordinator"
   },
   {
@@ -9110,14 +9034,13 @@
   {
    "id": "PANEL.TC.face",
    "system": "PANEL",
-   "en": "TC dial",
-   "ar": "قرص عداد TC",
+   "en": "Turn coordinator: dial",
+   "ar": "منسق الانعطاف: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "assembly": "turn_coordinator",
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 120,
+   "assembly": "turn_coordinator"
   },
   {
    "id": "PANEL.TC.gimbal",
@@ -9157,12 +9080,12 @@
   {
    "id": "PANEL.TC.needle_TC",
    "system": "PANEL",
-   "en": "Turn coordinator miniature aeroplane (electric gyro)",
-   "ar": "طائرة مصغرة لمنسق الانعطاف",
+   "en": "Turn coordinator: miniature aeroplane (electric gyro)",
+   "ar": "منسق الانعطاف: الطائرة المصغرة (جيروسكوب كهربائي)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 36,
+   "triangles": 88,
    "assembly": "turn_coordinator",
    "ref": "p.7-34"
   },
@@ -9180,14 +9103,104 @@
    "count": 4
   },
   {
-   "id": "PANEL.VSI.bezel",
+   "id": "PANEL.VOR1.bezel",
    "system": "PANEL",
-   "en": "VSI bezel",
-   "ar": "إطار عداد VSI",
+   "en": "Omni course indicator 1: rim and recess",
+   "ar": "مؤشر مسار أومني 1: الإطار والتجويف",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 320,
+   "triangles": 518
+  },
+  {
+   "id": "PANEL.VOR1.face",
+   "system": "PANEL",
+   "en": "Omni course indicator 1: dial",
+   "ar": "مؤشر مسار أومني 1: القرص",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 120,
+   "ref": "p.7-7 (Fig 7-2)",
+   "note": "A plain face of its kind; the pointers of the radio aids are not driven"
+  },
+  {
+   "id": "PANEL.VOR1.glass",
+   "system": "PANEL",
+   "en": "Instrument glass",
+   "ar": "زجاج العداد",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 120
+  },
+  {
+   "id": "PANEL.VOR1.screws",
+   "system": "FASTENERS",
+   "en": "Mounting screws of the instrument (VOR1)",
+   "ar": "براغي تثبيت العداد (VOR1)",
+   "parent": "PANEL.VOR1.bezel",
+   "detail": 2,
+   "status": "estimated",
+   "triangles": 96,
+   "assembly": "fasteners",
+   "note": "Each instrument is held in the panel by four screws; representative",
+   "count": 4
+  },
+  {
+   "id": "PANEL.VOR2.bezel",
+   "system": "PANEL",
+   "en": "Omni course indicator 2: rim and recess",
+   "ar": "مؤشر مسار أومني 2: الإطار والتجويف",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 518
+  },
+  {
+   "id": "PANEL.VOR2.face",
+   "system": "PANEL",
+   "en": "Omni course indicator 2: dial",
+   "ar": "مؤشر مسار أومني 2: القرص",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 120,
+   "ref": "p.7-7 (Fig 7-2)",
+   "note": "A plain face of its kind; the pointers of the radio aids are not driven"
+  },
+  {
+   "id": "PANEL.VOR2.glass",
+   "system": "PANEL",
+   "en": "Instrument glass",
+   "ar": "زجاج العداد",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 120
+  },
+  {
+   "id": "PANEL.VOR2.screws",
+   "system": "FASTENERS",
+   "en": "Mounting screws of the instrument (VOR2)",
+   "ar": "براغي تثبيت العداد (VOR2)",
+   "parent": "PANEL.VOR2.bezel",
+   "detail": 2,
+   "status": "estimated",
+   "triangles": 96,
+   "assembly": "fasteners",
+   "note": "Each instrument is held in the panel by four screws; representative",
+   "count": 4
+  },
+  {
+   "id": "PANEL.VSI.bezel",
+   "system": "PANEL",
+   "en": "Rate-of-climb indicator: rim and recess",
+   "ar": "مؤشر معدل الصعود: الإطار والتجويف",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 518,
    "assembly": "pitot_static,vertical_speed_indicator"
   },
   {
@@ -9229,14 +9242,13 @@
   {
    "id": "PANEL.VSI.face",
    "system": "PANEL",
-   "en": "VSI dial",
-   "ar": "قرص عداد VSI",
+   "en": "Rate-of-climb indicator: dial",
+   "ar": "مؤشر معدل الصعود: القرص",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 38,
-   "assembly": "vertical_speed_indicator",
-   "ref": "Fig 2-2 / 2-3 markings"
+   "triangles": 120,
+   "assembly": "vertical_speed_indicator"
   },
   {
    "id": "PANEL.VSI.glass",
@@ -9264,12 +9276,12 @@
   {
    "id": "PANEL.VSI.needle_VSI",
    "system": "PANEL",
-   "en": "VSI needle (VSI)",
-   "ar": "إبرة VSI",
+   "en": "Rate-of-climb indicator: pointer",
+   "ar": "مؤشر معدل الصعود: المؤشر",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 20,
+   "triangles": 102,
    "assembly": "vertical_speed_indicator"
   },
   {
@@ -9317,7 +9329,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9328,7 +9340,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9339,7 +9351,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9350,7 +9362,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9361,7 +9373,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9372,7 +9384,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9383,7 +9395,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9394,7 +9406,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9405,7 +9417,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9416,7 +9428,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9427,7 +9439,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9438,7 +9450,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9449,7 +9461,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9460,7 +9472,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9471,7 +9483,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9482,7 +9494,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
   },
   {
@@ -9493,8 +9505,19 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 40,
+   "triangles": 58,
    "ref": "p.7-27"
+  },
+  {
+   "id": "PANEL.breaker_collars",
+   "system": "ELECTRICAL",
+   "en": "Mounting nuts of the circuit breakers",
+   "ar": "صواميل تثبيت قواطع الدائرة",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 952,
+   "count": 17
   },
   {
    "id": "PANEL.cabin_air",
@@ -9504,19 +9527,19 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 228,
+   "triangles": 260,
    "assembly": "cabin_air",
-   "ref": "p.7-23"
+   "ref": "p.7-29"
   },
   {
    "id": "PANEL.cabin_air_bushing",
    "system": "PANEL",
-   "en": "Instrument panel (fitting)",
-   "ar": "لوحة العدادات (تجهيز)",
+   "en": "Cabin air control: bushing",
+   "ar": "تحكم هواء المقصورة: الجلبة",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 196
   },
   {
    "id": "PANEL.cabin_heat",
@@ -9526,19 +9549,19 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 228,
+   "triangles": 260,
    "assembly": "cabin_air",
-   "ref": "p.7-23"
+   "ref": "p.7-29"
   },
   {
    "id": "PANEL.cabin_heat_bushing",
    "system": "PANEL",
-   "en": "Instrument panel (fitting)",
-   "ar": "لوحة العدادات (تجهيز)",
+   "en": "Cabin heat control: bushing",
+   "ar": "تحكم تدفئة المقصورة: الجلبة",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 196
   },
   {
    "id": "PANEL.carb_heat",
@@ -9548,19 +9571,30 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 228,
+   "triangles": 260,
    "assembly": "carburetor",
    "ref": "p.7-23"
   },
   {
    "id": "PANEL.carb_heat_bushing",
    "system": "PANEL",
-   "en": "Instrument panel (fitting)",
-   "ar": "لوحة العدادات (تجهيز)",
+   "en": "Carburetor heat control (pull = ON): bushing",
+   "ar": "تحكم تسخين المكربن (اسحب = تشغيل): الجلبة",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 196
+  },
+  {
+   "id": "PANEL.control_wheel_boots",
+   "system": "PANEL",
+   "en": "Flanges of the control wheel shafts on the panel",
+   "ar": "حلقتا عمودي عجلتي القيادة على اللوحة",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 472,
+   "count": 2
   },
   {
    "id": "PANEL.control_wheel_collars",
@@ -9583,52 +9617,74 @@
    "ar": "مؤشر وضع القلابات",
    "parent": "PANEL",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 2,
-   "ref": ""
+   "status": "poh",
+   "triangles": 14,
+   "ref": "p.7-9, 7-10"
+  },
+  {
+   "id": "PANEL.flap_slot",
+   "system": "PANEL",
+   "en": "Slotted plate of the wing flap switch lever",
+   "ar": "اللوحة المشقوقة لذراع مفتاح القلابات",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 60,
+   "ref": "p.7-9, 7-10",
+   "note": "The lever moves in a slotted panel with stops at the 10° and 20° positions (POH p.7-10)"
   },
   {
    "id": "PANEL.flap_switch",
    "system": "PANEL",
-   "en": "Wing flap switch (pre-select 0/10/20/30)",
-   "ar": "مفتاح القلابات",
+   "en": "Wing flap switch lever (UP, 10°, 20°, FULL)",
+   "ar": "ذراع مفتاح القلابات",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
-   "ref": "p.7-9"
+   "triangles": 40,
+   "ref": "p.7-9, 7-10"
   },
   {
    "id": "PANEL.hourmeter",
    "system": "PANEL",
-   "en": "Hour meter",
-   "ar": "عداد الساعات",
+   "en": "Flight hour recorder",
+   "ar": "مسجل ساعات الطيران",
    "parent": "PANEL",
    "detail": 0,
-   "status": "estimated",
-   "triangles": 2,
-   "ref": ""
+   "status": "poh",
+   "triangles": 14,
+   "ref": "p.7-7 (Fig 7-2)"
   },
   {
    "id": "PANEL.ignition",
    "system": "PANEL",
-   "en": "Ignition switch placard OFF-R-L-BOTH-START",
-   "ar": "لوحة مفتاح الإشعال",
+   "en": "Ignition switch plate: OFF, R, L, BOTH, START",
+   "ar": "لوحة مفتاح الإشعال: OFF ،R ،L ،BOTH ،START",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 14,
+   "ref": "p.7-25"
+  },
+  {
+   "id": "PANEL.ignition_nut",
+   "system": "PANEL",
+   "en": "Ignition switch mounting nut",
+   "ar": "صامولة تثبيت مفتاح الإشعال",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 2,
-   "ref": ""
+   "triangles": 56
   },
   {
    "id": "PANEL.ignition_switch",
    "system": "IGNITION",
-   "en": "Ignition switch (key) OFF-R-L-BOTH-START",
-   "ar": "مفتاح الإشعال",
+   "en": "Ignition switch (key): OFF, R, L, BOTH, START",
+   "ar": "مفتاح الإشعال (بالمفتاح): OFF ،R ،L ،BOTH ،START",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 132,
+   "triangles": 168,
    "assembly": "control_lock",
    "ref": "p.7-25"
   },
@@ -9640,8 +9696,45 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 2880,
-   "note": "Four to an instrument; representative"
+   "triangles": 2304,
+   "note": "Four to an instrument; representative",
+   "count": 48
+  },
+  {
+   "id": "PANEL.instrument_space_1",
+   "system": "PANEL",
+   "en": "Space for an additional instrument (blanked)",
+   "ar": "موضع لعداد إضافي (مغطّى)",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 520,
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "The right side of the panel has space for additional instruments and avionics equipment (POH, instrument panel description)"
+  },
+  {
+   "id": "PANEL.instrument_space_2",
+   "system": "PANEL",
+   "en": "Space for an additional instrument (blanked)",
+   "ar": "موضع لعداد إضافي (مغطّى)",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 520,
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "The right side of the panel has space for additional instruments and avionics equipment (POH, instrument panel description)"
+  },
+  {
+   "id": "PANEL.instrument_space_3",
+   "system": "PANEL",
+   "en": "Space for an additional instrument (blanked)",
+   "ar": "موضع لعداد إضافي (مغطّى)",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 520,
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "The right side of the panel has space for additional instruments and avionics equipment (POH, instrument panel description)"
   },
   {
    "id": "PANEL.lettering",
@@ -9651,7 +9744,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 44,
+   "triangles": 56,
    "note": "The plain names of the controls, placed beside them; the typeface and exact wording of the aircraft's placards are not reproduced"
   },
   {
@@ -9695,12 +9788,13 @@
   {
    "id": "PANEL.lower_panel",
    "system": "PANEL",
-   "en": "Lower panel (switches, engine controls) — wood-grain laminate",
-   "ar": "اللوحة السفلية (المفاتيح وأدوات التحكم بالمحرك)",
+   "en": "Subpanel (switches, circuit breakers, engine controls): wood-grain laminate",
+   "ar": "اللوحة السفلية (المفاتيح والقواطع وأدوات التحكم بالمحرك): قشرة بنقش الخشب",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14
+   "triangles": 108,
+   "ref": "p.7-8, 7-9"
   },
   {
    "id": "PANEL.magnetic_compass",
@@ -9710,8 +9804,8 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 14,
-   "ref": "p.7-x"
+   "triangles": 378,
+   "ref": "p.7-7 (Fig 7-2)"
   },
   {
    "id": "PANEL.map_compartment",
@@ -9728,24 +9822,24 @@
   {
    "id": "PANEL.master_alt",
    "system": "PANEL",
-   "en": "Master switch — ALT half",
-   "ar": "المفتاح الرئيسي — المولد",
+   "en": "Master switch — ALT half (left)",
+   "ar": "المفتاح الرئيسي — نصف المولّد (الأيسر)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "assembly": "electrical_system",
    "ref": "p.7-25/27"
   },
   {
    "id": "PANEL.master_bat",
    "system": "PANEL",
-   "en": "Master switch — BAT half (red split rocker)",
-   "ar": "المفتاح الرئيسي — البطارية",
+   "en": "Master switch — BAT half (right)",
+   "ar": "المفتاح الرئيسي — نصف البطارية (الأيمن)",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "assembly": "electrical_system",
    "ref": "p.7-25/27"
   },
@@ -9766,24 +9860,24 @@
   {
    "id": "PANEL.mixture",
    "system": "PANEL",
-   "en": "Mixture control (vernier, red) — pull = lean / idle cut-off",
-   "ar": "تحكم الخليط (أحمر)",
+   "en": "Mixture control (red, vernier): pull = lean and idle cut-off",
+   "ar": "تحكم الخليط (أحمر): اسحب للإفقار وقطع الوقود",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 416,
+   "triangles": 372,
    "assembly": "carburetor",
    "ref": "p.7-23"
   },
   {
    "id": "PANEL.mixture_bushing",
    "system": "PANEL",
-   "en": "Instrument panel (fitting)",
-   "ar": "لوحة العدادات (تجهيز)",
+   "en": "Mixture control (red, vernier): pull = lean and idle cut-off: bushing",
+   "ar": "تحكم الخليط (أحمر): اسحب للإفقار وقطع الوقود: الجلبة",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 196
   },
   {
    "id": "PANEL.placard_speed",
@@ -9793,30 +9887,30 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 2,
-   "ref": ""
+   "triangles": 14,
+   "ref": "Section 2"
   },
   {
    "id": "PANEL.primer",
    "system": "PANEL",
-   "en": "Engine primer (pull-push, lock)",
+   "en": "Engine primer (pull and push; locks when turned)",
    "ar": "مضخة التحضير",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 228,
+   "triangles": 260,
    "assembly": "fuel_system",
-   "ref": "p.7-23"
+   "ref": "p.7-22"
   },
   {
    "id": "PANEL.primer_bushing",
    "system": "PANEL",
-   "en": "Instrument panel (fitting)",
-   "ar": "لوحة العدادات (تجهيز)",
+   "en": "Engine primer (pull and push; locks when turned): bushing",
+   "ar": "مضخة التحضير: الجلبة",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 196
   },
   {
    "id": "PANEL.radio_ADF",
@@ -9826,9 +9920,10 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14,
+   "triangles": 152,
    "assembly": "avionics",
-   "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "A plain set of its kind for the period; the avionics fitted vary by aircraft"
   },
   {
    "id": "PANEL.radio_ADF.chassis",
@@ -9845,22 +9940,22 @@
   {
    "id": "PANEL.radio_ADF.knob_L",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_ADF",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
+   "triangles": 210
   },
   {
    "id": "PANEL.radio_ADF.knob_R",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_ADF",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
+   "triangles": 356
   },
   {
    "id": "PANEL.radio_AUDIO",
@@ -9870,9 +9965,10 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14,
+   "triangles": 542,
    "assembly": "avionics",
-   "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "A plain set of its kind for the period; the avionics fitted vary by aircraft"
   },
   {
    "id": "PANEL.radio_AUDIO.chassis",
@@ -9887,36 +9983,17 @@
    "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
-   "id": "PANEL.radio_AUDIO.knob_L",
-   "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
-   "parent": "PANEL.radio_AUDIO",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 56
-  },
-  {
-   "id": "PANEL.radio_AUDIO.knob_R",
-   "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
-   "parent": "PANEL.radio_AUDIO",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 56
-  },
-  {
    "id": "PANEL.radio_COMNAV1",
    "system": "PANEL",
-   "en": "NAV/COM 1 (360-channel COM, VOR/LOC NAV)",
+   "en": "NAV/COM 1 (COM transceiver, VOR/LOC NAV receiver)",
    "ar": "جهاز الملاحة والاتصال 1",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14,
+   "triangles": 290,
    "assembly": "avionics",
-   "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "A plain set of its kind for the period; the avionics fitted vary by aircraft"
   },
   {
    "id": "PANEL.radio_COMNAV1.chassis",
@@ -9933,22 +10010,22 @@
   {
    "id": "PANEL.radio_COMNAV1.knob_L",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_COMNAV1",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
+   "triangles": 356
   },
   {
    "id": "PANEL.radio_COMNAV1.knob_R",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_COMNAV1",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
+   "triangles": 356
   },
   {
    "id": "PANEL.radio_COMNAV2",
@@ -9958,9 +10035,10 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14,
+   "triangles": 290,
    "assembly": "avionics",
-   "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "A plain set of its kind for the period; the avionics fitted vary by aircraft"
   },
   {
    "id": "PANEL.radio_COMNAV2.chassis",
@@ -9977,34 +10055,35 @@
   {
    "id": "PANEL.radio_COMNAV2.knob_L",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_COMNAV2",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
+   "triangles": 356
   },
   {
    "id": "PANEL.radio_COMNAV2.knob_R",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_COMNAV2",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
+   "triangles": 356
   },
   {
    "id": "PANEL.radio_MARKER",
    "system": "PANEL",
-   "en": "Marker beacon lights",
-   "ar": "أضواء منارات العلامات",
+   "en": "Marker beacon indicator lights and switches",
+   "ar": "أضواء ومفاتيح منارات العلامات",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14,
+   "triangles": 80,
    "assembly": "avionics",
-   "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "A plain set of its kind for the period; the avionics fitted vary by aircraft"
   },
   {
    "id": "PANEL.radio_MARKER.chassis",
@@ -10019,36 +10098,17 @@
    "note": "Avionics equipment is stacked on the centreline of the panel (POH p.7-9); the depth of the unit is representative and the equipment fitted varies by aircraft"
   },
   {
-   "id": "PANEL.radio_MARKER.knob_L",
-   "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
-   "parent": "PANEL.radio_MARKER",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 56
-  },
-  {
-   "id": "PANEL.radio_MARKER.knob_R",
-   "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
-   "parent": "PANEL.radio_MARKER",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 56
-  },
-  {
    "id": "PANEL.radio_XPDR",
    "system": "PANEL",
-   "en": "Transponder (mode A/C)",
+   "en": "Transponder",
    "ar": "جهاز الاستجابة",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 14,
+   "triangles": 566,
    "assembly": "avionics",
-   "note": "Period-correct radio stack representation; specific installed avionics vary by serial number"
+   "ref": "p.7-6, 7-7 (Fig 7-2)",
+   "note": "A plain set of its kind for the period; the avionics fitted vary by aircraft"
   },
   {
    "id": "PANEL.radio_XPDR.chassis",
@@ -10065,22 +10125,12 @@
   {
    "id": "PANEL.radio_XPDR.knob_L",
    "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
+   "en": "Selector knob",
+   "ar": "مقبض الاختيار",
    "parent": "PANEL.radio_XPDR",
    "detail": 0,
    "status": "estimated",
-   "triangles": 56
-  },
-  {
-   "id": "PANEL.radio_XPDR.knob_R",
-   "system": "PANEL",
-   "en": "Frequency/volume knob",
-   "ar": "مقبض التردد",
-   "parent": "PANEL.radio_XPDR",
-   "detail": 0,
-   "status": "estimated",
-   "triangles": 56
+   "triangles": 210
   },
   {
    "id": "PANEL.switch_avionics_master",
@@ -10090,7 +10140,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "assembly": "avionics",
    "ref": "p.7-25/27"
   },
@@ -10102,8 +10152,19 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "ref": "p.7-25/27"
+  },
+  {
+   "id": "PANEL.switch_frames",
+   "system": "PANEL",
+   "en": "Frames of the rocker switches",
+   "ar": "إطارات المفاتيح",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 96,
+   "count": 8
   },
   {
    "id": "PANEL.switch_landing_light",
@@ -10113,7 +10174,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "ref": "p.7-25/27"
   },
   {
@@ -10124,7 +10185,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "ref": "p.7-25/27"
   },
   {
@@ -10135,7 +10196,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "ref": "p.7-25/27"
   },
   {
@@ -10146,7 +10207,7 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "ref": "p.7-25/27"
   },
   {
@@ -10157,40 +10218,42 @@
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 24,
+   "triangles": 16,
    "ref": "p.7-25/27"
   },
   {
    "id": "PANEL.throttle",
    "system": "PANEL",
-   "en": "Throttle (push = open), friction lock",
-   "ar": "الخانق (ادفع = فتح)",
+   "en": "Throttle (push = open), with friction lock",
+   "ar": "الخانق (ادفع = فتح) مع قفل الاحتكاك",
    "parent": "PANEL",
    "detail": 0,
    "status": "poh",
-   "triangles": 228,
+   "triangles": 316,
    "assembly": "carburetor",
    "ref": "p.7-23"
   },
   {
    "id": "PANEL.throttle_bushing",
    "system": "PANEL",
-   "en": "Instrument panel (fitting)",
-   "ar": "لوحة العدادات (تجهيز)",
+   "en": "Throttle (push = open), with friction lock: bushing and friction lock",
+   "ar": "الخانق (ادفع = فتح) مع قفل الاحتكاك: الجلبة وقفل الاحتكاك",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 80
+   "triangles": 236
   },
   {
    "id": "PANEL.upper_panel",
    "system": "PANEL",
-   "en": "Instrument panel (upper, flight & engine instruments)",
-   "ar": "لوحة العدادات العلوية",
+   "en": "Instrument panel (flight instruments, engine instruments, avionics)",
+   "ar": "لوحة العدادات (عدادات الطيران وعدادات المحرك وأجهزة الملاحة والاتصال)",
    "parent": "PANEL",
    "detail": 0,
    "status": "estimated",
-   "triangles": 228
+   "triangles": 2268,
+   "ref": "p.7-6 (Fig 7-2), 7-8",
+   "note": "Arranged as the handbook's figure and description give it; sizes and exact places estimated"
   },
   {
    "id": "PITOT_STATIC.alternate_static_valve",
@@ -10200,7 +10263,7 @@
    "parent": "SYSTEMS",
    "detail": 1,
    "status": "poh",
-   "triangles": 248,
+   "triangles": 312,
    "assembly": "pitot_static",
    "ref": "p.7-31",
    "note": "May be installed adjacent to the throttle; pulled ON it supplies static pressure from inside the cabin if the external port is blocked (POH p.7-31, 3-8)",

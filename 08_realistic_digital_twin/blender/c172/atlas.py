@@ -24,7 +24,7 @@ def decal_cells():
 # ---- white lettering laid on the panel beside each switch and control: the plain names of the controls
 LETTERING = ["MASTER", "ALT", "BAT", "BCN", "NAV", "STROBE", "TAXI", "LAND", "PITOT HT", "AVN PWR", "PRIMER", "CARB HEAT", "PULL ON", "THROTTLE",
              "PUSH OPEN", "MIXTURE", "PULL LEAN", "CABIN HT", "CABIN AIR", "PARK BRAKE", "WING FLAPS", "UP", "10", "20", "FULL", "ELEV TRIM", "NOSE DN", "NOSE UP",
-             "TAKE OFF", "FUEL", "LEFT", "BOTH", "RIGHT", "OFF", "CIRCUIT BREAKERS", "PUSH TO RESET", "MIC", "PHONE", "IGNITION", "LIGHTS", "PANEL LT", "RADIO LT"]
+             "TAKE OFF", "FUEL", "LEFT", "BOTH", "RIGHT", "OFF", "CIRCUIT BREAKERS", "PUSH TO RESET", "MIC", "PHONE", "IGNITION", "LIGHTS", "PANEL LT", "RADIO LT", "OIL"]
 LETTER_PX = 46          # height of a line of lettering in the atlas
 LETTER_SIZE = 1024
 _cells_file = None

@@ -25,6 +25,7 @@ from .common import Plane, sheet, wall, pipe, disc, rod, bar, tube, part, new_bm
 
 SYS = "INSTRUMENTS"
 PANEL_THICKNESS = 0.012
+DIAL_DEPTH = 0.0085               # the dials lie this far behind the face of the panel (cockpit.DIAL_DEPTH)
 CASE_DEPTH = 0.10
 FITTING = 0.006                   # how far a port stands out of the back of a case
 FRONT = 0.016                     # the front of a case is square for this depth (mounting screws in its corners, a knob in one), the rest round
@@ -80,7 +81,7 @@ class Instrument:
 
     def knob(self, bm, a, b, pinion_depth=0.009, ring_depth=None):
         """A setting knob in a corner of the square front: knob, shaft through the panel, pinion, and (ring_depth) the ring gear it turns."""
-        front = self.at(-PANEL_THICKNESS - 0.012, a, b)
+        front = self.at(-PANEL_THICKNESS - 0.005, a, b)                 # the knob stands on the rim of its instrument
         rod(bm, front, front + Y * 0.012, 0.006, segs=12)
         rod(bm, front, self.at(pinion_depth + 0.003, a, b), 0.0012, segs=6)
         pinion = 0.0045
@@ -101,7 +102,7 @@ class Instrument:
     def pointer_shaft(self, en, ar, pinion_depth=0.022, length=0.03):
         """The shaft that carries the pointer, with a pinion and a hairspring."""
         bm = new_bm()
-        rod(bm, self.at(-PANEL_THICKNESS - 0.004), self.at(length), 0.0012, segs=6)
+        rod(bm, self.at(-(PANEL_THICKNESS - DIAL_DEPTH)), self.at(length), 0.0012, segs=6)       # up to the dial, which lies in its recess in the panel
         plane = Plane(self.at(pinion_depth), X, Z)
         sheet(bm, plane, gear_outline(0.004, 10, 0.0008), 0.004, offset=-0.002)
         spiral = [self.at(pinion_depth + 0.008, 0.0015 * t * math.cos(2.4 * t), 0.0015 * t * math.sin(2.4 * t)) for t in (i * 0.12 for i in range(64))]
@@ -373,6 +374,7 @@ def engine_gauges(ctx, scene):
     gauge = back("OIL_T")
     bm = new_bm()
     rod(bm, sensor - Y * 0.018, sensor + Y * 0.012, 0.005, segs=8)
-    pipe(bm, [sensor + Y * 0.012, Vector((0.06, firewall - 0.04, 1.58)), Vector((0.06, firewall + 0.06, 1.62)), Vector((gauge.x - 0.02, gauge.y - 0.12, gauge.z)), gauge], 0.0016, bend=0.04)
+    pipe(bm, [sensor + Y * 0.012, Vector((0.06, firewall - 0.04, 1.58)), Vector((0.06, firewall + 0.07, 1.66)), Vector((0.44, firewall + 0.07, 1.66)),
+              Vector((0.44, gauge.y - 0.10, gauge.z + 0.02)), gauge - Y * 0.03, gauge], 0.0016, bend=0.04)      # along the firewall to the left wall, then aft to the gage at the edge of the panel
     part(ctx, "OIL.temperature_sensor", bm, "ENGINE", "OIL", "Oil temperature sensor (electrical resistance) and its wire to the gage", "حسّاس حرارة الزيت (مقاومة كهربائية) وسلكه إلى المقياس",
          "wire_yellow", status="poh", ref="p.7-17", smooth=True, assembly="oil_system", joins="ENGINE.accessory_housing", note="An electrical-resistance sensor works the oil temperature gage (POH p.7-17); position and route representative")

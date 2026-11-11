@@ -1,6 +1,14 @@
-"""Classic 1979 172N cockpit: instrument panel (six-pack, engine cluster, radio stack),
-controls, yokes, pedals, seats, belts and interior trim. Layout estimated from the
-period-correct reference photographs (C-FZKL panel); every control is its own object."""
+"""1979 Cessna 172N cockpit: instrument panel, subpanel, controls, control wheels, pedals, seats, belts and interior trim.
+
+The panel follows the handbook's own figure and description (POH Figure 7-2, p.7-6 and 7-7; text p.7-8 and 7-9): the
+gyros one over the other in front of the pilot with the control column under them, the airspeed indicator and the
+altimeter to their left and right, the tachometer under the turn coordinator, the omni course indicators and the
+ADF bearing indicator between the flight group and the avionics stack; the engine instruments, the fuel quantity
+indicators, the ammeter and the low-voltage light near the left edge; the avionics stacked about the centreline;
+space for more instruments on the right. The subpanel under it carries the primer, the master, ignition and
+avionics power switches, the circuit breakers and the electrical switches on the left, the engine controls in the
+middle over the pedestal, and the flap switch, the cabin heat and air controls and the map compartment on the right.
+Sizes and exact places are estimated; every control is its own object."""
 import math
 import bpy
 from mathutils import Vector
@@ -8,63 +16,95 @@ from mathutils import Vector
 from . import units as U
 from .units import fs, wl
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf,
-                     add_bevel, extrude_profile, rounded_rect, ellipse)
-from .dials import cell_uv, MISC, CELLS
+                     add_bevel, add_boolean, extrude_profile, rounded_rect, ellipse)
+from .dials import cell_uv, MISC, CELLS, RADIO_W, RADIO_ROWS, RADIO_KNOBS, radio_height, RECT_W, RECT_H, RECT_PIVOT, RECT_COVER, rect_radius
 from .atlas import lettering_cells
 from .airframe import fus_half_width_at, floor_z
 
+X, Y, Z = Vector((1, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1))
+
 CABIN_LIFT = 0.10         # applied by build() to everything not fixed to the floor (estimated)
 FLOOR_MOUNTED = ("INTERIOR.pedal_", "FUEL.selector_", "INTERIOR.baggage_bulkhead")
-PANEL_SQUEEZE = 0.945     # the panel layout is drawn 1.06 m wide; build() closes it up to fit between the cabin walls
 PANEL_HALF = 0.50         # half width of the panel plates (m)
 FLOOR_TOP = 0.945         # top of the cabin floor panel (airframe.build_details)
 PANEL_Y = fs(19)          # instrument panel face (aft side), facing the pilot (+y)
-PANEL_Z0, PANEL_Z1 = 1.37, 1.64
-LOWER_Z0, LOWER_Z1 = 1.22, 1.37
-D3 = 0.079; D2 = 0.057   # 3⅛ in and 2¼ in instrument face diameters
+PANEL_T = 0.012           # thickness of the panel plate (detail/instruments.py builds the cases against its back)
+PANEL_Z0, PANEL_Z1 = 1.335, 1.64      # the instrument panel: three rows of instruments (heights before CABIN_LIFT)
+LOWER_Z0, LOWER_Z1 = 1.22, 1.335      # the subpanel under it
+LOWER_FACE = 0.018        # the laminate of the subpanel stands this far aft of the face of the panel
+D3 = 0.079; D2 = 0.057; D1 = 0.042    # 3⅛ in and 2¼ in instrument faces, and the small ones at the left edge
+ROW1, ROW2, ROW3 = 1.590, 1.496, 1.402                              # the three rows of instruments
+COL_ASI, COL_GYRO, COL_ALT, COL_NAV = 0.383, 0.288, 0.194, 0.100    # airspeed and turn; the gyros; altimeter and climb; the omni and ADF indicators
+COL_EDGE, COL_RECT = 0.458, 0.4625                                  # the small instruments near the left edge of the panel
+YOKE_X, YOKE_Z = COL_GYRO, ROW3       # the control columns come through the panel under the gyros (POH p.7-8)
+STACK_X = -0.0425                     # middle of the avionics stack
+STACK_TOP = 1.633
+SUB_UPPER, SUB_LOWER = 1.311, 1.266   # the two rows of the subpanel
+DIAL_DEPTH = 0.0085                   # the dials lie this far behind the face of the panel, each in its recess
+RIM = 0.0070                          # width of the moulded rim round an instrument
 
-# (name, cell, x, z, diameter, needles)
+# (name, cell of the dial atlas, x, z, diameter, pointers)
 INSTRUMENTS = [
-    ("ASI", "ASI", 0.405, 1.565, D3, ["ASI"]),
-    ("AI", None, 0.305, 1.565, D3, []),
-    ("ALT", "ALT", 0.205, 1.565, D3, ["ALT_100", "ALT_1000", "ALT_10000"]),
-    ("TC", "TC", 0.405, 1.465, D3, ["TC"]),
-    ("DG", None, 0.305, 1.465, D3, []),
-    ("VSI", "VSI", 0.205, 1.465, D3, ["VSI"]),
-    ("CLOCK", "CLOCK", 0.490, 1.575, D2, ["CLOCK_H", "CLOCK_M"]),
-    ("FUEL_L", "FUEL_L", 0.490, 1.49, D2, ["FUEL_L"]),
-    ("FUEL_R", "FUEL_R", 0.490, 1.425, D2, ["FUEL_R"]),
-    ("OIL_T", "OIL_T", 0.120, 1.59, D2, ["OIL_T"]),
-    ("OIL_P", "OIL_P", 0.120, 1.525, D2, ["OIL_P"]),
-    ("AMMETER", "AMMETER", 0.120, 1.46, D2, ["AMMETER"]),
-    ("SUCTION", "SUCTION", 0.120, 1.395, D2, ["SUCTION"]),
-    ("TACH", "TACH", -0.270, 1.565, D3, ["TACH"]),
-    ("OAT", "CLOCK", -0.450, 1.58, D2, ["OAT"]),
+    ("ASI", "ASI", COL_ASI, ROW1, D3, ["ASI"]),
+    ("AI", None, COL_GYRO, ROW1, D3, []),
+    ("ALT", "ALT", COL_ALT, ROW1, D3, ["ALT_10000", "ALT_1000", "ALT_100"]),
+    ("VOR1", "VOR", COL_NAV, ROW1, D3, []),
+    ("TC", "TC", COL_ASI, ROW2, D3, ["TC"]),
+    ("DG", None, COL_GYRO, ROW2, D3, []),
+    ("VSI", "VSI", COL_ALT, ROW2, D3, ["VSI"]),
+    ("VOR2", "VOR", COL_NAV, ROW2, D3, []),
+    ("TACH", "TACH", COL_ASI, ROW3, D3, ["TACH"]),
+    ("ADF", "ADF", COL_NAV, ROW3, D3, []),
+    ("CLOCK", "CLOCK", COL_EDGE, 1.602, D1, ["CLOCK_H", "CLOCK_M"]),
+    ("SUCTION", "SUCTION", COL_EDGE, 1.543, D1, ["SUCTION"]),
 ]
-RADIOS = [("COMNAV1", 1.615, 0.050), ("COMNAV2", 1.563, 0.050), ("ADF", 1.511, 0.050), ("XPDR", 1.459, 0.050), ("AUDIO", 1.417, 0.034), ("MARKER", 1.385, 0.028)]
+# the small rectangular indicators: (name, x, z, width of the bar on its left (+x) side, on its right side)
+RECT_GAUGES = [
+    ("FUEL_L", COL_RECT + 0.016, 1.481, 0.0025, 0.002), ("FUEL_R", COL_RECT - 0.016, 1.481, 0.0, 0.0025),
+    ("OIL_T", COL_RECT + 0.016, 1.435, 0.0025, 0.002), ("OIL_P", COL_RECT - 0.016, 1.435, 0.0, 0.0025),
+    ("AMMETER", COL_RECT, 1.389, 0.0025, 0.0025),
+]
+BLANKS = [(-0.200, ROW1), (-0.296, ROW1), (-0.200, ROW2)]      # space for additional instruments (POH Figure 7-2, item 19)
+STACK = ["AUDIO", "MARKER", "COMNAV1", "COMNAV2", "ADF", "XPDR"]      # the avionics stack, top to bottom
+INSTRUMENT_NAMES = {
+    "ASI": ("Airspeed indicator", "مؤشر السرعة الجوية"), "AI": ("Attitude indicator", "مؤشر الوضع"), "ALT": ("Altimeter", "مقياس الارتفاع"),
+    "TC": ("Turn coordinator", "منسق الانعطاف"), "DG": ("Directional indicator", "المؤشر الاتجاهي"), "VSI": ("Rate-of-climb indicator", "مؤشر معدل الصعود"),
+    "TACH": ("Tachometer", "عداد دورات المحرك"), "VOR1": ("Omni course indicator 1", "مؤشر مسار أومني 1"), "VOR2": ("Omni course indicator 2", "مؤشر مسار أومني 2"),
+    "ADF": ("ADF bearing indicator", "مؤشر اتجاه ADF"), "CLOCK": ("Clock", "الساعة"), "SUCTION": ("Suction gage", "مقياس التفريغ"),
+    "FUEL_L": ("Left fuel quantity indicator", "مؤشر كمية الوقود الأيسر"), "FUEL_R": ("Right fuel quantity indicator", "مؤشر كمية الوقود الأيمن"),
+    "OIL_T": ("Oil temperature gage", "مقياس حرارة الزيت"), "OIL_P": ("Oil pressure gage", "مقياس ضغط الزيت"), "AMMETER": ("Ammeter", "مقياس التيار"),
+}
 
-def _uv_rect(bm, faces, region, flip_v=False):
-    uv = bm.loops.layers.uv.active
-    u0, v0, u1, v1 = region
-    for f in faces:
-        xs = [l.vert.co.x for l in f.loops]; zs = [l.vert.co.z for l in f.loops]
-        mnx, mxx, mnz, mxz = min(xs), max(xs), min(zs), max(zs)
-        for l in f.loops:
-            tu = (l.vert.co.x - mnx) / max(1e-9, mxx - mnx); tv = (l.vert.co.z - mnz) / max(1e-9, mxz - mnz)
-            l[uv].uv = (u0 + (u1 - u0) * tu, v0 + (v1 - v0) * tv)
+def stack_rows():
+    """The radios of the stack: (region, height of the middle of its face, height of its face), top to bottom."""
+    rows = []; top = STACK_TOP
+    for region in STACK:
+        h = radio_height(region)
+        rows.append((region, top - h / 2, h)); top -= h + 0.0012
+    return rows
 
-def disc_face(bm, center, r, region, segs=40, y_offset=0.0, flip=False):
-    """Flat disc facing +y, UV-mapped to a square atlas cell."""
+def disc_face(bm, center, r, region, segs=40, y_offset=0.0, fill=1.0, rings=(0.72, 1.0)):
+    """Flat disc facing +y, mapped to the circle inscribed in a square atlas cell (fill: how much of that circle
+    the disc shows). Built in rings round a middle vertex, so that the baked shade can differ from rim to middle."""
     uv = bm.loops.layers.uv.active
     c = Vector(center) + Vector((0, y_offset, 0))
-    verts = [bm.verts.new(c + Vector((r * math.cos(2 * math.pi * i / segs), 0, r * math.sin(2 * math.pi * i / segs)))) for i in range(segs)]
-    f = bm.faces.new(verts if flip else list(reversed(verts)))
-    f.smooth = False
     u0, v0, u1, v1 = region
-    for l in f.loops:
-        d = l.vert.co - c
-        l[uv].uv = (u0 + (u1 - u0) * (0.5 - 0.5 * d.x / r), v0 + (v1 - v0) * (0.5 + 0.5 * d.z / r))
-    return f
+    def tex(p):
+        d = p - c
+        return (u0 + (u1 - u0) * (0.5 - 0.5 * fill * d.x / r), v0 + (v1 - v0) * (0.5 + 0.5 * fill * d.z / r))
+    mid = bm.verts.new(c)
+    loops = [[bm.verts.new(c + Vector((r * k * math.cos(2 * math.pi * i / segs), 0, r * k * math.sin(2 * math.pi * i / segs)))) for i in range(segs)] for k in rings]
+    faces = []
+    for i in range(segs):
+        faces.append(bm.faces.new([mid, loops[0][(i + 1) % segs], loops[0][i]]))
+    for a, b in zip(loops, loops[1:]):
+        for i in range(segs):
+            faces.append(bm.faces.new([a[i], a[(i + 1) % segs], b[(i + 1) % segs], b[i]]))
+    for f in faces:
+        f.smooth = False
+        for l in f.loops:
+            l[uv].uv = tex(l.vert.co)
+    return faces
 
 def quad_face(bm, center, w, h, region, y_offset=0.0):
     uv = bm.loops.layers.uv.active
@@ -129,253 +169,433 @@ def pleated_insert(bm, corner, across, along, normal, width, length, pleats, ris
         for f in bm.faces:
             f.normal_flip()
 
-def needle(ctx, name, center, length, width, mat, label_en, label_ar, kind, y_off=0.012, tail=0.0, thickness=0.0015):
+def needle(ctx, name, pivot, length, width, mat, label_en, label_ar, kind, tail=0.0, style="pointer", thickness=0.0007, hub=None):
+    """A pointer: a flat blade that turns about `pivot`, its tip up at zero, a little proud of its dial.
+    hub: (radius, material) of the cap over its pivot, for the top pointer of an instrument."""
     bm = new_bm()
-    c = Vector(center) + Vector((0, y_off, 0))
-    # tapered pointer from the hub upward (+z), optional tail
-    pts = [(-width / 2, -tail), (width / 2, -tail), (width / 2 * 0.9, length * 0.6), (width * 0.12, length), (-width * 0.12, length), (-width / 2 * 0.9, length * 0.6)]
-    extrude_profile(bm, pts, Vector((1, 0, 0)), Vector((0, 0, 1)), c, Vector((0, 1, 0)), 0, thickness, smooth_sides=False)
+    c = Vector(pivot); w = width
+    if style == "spade":          # short and broad: the thousands of the altimeter
+        pts = [(-w * 0.22, -tail), (w * 0.22, -tail), (w * 0.22, length * 0.42), (w * 0.5, length * 0.62), (0.0, length), (-w * 0.5, length * 0.62), (-w * 0.22, length * 0.42)]
+    elif style == "marker":       # a thin stem with a triangle at the rim: the ten thousands of the altimeter
+        pts = [(-w * 0.5, -tail), (w * 0.5, -tail), (w * 0.5, length * 0.86), (w * 2.4, length), (-w * 2.4, length), (-w * 0.5, length * 0.86)]
+    else:
+        pts = [(-w * 0.5, -tail), (w * 0.5, -tail), (w * 0.42, length * 0.62), (w * 0.10, length), (-w * 0.10, length), (-w * 0.42, length * 0.62)]
+    extrude_profile(bm, pts, X, Z, c, Y, 0.0, thickness, smooth_sides=False)
+    if hub:
+        n0 = len(bm.faces)
+        rh = hub[0]
+        revolve(bm, [(rh, thickness), (rh, thickness + 0.0006), (rh * 0.62, thickness + 0.0015), (0.0, thickness + 0.0017)], axis="Y", origin=c, segs=14)
+        mark(bm, n0, 1)
     ob = obj_from_bm(name, bm, ctx.col, pivot=c, mat=mat, smooth=False)
+    if hub:
+        ob.data.materials.append(hub[1])
     parent_keep(ob, ctx.groups["PANEL"])
     ctx.tag(ob, "PANEL", label_en, label_ar, status="poh", needle=kind, spin_axis="y", spin_sign=-1, animate="needle")
+    ob["keep_faces"] = True; ob["no_shade"] = True
     return ob
+
+def face_aft(ob, slot=None):
+    """Make the flat faces of a part (those of material slot `slot`, or all of them) look aft, at the pilot. A flat
+    sheet has no inside: recalculating the normals of a mesh cannot tell which way it should face."""
+    turn = ob.matrix_world.to_3x3()
+    for p in ob.data.polygons:
+        if (slot is None or p.material_index == slot) and (turn @ p.normal).y < 0:
+            p.flip()
+    ob.data.update()
+    return ob
+
+def mark(bm, start, index):
+    """Give the faces made since `start` the material slot `index`."""
+    bm.faces.ensure_lookup_table()
+    for f in bm.faces[start:]:
+        f.material_index = index
+
+def knob_profile(r, h, y0=0.0):
+    """A turned knob: a short skirt, a straight grip, a rounded shoulder, a flat top."""
+    return [(r * 0.94, y0), (r, y0 + 0.0012), (r, y0 + h * 0.58), (r * 0.92, y0 + h * 0.84), (r * 0.78, y0 + h), (0.0, y0 + h)]
 
 def build_panel(ctx):
     M = ctx.mats
     grp = ctx.groups["PANEL"]
-    dials = ctx.mats["dials"]; misc = ctx.mats["panel_misc"]
-    # ---- upper panel plate (grey/black crinkle) and lower wood-grain panel
-    # the upper plate follows the inside of the skin where the cabin narrows toward the roof
+    dials = M["dials"]; misc = M["panel_misc"]
+    LF = PANEL_Y + LOWER_FACE            # the face of the subpanel
+
+    def make(name, bm, pivot, mat, en, ar, status="estimated", smooth=True, parent=None, system="PANEL", more=(), aft=False, **tags):
+        """aft: the part is a flat sheet (True) or carries one in a material slot (its number): turn it to the pilot."""
+        ob = obj_from_bm(name, bm, ctx.col, pivot=pivot, mat=mat, smooth=smooth)
+        for extra in more:
+            ob.data.materials.append(extra)
+        if aft is not False:
+            face_aft(ob, None if aft is True else aft)
+        parent_keep(ob, parent or grp)
+        ctx.tag(ob, system, en, ar, status=status, **tags)
+        return ob
+
+    # ---- the instrument panel: a black plate that follows the inside of the skin where the cabin narrows toward
+    # the roof, with an opening for each instrument
     def plate_half(z):
         return min(PANEL_HALF, fus_half_width_at(19, z + CABIN_LIFT) - 0.034)
     heights = [PANEL_Z0 + (PANEL_Z1 - PANEL_Z0) * i / 6 for i in range(7)]
     outline = [(plate_half(z), z) for z in heights] + [(-plate_half(z), z) for z in reversed(heights)]
     bm = new_bm()
-    extrude_profile(bm, outline, Vector((1, 0, 0)), Vector((0, 0, 1)), (0, 0, 0), Vector((0, 1, 0)), PANEL_Y - 0.012, PANEL_Y, smooth_sides=False)
-    panel = obj_from_bm("PANEL.upper_panel", bm, ctx.col, pivot=(0, PANEL_Y, PANEL_Z0), mat=M["panel_grey"], smooth=False)
-    add_bevel(panel, 0.004, 2)
-    parent_keep(panel, grp)
-    ctx.tag(panel, "PANEL", "Instrument panel (upper, flight & engine instruments)", "لوحة العدادات العلوية", status="estimated")
-    bm = new_bm()
-    box(bm, (2 * PANEL_HALF, 0.03, LOWER_Z1 - LOWER_Z0), center=(0, PANEL_Y - 0.0, (LOWER_Z0 + LOWER_Z1) / 2))
-    quad_face(bm, (0, PANEL_Y + 0.018, (LOWER_Z0 + LOWER_Z1) / 2), 2 * PANEL_HALF, LOWER_Z1 - LOWER_Z0, MISC["WOOD"])
-    lower = obj_from_bm("PANEL.lower_panel", bm, ctx.col, pivot=(0, PANEL_Y, LOWER_Z0), mat=M["woodgrain"], smooth=False)
-    lower.data.materials.append(misc)
-    lower.data.polygons[-1].material_index = 1
-    parent_keep(lower, grp)
-    ctx.tag(lower, "PANEL", "Lower panel (switches, engine controls) — wood-grain laminate", "اللوحة السفلية (المفاتيح وأدوات التحكم بالمحرك)", status="estimated")
-    # ---- instruments
+    extrude_profile(bm, outline, X, Z, (0, 0, 0), Y, PANEL_Y - PANEL_T, PANEL_Y, smooth_sides=False)
+    panel = make("PANEL.upper_panel", bm, (0, PANEL_Y, PANEL_Z0), M["panel_grey"], "Instrument panel (flight instruments, engine instruments, avionics)",
+                 "لوحة العدادات (عدادات الطيران وعدادات المحرك وأجهزة الملاحة والاتصال)", smooth=False, ref="p.7-6 (Fig 7-2), 7-8",
+                 note="Arranged as the handbook's figure and description give it; sizes and exact places estimated")
+    add_bevel(panel, 0.003, 2)
+    cut = new_bm()
     for name, cell, x, z, dia, needles in INSTRUMENTS:
-        c = (x, PANEL_Y, z)
-        # bezel ring
+        cylinder(cut, dia / 2 + 0.0007, 0.06, axis="Y", origin=(x, PANEL_Y - 0.04, z), segs=40 if dia > D2 else 28)
+    for name, x, z, bar_l, bar_r in RECT_GAUGES:
+        box(cut, (RECT_W + 0.0010, 0.06, RECT_H + 0.0010), center=(x, PANEL_Y - 0.01, z))
+    cutter = obj_from_bm("_cut_panel_openings", cut, ctx.cutters, smooth=False)
+    add_boolean(panel, cutter, name="openings")
+
+    # ---- the subpanel under it: wood-grain laminate
+    bm = new_bm()
+    box(bm, (2 * PANEL_HALF, PANEL_T + LOWER_FACE, LOWER_Z1 - LOWER_Z0), center=(0, PANEL_Y + (LOWER_FACE - PANEL_T) / 2, (LOWER_Z0 + LOWER_Z1) / 2))
+    bm.normal_update()
+    uv = bm.loops.layers.uv.active
+    for f in bm.faces:
+        aft = f.normal.y > 0.5
+        for l in f.loops:
+            p = l.vert.co
+            l[uv].uv = ((p.x + PANEL_HALF) / (2 * PANEL_HALF), (p.z - LOWER_Z0) / (LOWER_Z1 - LOWER_Z0)) if aft else (0.5 + p.x * 0.3, 0.5 + (p.y - PANEL_Y) * 2.0)
+    lower = make("PANEL.lower_panel", bm, (0, PANEL_Y, LOWER_Z0), M["woodgrain"], "Subpanel (switches, circuit breakers, engine controls): wood-grain laminate",
+                 "اللوحة السفلية (المفاتيح والقواطع وأدوات التحكم بالمحرك): قشرة بنقش الخشب", smooth=False, ref="p.7-8, 7-9")
+    add_bevel(lower, 0.0035, 2)
+
+    # ---- instruments: a moulded rim round each opening, the dial at the bottom of its recess, the glass in the rim
+    def rim_profile(r, blank=False):
+        lip = [(r + RIM, 0.0), (r + RIM - 0.0007, 0.0026), (r + RIM - 0.0024, 0.0045), (r + 0.0028, 0.0050), (r + 0.0012, 0.0041), (r + 0.0003, 0.0018)]
+        return lip + ([(r + 0.0003, 0.0006)] if blank else [(r + 0.0003, -DIAL_DEPTH - 0.0006)])
+
+    pointer_of = {"ASI": (0.80, 0.0052, 0.20, "pointer", 0), "VSI": (0.80, 0.0052, 0.20, "pointer", 0), "TACH": (0.80, 0.0052, 0.20, "pointer", 0),
+                  "SUCTION": (0.74, 0.0036, 0.20, "pointer", 0),
+                  "ALT_10000": (0.90, 0.0016, 0.0, "marker", 0), "ALT_1000": (0.52, 0.0100, 0.0, "spade", 1), "ALT_100": (0.86, 0.0044, 0.16, "pointer", 2),
+                  "CLOCK_H": (0.48, 0.0034, 0.0, "pointer", 0), "CLOCK_M": (0.74, 0.0026, 0.0, "pointer", 1)}
+    which = {"ALT_10000": (" (tens of thousands of feet)", " (عشرات آلاف الأقدام)"), "ALT_1000": (" (thousands of feet)", " (آلاف الأقدام)"), "ALT_100": (" (hundreds of feet)", " (مئات الأقدام)"),
+             "CLOCK_H": (" (hours)", " (الساعات)"), "CLOCK_M": (" (minutes)", " (الدقائق)")}
+    y_pointer = PANEL_Y - DIAL_DEPTH + 0.0030
+    for name, cell, x, z, dia, needles in INSTRUMENTS:
+        r = dia / 2; c = (x, PANEL_Y, z); segs = 40 if dia > D2 else 28
+        en, ar = INSTRUMENT_NAMES[name]
         bm = new_bm()
-        ro = dia / 2 + 0.006
-        revolve(bm, [(dia / 2 - 0.002, 0.0), (ro, 0.0), (ro, 0.012), (ro - 0.004, 0.016), (dia / 2 - 0.002, 0.016)], axis="Y", origin=c, segs=40, cap_start=False, cap_end=False)
-        bez = obj_from_bm(f"PANEL.{name}.bezel", bm, ctx.col, pivot=c, mat=M["bezel_black"])
-        parent_keep(bez, grp)
-        # screws
-        for a in (45, 135, 225, 315):
-            pass
-        ctx.tag(bez, "PANEL", f"{name} bezel", f"إطار عداد {name}", status="estimated", instrument=name)
+        revolve(bm, rim_profile(r), axis="Y", origin=c, segs=segs, cap_start=False, cap_end=True)
+        make(f"PANEL.{name}.bezel", bm, c, M["bezel_black"], f"{en}: rim and recess", f"{ar}: الإطار والتجويف", instrument=name)
         bm = new_bm()
-        if name == "AI":
-            disc_face(bm, c, dia / 2 * 0.98, cell_uv("AI_BALL"), y_offset=0.004)
-            ball = obj_from_bm("PANEL.AI.ball", bm, ctx.col, pivot=(x, PANEL_Y + 0.004, z), mat=dials, smooth=False)
-            parent_keep(ball, grp)
-            ctx.tag(ball, "PANEL", "Attitude indicator — gyro horizon (vacuum)", "مؤشر الوضع — الأفق الجيروسكوبي", status="poh", ref="p.7-34", animate="ai_ball", spin_axis="y", spin_sign=-1)
+        if name in ("AI", "DG"):
+            moving, fixed = ("AI_BALL", "AI_MASK") if name == "AI" else ("DG_CARD", "DG_MASK")
+            disc_face(bm, c, r * 0.98, cell_uv(moving), segs, y_offset=-DIAL_DEPTH)
+            if name == "AI":
+                ob = make("PANEL.AI.ball", bm, (x, PANEL_Y - DIAL_DEPTH, z), dials, "Attitude indicator — gyro horizon (vacuum)", "مؤشر الوضع — الأفق الجيروسكوبي", status="poh", smooth=False,
+                          aft=True, ref="p.7-34", animate="ai_ball", spin_axis="y", spin_sign=-1)
+            else:
+                ob = make("PANEL.DG.card", bm, (x, PANEL_Y - DIAL_DEPTH, z), dials, "Directional indicator — compass card (vacuum)", "المؤشر الاتجاهي — بطاقة البوصلة", status="poh", smooth=False,
+                          aft=True, ref="p.7-34", animate="dg_card", spin_axis="y", spin_sign=-1)
+            ob["keep_faces"] = True
             bm = new_bm()
-            disc_face(bm, c, dia / 2 * 1.0, cell_uv("AI_MASK"), y_offset=0.009)
-            mask = obj_from_bm("PANEL.AI.mask", bm, ctx.col, pivot=c, mat=ctx.mats["dials_alpha"], smooth=False)
-            parent_keep(mask, grp)
-            ctx.tag(mask, "PANEL", "Attitude indicator (miniature aeroplane)", "مؤشر الوضع", status="poh", ref="p.7-34", instrument="AI")
-        elif name == "DG":
-            disc_face(bm, c, dia / 2 * 0.98, cell_uv("DG_CARD"), y_offset=0.004)
-            card = obj_from_bm("PANEL.DG.card", bm, ctx.col, pivot=(x, PANEL_Y + 0.004, z), mat=dials, smooth=False)
-            parent_keep(card, grp)
-            ctx.tag(card, "PANEL", "Directional gyro — compass card (vacuum)", "الجيروسكوب الاتجاهي — بطاقة البوصلة", status="poh", ref="p.7-34", animate="dg_card", spin_axis="y", spin_sign=-1)
-            bm = new_bm()
-            disc_face(bm, c, dia / 2 * 1.0, cell_uv("DG_MASK"), y_offset=0.009)
-            mask = obj_from_bm("PANEL.DG.mask", bm, ctx.col, pivot=c, mat=ctx.mats["dials_alpha"], smooth=False)
-            parent_keep(mask, grp)
-            ctx.tag(mask, "PANEL", "Directional gyro (heading indicator)", "مؤشر الاتجاه", status="poh", ref="p.7-34", instrument="DG")
+            disc_face(bm, c, r, cell_uv(fixed), segs, y_offset=-DIAL_DEPTH + 0.0038, rings=(1.0,))
+            ob = make(f"PANEL.{name}.mask", bm, c, M["dials_alpha"], en + (" (miniature aeroplane and bank index)" if name == "AI" else " (lubber line)"),
+                      ar + (" (الطائرة المصغرة ومؤشر الميل)" if name == "AI" else " (خط الاتجاه)"), status="poh", smooth=False, aft=True, ref="p.7-34", instrument=name)
+            ob["keep_faces"] = True
         else:
-            disc_face(bm, c, dia / 2 * 0.99, cell_uv(cell), y_offset=0.004)
-            face = obj_from_bm(f"PANEL.{name}.face", bm, ctx.col, pivot=c, mat=dials, smooth=False)
-            parent_keep(face, grp)
-            ctx.tag(face, "PANEL", f"{name} dial", f"قرص عداد {name}", status="poh", instrument=name, ref="Fig 2-2 / 2-3 markings")
-        # glass
+            disc_face(bm, c, r, cell_uv(cell), segs, y_offset=-DIAL_DEPTH, fill=0.955)
+            ob = make(f"PANEL.{name}.face", bm, c, dials, f"{en}: dial", f"{ar}: القرص", status="poh" if name not in ("VOR1", "VOR2", "ADF") else "estimated", smooth=False, aft=True, instrument=name,
+                      **(dict(ref="Fig 2-2 / 2-3 markings") if name in ("ASI", "TACH", "SUCTION") else {}),
+                      **(dict(ref="p.7-7 (Fig 7-2)", note="A plain face of its kind; the pointers of the radio aids are not driven") if name in ("VOR1", "VOR2", "ADF") else {}))
+            ob["keep_faces"] = True
         bm = new_bm()
-        revolve(bm, [(0.0, 0.016), (dia / 2 * 0.6, 0.0155), (dia / 2 - 0.002, 0.013)], axis="Y", origin=c, segs=40, cap_start=False, cap_end=False)
-        gl = obj_from_bm(f"PANEL.{name}.glass", bm, ctx.col, pivot=c, mat=M["instrument_glass"])
-        parent_keep(gl, grp)
-        ctx.tag(gl, "PANEL", "Instrument glass", "زجاج العداد", status="estimated", kind="glass")
-        # needles
+        revolve(bm, [(0.0, -0.0004), (r * 0.6, -0.0007), (r + 0.0003, -0.0016)], axis="Y", origin=c, segs=segs, cap_start=False, cap_end=False)
+        make(f"PANEL.{name}.glass", bm, c, M["instrument_glass"], "Instrument glass", "زجاج العداد", kind="glass")
+        top = max((pointer_of[nd][4] for nd in needles if nd != "TC"), default=0)
         for nd in needles:
-            L = dia / 2 * 0.82; W = 0.005; mat = M["paint_white"]; tail = 0.0; yo = 0.008
-            if nd == "ALT_1000": L = dia / 2 * 0.55; W = 0.009
-            if nd == "ALT_10000": L = dia / 2 * 0.9; W = 0.0025
-            if nd == "TC": continue
-            if nd == "CLOCK_H": L = dia / 2 * 0.5; W = 0.004
-            if nd == "CLOCK_M": L = dia / 2 * 0.8; W = 0.003; yo = 0.0095
-            if nd in ("FUEL_L", "FUEL_R", "OIL_T", "OIL_P", "AMMETER", "SUCTION", "OAT"): L = dia / 2 * 0.8; W = 0.004
-            needle(ctx, f"PANEL.{name}.needle_{nd}", c, L, W, mat, f"{name} needle ({nd})", f"إبرة {name}", nd, y_off=yo, tail=tail)
+            if nd == "TC":
+                continue
+            length, width, tail, style, layer = pointer_of[nd]
+            more_en, more_ar = which.get(nd, ("", ""))
+            needle(ctx, f"PANEL.{name}.needle_{nd}", (x, y_pointer + layer * 0.0009, z), length * r, width, M["paint_white"], f"{en}: pointer{more_en}", f"{ar}: المؤشر{more_ar}", nd,
+                   tail=tail * r, style=style, hub=(0.0046 if dia > D2 else 0.0030, M["black_plastic"]) if layer == top else None)      # the top pointer carries the hub cap
         if name == "TC":
-            # miniature aeroplane needle (rotates about the hub) and the inclinometer ball
+            # the miniature aeroplane, seen from behind (it banks with the rate of turn), and the ball of the inclinometer
+            cc = Vector((x, y_pointer, z))
             bm = new_bm()
-            cc = Vector(c) + Vector((0, 0.009, 0))
-            box(bm, (dia * 0.7, 0.0015, 0.004), center=cc + Vector((0, 0, 0.002)))
-            box(bm, (0.006, 0.0015, 0.018), center=cc + Vector((0, 0, 0.0)))
-            box(bm, (0.016, 0.0015, 0.004), center=cc + Vector((0, 0, -0.012)))
-            tcn = obj_from_bm("PANEL.TC.needle_TC", bm, ctx.col, pivot=cc, mat=M["paint_white"], smooth=False)
-            parent_keep(tcn, grp)
-            ctx.tag(tcn, "PANEL", "Turn coordinator miniature aeroplane (electric gyro)", "طائرة مصغرة لمنسق الانعطاف", status="poh", ref="p.7-34", needle="TC", spin_axis="y", spin_sign=-1, animate="needle")
+            box(bm, (dia * 0.66, 0.0007, 0.0034), center=cc)
+            box(bm, (0.0030, 0.0007, 0.0125), center=cc + Vector((0, 0, 0.0075)))
+            box(bm, (0.0140, 0.0007, 0.0026), center=cc + Vector((0, 0, 0.0088)))
+            revolve(bm, [(0.0046, -0.00035), (0.0046, 0.00035)], axis="Y", origin=cc, segs=14)
+            tcn = make("PANEL.TC.needle_TC", bm, cc, M["paint_white"], "Turn coordinator: miniature aeroplane (electric gyro)", "منسق الانعطاف: الطائرة المصغرة (جيروسكوب كهربائي)", status="poh",
+                       smooth=False, ref="p.7-34", needle="TC", spin_axis="y", spin_sign=-1, animate="needle")
+            tcn["keep_faces"] = True; tcn["no_shade"] = True
             bm = new_bm()
-            revolve(bm, [(0.0, -0.004), (0.0045, -0.004), (0.0045, 0.004), (0.0, 0.004)], axis="Y", origin=(x, PANEL_Y + 0.009, z - dia * 0.3), segs=12)
-            ballo = obj_from_bm("PANEL.TC.ball", bm, ctx.col, pivot=(x, PANEL_Y + 0.009, z - dia * 0.3), mat=M["black_plastic"])
-            parent_keep(ballo, grp)
-            ctx.tag(ballo, "PANEL", "Inclinometer ball (slip/skid)", "كرة الانزلاق", status="poh", ref="p.7-34", animate="tc_ball")
-    # ---- radio stack (ARC 300-series style), period-correct 1979 layout
-    for region, z, h in RADIOS:
+            bc = (x, y_pointer - 0.0006, z - dia * 0.30)
+            revolve(bm, [(0.0042, -0.0006), (0.0042, 0.0006)], axis="Y", origin=bc, segs=14)
+            ballo = make("PANEL.TC.ball", bm, bc, M["black_plastic"], "Inclinometer ball (slip and skid)", "كرة مؤشر الانزلاق", status="poh", ref="p.7-34", animate="tc_ball")
+            ballo["no_shade"] = True
+
+    # ---- the small indicators near the left edge: a rectangular face each, in a common frame where two stand together
+    FRAME = 0.0032                       # the frame stands this far proud of the panel
+    for name, x, z, bar_l, bar_r in RECT_GAUGES:
+        en, ar = INSTRUMENT_NAMES[name]; c = (x, PANEL_Y, z)
+        hw, hh = RECT_W / 2, RECT_H / 2
+        x_l, x_r = x + hw + bar_l, x - hw - bar_r
+        depth = FRAME + DIAL_DEPTH; y_mid = PANEL_Y + (FRAME - DIAL_DEPTH) / 2
         bm = new_bm()
-        box(bm, (0.165, 0.025, h), center=(-0.045, PANEL_Y - 0.0125, z))
-        quad_face(bm, (-0.045, PANEL_Y + 0.003, z), 0.165, h, MISC[region])
-        ob = obj_from_bm(f"PANEL.radio_{region}", bm, ctx.col, pivot=(-0.045, PANEL_Y, z), mat=M["bezel_black"], smooth=False)
-        ob.data.materials.append(misc); ob.data.polygons[-1].material_index = 1
-        parent_keep(ob, grp)
-        labels = {"COMNAV1": ("NAV/COM 1 (360-channel COM, VOR/LOC NAV)", "جهاز الملاحة والاتصال 1"), "COMNAV2": ("NAV/COM 2", "جهاز الملاحة والاتصال 2"), "ADF": ("ADF receiver", "مستقبل ADF"),
-                  "XPDR": ("Transponder (mode A/C)", "جهاز الاستجابة"), "AUDIO": ("Audio control panel", "لوحة التحكم الصوتي"), "MARKER": ("Marker beacon lights", "أضواء منارات العلامات")}
-        ctx.tag(ob, "PANEL", labels[region][0], labels[region][1], status="estimated", note="Period-correct radio stack representation; specific installed avionics vary by serial number")
-        # knobs
-        for kx in (-0.07, 0.07):
+        for sz in (1, -1):
+            box(bm, (x_l - x_r, depth, 0.003), center=((x_l + x_r) / 2, y_mid, z + sz * (hh + 0.0015)))
+        if bar_l:
+            box(bm, (bar_l, depth, RECT_H), center=(x + hw + bar_l / 2, y_mid, z))
+        if bar_r:
+            box(bm, (bar_r, depth, RECT_H), center=(x - hw - bar_r / 2, y_mid, z))
+        cover_top = z - RECT_COVER                                                  # the cover over the foot of the pointer
+        box(bm, (RECT_W, 0.0016, cover_top - (z - hh)), center=(x, PANEL_Y - 0.0018, (cover_top + z - hh) / 2))
+        make(f"PANEL.{name}.bezel", bm, c, M["bezel_black"], f"{en}: frame", f"{ar}: الإطار", smooth=False, instrument=name, no_screws=True)
+        bm = new_bm()
+        quad_face(bm, c, RECT_W, RECT_H, MISC["G_" + name], y_offset=-DIAL_DEPTH)
+        ob = make(f"PANEL.{name}.face", bm, c, misc, f"{en}: dial", f"{ar}: القرص", status="poh", smooth=False, aft=True, instrument=name, ref="Fig 2-3 markings")
+        ob["keep_faces"] = True
+        bm = new_bm()
+        quad_face(bm, c, RECT_W, RECT_H, (0, 0, 1, 1), y_offset=-0.0006)
+        make(f"PANEL.{name}.glass", bm, c, M["instrument_glass"], "Instrument glass", "زجاج العداد", smooth=False, kind="glass")
+        needle(ctx, f"PANEL.{name}.needle_{name}", (x, y_pointer, z - RECT_PIVOT), rect_radius(name) * 0.98, 0.0016, M["paint_white"], f"{en}: pointer", f"{ar}: المؤشر", name)
+
+    # ---- space for additional instruments on the right: blanked openings
+    for i, (x, z) in enumerate(BLANKS):
+        bm = new_bm()
+        revolve(bm, rim_profile(D3 / 2, blank=True), axis="Y", origin=(x, PANEL_Y, z), segs=40, cap_start=False, cap_end=False)
+        n0 = len(bm.faces)
+        disc_face(bm, (x, PANEL_Y, z), D3 / 2 + 0.0003, (0.0, 0.0, 0.05, 0.05), 40, y_offset=0.0009, rings=(1.0,))      # the plug
+        mark(bm, n0, 1)
+        make(f"PANEL.instrument_space_{i + 1}", bm, (x, PANEL_Y, z), M["bezel_black"], "Space for an additional instrument (blanked)", "موضع لعداد إضافي (مغطّى)", status="poh", more=(M["black_plastic"],), aft=1,
+             ref="p.7-6, 7-7 (Fig 7-2)", note="The right side of the panel has space for additional instruments and avionics equipment (POH, instrument panel description)")
+
+    # ---- the avionics stack: each unit a face with its readouts and legends, and its knobs standing on it
+    labels = {"COMNAV1": ("NAV/COM 1 (COM transceiver, VOR/LOC NAV receiver)", "جهاز الملاحة والاتصال 1"), "COMNAV2": ("NAV/COM 2", "جهاز الملاحة والاتصال 2"), "ADF": ("ADF receiver", "مستقبل ADF"),
+              "XPDR": ("Transponder", "جهاز الاستجابة"), "AUDIO": ("Audio control panel", "لوحة التحكم الصوتي"), "MARKER": ("Marker beacon indicator lights and switches", "أضواء ومفاتيح منارات العلامات")}
+    for region, z, h in stack_rows():
+        cx = STACK_X; face_y = PANEL_Y + 0.0032
+        bm = new_bm()
+        box(bm, (RADIO_W, 0.0282, h), center=(cx, PANEL_Y - 0.0109, z))          # from 25 mm behind the face of the panel to 3 mm proud of it
+        n0 = len(bm.faces)
+        quad_face(bm, (cx, face_y + 0.0001, z), RADIO_W - 0.0004, h - 0.0004, MISC[region])
+        n1 = len(bm.faces)
+        big = sorted([k for k in RADIO_KNOBS[region] if k[2] >= 0.007], key=lambda k: k[0])
+        for u, v, r, kind in RADIO_KNOBS[region]:
+            o = (cx + RADIO_W / 2 - u * RADIO_W, face_y, z + h / 2 - v * h)
+            if kind == "bat":           # the lever of a small switch, on its nut
+                revolve(bm, [(0.0030, 0.0), (0.0030, 0.0014), (0.0019, 0.0022), (0.0, 0.0022)], axis="Y", origin=o, segs=8)
+                tube(bm, [Vector(o) + Vector((0, 0.0018, 0)), Vector(o) + Vector((0, 0.0095, 0.0032))], 0.0012, segs=6, radius_end=0.0016)
+            elif r < 0.007:
+                revolve(bm, knob_profile(r, 0.0095), axis="Y", origin=o, segs=14)
+        n2 = len(bm.faces)
+        mark(bm, n0, 1); mark(bm, n1, 2)
+        bats = any(k[3] == "bat" for k in RADIO_KNOBS[region])
+        ob = make(f"PANEL.radio_{region}", bm, (cx, PANEL_Y, z), M["bezel_black"], labels[region][0], labels[region][1], smooth=False, more=(misc, M["chrome"] if bats else M["black_plastic"]), aft=1,
+                  ref="p.7-6, 7-7 (Fig 7-2)", note="A plain set of its kind for the period; the avionics fitted vary by aircraft")
+        for side, (u, v, r, kind) in zip(("L", "R"), big):
+            o = (cx + RADIO_W / 2 - u * RADIO_W, face_y, z + h / 2 - v * h)
             bm = new_bm()
-            revolve(bm, [(0.0, 0.0), (0.008, 0.0), (0.008, 0.012), (0.0, 0.012)], axis="Y", origin=(-0.045 + kx, PANEL_Y, z - h * 0.1), segs=14)
-            kn = obj_from_bm(f"PANEL.radio_{region}.knob_{'R' if kx > 0 else 'L'}", bm, ctx.col, pivot=(-0.045 + kx, PANEL_Y, z), mat=M["black_plastic"])
-            parent_keep(kn, ob)
-            ctx.tag(kn, "PANEL", "Frequency/volume knob", "مقبض التردد", status="estimated", animate="knob", spin_axis="y", spin_sign=-1)
-    # ---- annunciator, flap indicator, hour meter, placards
-    for region, x, z, w, h, en, ar in [("LOW_VOLT", -0.36, 1.50, 0.07, 0.022, "LOW VOLTAGE warning light", "ضوء تحذير انخفاض الجهد"),
-                                       ("FLAP_IND", -0.22, 1.335, 0.06, 0.03, "Wing flap position indicator", "مؤشر وضع القلابات"),
-                                       ("HOURMETER", -0.30, 1.465, 0.05, 0.022, "Hour meter", "عداد الساعات"),
-                                       ("PLACARD_SPEED", 0.30, 1.395, 0.20, 0.03, "Limitations placard (POH Section 2)", "لوحة القيود"),
-                                       ("IGNITION", 0.43, 1.31, 0.04, 0.04, "Ignition switch placard OFF-R-L-BOTH-START", "لوحة مفتاح الإشعال")]:
+            if kind == "dual":          # two knobs, one on the other
+                revolve(bm, knob_profile(r, 0.0062), axis="Y", origin=o, segs=20)
+                revolve(bm, knob_profile(r * 0.60, 0.0085, 0.0062), axis="Y", origin=o, segs=16)
+            else:
+                revolve(bm, knob_profile(r, 0.0105), axis="Y", origin=o, segs=20)
+                box(bm, (0.0012, 0.0008, r * 0.9), center=(o[0], o[1] + 0.0107, o[2] + r * 0.45))      # the pointer line on a selector
+            kn = make(f"PANEL.radio_{region}.knob_{side}", bm, o, M["black_plastic"], "Selector knob", "مقبض الاختيار", parent=ob, animate="knob", spin_axis="y", spin_sign=-1)
+
+    # ---- small plates on the panel: the low-voltage light near the ammeter, the hour recorder, the limitations placard
+    def plate(name, x, z, w, h, region, en, ar, base=PANEL_Y, thick=0.0012, **tags):
         bm = new_bm()
-        quad_face(bm, (x, PANEL_Y + 0.003, z), w, h, MISC[region])
-        ob = obj_from_bm(f"PANEL.{region.lower()}", bm, ctx.col, pivot=(x, PANEL_Y, z), mat=misc, smooth=False)
-        parent_keep(ob, grp)
-        ctx.tag(ob, "PANEL", en, ar, status="poh" if region in ("LOW_VOLT", "PLACARD_SPEED") else "estimated", ref="p.7-26" if region == "LOW_VOLT" else "")
-    # ---- switches and engine controls on the lower panel
-    def rocker(name, x, z, en, ar, red=False, w=0.013):
-        bm = new_bm()
-        box(bm, (w + 0.006, 0.006, 0.030), center=(x, PANEL_Y + 0.0145, z))
-        box(bm, (w, 0.010, 0.022), center=(x, PANEL_Y + 0.020, z + 0.003))
-        ob = obj_from_bm(name, bm, ctx.col, pivot=(x, PANEL_Y + 0.015, z), mat=M["knob_red" if red else "black_plastic"], smooth=False)
-        parent_keep(ob, grp)
-        ctx.tag(ob, "PANEL", en, ar, status="poh", ref="p.7-25/27", animate="switch", hinge_axis="x", hinge_sign=1, range_deg=[-15, 15])
+        box(bm, (w, thick, h), center=(x, base + thick / 2, z))
+        n0 = len(bm.faces)
+        quad_face(bm, (x, base + thick + 0.0002, z), w - 0.0008, h - 0.0008, MISC[region])
+        mark(bm, n0, 1)
+        ob = make(name, bm, (x, PANEL_Y, z), M["bezel_black"], en, ar, smooth=False, more=(misc,), aft=1, **tags)
+        ob["keep_faces"] = True
         return ob
-    rocker("PANEL.master_bat", 0.505, 1.30, "Master switch — BAT half (red split rocker)", "المفتاح الرئيسي — البطارية", red=True, w=0.010)
-    rocker("PANEL.master_alt", 0.492, 1.30, "Master switch — ALT half", "المفتاح الرئيسي — المولد", red=True, w=0.010)
-    for i, (nm, en, ar) in enumerate([("beacon", "Beacon light switch", "مفتاح المنارة"), ("nav_lights", "Navigation lights switch", "مفتاح أضواء الملاحة"), ("strobe", "Strobe lights switch", "مفتاح أضواء الوميض"),
-                                      ("taxi_light", "Taxi light switch", "مفتاح ضوء التدرج"), ("landing_light", "Landing light switch", "مفتاح ضوء الهبوط"), ("pitot_heat", "Pitot heat switch", "مفتاح تسخين البيتو"),
-                                      ("avionics_master", "Avionics power switch", "مفتاح طاقة الأجهزة الإلكترونية")]):
-        rocker(f"PANEL.switch_{nm}", 0.37 - i * 0.03, 1.30, en, ar)
-    # ignition key switch
     bm = new_bm()
-    revolve(bm, [(0.0, 0.0), (0.016, 0.0), (0.016, 0.012), (0.006, 0.016), (0.0, 0.016)], axis="Y", origin=(0.43, PANEL_Y, 1.29), segs=20)
-    box(bm, (0.004, 0.02, 0.02), center=(0.43, PANEL_Y + 0.022, 1.282))
-    ign = obj_from_bm("PANEL.ignition_switch", bm, ctx.col, pivot=(0.43, PANEL_Y, 1.29), mat=M["black_plastic"])
-    parent_keep(ign, grp)
-    ctx.tag(ign, "IGNITION", "Ignition switch (key) OFF-R-L-BOTH-START", "مفتاح الإشعال", status="poh", ref="p.7-25", animate="ignition", spin_axis="y", spin_sign=-1, range_deg=[-70, 70])
-    # push-pull controls: carb heat, throttle, mixture (vernier), primer, cabin heat/air
-    def pull_knob(name, x, z, r, color, en, ar, travel=0.07, ring=False):
+    quad_face(bm, (COL_RECT, PANEL_Y + 0.0012, 1.351), 0.034, 0.018, MISC["LOW_VOLT"])
+    ob = make("PANEL.low_volt", bm, (COL_RECT, PANEL_Y, 1.351), misc, "LOW VOLTAGE warning light", "ضوء تحذير انخفاض الجهد", status="poh", smooth=False, aft=True, ref="p.7-26")
+    ob["keep_faces"] = True
+    plate("PANEL.hourmeter", -0.296, ROW2 + 0.004, 0.050, 0.024, "HOURMETER", "Flight hour recorder", "مسجل ساعات الطيران", status="poh", ref="p.7-7 (Fig 7-2)")
+    plate("PANEL.placard_speed", -0.415, ROW1 + 0.004, 0.128, 0.032, "PLACARD_SPEED", "Limitations placard (POH Section 2)", "لوحة القيود", status="poh", ref="Section 2")
+
+    # ---- the subpanel. Electrical switches: ivory rockers in black frames; the master switch a red split rocker
+    frames = new_bm()
+    def rocker(name, x, z, en, ar, red=False, w=0.0118, h=0.0220, frame=True):
         bm = new_bm()
-        tube(bm, [Vector((x, PANEL_Y - 0.05, z)), Vector((x, PANEL_Y + 0.045, z))], 0.004, segs=10)
-        revolve(bm, [(0.0, 0.045), (r * 0.8, 0.045), (r, 0.052), (r, 0.066), (r * 0.7, 0.070), (0.0, 0.070)], axis="Y", origin=(x, PANEL_Y, z), segs=24)
-        if ring:
-            revolve(bm, [(0.004, 0.015), (r * 0.75, 0.015), (r * 0.75, 0.03), (0.004, 0.03)], axis="Y", origin=(x, PANEL_Y, z), segs=24)
-        ob = obj_from_bm(name, bm, ctx.col, pivot=(x, PANEL_Y, z), mat=color)
-        parent_keep(ob, grp)
-        ctx.tag(ob, "PANEL", en, ar, status="poh", ref="p.7-23", animate="pull", travel_m=travel)
+        side = [(0.0, -h / 2), (0.0048, -h / 2), (0.0026, 0.0), (0.0048, h / 2), (0.0, h / 2)]       # from the side: both ends proud, the middle low
+        extrude_profile(bm, side, Y, Z, (x, LF + 0.0022, z), X, -w / 2, w / 2, smooth_sides=False)
+        if frame:
+            box(frames, (w + 0.0050, 0.0024, h + 0.0050), center=(x, LF + 0.0012, z))
+        return make(name, bm, (x, LF + 0.0022, z), M["knob_red" if red else "switch_ivory"], en, ar, status="poh", smooth=False, ref="p.7-25/27", animate="switch", hinge_axis="x",
+                    hinge_sign=1, range_deg=[-15, 15])
+    # the right half of the master switch, BAT, controls all electrical power; the left half, ALT, the alternator (POH p.7-25)
+    rocker("PANEL.master_alt", 0.4445, 1.305, "Master switch — ALT half (left)", "المفتاح الرئيسي — نصف المولّد (الأيسر)", red=True, w=0.0112, frame=False)
+    rocker("PANEL.master_bat", 0.4325, 1.305, "Master switch — BAT half (right)", "المفتاح الرئيسي — نصف البطارية (الأيمن)", red=True, w=0.0112, frame=False)
+    box(frames, (0.0290, 0.0024, 0.0270), center=(0.4385, LF + 0.0012, 1.305))
+    rocker("PANEL.switch_avionics_master", 0.352, SUB_LOWER, "Avionics power switch", "مفتاح طاقة الأجهزة الإلكترونية")
+    for nm, x, z, en, ar in (("beacon", 0.172, SUB_UPPER, "Beacon light switch", "مفتاح المنارة"), ("pitot_heat", 0.150, SUB_UPPER, "Pitot heat switch", "مفتاح تسخين البيتو"),
+                             ("nav_lights", 0.194, SUB_LOWER, "Navigation lights switch", "مفتاح أضواء الملاحة"), ("strobe", 0.172, SUB_LOWER, "Strobe lights switch", "مفتاح أضواء الوميض"),
+                             ("taxi_light", 0.150, SUB_LOWER, "Taxi light switch", "مفتاح ضوء التدرج"), ("landing_light", 0.128, SUB_LOWER, "Landing light switch", "مفتاح ضوء الهبوط")):
+        rocker(f"PANEL.switch_{nm}", x, z, en, ar)
+    make("PANEL.switch_frames", frames, (0, PANEL_Y, LOWER_Z0), M["black_plastic"], "Frames of the rocker switches", "إطارات المفاتيح", smooth=False, count=8)
+
+    # ignition switch: the legend plate with its ring, the lock with its key
+    ix, iz = 0.403, 1.262
+    ign_plate = plate("PANEL.ignition", ix, iz + 0.003, 0.050, 0.050, "IGNITION", "Ignition switch plate: OFF, R, L, BOTH, START", "لوحة مفتاح الإشعال: OFF ،R ،L ،BOTH ،START", base=LF, thick=0.0010,
+                      status="poh", ref="p.7-25")
+    bm = new_bm()
+    revolve(bm, [(0.0122, LOWER_FACE + 0.0010), (0.0160, LOWER_FACE + 0.0010), (0.0160, LOWER_FACE + 0.0034), (0.0138, LOWER_FACE + 0.0048), (0.0122, LOWER_FACE + 0.0048)], axis="Y",
+            origin=(ix, PANEL_Y, iz), segs=6)
+    make("PANEL.ignition_nut", bm, (ix, PANEL_Y, iz), M["chrome"], "Ignition switch mounting nut", "صامولة تثبيت مفتاح الإشعال", smooth=False)
+    bm = new_bm()
+    revolve(bm, [(0.0, 0.0), (0.0118, 0.0), (0.0118, LOWER_FACE + 0.0052), (0.0104, LOWER_FACE + 0.0064), (0.0, LOWER_FACE + 0.0064)], axis="Y", origin=(ix, PANEL_Y, iz), segs=24)
+    n0 = len(bm.faces)
+    box(bm, (0.0018, 0.0120, 0.0075), center=(ix, LF + 0.0064 + 0.0060, iz))              # the shank of the key
+    box(bm, (0.0026, 0.0200, 0.0190), center=(ix, LF + 0.0064 + 0.0120 + 0.0100, iz))     # its head
+    mark(bm, n0, 1)
+    make("PANEL.ignition_switch", bm, (ix, PANEL_Y, iz), M["chrome"], "Ignition switch (key): OFF, R, L, BOTH, START", "مفتاح الإشعال (بالمفتاح): OFF ،R ،L ،BOTH ،START", status="poh", system="IGNITION",
+         more=(M["black_plastic"],), ref="p.7-25", animate="ignition", spin_axis="y", spin_sign=-1, range_deg=[-70, 70])
+
+    # push-pull controls: carburetor heat, throttle, mixture, primer, cabin heat and cabin air
+    def pull_knob(name, x, z, r, mat, en, ar, travel=0.07, style="round", stand=0.024, ref="p.7-23"):
         bm = new_bm()
-        revolve(bm, [(0.0, 0.0), (r * 0.9, 0.0), (r * 0.9, 0.014), (0.0, 0.014)], axis="Y", origin=(x, PANEL_Y, z), segs=20)
-        base = obj_from_bm(name + "_bushing", bm, ctx.col, pivot=(x, PANEL_Y, z), mat=M["chrome"])
-        parent_keep(base, grp)
+        k0 = LOWER_FACE + stand                               # where the knob begins, from the face of the panel
+        tube(bm, [Vector((x, PANEL_Y - 0.05, z)), Vector((x, PANEL_Y + k0 + 0.002, z))], 0.0035, segs=10)
+        if style == "throttle":
+            prof = [(0.0, k0), (r * 0.70, k0), (r * 0.97, k0 + 0.004), (r, k0 + 0.011), (r * 0.95, k0 + 0.019), (r * 0.70, k0 + 0.0245), (0.0, k0 + 0.026)]
+        elif style == "mixture":                              # the button of the vernier stands in the middle of the knob
+            prof = [(0.0, k0), (r * 0.78, k0), (r, k0 + 0.004), (r, k0 + 0.016), (r * 0.86, k0 + 0.020), (r * 0.40, k0 + 0.020), (r * 0.40, k0 + 0.0245), (0.0, k0 + 0.0245)]
+        else:
+            prof = [(0.0, k0), (r * 0.80, k0), (r, k0 + 0.003), (r, k0 + 0.012), (r * 0.80, k0 + 0.016), (0.0, k0 + 0.017)]
+        revolve(bm, prof, axis="Y", origin=(x, PANEL_Y, z), segs=28)
+        ob = make(name, bm, (x, PANEL_Y, z), mat, en, ar, status="poh", ref=ref, animate="pull", travel_m=travel)
+        bm = new_bm()
+        rb = max(0.0075, r * 0.62)
+        if style == "throttle":                               # the friction lock: a knurled ring on the shaft, against the panel
+            prof = [(0.0045, LOWER_FACE), (0.0110, LOWER_FACE), (0.0130, LOWER_FACE + 0.002), (0.0130, LOWER_FACE + 0.010), (0.0105, LOWER_FACE + 0.012), (0.0045, LOWER_FACE + 0.012)]
+        else:
+            prof = [(0.0045, LOWER_FACE), (rb, LOWER_FACE), (rb, LOWER_FACE + 0.004), (rb * 0.72, LOWER_FACE + 0.007), (0.0045, LOWER_FACE + 0.007)]
+        revolve(bm, prof, axis="Y", origin=(x, PANEL_Y, z), segs=20)
+        make(name + "_bushing", bm, (x, PANEL_Y, z), M["cast_alu"], en + ": bushing" + (" and friction lock" if style == "throttle" else ""), ar + ": الجلبة" + (" وقفل الاحتكاك" if style == "throttle" else ""))
         return ob
-    pull_knob("PANEL.carb_heat", 0.095, 1.30, 0.012, M["black_plastic"], "Carburetor heat control (pull = ON)", "تحكم تسخين المكربن (اسحب = تشغيل)")
-    pull_knob("PANEL.throttle", 0.0, 1.295, 0.021, M["black_plastic"], "Throttle (push = open), friction lock", "الخانق (ادفع = فتح)", travel=0.085)
-    pull_knob("PANEL.mixture", -0.095, 1.30, 0.014, M["knob_red"], "Mixture control (vernier, red) — pull = lean / idle cut-off", "تحكم الخليط (أحمر)", ring=True)
-    pull_knob("PANEL.primer", 0.47, 1.255, 0.010, M["chrome"], "Engine primer (pull-push, lock)", "مضخة التحضير", travel=0.06)
-    pull_knob("PANEL.cabin_heat", -0.34, 1.26, 0.010, M["black_plastic"], "Cabin heat control", "تحكم تدفئة المقصورة")
-    pull_knob("PANEL.cabin_air", -0.40, 1.26, 0.010, M["black_plastic"], "Cabin air control", "تحكم هواء المقصورة")
-    # flap switch lever (electric, pre-select) under the indicator
+    pull_knob("PANEL.carb_heat", 0.090, 1.280, 0.0125, M["black_plastic"], "Carburetor heat control (pull = ON)", "تحكم تسخين المكربن (اسحب = تشغيل)")
+    pull_knob("PANEL.throttle", 0.0, 1.277, 0.0205, M["black_plastic"], "Throttle (push = open), with friction lock", "الخانق (ادفع = فتح) مع قفل الاحتكاك", travel=0.085, style="throttle", stand=0.030)
+    pull_knob("PANEL.mixture", -0.090, 1.280, 0.0145, M["knob_red"], "Mixture control (red, vernier): pull = lean and idle cut-off", "تحكم الخليط (أحمر): اسحب للإفقار وقطع الوقود", style="mixture", stand=0.030)
+    pull_knob("PANEL.primer", 0.462, 1.252, 0.0100, M["black_plastic"], "Engine primer (pull and push; locks when turned)", "مضخة التحضير", travel=0.06, stand=0.016, ref="p.7-22")
+    pull_knob("PANEL.cabin_heat", -0.325, 1.284, 0.0100, M["black_plastic"], "Cabin heat control", "تحكم تدفئة المقصورة", stand=0.018, ref="p.7-29")
+    pull_knob("PANEL.cabin_air", -0.380, 1.284, 0.0100, M["black_plastic"], "Cabin air control", "تحكم هواء المقصورة", stand=0.018, ref="p.7-29")
+
+    # wing flap switch: a lever in a slotted plate, with the scale of the position indicator on its left (POH p.7-9, 7-10)
+    fx, fz = -0.185, 1.280
+    plate("PANEL.flap_ind", fx + 0.019, fz, 0.018, 0.056, "FLAP_IND", "Wing flap position indicator", "مؤشر وضع القلابات", base=LF, thick=0.0010, status="poh", ref="p.7-9, 7-10")
     bm = new_bm()
-    box(bm, (0.012, 0.03, 0.045), center=(-0.22, PANEL_Y + 0.02, 1.29))
-    box(bm, (0.02, 0.012, 0.012), center=(-0.22, PANEL_Y + 0.035, 1.27))
-    fl = obj_from_bm("PANEL.flap_switch", bm, ctx.col, pivot=(-0.22, PANEL_Y, 1.305), mat=M["grey_plastic"], smooth=False)
-    parent_keep(fl, grp)
-    ctx.tag(fl, "PANEL", "Wing flap switch (pre-select 0/10/20/30)", "مفتاح القلابات", status="poh", ref="p.7-9", animate="flap_switch", hinge_axis="x", hinge_sign=1, range_deg=[-30, 0])
-    # circuit breakers (two rows)
-    for i in range(10):
-        for row, z in enumerate((1.345, 1.325)):
-            if row == 1 and i > 6: continue
+    for sx in (1, -1):
+        box(bm, (0.0050, 0.0016, 0.056), center=(fx + sx * 0.0052, LF + 0.0008, fz))
+    for sz in (1, -1):
+        box(bm, (0.0154, 0.0016, 0.0040), center=(fx, LF + 0.0008, fz + sz * 0.0260))
+    n0 = len(bm.faces)
+    box(bm, (0.0056, 0.0004, 0.0480), center=(fx, LF + 0.0002, fz))                       # the dark of the slot
+    mark(bm, n0, 1)
+    make("PANEL.flap_slot", bm, (fx, PANEL_Y, fz), M["grey_plastic"], "Slotted plate of the wing flap switch lever", "اللوحة المشقوقة لذراع مفتاح القلابات", smooth=False, more=(M["black_plastic"],),
+         status="poh", ref="p.7-9, 7-10", note="The lever moves in a slotted panel with stops at the 10° and 20° positions (POH p.7-10)")
+    pivot = Vector((fx, PANEL_Y - 0.030, fz + 0.0034)); reach = 0.075; up = math.radians(12.0)      # the lever at UP
+    tip = pivot + Vector((0, reach * math.cos(up), reach * math.sin(up)))
+    bm = new_bm()
+    tube(bm, [pivot, tip], 0.0022, segs=8)
+    n0 = len(bm.faces)
+    box(bm, (0.0210, 0.0090, 0.0075), center=tip + Vector((0, 0.002, 0)))                  # the knob: a small flat paddle
+    mark(bm, n0, 1)
+    make("PANEL.flap_switch", bm, pivot, M["steel"], "Wing flap switch lever (UP, 10°, 20°, FULL)", "ذراع مفتاح القلابات", status="poh", smooth=False, more=(M["switch_ivory"],), ref="p.7-9, 7-10",
+         animate="flap_switch", hinge_axis="x", hinge_sign=1, range_deg=[-30, 0])
+
+    # circuit breakers, on the left of the subpanel: a button each, in its collar
+    collars = new_bm(); n_breakers = 0
+    for row, (z, count, x0) in enumerate(((SUB_UPPER, 10, 0.345), (SUB_LOWER, 7, 0.3295))):
+        for i in range(count):
+            x = x0 - i * 0.0158
             bm = new_bm()
-            revolve(bm, [(0.0, 0.0), (0.0045, 0.0), (0.0045, 0.006), (0.0, 0.006)], axis="Y", origin=(-0.29 - i * 0.022, PANEL_Y, z), segs=10)
-            cb = obj_from_bm(f"PANEL.breaker_{row}_{i}", bm, ctx.col, pivot=(-0.29 - i * 0.022, PANEL_Y, z), mat=M["paint_white"])
-            parent_keep(cb, grp)
-            ctx.tag(cb, "ELECTRICAL", "Push-to-reset circuit breaker", "قاطع دائرة", status="poh", ref="p.7-27")
-    # ---- mounting screws of the instruments: four to each, black oxide (one part for all of them)
+            revolve(bm, [(0.0041, LOWER_FACE), (0.0041, LOWER_FACE + 0.0062), (0.0034, LOWER_FACE + 0.0070), (0.0, LOWER_FACE + 0.0070)], axis="Y", origin=(x, PANEL_Y, z), segs=10)
+            make(f"PANEL.breaker_{row}_{i}", bm, (x, PANEL_Y, z), M["black_plastic"], "Push-to-reset circuit breaker", "قاطع دائرة", status="poh", system="ELECTRICAL", ref="p.7-27")
+            revolve(collars, [(0.0044, LOWER_FACE), (0.0062, LOWER_FACE), (0.0062, LOWER_FACE + 0.0016), (0.0050, LOWER_FACE + 0.0024), (0.0044, LOWER_FACE + 0.0024)], axis="Y",
+                    origin=(x, PANEL_Y, z), segs=6)
+            n_breakers += 1
+    make("PANEL.breaker_collars", collars, (0, PANEL_Y, LOWER_Z0), M["cast_alu"], "Mounting nuts of the circuit breakers", "صواميل تثبيت قواطع الدائرة", smooth=False, system="ELECTRICAL", count=n_breakers)
+
+    # ---- mounting screws of the round instruments: four to each, black oxide (one part for all of them)
     bm = new_bm()
+    n_screws = 0
     for name, cell, x, z, dia, needles in INSTRUMENTS:
-        for a in (45, 135, 225, 315):
-            r = dia / 2 + 0.0105
-            revolve(bm, [(0.0, 0.0), (0.0026, 0.0), (0.0030, 0.0012), (0.0030, 0.0022), (0.0, 0.0026)], axis="Y",
-                    origin=(x * PANEL_SQUEEZE + r * math.cos(math.radians(a)), PANEL_Y, z + r * math.sin(math.radians(a))), segs=8)
-    screws = obj_from_bm("PANEL.instrument_screws", bm, ctx.col, pivot=(0, PANEL_Y, PANEL_Z0), mat=M["screw"])
-    parent_keep(screws, grp)
-    ctx.tag(screws, "PANEL", "Instrument mounting screws", "براغي تثبيت العدادات", status="estimated", note="Four to an instrument; representative")
+        reach = 0.79 * (dia / 2 + RIM)
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                revolve(bm, [(0.0, 0.0), (0.0026, 0.0), (0.0030, 0.0012), (0.0030, 0.0022), (0.0, 0.0026)], axis="Y", origin=(x + sx * reach, PANEL_Y, z + sz * reach), segs=8)
+                n_screws += 1
+    make("PANEL.instrument_screws", bm, (0, PANEL_Y, PANEL_Z0), M["screw"], "Instrument mounting screws", "براغي تثبيت العدادات", count=n_screws, note="Four to an instrument; representative")
+
     # ---- lettering: the name of each switch and control, white on the panel (one part)
     bm = new_bm()
-    face_y = PANEL_Y + 0.0192            # just proud of the lower panel's laminate
-    sq = PANEL_SQUEEZE
-    def word(text, x, z, h=0.0062):
-        letter_quad(bm, text, (x * sq, face_y, z), h)
-    word("MASTER", 0.4985, 1.332, 0.0066); word("ALT", 0.4915, 1.2745, 0.0048); word("BAT", 0.5060, 1.2745, 0.0048)
-    for i, text in enumerate(["BCN", "NAV", "STROBE", "TAXI", "LAND", "PITOT HT", "AVN PWR"]):
-        word(text, 0.37 - i * 0.03, 1.332 if i % 2 == 0 else 1.3405, 0.0052)      # staggered: the longer names clear their neighbours
-    word("PRIMER", 0.47, 1.2335, 0.0058)
-    word("CARB HEAT", 0.095, 1.337, 0.0062); word("PULL ON", 0.095, 1.266, 0.0048)
-    word("THROTTLE", 0.0, 1.344, 0.0066); word("PUSH OPEN", 0.0, 1.252, 0.0048)
-    word("MIXTURE", -0.095, 1.337, 0.0062); word("PULL LEAN", -0.095, 1.266, 0.0048)
-    word("CABIN HT", -0.34, 1.286, 0.0052); word("CABIN AIR", -0.40, 1.286, 0.0052)
-    word("CIRCUIT BREAKERS", -0.41, 1.3605, 0.0052); word("PUSH TO RESET", -0.47, 1.3105, 0.0044)
-    word("PARK BRAKE", 0.25, 1.2335, 0.0052)
-    lettering = obj_from_bm("PANEL.lettering", bm, ctx.col, pivot=(0, PANEL_Y, LOWER_Z0), mat=M["placards"], smooth=False)
-    parent_keep(lettering, grp)
-    ctx.tag(lettering, "PANEL", "Panel lettering: the names of the switches and controls", "كتابات اللوحة: أسماء المفاتيح وأدوات التحكم", status="estimated",
-            note="The plain names of the controls, placed beside them; the typeface and exact wording of the aircraft's placards are not reproduced")
-    # magnetic compass on top of the glareshield, on the centreline (position from the manufacturer's side view)
+    face_y = LF + 0.0006
+    def word(text, x, z, h=0.0046, y=face_y):
+        letter_quad(bm, text, (x, y, z), h)
+    word("MASTER", 0.4385, 1.3290, 0.0050); word("ALT", 0.4445, 1.3222, 0.0040); word("BAT", 0.4325, 1.3222, 0.0040)
+    word("PRIMER", 0.462, 1.2330, 0.0048)
+    word("AVN PWR", 0.352, 1.2845, 0.0042)
+    word("CIRCUIT BREAKERS", 0.274, 1.3265, 0.0046); word("PUSH TO RESET", 0.282, 1.2890, 0.0038)
+    word("BCN", 0.172, 1.3285, 0.0042); word("PITOT HT", 0.150, 1.3285, 0.0042)
+    word("NAV", 0.194, 1.2838, 0.0042); word("STROBE", 0.172, 1.2838, 0.0042); word("TAXI", 0.150, 1.2838, 0.0042); word("LAND", 0.128, 1.2838, 0.0042)
+    word("LIGHTS", 0.161, 1.2400, 0.0042)
+    word("CARB HEAT", 0.090, 1.3040, 0.0050); word("PULL ON", 0.090, 1.2585, 0.0040)
+    word("THROTTLE", 0.0, 1.3080, 0.0052); word("PUSH OPEN", 0.0, 1.2470, 0.0040)
+    word("MIXTURE", -0.090, 1.3040, 0.0050); word("PULL LEAN", -0.090, 1.2585, 0.0040)
+    word("PANEL LT", -0.0370, 1.2480, 0.0034); word("RADIO LT", -0.0600, 1.2480, 0.0034)
+    word("WING FLAPS", fx + 0.008, 1.3160, 0.0046)
+    word("CABIN HT", -0.325, 1.3040, 0.0046); word("CABIN AIR", -0.380, 1.3040, 0.0046)
+    word("PARK BRAKE", 0.25, 1.2290, 0.0046)
+    cover_y = PANEL_Y - 0.0010 + 0.0003                       # on the covers of the small indicators, behind their glass
+    word("FUEL", COL_RECT, 1.481 - 0.0130, 0.0040, cover_y); word("OIL", COL_RECT, 1.435 - 0.0130, 0.0040, cover_y)
+    lettering = make("PANEL.lettering", bm, (0, PANEL_Y, LOWER_Z0), M["placards"], "Panel lettering: the names of the switches and controls", "كتابات اللوحة: أسماء المفاتيح وأدوات التحكم", smooth=False,
+                     note="The plain names of the controls, placed beside them; the typeface and exact wording of the aircraft's placards are not reproduced")
+    lettering["keep_faces"] = True
+
+    # ---- magnetic compass: on the glareshield, on the centreline
+    cz = PANEL_Z1 + 0.0745; cy = PANEL_Y + 0.016
     bm = new_bm()
-    box(bm, (0.07, 0.07, 0.06), center=(0, fs(21.0), 1.705))
-    quad_face(bm, (0, fs(21.0) + 0.038, 1.705), 0.05, 0.02, MISC["COMPASS"])
-    comp = obj_from_bm("PANEL.magnetic_compass", bm, ctx.col, pivot=(0, fs(21.0), 1.705), mat=M["black_plastic"], smooth=False)
-    comp.data.materials.append(misc); comp.data.polygons[-1].material_index = 1
-    parent_keep(comp, grp)
-    ctx.tag(comp, "PANEL", "Magnetic compass", "البوصلة المغناطيسية", status="poh", ref="p.7-x")
-    # glareshield: padded roll along the aft edge and a top that rises to the foot of the windshield,
-    # trimmed to the inside of the skin at every station (heights here are before CABIN_LIFT)
+    box(bm, (0.066, 0.050, 0.046), center=(0, cy, cz))
+    box(bm, (0.018, 0.018, 0.016), center=(0, cy - 0.004, cz - 0.029))                    # its foot on the glareshield
+    n0 = len(bm.faces)
+    quad_face(bm, (0, cy + 0.0253, cz + 0.002), 0.046, 0.018, MISC["COMPASS"])
+    mark(bm, n0, 1)
+    comp = make("PANEL.magnetic_compass", bm, (0, cy, cz), M["black_plastic"], "Magnetic compass", "البوصلة المغناطيسية", status="poh", smooth=False, more=(misc,), aft=1, ref="p.7-7 (Fig 7-2)")
+    add_bevel(comp, 0.006, 3)
+
+    # ---- glareshield: a padded lip that overhangs the top of the panel, and a deck that rises forward to the foot of
+    # the windshield, trimmed to the inside of the skin at every station (heights here are before CABIN_LIFT)
     def inside(station, z):
-        return max(0.10, fus_half_width_at(station, z + CABIN_LIFT) - 0.04)
-    roll_z = PANEL_Z1 + 0.03; roll_half = inside(18.6, roll_z)
+        return max(0.10, fus_half_width_at(station, z + CABIN_LIFT) - 0.024)
+    lip = [(-0.012, 0.0015), (0.030, 0.0015), (0.046, 0.0050), (0.0545, 0.0160), (0.0530, 0.0290), (0.0440, 0.0385), (0.0260, 0.0420), (-0.012, 0.0420)]      # (aft of the panel face, above its top)
+    half = inside(19.0, PANEL_Z1 + 0.02)
+    stations = [-1.0, -0.94, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 0.94, 1.0]
+    rings = []
+    for t in stations:
+        x = t * half
+        rings.append([Vector((x, PANEL_Y + a, PANEL_Z1 + b)) for a, b in lip])
     bm = new_bm()
-    tube(bm, [Vector((-roll_half, PANEL_Y - 0.01, roll_z - 0.01)), Vector((-0.3, PANEL_Y - 0.03, roll_z)), Vector((0, PANEL_Y - 0.035, roll_z + 0.005)), Vector((0.3, PANEL_Y - 0.03, roll_z)), Vector((roll_half, PANEL_Y - 0.01, roll_z - 0.01))], 0.028, segs=14)
+    loft(bm, rings, close=True, cap_start=True, cap_end=True, uv_u_scale=0.14, uv_v=[t * half for t in stations])
+    uv = bm.loops.layers.uv.active
+    deck_z = PANEL_Z1 + 0.042
     strip = []
     for i in range(8):
         t = i / 7
-        station = 18.3 - t * 13.3                       # FS 18.3 at the panel to FS 5 at the windshield foot
-        z = roll_z + t * 0.07
-        half = inside(station, z)
-        strip.append((bm.verts.new(Vector((-half, fs(station), z))), bm.verts.new(Vector((half, fs(station), z)))))
+        station = 18.5 - t * 13.5                       # from the panel to FS 5, at the foot of the windshield
+        z = deck_z + t * 0.058
+        w = inside(station, z)
+        strip.append((bm.verts.new(Vector((-w, fs(station), z))), bm.verts.new(Vector((w, fs(station), z)))))
     for (a0, a1), (b0, b1) in zip(strip, strip[1:]):
         f = bm.faces.new([a0, a1, b1, b0]); f.smooth = True
+        for l in f.loops:
+            l[uv].uv = (l.vert.co.x, l.vert.co.y)
     gs = obj_from_bm("INTERIOR.glareshield", bm, ctx.col, pivot=(0, PANEL_Y, PANEL_Z1), mat=M["vinyl_black"])
     parent_keep(gs, ctx.groups["INTERIOR"])
     ctx.tag(gs, "INTERIOR", "Glareshield (padded)", "واقي الوهج", status="estimated")
@@ -383,23 +603,30 @@ def build_panel(ctx):
 def build_controls(ctx):
     M = ctx.mats
     grp = ctx.groups["INTERIOR"]
-    # yokes (ram's horn) on push-pull shafts through the panel
-    for side, x in (("L", 0.305 * PANEL_SQUEEZE), ("R", -0.305 * PANEL_SQUEEZE)):
-        hub = Vector((x, PANEL_Y + 0.26, 1.27))
+    LF = PANEL_Y + LOWER_FACE
+    # control wheels on push-pull shafts that come through the panel under the gyros (POH p.7-8)
+    boots = new_bm()
+    for side, x in (("L", YOKE_X), ("R", -YOKE_X)):
+        hub = Vector((x, PANEL_Y + 0.26, YOKE_Z))
         bm = new_bm()
-        tube(bm, [Vector((x, PANEL_Y - 0.1, 1.27)), hub - Vector((0, 0.03, 0))], 0.013, segs=14)
-        shaft = obj_from_bm(f"INTERIOR.yoke_shaft_{side}", bm, ctx.col, pivot=(x, PANEL_Y, 1.27), mat=M["chrome"])
+        tube(bm, [Vector((x, PANEL_Y - 0.1, YOKE_Z)), hub - Vector((0, 0.022, 0))], 0.0125, segs=16)
+        shaft = obj_from_bm(f"INTERIOR.yoke_shaft_{side}", bm, ctx.col, pivot=(x, PANEL_Y, YOKE_Z), mat=M["screw"])
         parent_keep(shaft, grp)
-        ctx.tag(shaft, "INTERIOR", "Control yoke shaft (elevator push/pull)", "عمود عجلة القيادة", status="estimated", animate="yoke_shaft")
+        ctx.tag(shaft, "INTERIOR", "Control wheel shaft (elevator push and pull)", "عمود عجلة القيادة", status="estimated", animate="yoke_shaft")
+        revolve(boots, [(0.0135, 0.0), (0.0310, 0.0), (0.0310, 0.0025), (0.0270, 0.0045), (0.0135, 0.0045)], axis="Y", origin=(x, PANEL_Y, YOKE_Z), segs=24)
+        # the wheel: a padded centre block on the shaft, an arm from each lower corner, and the two grips standing up from the arms
         bm = new_bm()
-        box(bm, (0.09, 0.05, 0.055), center=hub)
+        box(bm, (0.176, 0.052, 0.116), center=hub + Vector((0, 0.002, 0.004)))
+        box(bm, (0.062, 0.006, 0.017), center=hub + Vector((-0.034, 0.028, -0.030)))      # the name plate, low on the pad
         for sgn in (-1, 1):
-            pts = bezier(hub + Vector((sgn * 0.045, 0, 0)), hub + Vector((sgn * 0.14, 0.0, 0.0)), hub + Vector((sgn * 0.165, 0.03, 0.12)), hub + Vector((sgn * 0.12, 0.09, 0.15)), 14)
-            tube(bm, pts, 0.014, segs=12)
+            path = bezier(hub + Vector((sgn * 0.070, 0.0, -0.040)), hub + Vector((sgn * 0.118, 0.0, -0.066)), hub + Vector((sgn * 0.158, 0.0, -0.082)), hub + Vector((sgn * 0.172, 0.002, -0.046)), 8)
+            path += bezier(hub + Vector((sgn * 0.172, 0.002, -0.046)), hub + Vector((sgn * 0.180, 0.004, 0.012)), hub + Vector((sgn * 0.176, 0.010, 0.066)), hub + Vector((sgn * 0.164, 0.026, 0.110)), 10)[1:]
+            tube(bm, path, 0.0125, segs=12, radius_end=0.0158)
         yoke = obj_from_bm(f"INTERIOR.yoke_{side}", bm, ctx.col, pivot=hub, mat=M["vinyl_black"])
-        add_subsurf(yoke, 1)
+        add_bevel(yoke, 0.016, 3); add_subsurf(yoke, 1)
         parent_keep(yoke, shaft)
-        ctx.tag(yoke, "INTERIOR", f"Control yoke ({'pilot' if side == 'L' else 'co-pilot'}) — ailerons by rotation, elevator by push/pull", "عجلة القيادة " + ("(الطيار)" if side == "L" else "(مساعد الطيار)"), status="poh", ref="p.7-6", animate="yoke", spin_axis="y", spin_sign=-1, range_deg=[-90, 90])
+        ctx.tag(yoke, "INTERIOR", f"Control wheel ({'pilot' if side == 'L' else 'co-pilot'}) — ailerons by rotation, elevator by push and pull", "عجلة القيادة " + ("(الطيار)" if side == "L" else "(مساعد الطيار)"),
+                status="poh", ref="p.7-6 (Fig 7-2), 7-8", animate="yoke", spin_axis="y", spin_sign=-1, range_deg=[-90, 90])
         # rudder pedals with toe brakes: just aft of the firewall, where the floor is still narrow
         for px in (-0.075, 0.075):
             bm = new_bm()
@@ -408,6 +635,9 @@ def build_controls(ctx):
             ped = obj_from_bm(f"INTERIOR.pedal_{side}_{'R' if px > 0 else 'L'}", bm, ctx.col, pivot=(x + px, fs(9), FLOOR_TOP + 0.045), mat=M["steel"], smooth=False)
             parent_keep(ped, grp)
             ctx.tag(ped, "INTERIOR", "Rudder pedal with toe brake", "دواسة الدفة مع فرامل", status="poh", ref="p.7-6", animate="pedal", hinge_axis="x", hinge_sign=1, range_deg=[-12, 12])
+    boot = obj_from_bm("PANEL.control_wheel_boots", boots, ctx.col, pivot=(0, PANEL_Y, YOKE_Z), mat=M["black_plastic"])
+    parent_keep(boot, ctx.groups["PANEL"])
+    ctx.tag(boot, "PANEL", "Flanges of the control wheel shafts on the panel", "حلقتا عمودي عجلتي القيادة على اللوحة", status="estimated", count=2)
     # trim wheel on the pedestal below the panel
     bm = new_bm()
     box(bm, (0.16, 0.20, 0.32 + CABIN_LIFT), center=(-0.05, PANEL_Y + 0.06, 1.06 - CABIN_LIFT / 2))
@@ -448,13 +678,13 @@ def build_controls(ctx):
     sl = obj_from_bm("FUEL.selector_lettering", bm, ctx.col, pivot=(0, fs(44), FLOOR_TOP), mat=M["placards"], smooth=False)
     parent_keep(sl, grp)
     ctx.tag(sl, "FUEL", "Fuel selector lettering (LEFT · BOTH · RIGHT · OFF)", "كتابات محدد الوقود (LEFT · BOTH · RIGHT · OFF)", status="poh", ref="p.7-28")
-    # parking brake handle under the panel, left
+    # parking brake handle below the subpanel, in front of the pilot (POH p.7-9): a rod with a T handle
     bm = new_bm()
-    tube(bm, [Vector((0.25, PANEL_Y + 0.0, 1.20)), Vector((0.25, PANEL_Y + 0.06, 1.19))], 0.006, segs=8)
-    revolve(bm, [(0.0, 0.06), (0.012, 0.06), (0.012, 0.08), (0.0, 0.08)], axis="Y", origin=(0.25, PANEL_Y, 1.19), segs=12)
+    tube(bm, [Vector((0.25, PANEL_Y - 0.01, 1.206)), Vector((0.25, LF + 0.040, 1.196))], 0.0045, segs=8)
+    tube(bm, [Vector((0.25 - 0.024, LF + 0.044, 1.1955)), Vector((0.25 + 0.024, LF + 0.044, 1.1955))], 0.0068, segs=10)
     pb = obj_from_bm("INTERIOR.parking_brake", bm, ctx.col, pivot=(0.25, PANEL_Y, 1.20), mat=M["black_plastic"])
     parent_keep(pb, grp)
-    ctx.tag(pb, "INTERIOR", "Parking brake handle", "مقبض فرامل الوقوف", status="poh", ref="p.7-10", animate="pull", travel_m=0.05)
+    ctx.tag(pb, "INTERIOR", "Parking brake handle", "مقبض فرامل الوقوف", status="poh", ref="p.7-9, 7-10", animate="pull", travel_m=0.05)
 
 def strap(bm, pts, width, thick=0.003):
     """Flat webbing strip along a polyline (parallel transport)."""
@@ -610,14 +840,13 @@ def build(ctx):
     """
     existing = set(bpy.data.objects)
     build_panel(ctx)
-    panel_group = ctx.groups["PANEL"]
-    for ob in bpy.data.objects:
-        if ob not in existing and ob.parent is panel_group:
-            ob.location.x *= PANEL_SQUEEZE          # every panel item has its origin at its own centre
     build_controls(ctx)
     build_seats(ctx)
     groups = set(ctx.groups.values())
     for ob in bpy.data.objects:
-        if ob in existing or ob.parent not in groups or ob.name.startswith(FLOOR_MOUNTED):
+        if ob in existing:
             continue
-        ob.location.z += CABIN_LIFT
+        if ob.name.startswith("_cut_panel"):          # the openings of the panel go up with it
+            ob.location.z += CABIN_LIFT
+        elif ob.parent in groups and not ob.name.startswith(FLOOR_MOUNTED):
+            ob.location.z += CABIN_LIFT
