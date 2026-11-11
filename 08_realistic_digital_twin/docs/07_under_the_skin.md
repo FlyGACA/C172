@@ -5,7 +5,7 @@ what has been added underneath, so that any part can be shown on its own or in p
 pulley, the fuel selector valve, a rocker arm, the capsule of the airspeed indicator, a row of
 rivets, a single bolt.
 
-- **Which parts exist, and their ids:** [`06_parts_index.md`](06_parts_index.md) (1,174 parts, English and Arabic names).
+- **Which parts exist, and their ids:** [`06_parts_index.md`](06_parts_index.md) (1,193 parts, English and Arabic names).
 - **Pictures of every assembly:** [`../../09_book_figures/atlas/`](../../09_book_figures/atlas/README.md).
 - **How to draw or export a part:** [`../../09_book_figures/README.md`](../../09_book_figures/README.md#any-part-on-its-own).
 

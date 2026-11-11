@@ -2,7 +2,9 @@
 
 Date: 2026-11-06; sections 1–4 updated 2026-11-10 after the outline of the airframe was corrected
 against the handbook drawings (see [05_shape_reference.md](05_shape_reference.md)) and the model was
-taken under the skin (see [07_under_the_skin.md](07_under_the_skin.md)). Environment: Linux x64 container, 4 CPU, no
+taken under the skin (see [07_under_the_skin.md](07_under_the_skin.md)); section 1 updated 2026-11-11
+after the paint, the markings, the cabin trim and the propeller were redone
+(see [11_paint_and_look.md](11_paint_and_look.md)). Environment: Linux x64 container, 4 CPU, no
 GPU (Blender Cycles on CPU; browser tests on Chromium with SwiftShader software WebGL). Real-GPU
 numbers must be measured on target devices.
 
@@ -10,22 +12,25 @@ numbers must be measured on target devices.
 
 | Level | Objects | Triangles | GLB size | Build time | Subdivision | Textures |
 |---|---|---|---|---|---|---|
-| high | 924 | 507 526 | 6.5 MB | 55–60 s | 2 | 2048 px |
-| medium | 342 | 192 956 | 3.3 MB | 15–20 s | 1 | 1024 px |
-| low | 342 | 96 787 | 2.1 MB | 15–22 s (incl. decimation) | 1 + decimate 0.5 | 512 px |
+| high | 943 | 539 534 | 8.8 MB | 55–65 s | 2 | 2048 px (paint of the fuselage 4096 px) |
+| medium | 361 | 224 964 | 5.3 MB | 15–22 s | 1 | 1024 px (paint of the fuselage 2048 px) |
+| low | 361 | 136 622 | 5.0 MB | 15–22 s (incl. decimation) | 1 + decimate 0.5, the painted skins and the propeller left whole | as medium |
 
 The high level carries detail level 1 (structure, control runs, systems, the insides of the engine
 and of the instruments, cabin air and lights, seat, door and baggage fittings, the avionics installation: 582 parts under the skin);
-medium and low are the basic model of 342 parts. The editable scene also holds detail level 2
-(fasteners, the hardware kit and ground equipment, 250 parts), which is in no web model: 1 174 parts in all, listed in
+medium and low are the basic model of 361 parts. The editable scene also holds detail level 2
+(fasteners, the hardware kit and ground equipment, 250 parts), which is in no web model: 1 193 parts in all, listed in
 `models/parts_all.json` and [06_parts_index.md](06_parts_index.md).
 
-All three are far inside the budgets set in `02_modeling_architecture.md` (25 / 12 / 5 MB,
-600 k / 250 k / 100 k triangles). Editable source `models/C172N_realistic.blend`: 2.9 MB
+All three are inside the budgets set in `02_modeling_architecture.md` (25 / 12 / 6 MB,
+600 k / 250 k / 150 k triangles). The low level grew on 2026-11-11 (it was 2.1 MB, 97 k triangles): it now
+shares the 1024 px textures of the medium level, because at 512 px the stripes and the cabin trim were a
+blur on a telephone, and it keeps every face of the painted skins and of the propeller, because a stripe
+wavers across faces that have been thinned out. Editable source `models/C172N_realistic.blend`: 3.6 MB
 (compressed, modifiers live, cutters in a hidden collection, textures relative).
 
 `scripts/validate_glb.py` — all levels **OK**: glTF 2.0 binary, Draco required, every primitive has
-NORMAL + TEXCOORD_0 and a PBR material (42 materials in the high level, 23 images), every mesh node carries
+NORMAL + TEXCOORD_0 and a PBR material (51 materials in the high level, 39 images), every mesh node carries
 `system`, `label_en`, `label_ar`, `status ∈ {measured, poh, type_data, estimated}` extras.
 
 Determinism: two consecutive builds produced identical object lists, triangle counts and file
@@ -95,7 +100,7 @@ aircraft.
 | Phase 7 suites (`07_kinematic_twin/tests`) | unchanged, 41 / 41 pass |
 | `scripts/validate_glb.py` | 3 / 3 levels OK |
 | `blender/validate_geometry.py` | 14 critical objects, 19 attachments, 7 published dimensions, 609 parts inside the fuselage skin, 157 inside the wing skin, 75 runs (pipes, hoses, ducts, cables, wires) clear of every other part |
-| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 174 parts, bilingual, status, POH page), parts index up to date |
+| `scripts/quality_gate.py` | catalogue, provenance, instruments, LOD indexes, parts list (1 193 parts, bilingual, status, POH page), parts index up to date |
 | `09_book_figures/tests/test_ink.py` (ink-line rules, camera framing) | 12 / 12 pass |
 | `scripts/compare_renders.py` | 3 canonical render views within perceptual thresholds |
 
@@ -105,7 +110,7 @@ Final run: **12 / 12 checks passed** (`?test=1` disables the GTAO pass; everythi
 
 | Check | Result |
 |---|---|
-| high level loads: 10 system groups, 924 parts, no console errors | ok |
+| high level loads: 10 system groups, 943 parts, no console errors | ok |
 | doors open, flaps 40°, aileron input moves the surfaces | ok |
 | the parts tree lists the systems; isolating one (fuel) draws only its parts, wherever they are | ok |
 | part selection shows bilingual info and the status badge (propeller → POH) | ok |
@@ -127,7 +132,7 @@ of a real GPU; draw calls and triangles are device-independent):
 | medium | 1.8 s | 710 | 386 320 |
 | low | 1.8 s | 705 | 192 722 |
 
-Draw calls are dominated by part count (924 selectable objects in the high level); the next optimisation step would
+Draw calls are dominated by part count (943 selectable objects in the high level); the next optimisation step would
 be merging static exterior parts into fewer meshes for the low level while keeping the part
 index for selection.
 

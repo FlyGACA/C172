@@ -8,7 +8,7 @@ the configuration of a specific serial number is not verified.
 and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe follows the
 manufacturer's three-view drawing ([how](08_realistic_digital_twin/docs/05_shape_reference.md)), and the
 model goes under the skin: structure, control runs, systems, the insides of the engine and of the
-instruments, cabin air and lights, seats, doors and baggage fittings, avionics, and fasteners, as 1,174 separate named parts,
+instruments, cabin air and lights, seats, doors and baggage fittings, avionics, and fasteners, as 1,193 separate named parts,
 any of which can be drawn or exported on its own ([parts index](08_realistic_digital_twin/docs/06_parts_index.md),
 [atlas](09_book_figures/atlas/README.md)).
 
@@ -60,8 +60,8 @@ Folders 01–06 are the original release packages, imported unchanged; see
 | Command | What it does |
 |---|---|
 | `npm run build:model` | Rebuild the Phase 7 GLB (Python 3 + numpy) |
-| `npm run build:model8` | Rebuild the Phase 8 `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
-| `npm run textures8` | Regenerate the Phase 8 textures and sky HDR (numpy + Pillow) |
+| `npm run build:model8` | Rebuild the Phase 8 position maps, textures, `.blend` and GLBs (downloads Blender 4.5 LTS on first use) |
+| `npm run posmaps8` / `npm run textures8` | The first two steps alone: where each texel of the painted skins lies (Blender), then the textures and sky HDR (numpy + Pillow) |
 | `npm run validate:glb8` / `npm run test:py8` | Phase 8 GLB structure check / pure-Python tests |
 | `npm run validate:geometry8` | Check mesh health, published dimensions of the built model, attachments, and that nothing inside shows through the skin |
 | `npm run quality` | Validate bilingual metadata, provenance, generated indexes, the parts list and asset budgets |
