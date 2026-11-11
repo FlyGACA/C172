@@ -61,17 +61,21 @@ def marker(n, x, y, r=13.0):
             + glyph(str(n), x, y, r * 0.98))
 
 
-def leader(frm, to, r=13.0):
-    """From the edge of a marker at `frm` to the point `to`, with a dot on the point."""
+def leader(frm, to, r=13.0, gap=0.0):
+    """From the edge of a marker at `frm` to the point `to`, with a dot on the point. With a gap it stops that far short of the
+    point and has no dot (the point is a symbol of its own, like the centre of gravity)."""
     dx, dy = to[0] - frm[0], to[1] - frm[1]
     d = math.hypot(dx, dy)
-    if d < r + 4:
+    if d < r + 4 + gap:
         return ""
     start = (frm[0] + dx / d * r, frm[1] + dy / d * r)
+    end = (to[0] - dx / d * gap, to[1] - dy / d * gap)
     c = colour("marker")
-    return (f'<line x1="{num(start[0])}" y1="{num(start[1])}" x2="{num(to[0])}" y2="{num(to[1])}" stroke="{HALO}" stroke-width="3.6" stroke-linecap="round" opacity=".9"/>'
-            f'<line x1="{num(start[0])}" y1="{num(start[1])}" x2="{num(to[0])}" y2="{num(to[1])}" stroke="{c}" stroke-width="1.3" stroke-linecap="round"/>'
-            f'<circle cx="{num(to[0])}" cy="{num(to[1])}" r="3.4" fill="{c}" stroke="{HALO}" stroke-width="1.3"/>')
+    line = (f'<line x1="{num(start[0])}" y1="{num(start[1])}" x2="{num(end[0])}" y2="{num(end[1])}" stroke="{HALO}" stroke-width="3.6" stroke-linecap="round" opacity=".9"/>'
+            f'<line x1="{num(start[0])}" y1="{num(start[1])}" x2="{num(end[0])}" y2="{num(end[1])}" stroke="{c}" stroke-width="1.3" stroke-linecap="round"/>')
+    if gap:
+        return line
+    return line + f'<circle cx="{num(to[0])}" cy="{num(to[1])}" r="3.4" fill="{c}" stroke="{HALO}" stroke-width="1.3"/>'
 
 
 def tee(points, lead=None):

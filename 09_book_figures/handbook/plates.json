@@ -241,7 +241,8 @@
       -46,
       44
      ],
-     "leader": true
+     "leader": true,
+     "gap": 11.5
     },
     {
      "type": "marker",

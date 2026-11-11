@@ -91,7 +91,7 @@ def overlays(plate, anchors):
             else:
                 dx, dy = o.get("offset", [0, 0]); m = (target[0] + dx, target[1] + dy)
             if o.get("leader", "polar" in o):
-                late.append(leader(m, target))
+                late.append(leader(m, target, gap=o.get("gap", 0.0)))
             late.append(marker(o["n"], m[0], m[1]))
         else:
             raise ValueError(f"{plate['id']}: unknown overlay {kind!r}")
