@@ -50,7 +50,7 @@ returns a plate in the same form; `plates_spec.py` joins them), written in three
   light, glowing dots, free markup and pictures of the aeroplane (`"sprite"`); see `build_plates.py` `overlays()`.
 - **An old figure with the model's aeroplane in it** (`"reskin"`, `reskin.py`): the diagram of the figure the book had (its SVG kept in `old/`)
   with its flat aeroplane symbols replaced by pictures of the model, in the same place, heading and size, tinted where the symbol was coloured, in the
-  book's fonts. Fifty-seven figures are made this way. A symbol the patterns of `reskin.py` do not know is named in the figure's module: `"drop"` takes a
+  book's fonts. Sixty-nine figures are made this way. A symbol the patterns of `reskin.py` do not know is named in the figure's module: `"drop"` takes a
   stretch of the old drawing out and puts the new things there (so that the z-order stays: a sprite can lie over a flight path and under a callout, and
   `"before"` draws something under it), `"remove"`, `"replace"`, `"sprites"` and `"markup"` do the rest; `figs/kit.py` `side_plane()` stands the model on the
   wheels of an old silhouette (its translate, rotate and scale), and `dial_sprite()` makes one instrument of the model a picture to set into an old figure
@@ -59,6 +59,15 @@ returns a plate in the same form; `plates_spec.py` joins them), written in three
 
 The pictures of the aeroplane are `figs/sprites.py`: from above, from the side (both sides), from ahead, from behind, from above by moonlight and in a
 developed spin, rendered once on a transparent background, and the four instruments of Figure 31-4 (`npm run plates:render` makes them with the rest).
+
+The clouds of the weather figures are `figs/clouds.py` (recipes) and `blender/render_clouds.py` (the renderer; the model is not needed): each cloud is a few nested
+shells of metaballs, filled with a scattering volume whose density is eroded by noise (a ragged edge, billows on billows) and cut flat at the base where the recipe
+says so, lit by a white sun from the upper left and a blue sky, and rendered on a transparent background as a sprite (`renders/cloud-<kind>.png`:
+cumulus, towering cumulus, cumulonimbus, an anvil, stratus, a veil, nimbostratus, stratocumulus, altocumulus, a lens, a roll, cirrus). `npm run plates:render:clouds`
+makes them (`--cloud <id>` and `--quick` after `--`; a few minutes each, the towers longest). A weather figure keeps its old diagram (the arrows, the rain, the
+numbered callouts), takes the outlined clouds out with `"remove"`, puts a sky behind it with `"replace"` and lays the clouds in with a `"drop"` of the kind that
+only inserts (the same text twice): a sprite overlay names the cloud, gives its place and `"width"`, and `"height"` where the figure wants it taller or thinner than
+the cloud is; `"tint"` paints a cloud the colour of dust.
 
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
 them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
@@ -85,6 +94,7 @@ and the viewer keep the 172N's.
 ```bash
 npm run plates:fine       # the dials at 1024 px a cell (the model carries 512), once        -> handbook/cache/ (not kept)
 npm run plates:render     # the renders in Blender, 5 to 25 minutes each                      -> handbook/renders/<id>.png
+npm run plates:render:clouds   # the clouds in Blender (no model), a few minutes each          -> handbook/renders/cloud-<kind>.png
 npm run plates:build      # compose (build_plates.py), flatten (rasterize.mjs), encode (book_plates.py) -> handbook/out/, handbook/out/book/
 npm run test:plates:py    # the book's rules for artwork, on plates.json, on out/ and on out/book/
 ```

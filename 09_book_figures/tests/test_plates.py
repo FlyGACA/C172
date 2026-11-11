@@ -80,11 +80,11 @@ class PlateSpec(unittest.TestCase):
 
     def test_a_reskin_lays_only_sprites_the_catalogue_makes(self):
         """build_plates.py waits for the renders of the sprites a re-skinned plate uses, and for no others (so one picture not rendered yet holds up only the plates that
-        lay it); every one of them must be a sprite that figs/sprites.py makes, or the plate could never be built."""
-        made = {s["id"] for s in SPEC["sprites"]}
+        lay it); every one of them must be a sprite that figs/sprites.py or a cloud that figs/clouds.py makes, or the plate could never be built."""
+        made = {s["id"] for s in SPEC["sprites"]} | {c["id"] for c in SPEC["clouds"]}
         for p in SPEC["plates"]:
             if "reskin" in p:
-                self.assertLessEqual(set(sprites_used(p)), made, f"{p['id']}: lays a sprite that figs/sprites.py does not make")
+                self.assertLessEqual(set(sprites_used(p)), made, f"{p['id']}: lays a sprite that figs/sprites.py and figs/clouds.py do not make")
         self.assertIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-06-02-spin-phases")))
         self.assertNotIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-26-02-normal-takeoff-landing")))
 

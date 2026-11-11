@@ -154,12 +154,13 @@ def sprite_source(name):
 
 def sprite_image(o):
     """An overlay {"type": "sprite", "name": "sprite-top", "at": [x, y] or an anchor, "width": canvas units across the aeroplane, "angle": degrees clockwise,
-    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity"}: the
+    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity", "height" (canvas units: stretches the picture, as a thin veil of cloud)}: the
     aeroplane of figs/sprites.py as a picture, with its middle on the point. Returns (picture, its size in canvas units)."""
     k = o.get("px", 4.0)                                      # pixels to a canvas unit in the file (the plate itself is flattened at 3)
     source = sprite_source(o["name"])
     width = o["width"]
-    image = source.resize((max(2, round(width * k)), max(2, round(width * k * source.height / source.width))), Image.LANCZOS)
+    height = o.get("height", width * source.height / source.width)         # (a cloud may be stretched: a thin veil, a tall column)
+    image = source.resize((max(2, round(width * k)), max(2, round(height * k))), Image.LANCZOS)
     if o.get("tint"):                                         # a coat of another colour over the paint: other traffic, the aeroplane in question
         rgb = tuple(int(o["tint"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
         r, g, b, a = image.split()
