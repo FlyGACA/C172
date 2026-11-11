@@ -47,7 +47,10 @@ def main():
         if name.endswith(".jpg"):
             flat = os.path.join(HERE, "cache", "flat", plate["id"] + ".png")
             if not os.path.exists(flat):
-                raise SystemExit(f"{flat} is missing: run build_plates.py and rasterize.mjs first")
+                if wanted:
+                    raise SystemExit(f"{flat} is missing: run build_plates.py and rasterize.mjs first")
+                print(f"skipped {name}: no flat picture on disk (the finished file stays as it is)")
+                continue
             image = Image.open(flat).convert("RGB")
             data, how = encode(image)
             with open(path, "wb") as f:

@@ -5,8 +5,10 @@ import math
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(HERE, "plates.json"), encoding="utf-8") as f:
-    SPEC = json.load(f)
+import sys                                             # noqa: E402
+sys.path.insert(0, HERE)
+import plates_spec                                     # noqa: E402
+SPEC = plates_spec.load()
 with open(os.path.join(HERE, "glyphs.json"), encoding="utf-8") as f:
     GLYPHS = json.load(f)
 PALETTE = SPEC["palette"]
@@ -29,6 +31,109 @@ def glyph(ch, cx, cy, height, fill="#FFFFFF"):
     tx = cx - g["advance"] * s / 2
     ty = cy + GLYPHS["cap_height"] * s / 2
     return f'<path d="{g["d"]}" transform="translate({num(tx)} {num(ty)}) scale({s:.5f})" fill="{fill}"/>'
+
+
+def text(s, x, y, height, fill="#FFFFFF", anchor="middle", halo=None, spacing=0.0):
+    """A string as outlines (digits, signs, Greek letters, capitals): no font is needed and no word of either edition is
+    in the file. (x, y) is the middle of the line at capital height; anchor is start, middle or end along x."""
+    k = height / GLYPHS["cap_height"]
+    advances = [(height * 0.38 if c == " " else GLYPHS["glyphs"][c]["advance"] * k) + spacing for c in s]
+    total = sum(advances) - spacing
+    x0 = x - (total / 2 if anchor == "middle" else total if anchor == "end" else 0.0)
+    out, cursor = [], x0
+    for c, adv in zip(s, advances):
+        if c != " ":
+            d = GLYPHS["glyphs"][c]["d"]
+            t = f'transform="translate({num(cursor)} {num(y + height / 2)}) scale({k:.5f})"'
+            if halo:
+                out.append(f'<path d="{d}" {t} fill="{halo}" stroke="{halo}" stroke-width="{num(height * 0.34 / k)}" stroke-linejoin="round"/>')
+            out.append(f'<path d="{d}" {t} fill="{fill}"/>')
+        cursor += adv
+    return "".join(out)
+
+
+def icon(name, x, y, size=14.0, fill="#1D4ED8"):
+    """Small pictograms, drawn in canvas units, centred on (x, y): a fuel drop, an eye (the place to look from)."""
+    k = size / 14.0
+    if name == "drop":
+        d = "M0,-8 C2.6,-3.4 5.4,-0.6 5.4,2.6 A5.4,5.4 0 1 1 -5.4,2.6 C-5.4,-0.6 -2.6,-3.4 0,-8 Z"
+        return (f'<g transform="translate({num(x)} {num(y)}) scale({k:.3f})"><path d="{d}" fill="{HALO}" stroke="{HALO}" stroke-width="3.4" stroke-linejoin="round" opacity=".92"/>'
+                f'<path d="{d}" fill="{fill}"/><path d="M-2.4,3 A2.8,2.8 0 0 0 0,5.6" fill="none" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round" opacity=".85"/></g>')
+    if name == "eye":
+        d = "M-10,0 C-5,-7 5,-7 10,0 C5,7 -5,7 -10,0 Z"
+        return (f'<g transform="translate({num(x)} {num(y)}) scale({k:.3f})"><path d="{d}" fill="{HALO}" stroke="{HALO}" stroke-width="3.4" stroke-linejoin="round" opacity=".95"/>'
+                f'<path d="{d}" fill="#FFFFFF" stroke="{colour("ink")}" stroke-width="1.6" stroke-linejoin="round"/><circle r="3.4" fill="{colour("ink")}"/></g>')
+    raise ValueError(name)
+
+
+_UID = [0]
+
+
+def wedge(x, y, r, a0, a1, fill, opacity=0.34, fade=0.12):
+    """A sector of a circle (angles in degrees, clockwise from straight up) filled with a colour that fades toward its rim."""
+    _UID[0] += 1
+    gid = f"wd{_UID[0]}"
+    p0 = (x + r * math.sin(math.radians(a0)), y - r * math.cos(math.radians(a0)))
+    p1 = (x + r * math.sin(math.radians(a1)), y - r * math.cos(math.radians(a1)))
+    large = 1 if (a1 - a0) % 360 > 180 else 0
+    return (f'<defs><radialGradient id="{gid}" gradientUnits="userSpaceOnUse" cx="{num(x)}" cy="{num(y)}" r="{num(r)}">'
+            f'<stop offset="0" stop-color="{fill}" stop-opacity="{opacity}"/><stop offset="1" stop-color="{fill}" stop-opacity="{num(opacity * fade)}"/></radialGradient></defs>'
+            f'<path d="M{num(x)},{num(y)} L{num(p0[0])},{num(p0[1])} A{num(r)},{num(r)} 0 {large} 1 {num(p1[0])},{num(p1[1])} Z" fill="url(#{gid})"/>')
+
+
+def glowdot(x, y, r, fill, core=None):
+    """A light seen from afar: a soft halo and a bright core."""
+    _UID[0] += 1
+    gid = f"gl{_UID[0]}"
+    return (f'<defs><radialGradient id="{gid}"><stop offset="0" stop-color="{fill}" stop-opacity="0.95"/><stop offset="0.35" stop-color="{fill}" stop-opacity="0.45"/>'
+            f'<stop offset="1" stop-color="{fill}" stop-opacity="0"/></radialGradient></defs>'
+            f'<circle cx="{num(x)}" cy="{num(y)}" r="{num(r)}" fill="url(#{gid})"/>'
+            f'<circle cx="{num(x)}" cy="{num(y)}" r="{num(r * 0.2)}" fill="{core or "#FFFFFF"}"/>')
+
+
+def along(points, t):
+    """The point and the direction (unit vector) at the fraction t of the length of a polyline."""
+    lengths = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(points, points[1:])]
+    target = max(0.0, min(1.0, t)) * sum(lengths)
+    for (a, b), n in zip(zip(points, points[1:]), lengths):
+        if target <= n or n == lengths[-1]:
+            f = 0.0 if n == 0 else min(1.0, target / n)
+            return (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f), ((b[0] - a[0]) / (n or 1), (b[1] - a[1]) / (n or 1))
+        target -= n
+    a, b = points[-2], points[-1]
+    n = math.hypot(b[0] - a[0], b[1] - a[1]) or 1
+    return b, ((b[0] - a[0]) / n, (b[1] - a[1]) / n)
+
+
+def curve(points, fill, width=2.4, dash=None, arrow=None, head=None, halo=True, marks=()):
+    """A polyline through points (canvas units), as a stroke with a white under-stroke, and an arrowhead at its end
+    (arrow="end"), its start ("start") or both ("both"); the head follows the direction of the last segments."""
+    d = "M" + " L".join(f"{num(x)},{num(y)}" for x, y in points)
+    dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
+    out = []
+    if halo:
+        out.append(f'<path d="{d}" fill="none" stroke="{HALO}" stroke-width="{num(width + 2.6)}" stroke-linecap="round" stroke-linejoin="round" opacity=".9"{dash_attr}/>')
+    out.append(f'<path d="{d}" fill="none" stroke="{fill}" stroke-width="{num(width)}" stroke-linecap="round" stroke-linejoin="round"{dash_attr}/>')
+    hl = head or width * 3.6
+    hw = width * 1.9
+
+    def tip(tail, tip_pt):
+        dx, dy = tip_pt[0] - tail[0], tip_pt[1] - tail[1]
+        n = math.hypot(dx, dy) or 1.0
+        ux, uy = dx / n, dy / n
+        bx, by = tip_pt[0] - ux * hl, tip_pt[1] - uy * hl
+        pts = f"{num(tip_pt[0])},{num(tip_pt[1])} {num(bx - uy * hw)},{num(by + ux * hw)} {num(bx + uy * hw)},{num(by - ux * hw)}"
+        return (f'<polygon points="{pts}" fill="{HALO}" stroke="{HALO}" stroke-width="3.2" stroke-linejoin="round" opacity=".92"/>'
+                f'<polygon points="{pts}" fill="{fill}"/>')
+    for t in marks:                                         # arrowheads along the line, at these fractions of its length
+        (px, py), (ux, uy) = along(points, t)
+        tail = (px - ux * 2.0, py - uy * 2.0)
+        out.append(tip(tail, (px + ux * hl * 0.5, py + uy * hl * 0.5)))
+    if arrow in ("end", "both") and len(points) >= 2:
+        out.append(tip(points[max(0, len(points) - 4)], points[-1]))
+    if arrow in ("start", "both") and len(points) >= 2:
+        out.append(tip(points[min(len(points) - 1, 3)], points[0]))
+    return "".join(out)
 
 
 def arrow(p0, p1, fill, width, head=None):
@@ -58,7 +163,7 @@ def centre_of_gravity(x, y, r):
 def marker(n, x, y, r=13.0):
     return (f'<circle cx="{num(x)}" cy="{num(y)}" r="{num(r + 1.7)}" fill="{HALO}" opacity=".95"/>'
             f'<circle cx="{num(x)}" cy="{num(y)}" r="{num(r)}" fill="{colour("marker")}"/>'
-            + glyph(str(n), x, y, r * 0.98))
+            + (glyph(str(n), x, y, r * 0.98) if n < 10 else text(str(n), x, y, r * 0.78, "#FFFFFF", "middle", spacing=-r * 0.03)))
 
 
 def leader(frm, to, r=13.0, gap=0.0):

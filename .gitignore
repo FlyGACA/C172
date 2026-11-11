@@ -11,3 +11,7 @@ e2e-screenshots/
 08_realistic_digital_twin/assets/posmaps/
 # the handbook plates: the finer dial artwork is rebuilt (python3 09_book_figures/handbook/fine_textures.py)
 09_book_figures/handbook/cache/
+# the handbook plates: the raw renders of new plates and their web SVGs are large and are made again by `npm run plates:render` and
+# `npm run plates:build` (Blender needed); what is kept is the finished plate of the book in 09_book_figures/handbook/out/book
+09_book_figures/handbook/renders/
+09_book_figures/handbook/out/*.svg

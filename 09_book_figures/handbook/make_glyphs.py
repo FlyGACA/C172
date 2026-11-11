@@ -1,5 +1,5 @@
-"""One-off: outlines of the glyphs the plates use (the digits of the callouts, the alpha of the angle of attack) as
-SVG path data, so that a plate looks the same wherever it is drawn, with no font installed.
+"""One-off: outlines of the glyphs the plates use (the digits of the callouts, numbers and signs in a picture, Greek letters,
+capital letters for codes such as VY) as SVG path data, so that a plate looks the same wherever it is drawn, with no font installed.
 Needs fontTools; the result, glyphs.json, is kept in the repository.   python3 make_glyphs.py"""
 import json
 import os
@@ -14,7 +14,8 @@ cmap = font.getBestCmap()
 upm = font["head"].unitsPerEm
 cap = font["OS/2"].sCapHeight
 out = {"font": "Inter Bold (SIL Open Font License 1.1)", "units": upm, "cap_height": cap, "glyphs": {}}
-for ch in "0123456789α":
+CHARS = "0123456789.,:;°%+−–/()×=<>·'" + "αβγδεθλμπρστφψωΔΩ" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+for ch in CHARS:
     name = cmap[ord(ch)]
     pen = SVGPathPen(glyphs)
     glyphs[name].draw(TransformPen(pen, (1, 0, 0, -1, 0, 0)))          # font units are y up, SVG is y down

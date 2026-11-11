@@ -18,8 +18,8 @@ PLATES = os.path.join(os.path.dirname(HERE), "handbook")
 OUT = os.path.join(PLATES, "out")
 sys.path.insert(0, PLATES)
 from book_rules import problems_of_jpeg, problems_of_svg      # noqa: E402
-with open(os.path.join(PLATES, "plates.json"), encoding="utf-8") as f:
-    SPEC = json.load(f)
+import plates_spec                                            # noqa: E402  (the first six plates of plates.json and one module per figure in figs/)
+SPEC = plates_spec.load()
 with open(os.path.join(PLATES, "glyphs.json"), encoding="utf-8") as f:
     GLYPHS = json.load(f)
 MARKER = SPEC["palette"]["marker"]
@@ -39,7 +39,7 @@ class PlateSpec(unittest.TestCase):
         for p in SPEC["plates"]:
             self.assertTrue(p["legend"], p["id"])
             self.assertTrue(p["caption"] and p["desc"], p["id"])
-            self.assertTrue("render" in p or "source" in p or "drawing" in p, f"{p['id']}: nothing to draw")
+            self.assertTrue("render" in p or "source" in p or "layers" in p or "drawing" in p, f"{p['id']}: nothing to draw")
 
     def test_callouts_are_numbered_one_to_the_length_of_the_legend(self):
         for p in SPEC["plates"]:
@@ -49,22 +49,38 @@ class PlateSpec(unittest.TestCase):
 
     def test_overlays_use_anchors_the_recipe_defines(self):
         for p in SPEC["plates"]:
-            if "render" not in p:
+            if "render" in p:
+                recipes = {"": p["render"]}
+            elif "layers" in p:
+                recipes = {layer["name"] + ".": layer["render"] for layer in p["layers"] if "render" in layer}
+            else:
                 continue
-            anchors = set(p["render"].get("anchors", {}))
+            anchors = {prefix + k for prefix, r in recipes.items() for k in r.get("anchors", {})}
+            curves = {prefix + k for prefix, r in recipes.items() for k in r.get("curves", {})}
             for o in p.get("overlays", []):
                 for key in ("at", "from", "to"):
                     if key in o:
                         self.assertIn(o[key], anchors, f"{p['id']}: overlay {o} names the anchor {o[key]!r}, which the recipe does not define")
                 for name in o.get("points", []):
-                    self.assertIn(name, anchors, p["id"])
+                    if isinstance(name, str) and o["type"] != "outline":
+                        self.assertIn(name, anchors, p["id"])
                 if "polar" in o:
                     self.assertIn(o["polar"][0], anchors, p["id"])
+                if o["type"] == "path":
+                    self.assertIn(o["curve"], curves, f"{p['id']}: overlay {o} names a curve the recipe does not define")
+                if o["type"] == "marker" and "on" in o:
+                    self.assertIn(o["on"]["curve"], curves, f"{p['id']}: marker {o['n']} sits on a curve the recipe does not define")
+                if o["type"] in ("glowdot", "icon", "text", "wedge") and "at" in o:
+                    self.assertIn(o["at"], anchors, f"{p['id']}: {o['type']} at the anchor {o['at']!r}, which the recipe does not define")
+            for g in p.get("ground", []):
+                self.assertIn(g["type"], ("wedge", "dots"), p["id"])
+                if "at" in g:
+                    self.assertIn(g["at"], anchors, f"{p['id']}: ground item {g} names an anchor the recipe does not define")
 
     def test_each_plate_names_the_file_the_book_takes(self):
         """A render becomes plate-NN-NN-name.jpg (the book takes no SVG with a picture in it); a drawing stays fig-NN-NN-name.svg."""
         for p in SPEC["plates"]:
-            raster = "render" in p or "source" in p
+            raster = "render" in p or "source" in p or "layers" in p
             name = p["book_file"]
             self.assertRegex(name, r"^plate-\d\d-\d\d-[a-z0-9-]+\.jpg$" if raster else r"^fig-\d\d-\d\d-[a-z0-9-]+\.svg$", p["id"])
             self.assertEqual(name.split(".")[0].split("-", 1)[1], p["id"].split("-", 1)[1], f"{p['id']} and {name} number the same figure")
@@ -120,7 +136,7 @@ class FinishedPlates(unittest.TestCase):
 
     def test_a_render_is_embedded_where_the_plate_is_one(self):
         for p, path in self.finished():
-            if "render" in p or "source" in p:
+            if "render" in p or "source" in p or "layers" in p:
                 with open(path, encoding="utf-8") as f:
                     self.assertIn("data:image/jpeg;base64,", f.read(), p["id"])
 

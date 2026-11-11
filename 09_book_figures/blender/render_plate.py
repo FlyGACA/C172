@@ -10,7 +10,7 @@ wing, y aft, z up; see 08_realistic_digital_twin/blender/c172/units.py): the air
 attitude on the ground first, so a side view is a view of level flight and the panel stands upright.
 
     camera   {"view": "side"|"panel", "target": [x, y, z], "width": metres across the picture,
-              "azimuth": deg, "elevation": deg}      side: from the right, nose to the right of the picture;
+              "azimuth": deg, "elevation": deg, "roll": deg, "up": [x, y, z] (the way the top of the picture points, for a view from above)}      side: from the right, nose to the right of the picture;
                                                       panel: from the cabin, square on to the instrument panel
     show     only these parts are drawn (glob patterns on part names); hide: these are left out. Parts of detail
              level 1 and 2 (what lies under the skin, fasteners) are never drawn unless "detail": true
@@ -23,8 +23,13 @@ attitude on the ground first, so a side view is a view of level flight and the p
     propeller "disc": the blades give way to a faint disc, as the eye sees a turning propeller
     smooth   [{"parts": [globs], "angle": 35}]: these parts are shaded smooth except across edges sharper than the angle, where a
              close-up would show the facets of a coarse round part in its highlights (the bezels of the instruments)
-    tint     [{"parts": [globs], "colour": "#RRGGBB"}]: these parts are painted one colour (semi-gloss, lit and shaded as
-             the rest), to show which surface a plate is about
+    curves   {name: {"line": [point, ...]} | {"arc": {"centre": point, "axis": [x, y, z], "ref": [x, y, z], "radius": m,
+             "from": deg, "to": deg, "n": 40}}}: 3D curves, projected by the camera into the anchors file, for the plate to draw as an
+             axis, a turning arrow or a track (a point is any anchor spec; "axis" and "ref" are directions in the aircraft's own frame)
+    glow     [{"parts": [globs], "colour": "#RRGGBB", "strength": 30}]: these parts shine in one colour (position lights, a beacon);
+             light "night" lights the scene by the moon
+    tint     [{"parts": [globs], "colour": "#RRGGBB", "emission": 0.3, "glow": "#RRGGBB"}]: these parts are painted one colour (semi-gloss, lit and
+             shaded as the rest, with a little light of its own if "emission" is given), to show which surface a plate is about
     light    "outdoor" | "panel" | "instrument"
     anchors  {name: [x, y, z] | {"fs": in, "bl": in, "wl": in} | {"part": id, "at": [u, v, w]} |
               {"from": anchor, "add": [dx, dy, dz]} | {"dial": instrument, "angle": deg, "radius": fraction}}:
@@ -54,6 +59,7 @@ from c172 import units as U                              # noqa: E402
 from c172.dials import instrument_specs, value_to_angle  # noqa: E402
 
 PLATES = os.path.join(os.path.dirname(HERE), "handbook")
+sys.path.insert(0, PLATES)
 
 
 def specs_of_the_book():
@@ -138,6 +144,18 @@ def visible_point(spec):
     tx, ty = x0 + (x1 - x0) * at[0], y0 + (y1 - y0) * at[1]
     aspect = sc.render.resolution_x / sc.render.resolution_y
     return min(seen, key=lambda p: ((p[0] - tx) * aspect) ** 2 + (p[1] - ty) ** 2)[2]
+
+
+def curve_points(spec):
+    """The 3D points of a curve of a recipe, in the build frame (turned with the aircraft by the pitch)."""
+    if "line" in spec:
+        return [point(p) for p in spec["line"]]
+    a = spec["arc"]
+    centre = point(a["centre"])
+    axis = (PITCH.to_3x3() @ Vector(a["axis"])).normalized()
+    ref = (PITCH.to_3x3() @ Vector(a["ref"])).normalized()
+    n = a.get("n", 40)
+    return [centre + a["radius"] * (Matrix.Rotation(math.radians(a["from"] + (a["to"] - a["from"]) * i / (n - 1)), 3, axis) @ ref) for i in range(n)]
 
 
 def point(spec):
@@ -271,6 +289,21 @@ def smooth(rules):
                 mesh.update()
 
 
+def glow(rules):
+    """Parts that give light of their own, in one colour: position lights, a beacon, a landing light, runway lights.
+    [{"parts": [globs], "colour": "#RRGGBB", "strength": 30}]"""
+    for number, rule in enumerate(rules):
+        mat = bpy.data.materials.new(f"_glow_{number}"); mat.use_nodes = True
+        bsdf = mat.node_tree.nodes["Principled BSDF"]
+        bsdf.inputs["Base Color"].default_value = (0.0, 0.0, 0.0, 1.0)
+        bsdf.inputs["Emission Color"].default_value = (*hex_to_linear(rule["colour"]), 1.0)
+        bsdf.inputs["Emission Strength"].default_value = rule.get("strength", 30.0)
+        for ob in bpy.data.objects:
+            if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
+                ob.hide_render = False
+                ob.data.materials.clear(); ob.data.materials.append(mat)
+
+
 def hex_to_linear(code):
     channels = [int(code.lstrip("#")[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
     return tuple(((c + 0.055) / 1.055) ** 2.4 if c > 0.04045 else c / 12.92 for c in channels)
@@ -282,7 +315,11 @@ def tint(rules):
         mat = bpy.data.materials.new(f"_tint_{number}"); mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         bsdf.inputs["Base Color"].default_value = (*hex_to_linear(rule["colour"]), 1.0)
-        bsdf.inputs["Roughness"].default_value = rule.get("roughness", 0.38)
+        bsdf.inputs["Roughness"].default_value = rule.get("roughness", 0.7)
+        bsdf.inputs["Specular IOR Level"].default_value = rule.get("specular", 0.04)     # matte: a sheen of sun and sky washes the colour out of an upward face
+        if rule.get("emission"):                      # a little light of its own: a shaded face keeps its colour, a sunlit one does not wash out
+            bsdf.inputs["Emission Color"].default_value = (*hex_to_linear(rule.get("glow", rule["colour"])), 1.0)
+            bsdf.inputs["Emission Strength"].default_value = rule["emission"]
         for ob in bpy.data.objects:
             if ob.type == "MESH" and any(fnmatch.fnmatchcase(ob.name, pattern) for pattern in rule["parts"]):
                 ob.data.materials.clear(); ob.data.materials.append(mat)
@@ -376,6 +413,12 @@ def lights(kind, target):
         so = bpy.data.objects.new("sun", sun); sc.collection.objects.link(so)
         so.rotation_euler = (math.radians(50), 0, math.radians(215))          # high, from ahead of the camera's side
         area_light("fill", (tx - 14, ty - 6, tz + 5), target, 900.0, 12.0, (0.92, 0.96, 1.0))     # opens the shade under the wing
+    elif kind == "night":                           # a moonlit apron: dark blue air, a cold light from high up and a little from the side
+        bg.inputs["Color"].default_value = (0.020, 0.032, 0.075, 1.0); bg.inputs["Strength"].default_value = 1.0
+        moon = bpy.data.lights.new("moon", "SUN"); moon.energy = 0.9; moon.angle = math.radians(1.5); moon.color = (0.62, 0.75, 1.0)
+        mo = bpy.data.objects.new("moon", moon); sc.collection.objects.link(mo)
+        mo.rotation_euler = (math.radians(35), 0, math.radians(215))
+        area_light("fill", (tx - 10, ty - 6, tz + 6), target, 260.0, 12.0, (0.55, 0.68, 1.0))
     else:
         bg.inputs["Color"].default_value = (0.55, 0.60, 0.68, 1.0); bg.inputs["Strength"].default_value = 0.22 if kind == "panel" else 0.30
         reach = 0.55 if kind == "panel" else 0.42
@@ -397,11 +440,19 @@ def camera(recipe, size):
         away = Vector((math.cos(el) * math.sin(az), math.cos(el) * math.cos(az), math.sin(el)))
         distance = spec.get("distance", 0.20)
     ob.location = target + away * distance
-    ob.rotation_euler = (-away).to_track_quat("-Z", "Y").to_euler()
+    if spec.get("up"):                                          # a view from straight above has no up of its own: say which way the top of the picture points
+        back = away.normalized()
+        right = Vector(spec["up"]).cross(back).normalized()
+        ob.rotation_euler = Matrix((right, back.cross(right), back)).transposed().to_euler()
+    else:
+        ob.rotation_euler = (-away).to_track_quat("-Z", "Y").to_euler()
+    if spec.get("roll"):                                       # turn the picture about the line of sight (a plan view with the nose up)
+        ob.rotation_euler.rotate_axis("Z", math.radians(spec["roll"]))
     return ob
 
 
-def render(plate, quick, textures):
+def render(plate, quick, textures, anchors_only=False):
+    """plate = {"id": ..., "render": recipe}: one picture (a plate, or one layer of a composite plate)."""
     global PITCH
     bpy.ops.wm.revert_mainfile()
     PITCH = Matrix.Identity(4); ANCHORS.clear()
@@ -419,6 +470,8 @@ def render(plate, quick, textures):
         clear_instrument_glass()
     if recipe.get("tint"):
         tint(recipe["tint"])
+    if recipe.get("glow"):
+        glow(recipe["glow"])
     if recipe.get("smooth"):
         smooth(recipe["smooth"])
     if recipe.get("pitch"):
@@ -457,32 +510,52 @@ def render(plate, quick, textures):
     os.makedirs(out, exist_ok=True)
     sc.render.filepath = os.path.join(out, plate["id"] + ".png")
     bpy.context.view_layer.update()
-    bpy.ops.render.render(write_still=True)
-    anchors = {}
+    if not anchors_only:
+        bpy.ops.render.render(write_still=True)
+    anchors, curves = {}, {}
     for name, spec in recipe.get("anchors", {}).items():
         ANCHORS[name] = point(spec)
         u, v, depth = world_to_camera_view(sc, cam, ANCHORS[name])
         anchors[name] = [round(u, 5), round(1.0 - v, 5)]                 # fractions of the picture, from its top left
+    for name, spec in recipe.get("curves", {}).items():
+        curves[name] = []
+        for q in curve_points(spec):
+            u, v, depth = world_to_camera_view(sc, cam, q)
+            curves[name].append([round(u, 5), round(1.0 - v, 5)])
     with open(os.path.join(out, plate["id"] + ".anchors.json"), "w", encoding="utf-8") as f:
-        json.dump({"id": plate["id"], "size": [width, height], "anchors": anchors}, f, indent=1)
+        json.dump({"id": plate["id"], "size": [width, height], "anchors": anchors, "curves": curves}, f, indent=1)
         f.write("\n")
-    print("plate", plate["id"], "rendered", "(quick)" if quick else "")
+    print("plate", plate["id"], "anchors only" if anchors_only else "rendered", "(quick)" if quick else "")
+
+
+def jobs_of(spec):
+    """Every picture to render: a plate with a render recipe, or each layer of a composite plate that has one."""
+    jobs = []
+    for p in spec["plates"]:
+        if "layers" in p:
+            jobs += [{"id": f"{p['id']}__{layer['name']}", "render": layer["render"]} for layer in p["layers"] if "render" in layer]
+        elif "render" in p:
+            jobs.append({"id": p["id"], "render": p["render"]})
+    return jobs
 
 
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     ap = argparse.ArgumentParser()
-    ap.add_argument("--plate", default=None); ap.add_argument("--all", action="store_true")
+    ap.add_argument("--plate", default=None, help="a plate id, or several separated by commas (a composite plate: all its layers, or plate__layer)")
+    ap.add_argument("--all", action="store_true")
     ap.add_argument("--quick", action="store_true", help="half size and few samples, for choosing a camera")
+    ap.add_argument("--anchors-only", action="store_true", help="work out the anchors and curves again without rendering")
     ap.add_argument("--textures", default=os.path.join(PLATES, "cache"), help="folder with finer dials.png and panel_misc.png (handbook/fine_textures.py)")
     a = ap.parse_args(argv)
-    with open(os.path.join(PLATES, "plates.json"), encoding="utf-8") as f:
-        plates = [p for p in json.load(f)["plates"] if "render" in p]
-    chosen = plates if a.all else [p for p in plates if p["id"] == a.plate]
+    import plates_spec
+    jobs = jobs_of(plates_spec.load())
+    wanted = [w for w in (a.plate or "").split(",") if w]
+    chosen = jobs if a.all else [j for j in jobs if j["id"] in wanted or j["id"].split("__")[0] in wanted]
     if not chosen:
-        raise SystemExit(f"no plate to render: {a.plate!r} (plates with a render recipe: {[p['id'] for p in plates]})")
-    for plate in chosen:
-        render(plate, a.quick, a.textures)
+        raise SystemExit(f"no plate to render: {a.plate!r} (pictures with a render recipe: {[j['id'] for j in jobs]})")
+    for job in chosen:
+        render(job, a.quick, a.textures, a.anchors_only)
 
 
 main()
