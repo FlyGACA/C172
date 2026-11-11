@@ -36,6 +36,31 @@ Outputs, in `out/`:
   font is needed), 640 units wide like the book's other figures. The book does not take it (an SVG with a picture in it breaks its rules);
   it is there for whoever wants the callouts as vector.
 
+## The rest of the book's figures
+
+The first six plates are in `plates.json`. The others are one Python module each in `figs/` (`f_NN_NN_name.py`, a function `plate()` that
+returns a plate in the same form; `plates_spec.py` joins them), written in three ways:
+
+- **Composite plates** (`"layers"`): several renders, each in a box of the canvas, with vector overlays over them. The instrument figures
+  (28-4 to 28-7, 6-3) lay out renders of single instruments of the model (`figs/kit.py` `dial_layer`: bezel, dial and pointers with the readings
+  of the situation, a soft shadow, anchors on the rim for the callouts); 22-6 has a night view from above with the three sectors of light drawn
+  under the aeroplane (`"ground"`) and four night views of the aeroplane from the front left, front right, head on and from behind.
+- **Renders with a drawing over them** (`"render"` and `"overlays"`): 7-1 (the three axes), 25-4 (the walk-around route). Overlays are numbered
+  callouts (also sitting on a route, `"on"`), arrows (also an out-and-back `"pair"`), paths and arcs projected from 3D, text, pictograms, sectors of
+  light, glowing dots, free markup and pictures of the aeroplane (`"sprite"`); see `build_plates.py` `overlays()`.
+- **An old figure with the model's aeroplane in it** (`"reskin"`, `reskin.py`): the diagram of the figure the book had (its SVG kept in `old/`)
+  with its flat aeroplane symbols replaced by pictures of the model, in the same place, heading and size, tinted where the symbol was coloured, in the
+  book's fonts. Forty figures are made this way; where one symbol is not recognised (a rear or three-quarter view drawn as a detailed line
+  picture) the figure keeps it.
+
+The pictures of the aeroplane are `figs/sprites.py`: from above, from the side, from ahead, from behind and from above by moonlight, rendered once
+on a transparent background (`npm run plates:render` makes them with the rest).
+
+`to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
+them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
+(`renders/`) and the web SVGs (`out/<id>.svg`) of these plates are **not kept in git** (they are large): `npm run plates:render` makes them
+again, and `build_plates.py` skips a plate whose render is missing.
+
 ## What changed against the figures it replaces
 
 The old figures were drawn by hand as flat vectors: a toy aeroplane in 5-1, a lens-shaped section with no camber in 5-2, a

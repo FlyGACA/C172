@@ -18,7 +18,7 @@ import math
 import os
 import sys
 
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -93,11 +93,19 @@ def picture(plate, lossless=False, anchors=None):
     base = background(SPEC["backgrounds"][plate["background"]], size).convert("RGBA")
     ground(base, plate, anchors)
     if "layers" in plate:                         # several pictures, each in a box of the canvas (canvas units)
-        for name, path, _anchors, box in layers_of(plate):
+        k = scale(plate)
+        for (name, path, _anchors, box), layer in zip(layers_of(plate), plate["layers"]):
             x, y, w, h = box
-            piece = Image.open(path).convert("RGBA").resize((round(w * scale(plate)), round(h * scale(plate))), Image.LANCZOS)
+            piece = Image.open(path).convert("RGBA").resize((round(w * k), round(h * k)), Image.LANCZOS)
+            shadow = layer.get("shadow")
+            if shadow:                                   # a soft shadow under the picture, so that it stands off the page (the box needs room for it)
+                blurred = piece.split()[3].filter(ImageFilter.GaussianBlur(shadow.get("blur", 6) * k)).point(lambda v: round(v * shadow.get("opacity", 0.32)))
+                dark = Image.new("RGBA", piece.size, (0, 0, 0, 0)); dark.putalpha(blurred)
+                under = Image.new("RGBA", size, (0, 0, 0, 0))
+                under.paste(dark, (round((x + shadow.get("dx", 0)) * k), round((y + shadow.get("dy", 3)) * k)))
+                base.alpha_composite(under)
             sheet = Image.new("RGBA", size, (0, 0, 0, 0))
-            sheet.paste(piece, (round(x * scale(plate)), round(y * scale(plate))))
+            sheet.paste(piece, (round(x * k), round(y * k)))
             base.alpha_composite(sheet)
     else:
         source = os.path.join(HERE, plate["source"]["image"]) if "source" in plate else os.path.join(HERE, "renders", plate["id"] + ".png")
@@ -108,6 +116,66 @@ def picture(plate, lossless=False, anchors=None):
     else:
         base.convert("RGB").save(buf, "JPEG", quality=JPEG_QUALITY, subsampling=0, optimize=True, progressive=True)
     return buf.getvalue()
+
+
+SPRITES = {}
+
+
+def sprite_source(name):
+    """A sprite cropped to the aeroplane in it: its width is then the wingspan (from above, ahead, behind) or the length (from the side)."""
+    if name not in SPRITES:
+        image = Image.open(os.path.join(HERE, "renders", name + ".png")).convert("RGBA")
+        SPRITES[name] = image.crop(image.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox())
+    return SPRITES[name]
+
+
+def sprite_image(o):
+    """An overlay {"type": "sprite", "name": "sprite-top", "at": [x, y] or an anchor, "width": canvas units across the aeroplane, "angle": degrees clockwise,
+    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity"}: the
+    aeroplane of figs/sprites.py as a picture, with its middle on the point. Returns (picture, its size in canvas units)."""
+    k = o.get("px", 4.0)                                      # pixels to a canvas unit in the file (the plate itself is flattened at 3)
+    source = sprite_source(o["name"])
+    width = o["width"]
+    image = source.resize((max(2, round(width * k)), max(2, round(width * k * source.height / source.width))), Image.LANCZOS)
+    if o.get("tint"):                                         # a coat of another colour over the paint: other traffic, the aeroplane in question
+        rgb = tuple(int(o["tint"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+        r, g, b, a = image.split()
+        base = Image.merge("RGB", (r, g, b))
+        mixed = Image.blend(base, ImageChops.multiply(base, Image.new("RGB", image.size, rgb)), o.get("tint_strength", 0.5))
+        image = Image.merge("RGBA", (*mixed.split(), a))
+    ol, sh = o.get("outline"), o.get("shadow")
+    pad = round(((ol["width"] if ol else 0) + (sh["blur"] * 3 + abs(sh.get("dx", 0)) + abs(sh.get("dy", 0)) if sh else 0) + 1) * k)
+    canvas = Image.new("RGBA", (image.width + 2 * pad, image.height + 2 * pad), (0, 0, 0, 0))
+    canvas.alpha_composite(image, (pad, pad))
+    image = canvas
+    if o.get("angle"):
+        image = image.rotate(-o["angle"], resample=Image.BICUBIC, expand=True)
+    layers = []
+    if sh:
+        dark = Image.new("RGBA", image.size, (0, 0, 0, 0))
+        dark.putalpha(image.split()[3].filter(ImageFilter.GaussianBlur(sh["blur"] * k)).point(lambda v: round(v * sh.get("opacity", 0.3))))
+        shifted = Image.new("RGBA", image.size, (0, 0, 0, 0)); shifted.alpha_composite(dark, (round(sh.get("dx", 2) * k), round(sh.get("dy", 3) * k)))
+        layers.append(shifted)
+    if ol:
+        size = 2 * max(1, round(ol["width"] * k)) + 1
+        edge = Image.new("RGBA", image.size, tuple(int(ol["colour"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)) + (0,))
+        edge.putalpha(image.split()[3].filter(ImageFilter.MaxFilter(size)).point(lambda v: round(v * ol.get("opacity", 0.85))))
+        layers.append(edge)
+    layers.append(image)
+    out = layers[0]
+    for layer in layers[1:]:
+        out = Image.alpha_composite(out, layer)
+    if o.get("opacity", 1.0) < 1.0:
+        out.putalpha(out.split()[3].point(lambda v: round(v * o["opacity"])))
+    return out, k
+
+
+def sprite_markup(o, x, y):
+    image, k = sprite_image(o)
+    buf = io.BytesIO(); image.save(buf, "PNG", compress_level=6)
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+    w, h = image.width / k, image.height / k
+    return f'<image x="{num(x - w / 2)}" y="{num(y - h / 2)}" width="{num(w)}" height="{num(h)}" preserveAspectRatio="none" href="data:image/png;base64,{b64}" xlink:href="data:image/png;base64,{b64}"/>'
 
 
 def layers_of(plate):
@@ -162,7 +230,20 @@ def overlays(plate, anchors, curves=None):
     for o in plate.get("overlays", []):
         kind = o["type"]
         if kind == "arrow":
-            out.append(arrow(pts[o["from"]], pts[o["to"]], colour(o["colour"]), o.get("width", 3.4), o.get("head")))
+            out.append(arrow(where(o["from"]), where(o["to"]), colour(o["colour"]), o.get("width", 3.4), o.get("head")))
+        elif kind == "pair":                                 # two parallel arrows between two points, one each way (out and back); gap: [at the start, at the end]
+            a, b = where(o["from"]), where(o["to"])
+            length = math.hypot(b[0] - a[0], b[1] - a[1])
+            ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+            g0, g1 = o.get("gap", [0, 0]); off = o.get("offset", 5.0)
+            p0, p1 = (a[0] + ux * g0, a[1] + uy * g0), (b[0] - ux * g1, b[1] - uy * g1)
+            nx, ny = -uy * off, ux * off
+            fill = colour(o["colour"])
+            out.append(arrow((p0[0] + nx, p0[1] + ny), (p1[0] + nx, p1[1] + ny), fill, o.get("width", 3.0), o.get("head")))
+            out.append(arrow((p1[0] - nx, p1[1] - ny), (p0[0] - nx, p0[1] - ny), fill, o.get("width", 3.0), o.get("head")))
+        elif kind == "sprite":                               # the aeroplane from figs/sprites.py, centred on a point of the canvas
+            x, y = where(o["at"] if "at" in o else o["pos"])
+            out.append(sprite_markup(o, x, y))
         elif kind == "cg":
             p = pts[o["at"]]; out.append(centre_of_gravity(p[0], p[1], o.get("r", 8.5)))
         elif kind == "path":                                 # a 3D curve of the recipe, projected: an axis, a turning arrow, a track
@@ -225,6 +306,8 @@ def svg(plate, picture_bytes, anchors, mime="image/jpeg", curves=None):
 
 def has_render(plate):
     """Whether the pictures of a plate are on disk. The raw renders of new plates are not kept in git (they are large): `npm run plates:render` makes them."""
+    if "reskin" in plate:
+        return all(os.path.exists(os.path.join(HERE, "renders", sprite["id"] + ".png")) for sprite in SPEC["sprites"])
     if "layers" in plate:
         return all(os.path.exists(png) and os.path.exists(anchors) for _n, png, anchors, _b in layers_of(plate))
     if "source" in plate:
@@ -243,6 +326,12 @@ def main():
             continue
         if not wanted and not has_render(plate):
             print(f"skipped {plate['id']}: no render on disk (npm run plates:render makes it; the finished plate is in out/book)")
+            continue
+        if "reskin" in plate:                       # an old figure with the model's aeroplane in it (reskin.py): only the flat picture is made
+            from reskin import reskin
+            with open(os.path.join(HERE, "cache", "flat-src", plate["id"] + ".svg"), "w", encoding="utf-8") as f:
+                f.write(reskin(plate, sprite_markup, lambda name: sprite_source(name).height / sprite_source(name).width))
+            print("reskinned", plate["id"])
             continue
         if "render" in plate or "source" in plate or "layers" in plate:
             anchors, curves = load_geometry(plate)

@@ -39,7 +39,7 @@ class PlateSpec(unittest.TestCase):
         for p in SPEC["plates"]:
             self.assertTrue(p["legend"], p["id"])
             self.assertTrue(p["caption"] and p["desc"], p["id"])
-            self.assertTrue("render" in p or "source" in p or "layers" in p or "drawing" in p, f"{p['id']}: nothing to draw")
+            self.assertTrue("render" in p or "source" in p or "layers" in p or "drawing" in p or "reskin" in p, f"{p['id']}: nothing to draw")
 
     def test_callouts_are_numbered_one_to_the_length_of_the_legend(self):
         for p in SPEC["plates"]:
@@ -59,7 +59,7 @@ class PlateSpec(unittest.TestCase):
             curves = {prefix + k for prefix, r in recipes.items() for k in r.get("curves", {})}
             for o in p.get("overlays", []):
                 for key in ("at", "from", "to"):
-                    if key in o:
+                    if key in o and isinstance(o[key], str):                  # (a list is a point of the canvas)
                         self.assertIn(o[key], anchors, f"{p['id']}: overlay {o} names the anchor {o[key]!r}, which the recipe does not define")
                 for name in o.get("points", []):
                     if isinstance(name, str) and o["type"] != "outline":
@@ -70,17 +70,17 @@ class PlateSpec(unittest.TestCase):
                     self.assertIn(o["curve"], curves, f"{p['id']}: overlay {o} names a curve the recipe does not define")
                 if o["type"] == "marker" and "on" in o:
                     self.assertIn(o["on"]["curve"], curves, f"{p['id']}: marker {o['n']} sits on a curve the recipe does not define")
-                if o["type"] in ("glowdot", "icon", "text", "wedge") and "at" in o:
+                if o["type"] in ("glowdot", "icon", "text", "wedge", "sprite") and isinstance(o.get("at"), str):
                     self.assertIn(o["at"], anchors, f"{p['id']}: {o['type']} at the anchor {o['at']!r}, which the recipe does not define")
             for g in p.get("ground", []):
                 self.assertIn(g["type"], ("wedge", "dots"), p["id"])
-                if "at" in g:
+                if isinstance(g.get("at"), str):
                     self.assertIn(g["at"], anchors, f"{p['id']}: ground item {g} names an anchor the recipe does not define")
 
     def test_each_plate_names_the_file_the_book_takes(self):
         """A render becomes plate-NN-NN-name.jpg (the book takes no SVG with a picture in it); a drawing stays fig-NN-NN-name.svg."""
         for p in SPEC["plates"]:
-            raster = "render" in p or "source" in p or "layers" in p
+            raster = "render" in p or "source" in p or "layers" in p or "reskin" in p
             name = p["book_file"]
             self.assertRegex(name, r"^plate-\d\d-\d\d-[a-z0-9-]+\.jpg$" if raster else r"^fig-\d\d-\d\d-[a-z0-9-]+\.svg$", p["id"])
             self.assertEqual(name.split(".")[0].split("-", 1)[1], p["id"].split("-", 1)[1], f"{p['id']} and {name} number the same figure")

@@ -22,4 +22,5 @@ def load():
             if name.startswith("f_") and name.endswith(".py"):
                 module = importlib.import_module("figs." + name[:-3])
                 spec["plates"].append(module.plate())
+        spec["sprites"] = importlib.import_module("figs.sprites").sprites()
     return spec

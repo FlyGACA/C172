@@ -9,7 +9,7 @@ handbook/renders/<id>.anchors.json. A recipe works in the build frame of the mod
 wing, y aft, z up; see 08_realistic_digital_twin/blender/c172/units.py): the aircraft is taken out of its
 attitude on the ground first, so a side view is a view of level flight and the panel stands upright.
 
-    camera   {"view": "side"|"panel", "target": [x, y, z], "width": metres across the picture,
+    camera   {"view": "side"|"panel", "target": [x, y, z] or an anchor spec (a part of the aircraft), "width": metres across the picture,
               "azimuth": deg, "elevation": deg, "roll": deg, "up": [x, y, z] (the way the top of the picture points, for a view from above)}      side: from the right, nose to the right of the picture;
                                                       panel: from the cabin, square on to the instrument panel
     show     only these parts are drawn (glob patterns on part names); hide: these are left out. Parts of detail
@@ -20,7 +20,7 @@ attitude on the ground first, so a side view is a view of level flight and the p
                   are not drawn, and their holes would show the cabin behind); panel_extend [up, down] metres: the
                   panel plate is made taller, so that a picture of a few instruments is all panel
     pose     what the instruments show: {"ASI": kt, "ALT": ft, "VSI": ft/min, "TACH": rpm, "heading": deg, ...}
-    propeller "disc": the blades give way to a faint disc, as the eye sees a turning propeller
+    propeller "disc": the blades give way to a faint disc, as the eye sees a turning propeller; "none": no propeller
     smooth   [{"parts": [globs], "angle": 35}]: these parts are shaded smooth except across edges sharper than the angle, where a
              close-up would show the facets of a coarse round part in its highlights (the bezels of the instruments)
     curves   {name: {"line": [point, ...]} | {"arc": {"centre": point, "axis": [x, y, z], "ref": [x, y, z], "radius": m,
@@ -109,6 +109,7 @@ def dial_point(spec):
 
 
 CAMERA = None                        # the plate's camera, set before the anchors are worked out
+TARGET = Vector((0, 0, 0))          # the point the camera looks at (a recipe may name it by a part of the aircraft)
 
 
 def visible_point(spec):
@@ -350,7 +351,7 @@ def pose(readings):
     ball = bpy.data.objects.get("PANEL.AI.ball")
     if ball is not None and ("pitch" in readings or "bank" in readings):
         ball.rotation_euler = (0.0, math.radians(readings.get("bank", 0.0)), 0.0)
-        ball.location.z -= max(-20.0, min(20.0, readings.get("pitch", 0.0))) * 0.0005
+        ball.location.z -= max(-30.0, min(30.0, readings.get("pitch", 0.0))) * 0.0003       # at 30 degrees the ball still stays behind the bezel
     bpy.context.view_layer.update()
 
 
@@ -430,7 +431,9 @@ def camera(recipe, size):
     cam = bpy.data.cameras.new("plate"); ob = bpy.data.objects.new("plate", cam)
     bpy.context.scene.collection.objects.link(ob); bpy.context.scene.camera = ob
     spec = recipe["camera"]
-    target = Vector(spec["target"])
+    global TARGET
+    target = point(spec["target"]) if isinstance(spec["target"], dict) else Vector(spec["target"])        # a point of the aircraft (an instrument, a part) or a place in metres
+    TARGET = target.copy()
     cam.type = "ORTHO"; cam.ortho_scale = spec["width"]; cam.clip_start = 0.01; cam.clip_end = 200.0
     az, el = math.radians(spec.get("azimuth", 0.0)), math.radians(spec.get("elevation", 0.0))
     if spec["view"] == "side":          # from the right of the aircraft: azimuth swings the camera toward the nose
@@ -481,6 +484,10 @@ def render(plate, quick, textures, anchors_only=False):
     prop = recipe.get("propeller")
     if prop == "disc":
         propeller_disc()
+    elif prop == "none":                                     # a view from behind: the propeller is at the far end and its disc would only dull the picture
+        blade = bpy.data.objects.get("POWERPLANT.propeller")
+        if blade is not None:
+            blade.hide_render = True
     elif isinstance(prop, dict) and "turn" in prop:         # the blades stopped at an angle: seen from the side they are then a blade, not a stub
         blade = bpy.data.objects.get("POWERPLANT.propeller")
         if blade is not None:
@@ -495,7 +502,7 @@ def render(plate, quick, textures, anchors_only=False):
     cam = camera(recipe, (width, height))
     global CAMERA
     CAMERA = cam
-    lights(recipe.get("light", "outdoor"), recipe["camera"]["target"])
+    lights(recipe.get("light", "outdoor"), tuple(TARGET))
     sc.render.engine = "CYCLES"
     sc.cycles.samples = 24 if quick else recipe.get("samples", 128)
     sc.cycles.use_denoising = True
@@ -536,6 +543,7 @@ def jobs_of(spec):
             jobs += [{"id": f"{p['id']}__{layer['name']}", "render": layer["render"]} for layer in p["layers"] if "render" in layer]
         elif "render" in p:
             jobs.append({"id": p["id"], "render": p["render"]})
+    jobs += [{"id": sprite["id"], "render": sprite["render"]} for sprite in spec.get("sprites", [])]
     return jobs
 
 
