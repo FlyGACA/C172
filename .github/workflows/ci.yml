@@ -37,7 +37,7 @@ jobs:
           python 08_realistic_digital_twin/scripts/quality_gate.py
       - name: Book figures — ink-line rules (numpy only)
         run: python 09_book_figures/tests/test_ink.py
-      - name: Book figures — handbook plates (the book's rules for artwork: numbered callouts, no words)
+      - name: "Book figures — handbook plates (the book's rules for artwork: numbered callouts, no words)"
         run: python 09_book_figures/tests/test_plates.py
 
       - name: Verify release archive and checksums
