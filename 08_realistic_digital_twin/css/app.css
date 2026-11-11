@@ -125,3 +125,10 @@ dialog h3 { margin:0 0 8px; }
   #top .right button, #top select { padding:4px 6px; font-size:.8rem; }
   #quality { width:4.5em; }
 }
+/* a phone: the modes take a row of their own under the name and the buttons, instead of a sliver between them */
+@media (max-width: 700px) {
+  #top { height:86px; flex-wrap:wrap; align-content:center; row-gap:5px; }
+  #modes { order:3; flex:1 1 100%; }
+  #modes button { flex:1 1 0; padding:5px 4px; }
+  #main { height:calc(100% - 86px); }
+}
