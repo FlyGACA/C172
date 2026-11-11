@@ -15,8 +15,9 @@ P8 = ROOT / "08_realistic_digital_twin"
 LODS = ("high", "medium", "low")
 LOD_DETAIL = {"high": 1, "medium": 0, "low": 0}      # highest detail level each quality level carries (blender/c172/export.py)
 # Download size ceilings. High carries the structure and mechanisms under the skin (detail level 1);
-# medium and low are the basic model, for tablets and phones.
-MODEL_BUDGETS = {"high": 9_000_000, "medium": 3_600_000, "low": 2_300_000}
+# medium and low are the basic model, for tablets and phones. Medium and low share one set of textures
+# (1024 px, the paint of the fuselage 2048 px): at 512 px the stripes and the cabin trim were a blur on a phone.
+MODEL_BUDGETS = {"high": 9_600_000, "medium": 5_900_000, "low": 5_400_000}
 IMAGE_BUDGET = 3_000_000
 STATUS = {"measured", "poh", "type_data", "estimated"}
 

@@ -7,3 +7,5 @@ dist/
 .cache/
 e2e-screenshots/
 08_realistic_digital_twin/models/*.blend1
+# position maps of the painted skins: written by blender/posmaps.py, read by the texture generator
+08_realistic_digital_twin/assets/posmaps/

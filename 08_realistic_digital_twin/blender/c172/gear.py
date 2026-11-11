@@ -62,7 +62,7 @@ def fairing(ctx, name, axle, r, w, length, height, width, parent, label_en, labe
         rings.append([Vector((axle[0] + x, y, z)) for x, z in superellipse(ww, hh * 0.42, hh * 0.58, zc, 3.2, 7.0, 32)])
     bm = new_bm()
     loft(bm, rings, close=True, cap_start=True, cap_end=True)
-    f = obj_from_bm(name, bm, ctx.col, pivot=axle, mat=M["cowl"])
+    f = obj_from_bm(name, bm, ctx.col, pivot=axle, mat=M["paint_white"])
     add_subsurf(f, ctx.subsurf)
     add_solidify(f, 0.006)                       # a hollow shell first, so that the cut below opens it
     # open the underside round the tyre: a slot with rounded ends, a little wider and longer than the tyre
@@ -115,7 +115,7 @@ def build_main_gear(ctx, side):
         rings.append([p + a * y * 0.075 * taper + b * x * 0.030 for x, y in ellipse(1, 1, 20)])
     bm = new_bm()
     loft(bm, rings, close=True, cap_start=True, cap_end=True)
-    lf = obj_from_bm(f"GEAR.main_leg_fairing_{name}", bm, ctx.col, pivot=attach, mat=M["cowl"])
+    lf = obj_from_bm(f"GEAR.main_leg_fairing_{name}", bm, ctx.col, pivot=attach, mat=M["paint_white"])
     add_subsurf(lf, 1)
     _link(lf, grp)
     ctx.tag(lf, "GEAR", "Main gear leg fairing", "غطاء انسيابي لساق عجلة الهبوط", status="estimated", optional=True)

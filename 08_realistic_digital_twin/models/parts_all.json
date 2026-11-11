@@ -1,13 +1,13 @@
 {
  "summary": {
-  "parts": 1174,
+  "parts": 1193,
   "by_detail": {
-   "0": 342,
+   "0": 361,
    "1": 582,
    "2": 250
   },
   "by_system": {
-   "AIRFRAME": 81,
+   "AIRFRAME": 89,
    "AVIONICS": 17,
    "BRAKES": 8,
    "CABIN_AIR": 15,
@@ -16,16 +16,16 @@
    "EMPENNAGE": 61,
    "ENGINE": 96,
    "FASTENERS": 229,
-   "FUEL": 34,
+   "FUEL": 35,
    "GEAR": 24,
    "GROUND_EQUIPMENT": 8,
    "HARDWARE": 12,
    "IGNITION": 18,
    "INDUCTION": 18,
    "INSTRUMENTS": 44,
-   "INTERIOR": 55,
+   "INTERIOR": 63,
    "OIL": 13,
-   "PANEL": 114,
+   "PANEL": 116,
    "PITOT_STATIC": 6,
    "POWERPLANT": 8,
    "STALL_WARNING": 2,
@@ -62,7 +62,7 @@
    "oil_system": 13,
    "pitot_static": 9,
    "rudder_control": 22,
-   "seats": 32,
+   "seats": 39,
    "stall_warning": 3,
    "tachometer": 9,
    "turn_coordinator": 10,
@@ -744,6 +744,28 @@
    "status": "estimated",
    "triangles": 750,
    "note": "Representative: a web between the belly and the floor with lightening holes, and an opening for each pipe and cable that crosses the cabin"
+  },
+  {
+   "id": "AIRFRAME.marking_wordmark_L",
+   "system": "AIRFRAME",
+   "en": "Operator's wordmark, left side",
+   "ar": "شعار المشغّل، الجانب الأيسر",
+   "parent": "AIRFRAME",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 180,
+   "note": "A marking of this model's own paint scheme; not a record of any aircraft's markings"
+  },
+  {
+   "id": "AIRFRAME.marking_wordmark_R",
+   "system": "AIRFRAME",
+   "en": "Operator's wordmark, right side",
+   "ar": "شعار المشغّل، الجانب الأيمن",
+   "parent": "AIRFRAME",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 180,
+   "note": "A marking of this model's own paint scheme; not a record of any aircraft's markings"
   },
   {
    "id": "AIRFRAME.rear_window",
@@ -2852,7 +2874,8 @@
    "status": "poh",
    "triangles": 128,
    "assembly": "lighting",
-   "ref": "p.7-27"
+   "ref": "p.7-27, Fig 1-1",
+   "note": "Fitted on the fin tip (POH p.7-27); its size is estimated. The maximum height of POH Fig 1-1 is measured over it"
   },
   {
    "id": "ELECTRICAL.bus_bar",
@@ -3487,6 +3510,28 @@
    "triangles": 204,
    "ref": "p.7-3",
    "note": "The vertical stabiliser has one spar (POH); it stands just ahead of the rudder hinge line"
+  },
+  {
+   "id": "EMPENNAGE.marking_wordmark_L",
+   "system": "AIRFRAME",
+   "en": "Operator's wordmark on the fin, left side",
+   "ar": "شعار المشغّل على الزعنفة، الجانب الأيسر",
+   "parent": "EMPENNAGE",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 96,
+   "note": "A marking of this model's own paint scheme; not a record of any aircraft's markings"
+  },
+  {
+   "id": "EMPENNAGE.marking_wordmark_R",
+   "system": "AIRFRAME",
+   "en": "Operator's wordmark on the fin, right side",
+   "ar": "شعار المشغّل على الزعنفة، الجانب الأيمن",
+   "parent": "EMPENNAGE",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 96,
+   "note": "A marking of this model's own paint scheme; not a record of any aircraft's markings"
   },
   {
    "id": "EMPENNAGE.nav_antenna",
@@ -6040,6 +6085,17 @@
    "ref": "p.7-28"
   },
   {
+   "id": "FUEL.selector_lettering",
+   "system": "FUEL",
+   "en": "Fuel selector lettering (LEFT · BOTH · RIGHT · OFF)",
+   "ar": "كتابات محدد الوقود (LEFT · BOTH · RIGHT · OFF)",
+   "parent": "INTERIOR",
+   "detail": 0,
+   "status": "poh",
+   "triangles": 10,
+   "ref": "p.7-28"
+  },
+  {
    "id": "FUEL.selector_plate",
    "system": "FUEL",
    "en": "Fuel selector placard plate (LEFT · BOTH · RIGHT · OFF)",
@@ -7172,6 +7228,16 @@
    "triangles": 108
   },
   {
+   "id": "INTERIOR.pedestal_lettering",
+   "system": "INTERIOR",
+   "en": "Pedestal lettering (elevator trim)",
+   "ar": "كتابات القاعدة الوسطى (موازنة الرافع)",
+   "parent": "INTERIOR",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 10
+  },
+  {
    "id": "INTERIOR.seat_belt_anchors",
    "system": "INTERIOR",
    "en": "Seat belt anchors: the ends of the seat belts and their fittings on the floorboard",
@@ -7206,10 +7272,22 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.7-11",
    "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_copilot.back_insert",
+   "system": "INTERIOR",
+   "en": "Front passenger seat (adjustable) — seat back insert (cloth)",
+   "ar": "مقعد الراكب الأمامي — حشوة ظهر المقعد (قماش)",
+   "parent": "INTERIOR.seat_copilot.back",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 420,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
   },
   {
    "id": "INTERIOR.seat_copilot.back_lever",
@@ -7244,10 +7322,22 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.6-7, 7-11",
    "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative"
+  },
+  {
+   "id": "INTERIOR.seat_copilot.cushion_insert",
+   "system": "INTERIOR",
+   "en": "Front passenger seat (adjustable) — cushion insert (cloth)",
+   "ar": "مقعد الراكب الأمامي — حشوة الوسادة (قماش)",
+   "parent": "INTERIOR.seat_copilot.cushion",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 360,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
   },
   {
    "id": "INTERIOR.seat_copilot.frame",
@@ -7307,10 +7397,22 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.7-11",
    "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_pilot.back_insert",
+   "system": "INTERIOR",
+   "en": "Pilot seat (adjustable) — seat back insert (cloth)",
+   "ar": "مقعد الطيار — حشوة ظهر المقعد (قماش)",
+   "parent": "INTERIOR.seat_pilot.back",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 420,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
   },
   {
    "id": "INTERIOR.seat_pilot.back_lever",
@@ -7345,10 +7447,22 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.6-7, 7-11",
    "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative"
+  },
+  {
+   "id": "INTERIOR.seat_pilot.cushion_insert",
+   "system": "INTERIOR",
+   "en": "Pilot seat (adjustable) — cushion insert (cloth)",
+   "ar": "مقعد الطيار — حشوة الوسادة (قماش)",
+   "parent": "INTERIOR.seat_pilot.cushion",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 360,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
   },
   {
    "id": "INTERIOR.seat_pilot.frame",
@@ -7395,7 +7509,7 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.7-11",
    "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
@@ -7408,10 +7522,34 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.7-11",
    "note": "The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative"
+  },
+  {
+   "id": "INTERIOR.seat_rear.back_insert_L",
+   "system": "INTERIOR",
+   "en": "Rear seat (fixed, split-backed) — left seat back insert (cloth)",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — حشوة ظهر المقعد الأيسر (قماش)",
+   "parent": "INTERIOR.seat_rear.back_L",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 360,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
+  },
+  {
+   "id": "INTERIOR.seat_rear.back_insert_R",
+   "system": "INTERIOR",
+   "en": "Rear seat (fixed, split-backed) — right seat back insert (cloth)",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — حشوة ظهر المقعد الأيمن (قماش)",
+   "parent": "INTERIOR.seat_rear.back_R",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 360,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
   },
   {
    "id": "INTERIOR.seat_rear.back_lever_L",
@@ -7459,10 +7597,22 @@
    "parent": "INTERIOR",
    "detail": 0,
    "status": "poh",
-   "triangles": 1200,
+   "triangles": 4800,
    "assembly": "seats",
    "ref": "p.6-7, 7-11",
    "note": "Stands where POH Figure 6-3 puts its occupant; form and size representative"
+  },
+  {
+   "id": "INTERIOR.seat_rear.cushion_insert",
+   "system": "INTERIOR",
+   "en": "Rear seat (fixed, split-backed) — cushion insert (cloth)",
+   "ar": "المقعد الخلفي (ثابت بظهرين) — حشوة الوسادة (قماش)",
+   "parent": "INTERIOR.seat_rear.cushion",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 840,
+   "assembly": "seats",
+   "note": "Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery"
   },
   {
    "id": "INTERIOR.seat_rear.frame",
@@ -9483,6 +9633,28 @@
    "ref": "p.7-25"
   },
   {
+   "id": "PANEL.instrument_screws",
+   "system": "PANEL",
+   "en": "Instrument mounting screws",
+   "ar": "براغي تثبيت العدادات",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 2880,
+   "note": "Four to an instrument; representative"
+  },
+  {
+   "id": "PANEL.lettering",
+   "system": "PANEL",
+   "en": "Panel lettering: the names of the switches and controls",
+   "ar": "كتابات اللوحة: أسماء المفاتيح وأدوات التحكم",
+   "parent": "PANEL",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 44,
+   "note": "The plain names of the controls, placed beside them; the typeface and exact wording of the aircraft's placards are not reproduced"
+  },
+  {
    "id": "PANEL.light_rheostats",
    "system": "ELECTRICAL",
    "en": "Instrument and radio dial light rheostat control knobs (PANEL LT, RADIO LT)",
@@ -10205,7 +10377,7 @@
    "status": "poh",
    "triangles": 5664,
    "ref": "p.1-3",
-   "note": "Blade planform, twist and airfoil are illustrative"
+   "note": "Blade planform, twist and airfoil are illustrative; the disc stands in the spinner, ahead of the nose bowl"
   },
   {
    "id": "POWERPLANT.propeller_bolt_1",
@@ -10713,7 +10885,7 @@
    "parent": "WING_L",
    "detail": 0,
    "status": "poh",
-   "triangles": 144,
+   "triangles": 156,
    "ref": "p.1-4, 7-28"
   },
   {
@@ -10896,6 +11068,28 @@
    "assembly": "fasteners",
    "note": "Round plates under the wing give access to what lies inside; number and position representative",
    "count": 6
+  },
+  {
+   "id": "WING_L.marking_fuel",
+   "system": "AIRFRAME",
+   "en": "Fuel placard at the left filler: grade and quantity",
+   "ar": "لوحة الوقود عند فتحة التعبئة اليسرى: النوع والكمية",
+   "parent": "WING_L.wing",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 36,
+   "note": "Grade 100LL (POH p.1-3) and 21.5 US gal a tank (POH p.1-4); the wording and form of the aircraft's own placard are not reproduced"
+  },
+  {
+   "id": "WING_L.marking_no_step",
+   "system": "AIRFRAME",
+   "en": "NO STEP marking on the left flap",
+   "ar": "علامة «ممنوع الدوس» على القلاب الأيسر",
+   "parent": "WING_L.flap",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 48,
+   "note": "A marking of this model's own paint scheme; not a record of any aircraft's markings"
   },
   {
    "id": "WING_L.nav_light",
@@ -12717,7 +12911,7 @@
    "parent": "WING_R",
    "detail": 0,
    "status": "poh",
-   "triangles": 144,
+   "triangles": 156,
    "ref": "p.1-4, 7-28"
   },
   {
@@ -12886,6 +13080,28 @@
    "assembly": "fasteners",
    "note": "Round plates under the wing give access to what lies inside; number and position representative",
    "count": 6
+  },
+  {
+   "id": "WING_R.marking_fuel",
+   "system": "AIRFRAME",
+   "en": "Fuel placard at the right filler: grade and quantity",
+   "ar": "لوحة الوقود عند فتحة التعبئة اليمنى: النوع والكمية",
+   "parent": "WING_R.wing",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 36,
+   "note": "Grade 100LL (POH p.1-3) and 21.5 US gal a tank (POH p.1-4); the wording and form of the aircraft's own placard are not reproduced"
+  },
+  {
+   "id": "WING_R.marking_no_step",
+   "system": "AIRFRAME",
+   "en": "NO STEP marking on the right flap",
+   "ar": "علامة «ممنوع الدوس» على القلاب الأيمن",
+   "parent": "WING_R.flap",
+   "detail": 0,
+   "status": "estimated",
+   "triangles": 48,
+   "note": "A marking of this model's own paint scheme; not a record of any aircraft's markings"
   },
   {
    "id": "WING_R.nav_light",

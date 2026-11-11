@@ -231,11 +231,17 @@ def panel_misc_atlas(path, size=1024):
     x0, y0, x1, y1 = px("WOOD")
     import random
     rnd = random.Random(3)
-    d.rectangle([x0, y0, x1, y1], fill=(92, 52, 24))
-    for i in range(140):
-        yy = y0 + rnd.random() * (y1 - y0); amp = rnd.random() * 8
-        pts = [(x0 + k * (x1 - x0) / 40, yy + math.sin(k / 3.0 + i) * amp) for k in range(41)]
-        d.line(pts, fill=(120 + rnd.randint(-30, 30), 70 + rnd.randint(-20, 20), 30 + rnd.randint(-10, 15)), width=rnd.randint(1, 3))
+    d.rectangle([x0, y0, x1, y1], fill=(78, 44, 22))
+    # many fine lines of grain that drift together, a few darker figure lines, then a soft blur: a printed walnut laminate
+    drift = [rnd.random() * 6.28 for _ in range(3)]
+    for i in range(520):
+        yy = y0 + rnd.random() * (y1 - y0); amp = 2 + rnd.random() * 5; dark = rnd.random() < 0.12
+        pts = [(x0 + k * (x1 - x0) / 60, yy + math.sin(k / 9.0 + drift[0] + yy / 37.0) * amp + math.sin(k / 23.0 + drift[1]) * 3) for k in range(61)]
+        c = (52 + rnd.randint(-8, 8), 28 + rnd.randint(-5, 5), 14 + rnd.randint(-3, 3)) if dark else (96 + rnd.randint(-16, 22), 56 + rnd.randint(-10, 14), 28 + rnd.randint(-6, 8))
+        d.line(pts, fill=c, width=1)
+    from PIL import ImageFilter
+    wood = img.crop((x0, y0, x1, y1)).filter(ImageFilter.GaussianBlur(0.7))
+    img.paste(wood, (x0, y0))
     # magnetic compass card strip
     x0, y0, x1, y1 = px("COMPASS"); d.rectangle([x0, y0, x1, y1], fill=(15, 15, 15))
     f = ImageFont.truetype(FONT_BOLD, int((y1 - y0) * 0.12))
@@ -244,6 +250,20 @@ def panel_misc_atlas(path, size=1024):
         d.line([cx, y1 - (y1 - y0) * (0.35 if deg % 30 == 0 else 0.2), cx, y1], fill=(240, 240, 240), width=2)
         if deg % 30 == 0:
             d.text((cx, y0 + (y1 - y0) * 0.35), {0: "N", 90: "E", 180: "S", 270: "W"}.get(deg, str(deg // 10)), fill=(240, 240, 240), font=f, anchor="mm")
+    img.save(path)
+
+# ---------------------------------------------------------------------------------------------- panel lettering
+def placard_atlas(path):
+    """White lettering on a transparent sheet: the names of the switches and controls (layout: atlas.measure_lettering)."""
+    from PIL import Image, ImageDraw, ImageFont
+    from .atlas import measure_lettering, LETTER_PX, LETTER_SIZE
+    size = LETTER_SIZE
+    img = Image.new("RGBA", (size, size), (238, 238, 232, 0))      # the colour of the letters everywhere, so no dark fringe shows when filtered
+    d = ImageDraw.Draw(img)
+    f = ImageFont.truetype(FONT_BOLD, int(LETTER_PX * 0.74))
+    for word, ((u0, v0, u1, v1), _aspect) in measure_lettering(FONT_BOLD).items():
+        x0, y0, x1, y1 = u0 * size, (1 - v1) * size, u1 * size, (1 - v0) * size
+        d.text(((x0 + x1) / 2, (y0 + y1) / 2), word, fill=(238, 238, 232, 255), font=f, anchor="mm")
     img.save(path)
 
 if __name__ == "__main__":

@@ -33,6 +33,7 @@ from . import structure_fuselage as SF
 from . import structure_wing as SW
 from .structure_fuselage import SKIN
 from .common import pipe, disc, rod, bar, dome, part, new_bm, box, X, Y, Z
+from ..posmap import wear_skin
 
 AIR = "CABIN_AIR"
 REF_AIR = "p.7-29 to 7-31 (Fig 7-8)"
@@ -125,9 +126,10 @@ def build_cabin_air(ctx, scene):
         j = (i + 1) % 4
         bm.faces.new((outer[i], inner[i], inner[j], outer[j]))
     door = SF.side_point(6.0, 36.2, -1, SKIN + 0.012)
-    air("CABIN_AIR.ventilating_air_door", bm, "Ventilating air door (right side of the forward fuselage): lets outside air into the cabin manifold",
+    vent_door = air("CABIN_AIR.ventilating_air_door", bm, "Ventilating air door (right side of the forward fuselage): lets outside air into the cabin manifold",
         "باب هواء التهوية (الجانب الأيمن من مقدمة جسم الطائرة): يُدخل الهواء الخارجي إلى مجمّع المقصورة", "paint_white", smooth=False,
         note="Worked by the CABIN AIR knob: pulled out it opens the door (POH p.7-29, Figure 7-8); size and position representative")
+    wear_skin(vent_door, "fuselage", ctx.assets, ctx.mats["fuselage"])      # it lies in the skin where the stripes run: it is painted with them
     bm = new_bm()
     pipe(bm, [door, Vector((-0.43, y_m + 0.01, 1.25)), Vector((right_end + 0.01, y_m, z_m + 0.03))], 0.024, bend=0.04)
     air("CABIN_AIR.ventilating_air_duct", bm, "Ventilating air duct: from the ventilating air door to the cabin manifold", "مجرى هواء التهوية: من باب هواء التهوية إلى مجمّع المقصورة", "hose_black",

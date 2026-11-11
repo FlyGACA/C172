@@ -10,6 +10,7 @@ from .units import fs, wl
 from .shapes import (parent_keep, new_bm, loft, revolve, tube, cylinder, box, bezier, obj_from_bm, add_subsurf,
                      add_bevel, extrude_profile, rounded_rect, ellipse)
 from .dials import cell_uv, MISC, CELLS
+from .atlas import lettering_cells
 from .airframe import fus_half_width_at, floor_z
 
 CABIN_LIFT = 0.10         # applied by build() to everything not fixed to the floor (estimated)
@@ -76,6 +77,57 @@ def quad_face(bm, center, w, h, region, y_offset=0.0):
         d = l.vert.co - c
         l[uv].uv = (u0 + (u1 - u0) * (0.5 - 0.5 * d.x / (w / 2)), v0 + (v1 - v0) * (0.5 + 0.5 * d.z / (h / 2)))
     return f
+
+def letter_quad(bm, word, center, height, axis="panel"):
+    """A word of the lettering atlas as a small quad: on the panel (facing aft) or lying flat (read from the seats)."""
+    uv = bm.loops.layers.uv.active
+    (u0, v0, u1, v1), aspect = lettering_cells()[word]
+    w = height * aspect
+    c = Vector(center)
+    if axis == "panel":
+        pts = [(c + Vector((w / 2, 0, -height / 2)), (u0, v0)), (c + Vector((-w / 2, 0, -height / 2)), (u1, v0)),
+               (c + Vector((-w / 2, 0, height / 2)), (u1, v1)), (c + Vector((w / 2, 0, height / 2)), (u0, v1))]
+    else:      # flat, the top of the letters toward the nose (-y), reading from the pilot's left (+x) to the right
+        pts = [(c + Vector((w / 2, height / 2, 0)), (u0, v0)), (c + Vector((-w / 2, height / 2, 0)), (u1, v0)),
+               (c + Vector((-w / 2, -height / 2, 0)), (u1, v1)), (c + Vector((w / 2, -height / 2, 0)), (u0, v1))]
+    verts = [bm.verts.new(p) for p, _ in pts]
+    f = bm.faces.new(verts); f.smooth = False
+    for l, (_, t) in zip(f.loops, pts):
+        l[uv].uv = t
+    return f
+
+def pleated_insert(bm, corner, across, along, normal, width, length, pleats, rise=0.007):
+    """A panel of pleated upholstery: rounded ribs side by side, stitched down between them, flat at its edges.
+    corner: one corner; across, along, normal: unit vectors; the ribs run along `along`."""
+    uv = bm.loops.layers.uv.active
+    darken = bm.verts.layers.float.get("darken") or bm.verts.layers.float.new("darken")      # read by the baked shade (ao.py)
+    cols = pleats * 6 + 1; rows = 6
+    grid = []
+    for j in range(rows):
+        v = j / (rows - 1)
+        edge_v = min(1.0, min(v, 1 - v) / 0.12)
+        row = []
+        for i in range(cols):
+            u = i / (cols - 1)
+            edge_u = min(1.0, min(u, 1 - u) / 0.06)
+            rib = abs(math.sin(math.pi * u * pleats)) ** 0.55
+            h = rise * (0.25 + 0.75 * rib) * edge_u * edge_v
+            p = Vector(corner) + Vector(across) * (u * width) + Vector(along) * (v * length) + Vector(normal) * h
+            vert = bm.verts.new(p)
+            vert[darken] = 0.55 * (1 - rib) * edge_u * edge_v + 0.30 * (1 - edge_u * edge_v)      # the stitched lines between the ribs, and the tucked-in edge
+            row.append((vert, (u * width, v * length)))
+        grid.append(row)
+    for j in range(rows - 1):
+        for i in range(cols - 1):
+            quad = [grid[j][i], grid[j][i + 1], grid[j + 1][i + 1], grid[j + 1][i]]
+            f = bm.faces.new([q[0] for q in quad]); f.smooth = True
+            for l, q in zip(f.loops, quad):
+                l[uv].uv = q[1]
+    bm.normal_update()
+    # the faces must look along `normal`
+    if bm.faces and sum((f.normal.dot(Vector(normal)) for f in bm.faces)) < 0:
+        for f in bm.faces:
+            f.normal_flip()
 
 def needle(ctx, name, center, length, width, mat, label_en, label_ar, kind, y_off=0.012, tail=0.0, thickness=0.0015):
     bm = new_bm()
@@ -270,6 +322,36 @@ def build_panel(ctx):
             cb = obj_from_bm(f"PANEL.breaker_{row}_{i}", bm, ctx.col, pivot=(-0.29 - i * 0.022, PANEL_Y, z), mat=M["paint_white"])
             parent_keep(cb, grp)
             ctx.tag(cb, "ELECTRICAL", "Push-to-reset circuit breaker", "قاطع دائرة", status="poh", ref="p.7-27")
+    # ---- mounting screws of the instruments: four to each, black oxide (one part for all of them)
+    bm = new_bm()
+    for name, cell, x, z, dia, needles in INSTRUMENTS:
+        for a in (45, 135, 225, 315):
+            r = dia / 2 + 0.0105
+            revolve(bm, [(0.0, 0.0), (0.0026, 0.0), (0.0030, 0.0012), (0.0030, 0.0022), (0.0, 0.0026)], axis="Y",
+                    origin=(x * PANEL_SQUEEZE + r * math.cos(math.radians(a)), PANEL_Y, z + r * math.sin(math.radians(a))), segs=8)
+    screws = obj_from_bm("PANEL.instrument_screws", bm, ctx.col, pivot=(0, PANEL_Y, PANEL_Z0), mat=M["screw"])
+    parent_keep(screws, grp)
+    ctx.tag(screws, "PANEL", "Instrument mounting screws", "براغي تثبيت العدادات", status="estimated", note="Four to an instrument; representative")
+    # ---- lettering: the name of each switch and control, white on the panel (one part)
+    bm = new_bm()
+    face_y = PANEL_Y + 0.0192            # just proud of the lower panel's laminate
+    sq = PANEL_SQUEEZE
+    def word(text, x, z, h=0.0062):
+        letter_quad(bm, text, (x * sq, face_y, z), h)
+    word("MASTER", 0.4985, 1.332, 0.0066); word("ALT", 0.4915, 1.2745, 0.0048); word("BAT", 0.5060, 1.2745, 0.0048)
+    for i, text in enumerate(["BCN", "NAV", "STROBE", "TAXI", "LAND", "PITOT HT", "AVN PWR"]):
+        word(text, 0.37 - i * 0.03, 1.332 if i % 2 == 0 else 1.3405, 0.0052)      # staggered: the longer names clear their neighbours
+    word("PRIMER", 0.47, 1.2335, 0.0058)
+    word("CARB HEAT", 0.095, 1.337, 0.0062); word("PULL ON", 0.095, 1.266, 0.0048)
+    word("THROTTLE", 0.0, 1.344, 0.0066); word("PUSH OPEN", 0.0, 1.252, 0.0048)
+    word("MIXTURE", -0.095, 1.337, 0.0062); word("PULL LEAN", -0.095, 1.266, 0.0048)
+    word("CABIN HT", -0.34, 1.286, 0.0052); word("CABIN AIR", -0.40, 1.286, 0.0052)
+    word("CIRCUIT BREAKERS", -0.41, 1.3605, 0.0052); word("PUSH TO RESET", -0.47, 1.3105, 0.0044)
+    word("PARK BRAKE", 0.25, 1.2335, 0.0052)
+    lettering = obj_from_bm("PANEL.lettering", bm, ctx.col, pivot=(0, PANEL_Y, LOWER_Z0), mat=M["placards"], smooth=False)
+    parent_keep(lettering, grp)
+    ctx.tag(lettering, "PANEL", "Panel lettering: the names of the switches and controls", "كتابات اللوحة: أسماء المفاتيح وأدوات التحكم", status="estimated",
+            note="The plain names of the controls, placed beside them; the typeface and exact wording of the aircraft's placards are not reproduced")
     # magnetic compass on top of the glareshield, on the centreline (position from the manufacturer's side view)
     bm = new_bm()
     box(bm, (0.07, 0.07, 0.06), center=(0, fs(21.0), 1.705))
@@ -338,6 +420,14 @@ def build_controls(ctx):
     tw = obj_from_bm("INTERIOR.trim_wheel", bm, ctx.col, pivot=(-0.13, PANEL_Y + 0.17, 1.14), mat=M["black_plastic"])
     parent_keep(tw, grp)
     ctx.tag(tw, "INTERIOR", "Elevator trim wheel (nose up / nose down) with position indicator", "عجلة موازنة الرافع", status="poh", ref="p.7-6", animate="trim_wheel", spin_axis="x", spin_sign=1)
+    # lettering on the pedestal, facing aft, beside the trim wheel
+    bm = new_bm()
+    ped_y = PANEL_Y + 0.1612
+    for text, x, z, h in (("ELEV TRIM", -0.05, 1.262, 0.0072), ("NOSE DN", -0.085, 1.215, 0.0056), ("TAKE OFF", -0.085, 1.14, 0.0056), ("NOSE UP", -0.085, 1.065, 0.0056), ("MIC", 0.0, 1.03, 0.0056)):
+        letter_quad(bm, text, (x, ped_y, z - CABIN_LIFT), h)
+    pl = obj_from_bm("INTERIOR.pedestal_lettering", bm, ctx.col, pivot=(-0.05, PANEL_Y, 0.9 - CABIN_LIFT), mat=M["placards"], smooth=False)
+    parent_keep(pl, grp)
+    ctx.tag(pl, "INTERIOR", "Pedestal lettering (elevator trim)", "كتابات القاعدة الوسطى (موازنة الرافع)", status="estimated")
     # fuel selector on the floor between the seats
     bm = new_bm()
     box(bm, (0.17, 0.15, 0.012), center=(0, fs(44), FLOOR_TOP + 0.006))
@@ -350,6 +440,14 @@ def build_controls(ctx):
     sel = obj_from_bm("FUEL.selector_handle", bm, ctx.col, pivot=(0, fs(44), FLOOR_TOP + 0.012), mat=M["knob_red"], smooth=False)
     parent_keep(sel, grp)
     ctx.tag(sel, "FUEL", "Fuel selector valve handle (shown on BOTH)", "مقبض صمام اختيار الوقود", status="poh", ref="p.7-28", animate="fuel_selector", spin_axis="z", spin_sign=1, positions={"LEFT": -90, "BOTH": 0, "RIGHT": 90, "OFF": 180})
+    # lettering of the selector plate: the four positions round the handle, read from the seats
+    bm = new_bm()
+    top = FLOOR_TOP + 0.0128
+    for text, dx, dy in (("BOTH", 0.0, -0.062), ("OFF", 0.0, 0.062), ("LEFT", 0.060, 0.0), ("RIGHT", -0.058, 0.0), ("FUEL", 0.060, 0.058)):
+        letter_quad(bm, text, (dx, fs(44) + dy, top), 0.011, axis="flat")
+    sl = obj_from_bm("FUEL.selector_lettering", bm, ctx.col, pivot=(0, fs(44), FLOOR_TOP), mat=M["placards"], smooth=False)
+    parent_keep(sl, grp)
+    ctx.tag(sl, "FUEL", "Fuel selector lettering (LEFT · BOTH · RIGHT · OFF)", "كتابات محدد الوقود (LEFT · BOTH · RIGHT · OFF)", status="poh", ref="p.7-28")
     # parking brake handle under the panel, left
     bm = new_bm()
     tube(bm, [Vector((0.25, PANEL_Y + 0.0, 1.20)), Vector((0.25, PANEL_Y + 0.06, 1.19))], 0.006, segs=8)
@@ -391,23 +489,47 @@ def build_seats(ctx):
     def seat(name, x, y0, w, en, ar, front=True):
         bm = new_bm()
         box(bm, (w, 0.46, 0.09), center=(x, y0 + 0.23, 1.035))
+        # vinyl bolsters stand 14 mm proud of the pleated middle: one along each side and a roll under the knees
+        for sx in (-1, 1):
+            box(bm, (0.058, 0.44, 0.05), center=(x + sx * (w / 2 - 0.029), y0 + 0.23, 1.069))
+        box(bm, (w - 0.02, 0.068, 0.052), center=(x, y0 + 0.036, 1.066))
         pan = obj_from_bm(name + ".cushion", bm, ctx.col, pivot=(x, y0, 1.0), mat=M["leather_tan"], smooth=False)
         add_bevel(pan, 0.03, 4); add_subsurf(pan, 1)
         parent_keep(pan, grp)
         ctx.tag(pan, "INTERIOR", en + " — seat cushion", ar + " — وسادة المقعد", status="poh", ref="p.6-7, 7-11",
                 note="Stands where POH Figure 6-3 puts its occupant; form and size representative")
+        # the middle of the cushion: pleated cloth between vinyl bolsters
+        def insert(suffix, parent, corner, across, along, normal, width, length, label_en, label_ar, pivot=None, tilt=None):
+            bm = new_bm()
+            pleated_insert(bm, corner, across, along, normal, width, length, pleats=max(4, int(round(width / 0.046))))
+            ob = obj_from_bm(name + suffix, bm, ctx.col, pivot=pivot or parent.matrix_world.translation, mat=M["cloth"])
+            if tilt is not None:
+                ob.rotation_euler = tilt
+            parent_keep(ob, parent)
+            ctx.tag(ob, "INTERIOR", en + " — " + label_en, ar + " — " + label_ar, status="estimated", note="Pleated cloth between vinyl bolsters: a period pattern, not a record of this aircraft's upholstery")
+            return ob
+        iw = w - 0.11
+        insert(".cushion_insert", pan, (x - iw / 2, y0 + 0.065, 1.0805), (1, 0, 0), (0, 1, 0), (0, 0, 1), iw, 0.335, "cushion insert (cloth)", "حشوة الوسادة (قماش)")
         # backs, tilted 14° aft about their lower edge: one for a front seat, two for the split-backed rear seat (POH p.7-11)
         backs = [("", x, w, "seat back", "ظهر المقعد")] if front else [
             ("_L", x + w / 4 + 0.004, w / 2 - 0.012, "left seat back", "ظهر المقعد الأيسر"), ("_R", x - w / 4 - 0.004, w / 2 - 0.012, "right seat back", "ظهر المقعد الأيمن")]
         for suffix, bx, bw, label_en, label_ar in backs:
             bm = new_bm()
             box(bm, (bw, 0.08, 0.52), center=(bx, y0 + 0.44, 1.07 + 0.26))
+            # bolsters down each side of the back and a roll across the shoulders
+            for sx in (-1, 1):
+                box(bm, (0.052, 0.046, 0.50), center=(bx + sx * (bw / 2 - 0.026), y0 + 0.411, 1.07 + 0.26))
+            box(bm, (bw - 0.02, 0.048, 0.052), center=(bx, y0 + 0.410, 1.07 + 0.495))
             back = obj_from_bm(name + ".back" + suffix, bm, ctx.col, pivot=(bx, y0 + 0.44, 1.07), mat=M["leather_tan"], smooth=False)
             back.rotation_euler = (math.radians(-14), 0, 0)
             add_bevel(back, 0.03, 4); add_subsurf(back, 1)
             parent_keep(back, grp)
             ctx.tag(back, "INTERIOR", en + " — " + label_en, ar + " — " + label_ar, status="poh", ref="p.7-11", animate="seat_back", hinge_axis="x", hinge_sign=1, range_deg=[-25, 0],
                     note="The seat back angle is adjustable and the back folds forward (POH p.7-11); form representative")
+            # its insert: built upright like the back, then tilted with it
+            ibw = bw - 0.10
+            insert(".back_insert" + suffix, back, (bx - ibw / 2, y0 + 0.44 - 0.0405, 1.07 + 0.07), (1, 0, 0), (0, 0, 1), (0, -1, 0), ibw, 0.40,
+                   label_en + " insert (cloth)", "حشوة " + label_ar + " (قماش)", pivot=(bx, y0 + 0.44, 1.07), tilt=(math.radians(-14), 0, 0))
         bm = new_bm()
         floor_top = FLOOR_TOP - CABIN_LIFT               # the frame is lifted with the seat, so start it at the floor
         leg = 0.12 if front else w / 2 - 0.09            # the legs of a front seat stand over its two rails
