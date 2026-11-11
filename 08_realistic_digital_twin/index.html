@@ -47,6 +47,7 @@
       <button data-act="brake" title="B" data-i18n="fl_brake">BRAKES</button><button data-act="cam" title="C" data-i18n="camera">Camera</button>
     </div>
     <div id="fpad" hidden><i></i></div>
+    <div id="fptip" dir="auto" hidden></div>
   </div>
 
   <aside id="left" class="drawer">
@@ -64,6 +65,16 @@
         <label><span data-i18n="lights">Lights</span><span class="pair wrap"><button id="beacon" class="tog">BCN</button><button id="navLights" class="tog">NAV</button><button id="strobe" class="tog">STRB</button><button id="landingLight" class="tog">LDG</button><button id="pitotHeat" class="tog">PITOT</button><button id="altStatic" class="tog">ALT STATIC</button></span></label>
         <label><span data-i18n="kollsman">Kollsman</span><input id="kollsman" type="number" min="28" max="31" step="0.01" value="29.92"></label>
       </div>
+    </details>
+    <details id="seatBox" hidden><summary data-i18n="fp_title">Pilot's seat</summary>
+      <div class="grid">
+        <label><span data-i18n="fp_look">Look</span><span class="pair wrap" id="fpViews"><button data-view="ahead" data-i18n="fp_v_ahead">Ahead</button><button data-view="panel" data-i18n="fp_v_panel">Panel</button><button data-view="left" data-i18n="fp_v_left">Left</button><button data-view="right" data-i18n="fp_v_right">Right</button><button data-view="pedestal" data-i18n="fp_v_pedestal">Pedestal</button><button data-view="selector" data-i18n="fp_v_selector">Fuel selector</button><button data-view="overhead" data-i18n="fp_v_overhead">Overhead</button><button data-view="behind" data-i18n="fp_v_behind">Behind</button></span></label>
+        <label><span data-i18n="fp_leanLabel">Lean</span><span class="pair wrap" id="fpLean"><button data-lean="f" data-i18n="fp_l_forward">Forward</button><button data-lean="b" data-i18n="fp_l_back">Back</button><button data-lean="l" data-i18n="fp_l_left">Left</button><button data-lean="r" data-i18n="fp_l_right">Right</button><button data-lean="0" data-i18n="fp_upright">Sit up</button></span></label>
+        <label><span data-i18n="fp_reachLabel">Reach</span><button id="fpReach" class="tog" data-i18n="fp_reachBtn">Show what the hand reaches</button></label>
+      </div>
+      <p class="info"><span class="dot near"></span><span data-i18n="fp_k_near">within reach</span> <span class="dot lean"></span><span data-i18n="fp_k_lean">with a lean</span> <span class="dot far"></span><span data-i18n="fp_k_far">out of reach</span></p>
+      <p class="info" data-i18n="fp_keys"></p>
+      <p class="info" data-i18n="fp_note"></p>
     </details>
     <details id="flightBox"><summary data-i18n="fl_title">Flight</summary>
       <div class="grid">

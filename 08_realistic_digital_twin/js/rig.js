@@ -17,7 +17,8 @@ export class Rig {
     this.explodeOff = new Map(); // obj -> Vector3 (world-space dir * distance)
     this.plugs = []; this.needles = []; this.hinges = new Map(); this.labels = [];
     this.state = { aileron: 0, elevator: 0, rudder: 0, trim: 0, flaps: 0, doorL: 0, doorR: 0, cowlOff: 0, noseSteer: 0,
-      theta: 0, propAngle: 0, ind: null, controls: null, truth: null, running: false, cranking: false, magsFiring: [], flying: false };
+      theta: 0, propAngle: 0, ind: null, controls: null, truth: null, running: false, cranking: false, magsFiring: [], flying: false,
+      flapLever: null, parkingBrake: 0, primer: 0, cabinHeat: 0, cabinAir: 0 };
     this.explode = 0; this.xray = false; this.showLabels = false;
     this.hiddenSystems = new Set();   // systems whose parts are not drawn
     this.tmpQ = new THREE.Quaternion(); this.tmpV = new THREE.Vector3();
@@ -137,6 +138,11 @@ export class Rig {
       this.hinge(`INTERIOR.pedal_${side}_L`, -s.rudder * 12); this.hinge(`INTERIOR.pedal_${side}_R`, s.rudder * 12);
     }
     this.spin('INTERIOR.trim_wheel', s.trim * 2.5);
+    // the knobs under the panel that pull out: parking brake, primer (a stroke goes out and back), cabin heat and air
+    s.primer = Math.max(0, s.primer - dt / 0.7);
+    for (const [name, travel] of [['INTERIOR.parking_brake', s.parkingBrake * 0.035], ['PANEL.primer', Math.sin(Math.PI * s.primer) * 0.06], ['PANEL.cabin_heat', s.cabinHeat * 0.05], ['PANEL.cabin_air', s.cabinAir * 0.05]]) {
+      const o = this.parts.get(name); if (o) this._pull(o, travel);
+    }
     // engine controls from the sim state
     if (c) {
       const tp = this.parts.get('PANEL.throttle'); if (tp) this._pull(tp, (1 - c.throttle) * 0.085);
@@ -148,7 +154,7 @@ export class Rig {
       this.hinge('PANEL.switch_avionics_master', c.avionics ? 15 : -15); this.hinge('PANEL.switch_beacon', c.beacon ? 15 : -15);
       this.hinge('PANEL.switch_nav_lights', c.navLights ? 15 : -15); this.hinge('PANEL.switch_landing_light', c.landingLight ? 15 : -15);
       this.hinge('PANEL.switch_pitot_heat', c.pitotHeat ? 15 : -15); this.hinge('PANEL.switch_strobe', c.strobe ? 15 : -15);
-      this.hinge('PANEL.flap_switch', -s.flaps);
+      this.hinge('PANEL.flap_switch', -(s.flapLever ?? s.flaps));      // the lever is where the pilot put it; the flaps follow at the speed of their motor
       // lights
       this._lamp('ELECTRICAL.beacon', c.beacon && c.masterBat && (Math.sin(performance.now() / 90) > 0.3), 0xff2020, 6);
       this._lamp('WING_L.nav_light', c.navLights && c.masterBat, 0xff2020, 3);

@@ -74,6 +74,12 @@ output { color:var(--gold); font-variant-numeric: tabular-nums; min-width:3em; }
 /* flight mode: the numbers, the on-screen yoke and its buttons */
 #fhud { position:absolute; top:10px; left:50%; transform:translateX(-50%); display:flex; gap:10px; align-items:center; direction:ltr; background:rgba(14,17,22,.72); border:1px solid var(--line); border-radius:9px; padding:5px 10px; pointer-events:none; z-index:3; max-width:calc(100% - 20px); flex-wrap:wrap; justify-content:center; }
 #fhud[hidden], #fpad[hidden], #fbar[hidden], #fmsg[hidden] { display:none; }
+#fptip { position:absolute; z-index:4; pointer-events:none; background:rgba(14,17,22,.88); color:#fff; border:1px solid var(--acc); border-radius:7px; padding:4px 9px; font-size:.82rem; max-width:min(320px, 80%); white-space:normal; }
+#fptip[hidden], #seatBox[hidden] { display:none; }
+#fptip.lean { border-color:var(--gold); }
+#fptip.far { border-color:var(--red); }
+#seatBox .dot { display:inline-block; width:.7em; height:.7em; border-radius:50%; margin-inline:6px 4px; vertical-align:baseline; }
+#seatBox .dot.near { background:#3d8bff; } #seatBox .dot.lean { background:#f5a524; } #seatBox .dot.far { background:#e5484d; }
 #fhud span { display:flex; flex-direction:column; align-items:center; min-width:3.1em; }
 #fhud b { font-variant-numeric:tabular-nums; font-size:1.05rem; color:#fff; }
 #fhud small { color:var(--mute); font-size:.62rem; letter-spacing:.4px; }

@@ -23,7 +23,9 @@ const base = `http://127.0.0.1:${server.address().port}/08_realistic_digital_twi
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const results = [];
 const perf = {};
+const ONLY = process.env.E2E_ONLY;      // run only the checks whose name contains this: for work on one check, never in CI
 async function check(name, fn) {
+  if (ONLY && !name.includes(ONLY)) { console.log(`skipped - ${name}`); return; }
   try { await fn(); results.push(['ok', name]); console.log(`ok - ${name}`); }
   catch (e) { results.push(['FAIL', name]); console.log(`not ok - ${name}\n  ${e.stack || e.message}`); }
 }
@@ -139,6 +141,130 @@ try {
     assert.ok(n.q.some((v, i) => Math.abs(v - n.base[i]) > 0.02), 'tach needle rotated');
     assert.ok(n.cam[1] > 1.3 && n.cam[1] < 1.7, `camera y ${n.cam[1]}`);   // pilot eye: just below the top of the side window
     await shot(page, 'p8_cockpit');
+  });
+
+  await check("the pilot's seat: the head turns within its limits, the hand works the controls it can reach", async () => {
+    await page.evaluate(() => { window.__twin.setMode('cockpit', true); window.__twin.seat.lookAt('ahead', true); window.__twin.seat.place(); });
+    // the camera is the pilot's eye; the orbit of the other modes is off
+    const eye = await page.evaluate(async () => {
+      const S = await import('./js/seat.js'); const t = window.__twin, c = t.viewer.camera, want = S.eyePosition(S.REST);
+      return { enabled: t.seat.enabled, off: Math.hypot(c.position.x - want[0], c.position.y - want[1], c.position.z - want[2]), manual: !!t.viewer.manualCamera, orbit: t.viewer.controls.enabled, fov: c.fov, near: c.near, box: document.getElementById('seatBox').hidden, head: S.HEAD };
+    });
+    assert.ok(eye.enabled && eye.manual && !eye.orbit && !eye.box, JSON.stringify(eye));
+    assert.ok(eye.off < 1e-6 && eye.fov === 68 && eye.near === 0.03, `eye ${eye.off}, fov ${eye.fov}, near ${eye.near}`);
+    // the head: no farther than its limits, by the pointer or by a lean
+    const lim = await page.evaluate(() => {
+      const s = window.__twin.seat, run = () => { for (let i = 0; i < 80; i++) s.tick(0.05); return { ...s.head }; };
+      s.look(999, 999); const most = { ...s.head }; s.look(-9999, -9999); const least = { ...s.head };
+      s.lean(9, 9); const leantOut = run(); s.lean(-99, -99); const leantBack = run();
+      s.lookAt('ahead', true); s.place();
+      return { most, least, leantOut, leantBack };
+    });
+    const H = eye.head;
+    assert.deepEqual([lim.most.yaw, lim.most.pitch, lim.least.yaw, lim.least.pitch], [H.yaw[1], H.pitch[1], H.yaw[0], H.pitch[0]]);
+    assert.ok(Math.abs(lim.leantOut.forward - H.leanForward[1]) < 1e-3 && Math.abs(lim.leantOut.side - H.leanSide[1]) < 1e-3, JSON.stringify(lim.leantOut));
+    assert.ok(Math.abs(lim.leantBack.forward - H.leanForward[0]) < 1e-3 && Math.abs(lim.leantBack.side - H.leanSide[0]) < 1e-3, JSON.stringify(lim.leantBack));
+    // wherever the limits let the eye go, the cabin stays clear of it: nothing nearer than 6 cm, twice the near plane of the camera
+    const clear = await page.evaluate(async () => {
+      const THREE = await import('three'), S = await import('./js/seat.js');
+      const root = window.__twin.rig.root, L = S.HEAD, datum = new THREE.Vector3(...L.eye), near = [], sphere = new THREE.Sphere();
+      root.traverse((m) => { if (!m.isMesh || m.userData.fpShell) return; if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere(); sphere.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld); if (sphere.center.distanceTo(datum) - sphere.radius < 0.9) near.push(m); });
+      const dirs = [], N = 60; for (let i = 0; i < N; i++) { const y = 1 - (2 * (i + 0.5)) / N, rad = Math.sqrt(1 - y * y), th = i * Math.PI * (3 - Math.sqrt(5)); dirs.push(new THREE.Vector3(Math.cos(th) * rad, y, Math.sin(th) * rad)); }
+      const ray = new THREE.Raycaster(); ray.far = 0.3;
+      let min = { d: 9 };
+      for (const yaw of [L.yaw[0], -90, 0, 90, L.yaw[1]]) for (const pitch of [L.pitch[0], -35, L.pitch[1]]) for (const forward of L.leanForward) for (const side of L.leanSide) {
+        const e = new THREE.Vector3(...S.eyePosition({ yaw, pitch, forward, side }));
+        for (const dir of dirs) { ray.set(e, dir); const h = ray.intersectObjects(near, false).find((i) => i.object.visible); if (h && h.distance < min.d) { let o = h.object; while (o && !o.userData.system) o = o.parent; min = { d: h.distance, part: o ? o.name : '?', yaw, pitch, forward, side }; } }
+      }
+      return min;
+    });
+    assert.ok(clear.d >= 0.06, `the eye comes within ${(clear.d * 100).toFixed(1)} cm of ${clear.part}: ${JSON.stringify(clear)}`);
+    // what the hand reaches from the seat
+    const reach = await page.evaluate(() => { const s = window.__twin.seat; return Object.fromEntries(Object.keys(s.controls).map((n) => [n, s.reach(n)])); });
+    assert.ok(Object.keys(reach).length >= 22, `${Object.keys(reach).length} controls`);
+    for (const n of ['PANEL.throttle', 'PANEL.mixture', 'PANEL.carb_heat', 'PANEL.ignition_switch', 'PANEL.master_bat', 'PANEL.master_alt', 'PANEL.switch_beacon', 'PANEL.primer', 'PANEL.flap_switch', 'INTERIOR.trim_wheel', 'INTERIOR.yoke_L', 'INTERIOR.parking_brake', 'FUEL.selector_handle', 'INTERIOR.door_inner_handle_L']) assert.equal(reach[n], 'near', n);
+    assert.equal(reach['PANEL.cabin_air'], 'lean', 'the cabin air control, on the far side of the panel, takes a lean');
+    assert.ok(!Object.values(reach).includes('far'), `one pilot flies it: no control is out of reach of the left seat: ${JSON.stringify(reach)}`);
+    // the hand, with the pointer of the browser
+    const look = (view) => page.evaluate((v) => { const s = window.__twin.seat; s.lookAt(v, true); s.place(); }, view);
+    const locate = async (name, half = null) => { const p = await page.evaluate(([n, h]) => window.__twin.seat.locate(n, h), [name, half]); assert.ok(p, `${name} can be seen and pointed at`); return p; };
+    const tip = () => page.evaluate(() => { const t = document.getElementById('fptip'); return t.hidden ? '' : `${t.className}: ${t.textContent}`; });
+    const controls = () => page.evaluate(() => { const t = window.__twin, c = t.sim.controls, st = t.rig.state; return { beacon: !!c.beacon, ignition: c.ignition, throttle: c.throttle, flaps: st.flaps, trim: st.trim, aileron: st.aileron, elevator: st.elevator, cabinAir: st.cabinAir, head: { ...t.seat.head } }; });
+    await look('panel');
+    let p = await locate('PANEL.switch_beacon');
+    const before = await controls();
+    await page.mouse.move(p.x, p.y);
+    assert.match(await tip(), /^near: Beacon.* · (ON|OFF)$/);
+    await page.mouse.click(p.x, p.y);
+    assert.equal((await controls()).beacon, !before.beacon, 'a click flips the beacon switch');
+    assert.match(await tip(), before.beacon ? /OFF$/ : /ON$/);
+    // the key: the left half turns it back one position, the right half forward; held on the right at BOTH it is the starter
+    await page.evaluate(() => { window.__twin.sim.controls.ignition = 'BOTH'; });
+    p = await locate('PANEL.ignition_switch', 'left'); await page.mouse.click(p.x, p.y);
+    assert.equal((await controls()).ignition, 'L');
+    p = await locate('PANEL.ignition_switch', 'right'); await page.mouse.click(p.x, p.y);
+    assert.equal((await controls()).ignition, 'BOTH');
+    p = await locate('PANEL.ignition_switch', 'right'); await page.mouse.move(p.x, p.y); await page.mouse.down();
+    assert.equal((await controls()).ignition, 'START');
+    await page.mouse.up();
+    assert.equal((await controls()).ignition, 'BOTH');
+    // push-pull, lever and wheels
+    await look('pedestal');
+    const t0 = (await controls()).throttle;
+    p = await locate('PANEL.throttle');
+    await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move(p.x, p.y - 51, { steps: 5 }); await page.mouse.up();
+    const t1 = (await controls()).throttle;
+    assert.ok(Math.abs(t1 - Math.min(1, t0 + 0.3)) < 0.02, `throttle pushed in: ${t0.toFixed(2)} to ${t1.toFixed(2)}`);
+    p = await locate('PANEL.flap_switch'); await page.mouse.move(p.x, p.y); await page.mouse.wheel(0, 100);
+    assert.equal((await controls()).flaps, 10, 'the flap lever, one position down');
+    assert.match(await tip(), /10°$/);
+    await page.mouse.wheel(0, -100);
+    assert.equal((await controls()).flaps, 0);
+    p = await locate('INTERIOR.trim_wheel'); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move(p.x, p.y + 60, { steps: 5 }); await page.mouse.up();
+    assert.ok(Math.abs((await controls()).trim - 0.1) < 0.01, 'the trim wheel rolled down: nose up');
+    p = await locate('INTERIOR.yoke_L'); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move(p.x + 75, p.y + 45, { steps: 5 });
+    const held = await controls();
+    await page.mouse.up();
+    assert.ok(Math.abs(held.aileron - 0.5) < 0.02 && Math.abs(held.elevator - 0.3) < 0.02, `the control wheel in the hand: ${held.aileron}, ${held.elevator}`);
+    await shot(page, 'p8_seat_hand');
+    await page.evaluate(() => { const st = window.__twin.rig.state; st.aileron = st.elevator = st.trim = 0; });
+    // out of reach until the body leans toward it
+    p = await locate('PANEL.cabin_air');
+    assert.equal(p.reach, 'lean');
+    await page.mouse.move(p.x, p.y);
+    assert.match(await tip(), /^lean: Cabin air.*out of reach/);
+    await page.mouse.click(p.x, p.y);
+    assert.equal((await controls()).cabinAir, 0, 'a control out of reach does not move');
+    await page.evaluate(() => { const s = window.__twin.seat; s.lean(0.08, -0.08); for (let i = 0; i < 60; i++) s.tick(0.05); s.place(); });
+    p = await locate('PANEL.cabin_air');
+    assert.equal(p.reach, 'near');
+    await page.mouse.click(p.x, p.y);
+    assert.equal((await controls()).cabinAir, 1, 'with a lean the hand reaches it');
+    await page.evaluate(() => { window.__twin.rig.state.cabinAir = 0; window.__twin.seat.setShowReach(true); });
+    await look('pedestal'); await settle(page, 600); await shot(page, 'p8_seat_reach');
+    const tinted = await page.evaluate(() => { const s = window.__twin.seat; const n = [...s.shells.values()].filter(Boolean).length; s.setShowReach(false); return n; });
+    assert.ok(tinted >= 22, `${tinted} controls tinted by reach`);
+    // the head: a drag on the picture turns it the way the pointer goes; a key leans; the orbit camera stays out of it
+    await look('ahead');
+    const box = await page.evaluate(() => { const r = window.__twin.viewer.renderer.domElement.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.22 }; });
+    await page.mouse.move(box.x, box.y); await page.mouse.down(); await page.mouse.move(box.x - 150, box.y + 50, { steps: 6 }); await page.mouse.up();
+    const turned = (await controls()).head;
+    assert.ok(Math.abs(turned.yaw - 30) < 1.5 && Math.abs(turned.pitch - (-11 - 8.5)) < 1.5, `head ${turned.yaw.toFixed(1)}, ${turned.pitch.toFixed(1)}`);
+    await page.keyboard.down('KeyW');
+    await page.waitForFunction(() => window.__twin.seat.head.forward > 0.03, null, { timeout: 30000 });
+    await page.keyboard.up('KeyW'); await page.keyboard.press('KeyR');
+    await page.waitForFunction(() => { const s = window.__twin.seat; return s.settled && s.head.forward < 0.005 && Math.abs(s.head.yaw) < 0.5; }, null, { timeout: 30000 });
+    // a click on anything that is not a control shows what it is; the eye looks through the glass of an instrument
+    p = await page.evaluate(async () => { const THREE = await import('three'); const t = window.__twin; t.seat.place(); const c = new THREE.Box3().setFromObject(t.rig.part('PANEL.ALT.glass')).getCenter(new THREE.Vector3()).project(t.viewer.camera), r = t.viewer.renderer.domElement.getBoundingClientRect(); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height }; });
+    await page.mouse.click(p.x, p.y);
+    const named = await page.$eval('#info h3', (el) => el.textContent);
+    assert.ok(/ALT/.test(named) && !/glass/i.test(named), `clicked the altimeter: "${named}"`);
+    await shot(page, 'p8_seat');
+    // leaving the seat gives the viewer its camera back
+    await page.click('#modes button[data-mode=exterior]');
+    const left = await page.evaluate(() => { const t = window.__twin; return { enabled: t.seat.enabled, manual: !!t.viewer.manualCamera, orbit: t.viewer.controls.enabled, fov: t.viewer.camera.fov, near: t.viewer.camera.near, box: document.getElementById('seatBox').hidden, tinted: [...t.seat.shells.values()].filter(Boolean).length, tip: document.getElementById('fptip').hidden }; });
+    assert.deepEqual(left, { enabled: false, manual: false, orbit: true, fov: 42, near: 0.25, box: true, tinted: 0, tip: true });
+    assert.deepEqual(errors, []);
   });
 
   await check('run-up scenario starts and evaluates steps live', async () => {
@@ -269,5 +395,5 @@ try {
 if (SHOTS) await writeFile(join(SHOTS, 'perf.json'), JSON.stringify(perf, null, 1));
 console.log(JSON.stringify(perf));
 const failed = results.filter((r) => r[0] === 'FAIL').length;
-console.log(`\n${results.length - failed}/${results.length} checks passed`);
+console.log(`\n${results.length - failed}/${results.length} checks passed${ONLY ? ` (only those named "${ONLY}")` : ''}`);
 process.exit(failed ? 1 : 0);

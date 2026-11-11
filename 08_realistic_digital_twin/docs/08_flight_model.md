@@ -25,7 +25,7 @@ parking brake set. Release the brake (P), open the throttle (Page Up) and raise 
 | Flaps | F (down), V (up) | FLAP ▼ / FLAP ▲ |
 | Trim | ] (nose up), [ (nose down) | TRIM ▲ / TRIM ▼ |
 | Brakes | B or space; P sets the parking brake | BRAKES |
-| Camera | C: outside or the pilot's eye | Camera |
+| Camera | C: outside or the pilot's eye (the [pilot's seat](09_pilots_seat.md): the head turns, the hand works the controls) | Camera |
 
 - **Begin** on the runway, in cruise (3000 ft, 100 KIAS) or on approach (600 ft, 70 KIAS, flaps 20°, 1¼ NM out).
 - **Assistance.** *Rudder* keeps the aircraft straight on the ground, keeps the nose into the wind in the air
@@ -245,6 +245,7 @@ lines, the vacuum gyros and the electrical system with their faults. Scenarios t
 | `shared/js/flightdeck.js` | the flight model with the systems simulation; where a flight can begin |
 | `shared/js/lessons.js` | the flight lessons and their demonstrations |
 | `js/flightmode.js` | the flight mode of the viewer: world, camera, keys, on-screen wheel |
+| `js/seat.js`, `js/cockpit_controls.js`, `js/cockpit.js` | the pilot's seat: the eye, the head and the hand ([09_pilots_seat.md](09_pilots_seat.md)) |
 | `tests/flight.test.mjs` | the model against the handbook (`npm test`) |
 | `tests/lessons.test.mjs` | the lessons, demonstrated and flown wrongly (`npm test`) |
 | `tests/e2e.mjs` | the flight mode in a browser (`npm run test:e2e8`) |

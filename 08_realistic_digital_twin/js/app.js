@@ -7,7 +7,8 @@ import { SCENARIOS, evaluateSteps } from './scenarios.js';
 import { STRINGS } from './i18n.js';
 import { dialGauge, altimeter, attitude, heading, turnCoordinator } from './gauges.js';
 import { FlightMode, readySystems } from './flightmode.js';
-import { cgStation } from './flight.js';
+import { FirstPerson } from './cockpit.js';
+import { cgStation, FM } from './flight.js';
 import { FM_NOTES_AR } from './flight_notes_ar.js';
 import { LESSONS } from './lessons.js';
 
@@ -30,7 +31,7 @@ let scenario = null, ctx = {};
 let paused = false, timeScale = 1, animSpeed = 0.05;
 let quality = pickQuality(qs);
 let mode = 'exterior';
-const ui = { strobe: false };
+const ui = { strobe: false, parking: false, doors: { L: 0, R: 0 } };      // what the simulation does not hold: the parking brake on the apron, where the doors are going
 
 // ------------------------------------------------------------------ viewer
 const viewer = new Viewer($('viewport'), quality, { test: qs.has('test') });
@@ -45,10 +46,12 @@ const rigReady = (async () => {
   $('loading').classList.add('hide');
   return rig;
 })();
-let rig = null, flight = null;
+let rig = null, flight = null, seat = null;
 rigReady.then((r) => {
   rig = r; buildTree(); setMode('exterior', true);
   flight = new FlightMode({ viewer, rig, hud: $('fhud'), pad: $('fpad') });
+  seat = new FirstPerson({ viewer, rig, host: seatHost, tip: $('fptip'), cabinPitchDeg: FM.groundPitchDeg.v });
+  flight.cockpit = seat;
   flight.onChange = syncFlightUI;
   syncFlightUI();
   window.__twin.ready = true;
@@ -89,24 +92,39 @@ function setMode(m, instant = false) {
   if (!rig) return;
   const st = rig.state;
   if (m === 'flight') {                      // the flight model flies the aircraft: begin on the runway, engine running
+    const seated = !!(seat && seat.enabled);
+    if (seat) seat.disable();
     st.cowlOff = 0; $('cowl').classList.remove('on'); rig.showAll(); rig.isolate(null); rig.setXray(false); $('xray').classList.remove('on');
     $('flightBox').open = true; $('left').classList.add('open');
-    if (!flight.active) beginFlight('runway');
+    if (!flight.active) { if (seated) flight.camera = 'cockpit'; beginFlight('runway'); }      // from the pilot's seat the flight begins in it
     return;
   }
   if (flight && flight.active) endFlight();
-  viewer.camera.near = (m === 'cockpit') ? 0.03 : 0.25; viewer.camera.updateProjectionMatrix();
+  if (seat && m !== 'cockpit') seat.disable();
+  if (!seat || !seat.enabled) { viewer.camera.near = 0.25; viewer.camera.updateProjectionMatrix(); }
   if (m === 'exterior') { st.cowlOff = 0; $('cowl').classList.remove('on'); viewer.flyTo(CAMS.exterior.pos, CAMS.exterior.tgt, instant); viewer.controls.minDistance = 1.5; rig.showAll(); rig.isolate(null); }
-  if (m === 'cockpit') { viewer.flyTo(CAMS.pilot.pos, CAMS.pilot.tgt, instant); viewer.controls.minDistance = 0.05; rig.isolate(null); rig.showAll(); $('left').classList.add('open'); }
+  if (m === 'cockpit') {                     // the pilot's seat: the head looks, the hand works the controls it can reach
+    st.cowlOff = 0; $('cowl').classList.remove('on'); rig.isolate(null); rig.showAll();
+    if (seat) seat.enable('ahead');
+    $('left').classList.add('open'); $('seatBox').open = true;
+  }
   if (m === 'engine') { st.cowlOff = 1; $('cowl').classList.add('on'); viewer.flyTo(CAMS.engine.pos, CAMS.engine.tgt, instant); viewer.controls.minDistance = 0.3; rig.isolate(null); }
   if (m === 'systems') { viewer.flyTo(CAMS.exterior.pos, CAMS.exterior.tgt, instant); viewer.controls.minDistance = 0.5; rig.setXray(true); $('xray').classList.add('on'); $('scenarioBox').open = true; $('left').classList.add('open'); }
   else { rig.setXray($('xray').classList.contains('on') && m === 'engine'); if (m !== 'engine') $('xray').classList.remove('on'); }
+  syncFlightUI();
 }
 document.querySelectorAll('#modes button').forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
 document.querySelectorAll('#cams button').forEach((b) => (b.onclick = () => {
-  const c = CAMS[b.dataset.cam]; if (!c) return;
-  if (flight && flight.active) { flight.setCamera(b.dataset.cam === 'pilot' || b.dataset.cam === 'panel' ? 'cockpit' : 'chase', true); return; }      // in flight the camera goes with the aircraft
-  viewer.flyTo(c.pos, c.tgt); viewer.controls.minDistance = b.dataset.cam === 'pilot' || b.dataset.cam === 'panel' ? 0.05 : 0.5;
+  const cam = b.dataset.cam, c = CAMS[cam]; if (!c) return;
+  if (flight && flight.active) {             // in flight the camera goes with the aircraft
+    const inside = cam === 'pilot' || cam === 'panel';
+    flight.setCamera(inside ? 'cockpit' : 'chase', true);
+    if (cam === 'panel') seat.lookAt('panel');
+    return;
+  }
+  if (cam === 'pilot') { setMode('cockpit'); return; }      // the pilot's eye is the seat: a head that turns, not a camera that orbits
+  if (mode === 'cockpit') setMode('exterior', true);
+  viewer.flyTo(c.pos, c.tgt); viewer.controls.minDistance = cam === 'panel' ? 0.05 : 0.5;
 }));
 
 // ------------------------------------------------------------------ selection
@@ -116,13 +134,20 @@ let downAt = null;
 viewer.renderer.domElement.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; });
 viewer.renderer.domElement.addEventListener('pointerup', (e) => {
   if (!rig || !downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
-  const r = viewer.renderer.domElement.getBoundingClientRect();
-  ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), viewer.camera);
-  const hits = ray.intersectObject(rig.root, true).filter((h) => h.object.visible && h.object.userData.kind !== 'glass' || h.object.parent?.userData.kind !== 'glass');
-  let hit = null;
-  for (const h of hits) { let o = h.object; while (o && !o.userData.system) o = o.parent; if (o && o.visible && !o.userData.group) { hit = o; break; } }
-  select(hit);
+  select(pick(e.clientX, e.clientY));
 });
+/** The part under a point of the picture. From the pilot's seat the eye looks through the glass: of a window, of an instrument. */
+function pick(x, y, throughGlass = false) {
+  const r = viewer.renderer.domElement.getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1), viewer.camera);
+  const hits = ray.intersectObject(rig.root, true).filter((h) => h.object.visible && h.object.userData.kind !== 'glass' || h.object.parent?.userData.kind !== 'glass');
+  for (const h of hits) {
+    let o = h.object; while (o && !o.userData.system) o = o.parent;
+    if (!o || !o.visible || o.userData.group || (throughGlass && o.userData.kind === 'glass')) continue;
+    return o;
+  }
+  return null;
+}
 function select(o) {
   selected = o; rig.highlight(o); showInfo(o);
   if (o && innerWidth <= 1000) $('right').classList.add('open');
@@ -194,7 +219,7 @@ tog('xray', (on) => rig && rig.setXray(on));
 tog('labels', (on) => rig && rig.setLabels(on));
 tog('confidence', (on) => { if (rig) { select(null); rig.setConfidence(on); } });
 tog('cowl', (on) => { if (rig) rig.state.cowlOff = on ? 1 : 0; });
-tog('doors', (on) => { if (rig) { rig.state.doorL = on ? 1 : 0; rig.state.doorR = on ? 1 : 0; } });
+tog('doors', (on) => { ui.doors.L = ui.doors.R = on ? 1 : 0; });
 tog('fairings', (on) => rig && rig.setFairings(on));
 tog('ao', (on) => viewer.setAO(on));
 $('animSpeed').oninput = (e) => { animSpeed = Number(e.target.value); };
@@ -215,7 +240,7 @@ function syncIgn() { document.querySelectorAll('#ign button[data-v]').forEach((b
 $('throttle').oninput = (e) => { c().throttle = Number(e.target.value); };
 $('mixture').oninput = (e) => { c().mixture = Number(e.target.value); };
 $('carbHeat').oninput = (e) => { c().carbHeat = Number(e.target.value); };
-$('prime').onclick = () => { c().primeStrokes = (c().primeStrokes || 0) + 1; ctx.primes = (ctx.primes || 0) + 1; $('primes').value = ctx.primes; };
+$('prime').onclick = () => { c().primeStrokes = (c().primeStrokes || 0) + 1; ctx.primes = (ctx.primes || 0) + 1; $('primes').value = ctx.primes; if (rig) rig.state.primer = 1; };
 document.querySelectorAll('#fuelsel button').forEach((b) => (b.onclick = () => { c().fuelSelector = b.dataset.v; document.querySelectorAll('#fuelsel button').forEach((x) => x.classList.toggle('on', x === b)); }));
 document.querySelectorAll('#flapsel button').forEach((b) => (b.onclick = () => {
   if (flight && flight.active) { flight.setFlaps(Number(b.dataset.v)); return; }      // in flight the flap motor does it, at its own speed
@@ -286,6 +311,7 @@ function startLesson(lesson, demo) {
   sim = readySystems();
   mode = 'flight'; document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.mode === 'flight'));
   rig.state.cowlOff = 0; $('cowl').classList.remove('on'); rig.showAll(); rig.isolate(null);
+  ui.doors.L = ui.doors.R = 0; $('doors').classList.remove('on');
   flight.start(lesson.flight, sim);
   for (const [group, values] of Object.entries(lesson.setup || {})) Object.assign(sim[group], values);
   flight.autopilot = demo ? (deck, dt) => lesson.demo(deck, ctx, dt) : null;
@@ -349,12 +375,14 @@ function beginFlight(preset) {
   c.windFromDeg = Number($('flWindDir').value) || 0; c.windKt = Number($('flWindKt').value) || 0; c.isaDevC = (Number($('flTemp').value) || 15) - 15;
   sim = readySystems();
   sim.flight.oatF = 59 + c.isaDevC * 1.8;
+  ui.doors.L = ui.doors.R = 0; $('doors').classList.remove('on');      // nobody flies with the doors open
   flight.start(preset, sim);
   syncUI(); renderScenario(); $('scenarioSel').value = '';
 }
 function endFlight() {
   if (scenario && scenario.lesson) { scenario = null; ctx = {}; $('scenarioSel').value = ''; renderScenario(); }
   flight.stop();
+  ui.parking = false;
   sim = createState(); syncUI();
   document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', x.dataset.v === '0'));
   for (const k of ['aileron', 'elevator', 'rudder', 'trim']) $(k).value = 0;
@@ -362,6 +390,12 @@ function endFlight() {
 function syncFlightUI() {
   if (!flight) return;
   const on = flight.active;
+  const seated = !!(seat && seat.enabled);
+  if ($('seatBox').hidden === seated) { $('seatBox').hidden = !seated; $('hint').textContent = seated ? T().fp_hint : T().hint; }
+  if (!on) {      // on the apron the surfaces are where the sliders, or the hand in the cockpit, put them
+    for (const k of ['aileron', 'elevator', 'trim']) $(k).value = rig.state[k];
+    document.querySelectorAll('#flapsel button').forEach((x) => x.classList.toggle('on', Number(x.dataset.v) === Math.round(rig.state.flaps)));
+  }
   $('fhud').hidden = !on; $('fpad').hidden = !on; $('fbar').hidden = !on; $('instructorBox').hidden = on;
   $('fmsg').hidden = !(on && flight.crashed);
   if (on && flight.crashed) $('fmsgText').textContent = T()['fl_crash_' + flight.crashed] || flight.crashed;
@@ -406,14 +440,35 @@ document.querySelectorAll('#fbar button').forEach((b) => {
   const up = () => { clearInterval(timer); timer = null; if (act === 'brake' && flight) { flight.brakeHeld = false; b.classList.remove('on'); } };
   b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up); b.addEventListener('pointercancel', up);
 });
-// the pilot's head: in the cockpit camera a drag on the picture turns it
-{
-  let last = null;
-  const el = viewer.renderer.domElement;
-  el.addEventListener('pointerdown', (e) => { if (flight && flight.active && flight.camera === 'cockpit') last = [e.clientX, e.clientY]; });
-  el.addEventListener('pointermove', (e) => { if (last && flight && flight.active && flight.camera === 'cockpit') { flight.look((e.clientX - last[0]) * -0.22, (e.clientY - last[1]) * -0.18); last = [e.clientX, e.clientY]; } });
-  addEventListener('pointerup', () => { last = null; });
-}
+// ------------------------------------------------------------------ the pilot's seat (first person): what the hand acts on
+const flying = () => !!(flight && flight.active);
+const seatHost = {
+  sim: () => sim,
+  flaps: { get: () => (flying() ? flight.flapCommand : rig.state.flaps), set: (deg) => { if (flying()) flight.setFlaps(deg); else rig.state.flaps = deg; } },
+  trim: { get: () => (flying() ? flight.trim : rig.state.trim), set: (v) => { if (flying()) flight.setTrim(v); else rig.state.trim = v; } },
+  yoke: {      // in flight the hand on the wheel is the hand on the on-screen wheel: let go and it centres; on the apron it stays where it is put
+    get: () => (flying() ? { x: flight.stick.x, y: flight.stick.y } : { x: rig.state.aileron, y: rig.state.elevator }),
+    set: (x, y) => { if (flying()) { flight.stick.x = x; flight.stick.y = y; flight.stick.dragging = true; } else { rig.state.aileron = x; rig.state.elevator = y; } },
+    release: () => { if (flying()) flight.stick.dragging = false; },
+  },
+  parking: { get: () => (flying() ? flight.parking : ui.parking), toggle: () => { if (flying()) flight.parking = !flight.parking; else ui.parking = !ui.parking; } },
+  cabin: { get: (k) => rig.state[k] > 0.5, toggle: (k) => { rig.state[k] = rig.state[k] > 0.5 ? 0 : 1; } },
+  door: {      // a door opens only on an aircraft that stands still
+    state: (side) => (ui.doors[side] > 0.5 ? T().fp_open : T().fp_closed),
+    toggle: (side) => { if (flying() && !(flight.deck.flight.out.onGround && flight.deck.flight.out.groundSpeedKt < 2)) return; ui.doors[side] = ui.doors[side] > 0.5 ? 0 : 1; $('doors').classList.toggle('on', ui.doors.L > 0.5 && ui.doors.R > 0.5); },
+  },
+  prime: () => $('prime').click(), primes: () => ctx.primes || 0,
+  changed: () => { syncUI(); syncFlightUI(); },
+  select: (o) => select(o), pick: (x, y) => pick(x, y, true), label: (o) => rig.label(o),
+  words: () => ({ lean: T().fp_lean, far: T().fp_far }),
+};
+document.querySelectorAll('#fpViews button').forEach((b) => (b.onclick = () => seat && seat.lookAt(b.dataset.view)));
+document.querySelectorAll('#fpLean button').forEach((b) => (b.onclick = () => {
+  if (!seat) return;
+  const step = { f: [0.06, 0], b: [-0.06, 0], l: [0, 0.05], r: [0, -0.05] }[b.dataset.lean];
+  if (step) seat.lean(...step); else seat.upright();
+}));
+$('fpReach').onclick = () => { if (!seat) return; seat.setShowReach(!seat.showReach); $('fpReach').classList.toggle('on', seat.showReach); };
 // the numbers of the model, each with its source
 $('flCoef').onclick = () => {
   const t = T();
@@ -440,9 +495,12 @@ viewer.onFrame.push((dt) => {
   if (!paused) for (let left = dt * timeScale; left > 1e-6; left -= 1 / 30) advance(Math.min(1 / 30, left));
   viewer.tickCamera(dt);
   if (explodeAnim) { explodeAnim.t = Math.min(1, explodeAnim.t + dt / 1.6); const k = 1 - Math.pow(1 - explodeAnim.t, 3); const v = explodeAnim.from + (explodeAnim.to - explodeAnim.from) * k; $('explode').value = v; rig && rig.setExplode(v); if (explodeAnim.t >= 1) explodeAnim = null; }
-  if (flight && flight.active) flight.place();
+  if (seat && seat.enabled) seat.tick(dt);
+  if (flight && flight.active) flight.place(); else if (seat && seat.enabled) seat.place();
   if (rig) {
     const st = rig.state;
+    for (const side of ['L', 'R']) { const k = `door${side}`; st[k] += Math.min(dt / 0.6, Math.max(-dt / 0.6, ui.doors[side] - st[k])); }      // a door swings, it does not jump
+    st.parkingBrake = (flight && flight.active ? flight.parking : ui.parking) ? 1 : 0;
     st.ind = sim.ind; st.controls = sim.controls; st.truth = sim.truth;
     st.running = sim.engine.running; st.cranking = sim.engine.cranking; st.magsFiring = sim.engine.magsFiring || [];
     st.flying = !!(flight && flight.active);
@@ -457,7 +515,7 @@ viewer.onFrame.push((dt) => {
     if (flight && flight.active) { const c = flight.deck.controls; $('aileron').value = c.aileron; $('elevator').value = c.elevator; $('rudder').value = c.rudder; $('trim').value = flight.trim; $('throttle').value = sim.controls.throttle; } const a = annunciations(sim); $('annun').innerHTML = a.map((k) => `<span class="${k === 'low_voltage' || k === 'oil_pressure_low' ? '' : 'warn'}">${(T().annun || {})[k] || k}</span>`).join('');
   }
   statTimer += dt;
-  if (statTimer > 2 && rig) { statTimer = 0; const s = viewer.stats(); $('hint').textContent = `${T().hint} · ${s.triangles.toLocaleString()} ${T().stats} · ${s.calls} ${T().calls} · ${T()['q_' + quality]}`; }
+  if (statTimer > 2 && rig) { statTimer = 0; const s = viewer.stats(); $('hint').textContent = `${seat && seat.enabled ? T().fp_hint : T().hint} · ${s.triangles.toLocaleString()} ${T().stats} · ${s.calls} ${T().calls} · ${T()['q_' + quality]}`; }
 });
 viewer.start();
 applyLang(); syncUI();
@@ -465,4 +523,4 @@ applyLang(); syncUI();
 // test hook
 window.__twin = { ready: false, get lessons() { return LESSONS; },
   /** test hook: advance the whole viewer by a number of seconds without waiting for frames */
-  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
+  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, get seat() { return seat; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };

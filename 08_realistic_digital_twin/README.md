@@ -35,7 +35,9 @@ layer from Phase 7 (POH-referenced systems simulation, scenarios, instrument sca
 
 ## Using the viewer
 
-- **Modes** (top bar): Exterior · Cockpit (camera at the pilot's eye, look around with the mouse/finger) ·
+- **Modes** (top bar): Exterior · **Cockpit** (the pilot's seat: the head turns and the body leans within
+  limits, and the hand works the controls it can reach, on the model itself; see
+  [docs/09_pilots_seat.md](docs/09_pilots_seat.md)) ·
   Engine (upper cowl removed) · Systems (X-ray with the scenario drawer) · **Flight** (the flight model
   flies the aircraft: runway, cruise or approach; keys or the on-screen wheel; outside or pilot's-eye camera;
   see [docs/08_flight_model.md](docs/08_flight_model.md)). The flight model has no certified fidelity.
@@ -116,11 +118,13 @@ blender/validate_geometry.py published dimensions, attachments and skin containm
 models/                     C172N_realistic.blend, *_high/medium/low.glb, model_index_*.json, parts_all.json (every part, all levels)
 assets/textures, assets/hdri generated textures (2048 + 1024/512 copies) and sky.hdr
 js/                         viewer.js (renderer), rig.js (parts + animation), app.js (UI), compatibility imports
+js/flightmode.js            flight mode: the world, the cameras, the keys and the on-screen wheel
+js/seat.js, cockpit_controls.js, cockpit.js   the pilot's seat: limits and reach, what each control does, the eye and the hand
 ../shared/js/                canonical Phase 7/8 simulation, scenarios and SVG gauges
 data/                       instruments.json, parts_catalog.json (69 bilingual entries), poh_references.json
 data/measurement_schema.json, aircraft_measurements.json, measurement_template.csv
 tests/, scripts/            Python tests, node tests, Playwright test, GLB validator, build comparison
-docs/                       audit, architecture, validation report, shape reference, parts index, under the skin, renders
+docs/                       audit, architecture, validation report, shape reference, parts index, under the skin, flight model, pilot's seat, renders
 ```
 
 ## Limits (read before using this for instruction)

@@ -68,7 +68,7 @@ export class FlightMode {
     this.keys = new Set();
     this.stick = { x: 0, y: 0, rudder: 0, dragging: false };
     this.trim = 0; this.flapCommand = 0; this.parking = true; this.brakeHeld = false;
-    this.head = { yaw: 0, pitch: -11 * D2R };
+    this.cockpit = null;      // the pilot's eye and hand (cockpit.js), given by the application
     this.pilot = createPilot();
     this.crashed = null;
     this.onChange = () => {};
@@ -134,6 +134,7 @@ export class FlightMode {
     if (!this.active) return;
     const v = this.viewer;
     this.active = false;
+    if (this.cockpit) this.cockpit.disable();
     v.scene.add(v.model); v.model.position.set(0, 0, 0); v.model.quaternion.identity();
     v.scene.remove(this.pivot);
     v.camera.far = this.saved.far; v.camera.near = this.saved.near; v.camera.fov = this.saved.fov; v.camera.updateProjectionMatrix();
@@ -143,7 +144,7 @@ export class FlightMode {
     v.manualCamera = false; v.controls.enabled = true;
     v.sun.position.sub(v.sun.target.position); v.sun.target.position.set(0, 0, 0);
     if (this.deck) { delete this.deck.sim.flight.dynamic; this.deck.sim.flight.onGround = true; this.deck.sim.flight.bank = 0; this.deck.sim.flight.pitch = 0; this.deck.sim.flight.iasTarget = 0; this.deck.sim.flight.altTarget = 0; }
-    const st = this.rig.state; st.aileron = st.elevator = st.rudder = st.trim = 0; st.flaps = 0;
+    const st = this.rig.state; st.aileron = st.elevator = st.rudder = st.trim = 0; st.flaps = 0; st.flapLever = null;
     this.deck = null;
     this.keys.clear();
     this.onChange();
@@ -260,7 +261,7 @@ export class FlightMode {
     this.pivot.updateMatrixWorld(true);
     // the surfaces and the cockpit controls follow the flight
     const c = this.deck.controls;
-    st.aileron = c.aileron; st.rudder = c.rudder; st.trim = c.trim; st.flaps = f.flapDeg;
+    st.aileron = c.aileron; st.rudder = c.rudder; st.trim = c.trim; st.flaps = f.flapDeg; st.flapLever = this.flapCommand;
     const e = o.elevatorDeg ?? 0;
     st.elevator = e < 0 ? -e / FM.elevatorUpDeg.v : -e / FM.elevatorDownDeg.v;
     // the sun's shadow stays under the aircraft; the ground stays under the camera
@@ -277,11 +278,10 @@ export class FlightMode {
     const changed = kind !== this.camera;
     this.camera = kind;
     if (!this.active) return;
-    if (kind === 'cockpit') {
-      v.manualCamera = true; v.controls.enabled = false; v.camAnim = null;
-      v.camera.near = 0.03; v.camera.fov = 68; v.camera.updateProjectionMatrix();      // an eye takes in more than the viewer's lens
-      if (changed || reset) { this.head.yaw = 0; this.head.pitch = -11 * D2R; }
+    if (kind === 'cockpit' && this.cockpit) {
+      this.cockpit.enable(changed || reset ? 'ahead' : null);      // the pilot's eye: the head and the hand are the cockpit's
     } else {
+      if (this.cockpit) this.cockpit.disable();
       v.manualCamera = false; v.controls.enabled = true; v.camAnim = null;
       v.camera.near = 0.4; v.camera.fov = this.saved.fov; v.camera.updateProjectionMatrix();
       if (changed || reset) {
@@ -297,12 +297,8 @@ export class FlightMode {
 
   _follow() {
     const v = this.viewer, pos = this.pivot.position, o = this.deck.flight.out;
-    if (this.camera === 'cockpit') {
-      // the pilot's eye, carried by the aircraft; the head turns within what a neck allows
-      this._v.set(0.28, 1.55, 0.015).sub(this.cgModel);
-      v.camera.position.copy(this._v).applyQuaternion(this.pivot.quaternion).add(pos);
-      const look = new THREE.Quaternion().setFromEuler(new THREE.Euler(FM.groundPitchDeg.v * D2R + this.head.pitch, Math.PI + this.head.yaw, 0, 'YXZ'));
-      v.camera.quaternion.copy(this.pivot.quaternion).multiply(look);
+    if (this.camera === 'cockpit' && this.cockpit) {
+      this.cockpit.place();      // the pilot's eye is carried by the aircraft
     } else {
       // the camera keeps its place relative to the aircraft's heading; the mouse still orbits it
       let d = ((o.headingDeg || 0) - this._lastHeading) * D2R;
@@ -313,12 +309,6 @@ export class FlightMode {
       if (v.camera.position.y < 0.35) v.camera.position.y = 0.35;
     }
     this._lastHeading = o.headingDeg || 0; this._lastPos.copy(pos);
-  }
-
-  /** Turn the head (cockpit camera): degrees to the left and up. */
-  look(dYawDeg, dPitchDeg) {
-    this.head.yaw = clamp(this.head.yaw + dYawDeg * D2R, -110 * D2R, 110 * D2R);
-    this.head.pitch = clamp(this.head.pitch + dPitchDeg * D2R, -55 * D2R, 40 * D2R);
   }
 
   _hud() {
