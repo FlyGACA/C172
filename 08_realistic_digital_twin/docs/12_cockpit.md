@@ -35,8 +35,9 @@ The panel is a plate with an opening for each instrument. Round a round instrume
 dial, under a hub cap; the glass sits in the rim. So a pointer moves over its dial as the eye moves, and
 the rim shades the dial.
 
-The fuel, oil and ammeter indicators are small rectangular ones, two to a frame: the pointer is pivoted
-below the middle of the face, under a cover, and sweeps a scale across the top. Their scales, like those of
+The fuel quantity and oil indicators are small rectangular ones, two to a frame, and the ammeter is one of
+the same kind: the pointer is pivoted below the middle of the face, under a cover, and sweeps a scale across
+the top. Their scales, like those of
 the round dials, are drawn from `data/instruments.json` (limits and arcs from POH Section 2).
 
 The radios are plain sets of their kind for the period, with small readouts, legends and knobs; they copy
