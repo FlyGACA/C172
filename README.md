@@ -93,3 +93,5 @@ All geometry, instruments, engine behaviour and fault scenarios are educational
 approximations. They are not validated against a specific aircraft serial number
 and are not approved for flight, maintenance or training credit. Refer to the
 aircraft-specific POH/AFM and Cessna/Lycoming manuals.
+
+[GACAR and Saudi AIP cross-reference](REGULATORY-CROSSWALK.md) — repository topics, official sections, editions and review gaps.
