@@ -1,19 +1,24 @@
-// Phase 8 viewer core: renderer, environment, lighting, ground, post-processing and model loading.
+// Phase 8 viewer core: renderer, sky, light, apron, post-processing and model loading.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createSky, apronTextures, standMarkings, HAZE } from './sky.js';
 
+// What each quality level draws. ao: ambient occlusion (contact shading); bloom: the glow of lights and of the sun
+// on glossy paint; grade: a little contrast and a vignette; glass: 'clear' lets the picture behind show through
+// with true reflections, 'tint' is the cheap kind.
 export const QUALITY = {
-  high: { file: 'models/C172N_realistic_high.glb', pixelRatio: 2, shadow: 2048, ao: true },
-  medium: { file: 'models/C172N_realistic_medium.glb', pixelRatio: 1.5, shadow: 1024, ao: false },
-  low: { file: 'models/C172N_realistic_low.glb', pixelRatio: 1, shadow: 512, ao: false },
+  high: { file: 'models/C172N_realistic_high.glb', pixelRatio: 2, shadow: 4096, ao: true, bloom: true, grade: true, glass: 'clear', anisotropy: 16, apron: 2048 },
+  medium: { file: 'models/C172N_realistic_medium.glb', pixelRatio: 2, shadow: 2048, ao: false, bloom: true, grade: true, glass: 'tint', anisotropy: 8, apron: 2048 },
+  low: { file: 'models/C172N_realistic_low.glb', pixelRatio: 1.5, shadow: 1024, ao: false, bloom: false, grade: false, glass: 'tint', anisotropy: 4, apron: 1024 },
 };
 
 export function pickQuality(qs) {
@@ -26,16 +31,38 @@ export function pickQuality(qs) {
   return 'high';
 }
 
+// The last pass, on the finished picture: a gentle S-curve, a little more colour, darker corners.
+const GradeShader = {
+  uniforms: { tDiffuse: { value: null }, contrast: { value: 0.10 }, saturation: { value: 1.10 }, vignette: { value: 0.22 } },
+  vertexShader: /* glsl */`varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse; uniform float contrast; uniform float saturation; uniform float vignette; varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      vec3 s = c.rgb * c.rgb * (3.0 - 2.0 * c.rgb);                 // smoothstep: darker darks, brighter lights
+      vec3 col = mix(c.rgb, s, contrast);
+      float l = dot(col, vec3(0.2126, 0.7152, 0.0722));
+      col = mix(vec3(l), col, saturation);
+      vec2 d = vUv - 0.5;
+      col *= 1.0 - vignette * smoothstep(0.25, 0.95, dot(d, d) * 2.0);
+      gl_FragColor = vec4(col, c.a);
+    }`,
+};
+
 export class Viewer {
   constructor(container, quality, opts = {}) {
     this.container = container;
     this.qualityName = quality;
-    this.q = QUALITY[quality];
-    this.renderer = new THREE.WebGLRenderer({ antialias: !this.q.ao, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.test });
+    // a software renderer (the tests) cannot afford the passes, a large shadow map or anisotropic filtering:
+    // fx=1 in the address gives them to it all the same, for a still picture
+    this.fx = opts.fx ?? !opts.test;
+    this.q = this.fx ? QUALITY[quality] : { ...QUALITY[quality], shadow: Math.min(1024, QUALITY[quality].shadow), anisotropy: 1, apron: 1024 };
+    this.usePasses = this.fx && (this.q.ao || this.q.bloom || this.q.grade);
+    this.renderer = new THREE.WebGLRenderer({ antialias: !this.usePasses, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.test });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.q.pixelRatio));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 0.95;
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.prepend(this.renderer.domElement);
@@ -44,58 +71,79 @@ export class Viewer {
     container.append(this.labels.domElement);
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(42, 1, 0.03, 300);
+    this.scene.background = new THREE.Color(HAZE);
+    this.scene.fog = new THREE.Fog(HAZE, 70, 520);          // the apron fades into the haze of the horizon
+    this.camera = new THREE.PerspectiveCamera(42, 1, 0.03, 900);
     this.camera.position.set(-9, 3.2, 9);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true; this.controls.dampingFactor = 0.08;
     this.controls.maxPolarAngle = Math.PI * 0.49; this.controls.minDistance = 0.05; this.controls.maxDistance = 60;
     this.controls.target.set(0, 1.0, 0);
 
-    // sun matching the generated sky (elevation 42°, azimuth 35°)
+    // the sun: mid-morning, a little ahead of the left wing (elevation 42°, azimuth 35°, as in the reference renders)
     const el = THREE.MathUtils.degToRad(42), az = THREE.MathUtils.degToRad(35);
-    this.sun = new THREE.DirectionalLight(0xfff2e0, 3.2);
-    this.sun.position.set(Math.cos(el) * Math.sin(az) * 30, Math.sin(el) * 30, Math.cos(el) * Math.cos(az) * 30);
+    this.sunDir = new THREE.Vector3(Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az));
+    this.sun = new THREE.DirectionalLight(0xfff0d8, 4.0);
+    this.sun.position.copy(this.sunDir).multiplyScalar(30);
     this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(this.q.shadow, this.q.shadow);
     const sc = this.sun.shadow.camera; sc.left = -8; sc.right = 8; sc.top = 8; sc.bottom = -8; sc.near = 5; sc.far = 70;
-    this.sun.shadow.bias = -0.0005; this.sun.shadow.normalBias = 0.02; this.sun.shadow.radius = 2;
+    this.sun.shadow.bias = -0.0004; this.sun.shadow.normalBias = 0.02; this.sun.shadow.radius = 2.5;
     this.scene.add(this.sun, this.sun.target);
-    this.scene.add(new THREE.HemisphereLight(0xcfe4ff, 0x6b6560, 0.35));
+    this.scene.add(new THREE.HemisphereLight(0xcfe2ff, 0x8c8477, 0.45));      // the sky from above, the apron from below
+
+    this.sky = createSky(this.sunDir);
+    this.scene.add(this.sky);
 
     this.composer = null;
-    this.aoEnabled = this.q.ao;
+    this.aoEnabled = this.q.ao && this.fx;
     this.renderer.info.autoReset = false;   // keep per-frame totals across composer passes
     this.clock = new THREE.Clock();
     this.onFrame = [];
     this._resize = () => this.resize();
     new ResizeObserver(this._resize).observe(container);
     this.resize();
+    if (this.usePasses) this._buildPasses();
   }
 
-  async loadEnvironment(url) {
-    const tex = await new RGBELoader().loadAsync(url);
-    tex.mapping = THREE.EquirectangularReflectionMapping;
+  /** The light of the sky on the model: what the paint and the glass reflect. Made from the sky dome itself. */
+  async loadEnvironment() {
     const pmrem = new THREE.PMREMGenerator(this.renderer);
-    this.scene.environment = pmrem.fromEquirectangular(tex).texture;
+    const box = new THREE.Scene();
+    const dome = createSky(this.sunDir);
+    dome.scale.setScalar(50);
+    box.add(dome);
+    this.scene.environment = pmrem.fromScene(box, 0, 0.1, 100).texture;
     this.scene.environmentIntensity = 1.0;
-    this.scene.background = tex;
-    this.scene.backgroundBlurriness = 0.35;
-    this.scene.backgroundIntensity = 0.85;
-    pmrem.dispose();
+    dome.material.dispose(); dome.geometry.dispose(); pmrem.dispose();
   }
 
-  addGround(texDir) {
-    const tl = new THREE.TextureLoader();
-    const rep = (t, cs) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(28, 28); t.anisotropy = 8; if (cs) t.colorSpace = THREE.SRGBColorSpace; return t; };
-    const mat = new THREE.MeshStandardMaterial({ map: rep(tl.load(`${texDir}/apron_albedo.jpg`), true), normalMap: rep(tl.load(`${texDir}/apron_normal.png`)), roughness: 0.95, metalness: 0 });
-    const g = new THREE.Mesh(new THREE.CircleGeometry(60, 72), mat);
-    g.rotation.x = -Math.PI / 2; g.receiveShadow = true; g.name = '_ground';
-    this.scene.add(g);
-    // soft darkening under the aircraft so the horizon blends with the sky's ground band
-    const fade = new THREE.Mesh(new THREE.CircleGeometry(60, 72), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.0 }));
-    fade.rotation.x = -Math.PI / 2; fade.position.y = 0.001; this.scene.add(fade);
-    this.ground = g;
+  addGround() {
+    const t = apronTextures(this.q.apron, 4);
+    const tile = 20;                                          // metres a tile: four slabs of five metres each way
+    for (const k of ['map', 'roughnessMap', 'normalMap']) { t[k].repeat.set(1200 / tile, 1200 / tile); t[k].anisotropy = this.q.anisotropy; }
+    const mat = new THREE.MeshStandardMaterial({ ...t, roughness: 1, metalness: 0, normalScale: new THREE.Vector2(0.9, 0.9) });
+    // large patches of lighter and darker concrete, so that the tiles do not show as a pattern
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'); g.fillStyle = '#808080'; g.fillRect(0, 0, 256, 256);
+    let seed = 99; const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+    for (let k = 0; k < 220; k++) { const x = rnd() * 256, y = rnd() * 256, r = 6 + rnd() * 34, v = rnd() > 0.5 ? 255 : 0; const grad = g.createRadialGradient(x, y, 0, x, y, r); grad.addColorStop(0, `rgba(${v},${v},${v},0.16)`); grad.addColorStop(1, `rgba(${v},${v},${v},0)`); g.fillStyle = grad; g.fillRect(x - r, y - r, 2 * r, 2 * r); }
+    const macro = new THREE.CanvasTexture(c); macro.wrapS = macro.wrapT = THREE.RepeatWrapping;
+    mat.onBeforeCompile = (shader) => {
+      shader.uniforms.macroMap = { value: macro };
+      shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vMacro;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvMacro = (modelMatrix * vec4(transformed, 1.0)).xz / 180.0;');
+      shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D macroMap; varying vec2 vMacro;').replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= 0.74 + 0.52 * texture2D(macroMap, vMacro).r;');
+    };
+    const slab = new THREE.Mesh(new THREE.CircleGeometry(600, 96), mat);
+    slab.rotation.x = -Math.PI / 2; slab.receiveShadow = true; slab.raycast = () => {};
+    this.stand = standMarkings();
+    this.ground = new THREE.Group(); this.ground.name = '_ground';      // the apron and what is painted on it
+    this.ground.add(slab, this.stand);
+    this.scene.add(this.ground);
   }
+
+  /** Put the stop bar of the parking stand at a Z (the nose wheel's). */
+  placeStand(z) { if (this.stand) this.stand.position.z = z - this.stand.userData.barAhead; }
 
   async loadModel(url, onProgress) {
     const draco = new DRACOLoader();
@@ -104,24 +152,68 @@ export class Viewer {
     const gltf = await new Promise((res, rej) => loader.load(url, res, (e) => onProgress && onProgress(e.total ? e.loaded / e.total : 0.5), rej));
     this.scene.add(gltf.scene);
     this.model = gltf.scene;
+    this.tuneMaterials(gltf.scene);
     return gltf.scene;
   }
 
-  setAO(on) {
-    this.aoEnabled = on && this.q.ao;
-    if (this.aoEnabled && !this.composer) {
-      const size = this.renderer.getSize(new THREE.Vector2());
-      const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: 4 });
-      this.composer = new EffectComposer(this.renderer, rt);
-      this.composer.addPass(new RenderPass(this.scene, this.camera));
+  /** Give the materials of the model what the file format does not carry: the clear coat of the paint, glass that reflects. */
+  tuneMaterials(root) {
+    const made = new Map();
+    const physical = (m) => {
+      if (m.isMeshPhysicalMaterial) return m;
+      if (!made.has(m)) { const p = new THREE.MeshPhysicalMaterial(); THREE.MeshStandardMaterial.prototype.copy.call(p, m); p.name = m.name; made.set(m, p); }
+      return made.get(m);
+    };
+    const seen = new Set(), clear = this.q.glass === 'clear' && this.fx;
+    root.traverse((o) => {
+      if (!o.isMesh || !o.material || Array.isArray(o.material)) return;
+      const name = o.material.name || '';
+      if (/^(skin_|paint_)/.test(name)) o.material = physical(o.material);
+      if (/^glass_|^instrument_glass/.test(name) && clear) o.material = physical(o.material);
+      const m = o.material;
+      if (seen.has(m)) return;
+      seen.add(m);
+      for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap']) if (m[k]) m[k].anisotropy = this.q.anisotropy;
+      if (/^(skin_|paint_)/.test(name)) { m.clearcoat = 1.0; m.clearcoatRoughness = 0.07; m.envMapIntensity = 1.0; }      // polyurethane over the colour
+      else if (/^glass_/.test(name)) {
+        if (clear) {                         // clear acrylic: what is behind shows through it, the sky shows on it
+          m.transparent = false; m.opacity = 1; m.transmission = 1; m.thickness = 0.004; m.ior = 1.49; m.roughness = 0.03; m.metalness = 0;
+          m.color.setRGB(0.93, 0.97, 0.96); m.attenuationColor = new THREE.Color(0.80, 0.93, 0.90); m.attenuationDistance = 0.05; m.envMapIntensity = 1.0; m.depthWrite = true;
+        } else {                             // tinted film: thin, with the sky's reflection kept at its natural strength
+          m.opacity = 0.14; m.color.setRGB(0.50, 0.62, 0.66); m.roughness = 0.03; m.metalness = 0; m.envMapIntensity = 5.0;
+        }
+      } else if (/^instrument_glass/.test(name)) {
+        if (clear) { m.transparent = false; m.opacity = 1; m.transmission = 1; m.thickness = 0.002; m.ior = 1.5; m.roughness = 0.02; m.color.setRGB(1, 1, 1); m.envMapIntensity = 0.6; m.depthWrite = true; }
+        else { m.opacity = 0.08; m.roughness = 0.02; m.envMapIntensity = 3.0; }
+      }
+    });
+  }
+
+  _buildPasses() {
+    const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
+    const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: 4 });
+    this.composer = new EffectComposer(this.renderer, rt);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    if (this.q.ao) {
       this.gtao = new GTAOPass(this.scene, this.camera, size.x, size.y);
       this.gtao.output = GTAOPass.OUTPUT.Default;
-      this.gtao.updateGtaoMaterial({ radius: 0.35, distanceExponent: 1, thickness: 1, scale: 1.2, samples: 12, distanceFallOff: 1, screenSpaceRadius: false });
+      this.gtao.updateGtaoMaterial({ radius: 0.35, distanceExponent: 1, thickness: 1, scale: 1.25, samples: 12, distanceFallOff: 1, screenSpaceRadius: false });
       this.gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, radiusExponent: 1, rings: 2, samples: 12 });
+      this.gtao.enabled = this.aoEnabled;
       this.composer.addPass(this.gtao);
-      this.composer.addPass(new OutputPass());
-      this.resize();
     }
+    if (this.q.bloom) {
+      // only what is much brighter than sunlit white paint glows: lamps, the sun on the clear coat, the sun itself
+      this.bloom = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.28, 0.6, 2.6);
+      this.composer.addPass(this.bloom);
+    }
+    this.composer.addPass(new OutputPass());
+    if (this.q.grade) this.composer.addPass(new ShaderPass(GradeShader));
+  }
+
+  setAO(on) {
+    this.aoEnabled = on && this.q.ao && this.fx;
+    if (this.gtao) this.gtao.enabled = this.aoEnabled;
   }
 
   resize() {
@@ -130,16 +222,19 @@ export class Viewer {
     this.renderer.setSize(w, h, false);
     this.labels.setSize(w, h);
     this.camera.aspect = w / h; this.camera.updateProjectionMatrix();
-    if (this.composer) { this.composer.setSize(w, h); this.gtao && this.gtao.setSize(w, h); }
+    if (this.composer) this.composer.setSize(w, h);
   }
 
   start() {
     const loop = () => {
       const dt = Math.min(0.1, this.clock.getDelta());
       for (const f of this.onFrame) f(dt);
-      if (!this.manualCamera) this.controls.update();      // the cockpit camera of the flight mode places itself
+      if (!this.manualCamera) this.controls.update();      // the pilot's seat places the camera itself
+      // the sky is always round the camera, and as far as the camera sees
+      this.sky.position.copy(this.camera.position); this.sky.scale.setScalar(this.camera.far * 0.9);
+      this.sky.material.uniforms.time.value += dt;
       this.renderer.info.reset();
-      if (this.composer && this.aoEnabled) this.composer.render(); else this.renderer.render(this.scene, this.camera);
+      if (this.composer) this.composer.render(); else this.renderer.render(this.scene, this.camera);
       this.labels.render(this.scene, this.camera);
       this.raf = requestAnimationFrame(loop);
     };

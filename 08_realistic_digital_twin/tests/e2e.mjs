@@ -389,7 +389,7 @@ try {
     // leaving the mode puts the aircraft back on the apron
     await pf.click('#modes button[data-mode=exterior]');
     const end = await pf.evaluate(() => { const t = window.__twin; return { active: t.flight.active, parent: t.viewer.model.parent.type, pos: t.viewer.model.position.toArray(), dynamic: !!t.sim.flight.dynamic, far: t.viewer.camera.far, manual: !!t.viewer.manualCamera, hud: document.getElementById('fhud').hidden, fov: t.viewer.camera.fov }; });
-    assert.deepEqual(end, { active: false, parent: 'Scene', pos: [0, 0, 0], dynamic: false, far: 300, manual: false, hud: true, fov: 42 });
+    assert.deepEqual(end, { active: false, parent: 'Scene', pos: [0, 0, 0], dynamic: false, far: 900, manual: false, hud: true, fov: 42 });
     assert.deepEqual(errs, []);
     await pf.close();
   });
