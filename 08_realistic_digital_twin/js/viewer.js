@@ -168,13 +168,13 @@ export class Viewer {
     };
     const seen = new Set(), clear = this.q.glass === 'clear' && this.fx;
     this.glass = [];                       // the window and instrument glass, with how strongly each mirrors the sky from outside
-    // Bright metal in the cabin would mirror the open sky, which it cannot see: under the roof it gets a third of it.
+    // Bright metal in the cabin would mirror the open sky, which it cannot see: under the roof it gets a sixth of it.
     const indoors = new Map();
     const inCabin = (o) => /^(INTERIOR|PANEL)$/.test(o.userData.system ?? o.parent?.userData.system ?? '');
     root.traverse((o) => {
       if (!o.isMesh || !o.material || Array.isArray(o.material)) return;
       if (inCabin(o) && o.material.metalness > 0.5) {
-        if (!indoors.has(o.material)) { const m = o.material.clone(); m.name = o.material.name; m.envMapIntensity = 0.3; indoors.set(o.material, m); }
+        if (!indoors.has(o.material)) { const m = o.material.clone(); m.name = o.material.name; m.envMapIntensity = 0.16; indoors.set(o.material, m); }
         o.material = indoors.get(o.material);
       }
       const name = o.material.name || '';
