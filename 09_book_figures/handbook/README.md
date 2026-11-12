@@ -50,7 +50,7 @@ returns a plate in the same form; `plates_spec.py` joins them), written in three
   light, glowing dots, free markup and pictures of the aeroplane (`"sprite"`); see `build_plates.py` `overlays()`.
 - **An old figure with the model's aeroplane in it** (`"reskin"`, `reskin.py`): the diagram of the figure the book had (its SVG kept in `old/`)
   with its flat aeroplane symbols replaced by pictures of the model, in the same place, heading and size, tinted where the symbol was coloured, in the
-  book's fonts. Sixty-nine figures are made this way. A symbol the patterns of `reskin.py` do not know is named in the figure's module: `"drop"` takes a
+  book's fonts. A hundred and one figures are made this way (seventy of them draw a new picture on the old canvas, `"blank": True`). A symbol the patterns of `reskin.py` do not know is named in the figure's module: `"drop"` takes a
   stretch of the old drawing out and puts the new things there (so that the z-order stays: a sprite can lie over a flight path and under a callout, and
   `"before"` draws something under it), `"remove"`, `"replace"`, `"sprites"` and `"markup"` do the rest; `figs/kit.py` `side_plane()` stands the model on the
   wheels of an old silhouette (its translate, rotate and scale), and `dial_sprite()` makes one instrument of the model a picture to set into an old figure
@@ -92,6 +92,8 @@ a figure takes from the kit: `layer()` puts the terrain under the old drawing an
 tarred road, a taxiway, a slab of concrete, a crop, a ploughed plot, gravel, a flat roof), `panel()` makes a card with a sky for the side view that shares the canvas, and `path_points()`
 samples a curve of the old drawing to cut a picture to it; `reskin.py`'s `"halo"` puts a white casing under every line and word of the old drawing so that it can be read on the picture.
 The ground is soft on purpose: the book takes a JPEG of 800 kB at most, and fine grain costs most.
+
+The helper modules `figs/h_a1.py` to `h_a4.py` hold what four parallel passes over the remaining figures needed and shared with nobody: scene cards with a runway edge-on, windsocks, masts, hangars, a tower, a heavy aeroplane and glass blocks (`h_a1`); aerodrome pictures, worn runway paint, taxiway signs, lamps and PAPI beams, the marshaller (`h_a2`); night terrain cards, glass canals, windscreen views (`h_a3`); globes, instrument cards, ribbons and rulers for the chart-work and navigation figures (`h_a4`). They are plain Python, not plate modules, and the terrain pictures they ask for are made when a module is imported (they are not kept in git).
 
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
 them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
