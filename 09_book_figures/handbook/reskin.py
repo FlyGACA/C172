@@ -201,7 +201,8 @@ def add_halo(svg, width=3.2, opacity=0.82, text_width=3.0, min_stroke=1.1, colou
 
     def words(m):
         tag = m.group(0)
-        if "stroke=" in tag:
+        fill = re.search(r'\bfill="(#[0-9a-fA-F]{3,8})"', tag)
+        if "stroke=" in tag or (fill and fill.group(1).lower() in ("#ffffff", "#fff")):         # (white words lie on a dark disc or a dark runway: a white casing would only fatten them)
             return tag
         return tag[:-1] + f' stroke="{colour}" stroke-width="{text_width}" stroke-opacity="{opacity}" stroke-linejoin="round" paint-order="stroke">'
 
