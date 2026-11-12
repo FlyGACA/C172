@@ -1,4 +1,6 @@
 """Figure 27-2. Two 90° clearing turns before a manoeuvre, seen from above. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -20,5 +22,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-27-02-clearing-turns.svg"},
+        "reskin": h_plan.layer({"svg": "fig-27-02-clearing-turns.svg", "replace": [['fill="#f3f4f6" stroke="#6b7280" stroke-width="1.6" stroke-dasharray="6 4"', 'fill="#FFFFFF" fill-opacity="0.34" stroke="#6b7280" stroke-width="1.6" stroke-dasharray="6 4"']]}, "terrain-27-02", seed=2, kind='plain', veil=0.3),
     }

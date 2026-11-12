@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <title>fig-12-01-datum-arm-moment</title>
+  <desc>1</desc>
+<defs>
+  <linearGradient id="fuselage" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#f8fafc"/>
+    <stop offset="100%" stop-color="#e2e8f0"/>
+  </linearGradient>
+  <linearGradient id="nose" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#dbeafe"/>
+    <stop offset="100%" stop-color="#bfdbfe"/>
+  </linearGradient>
+  <linearGradient id="wtBlock" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#dbeafe"/>
+    <stop offset="100%" stop-color="#93c5fd"/>
+  </linearGradient>
+  <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#d1d5db" stop-opacity="0.5"/>
+    <stop offset="100%" stop-color="#9ca3af" stop-opacity="0.2"/>
+  </linearGradient>
+  <filter id="sh" x="-4%" y="-4%" width="108%" height="108%">
+    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.10"/>
+  </filter>
+  <filter id="shSm" x="-4%" y="-4%" width="108%" height="108%">
+    <feDropShadow dx="0.5" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.08"/>
+  </filter>
+  <filter id="csh" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="640" height="360" fill="#fafbfc"/>
+<rect x="18" y="216" width="604" height="4" fill="url(#groundG)" rx="2"/>
+<line x1="20" y1="218" x2="620" y2="218" stroke="#94a3b8" stroke-width="1.5"/>
+<polygon points="505.5,114 548.9,50 573.7,50 569.4,122" fill="url(#nose)" stroke="#334155" stroke-width="2" stroke-linejoin="round" filter="url(#shSm)"/>
+<polygon points="37.4,150 46.7,130 118,118 214.1,88 390.8,88 548.9,116 569.4,120 569.4,140 390.8,182 118,184 46.7,172" fill="url(#fuselage)" stroke="#334155" stroke-width="2.2" stroke-linejoin="round" filter="url(#shSm)"/>
+<line x1="517.9" y1="128" x2="579.9" y2="128" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+<polygon points="37.4,150 46.7,130 118,118 118,184 46.7,172" fill="url(#nose)" stroke="#334155" stroke-width="2.2" stroke-linejoin="round"/>
+<line x1="41.1" y1="102" x2="41.1" y2="198" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+<polygon points="218.4,94 290.4,94 290.4,122 238.9,122" fill="url(#nose)" stroke="#94a3b8" stroke-width="1.2" stroke-linejoin="round"/>
+<rect x="296.6" y="94" width="52.7" height="28" fill="url(#nose)" stroke="#94a3b8" stroke-width="1.2" rx="2"/>
+<rect x="232.7" y="76" width="93" height="12" rx="5" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+<rect x="254.4" y="79" width="49.6" height="6" fill="#dbeafe" stroke="#1e40af" stroke-width="1.5" rx="2"/>
+<line x1="307.1" y1="88" x2="294.7" y2="176" stroke="#334155" stroke-width="1.5"/>
+<path d="M 246.6 168 L 268.6 168 L 274.6 128" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 305.5 168 L 327.5 168 L 333.5 128" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="342.4" y="136" width="34.7" height="40" fill="url(#wtBlock)" stroke="#1e40af" stroke-width="1.8" rx="2" filter="url(#shSm)"/>
+<line x1="83.9" y1="182" x2="83.9" y2="198" stroke="#334155" stroke-width="3"/>
+<circle cx="83.9" cy="207" r="10" fill="#475569" stroke="#334155" stroke-width="2"/>
+<line x1="285.4" y1="182" x2="300.9" y2="196" stroke="#334155" stroke-width="3"/>
+<circle cx="300.9" cy="206" r="11" fill="#475569" stroke="#334155" stroke-width="2"/>
+<line x1="118" y1="44" x2="118" y2="330" stroke="#d97706" stroke-width="2.5"/>
+<circle cx="118" cy="30" r="13" fill="#1e40af" filter="url(#csh)"/><text x="118" y="35" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<line x1="260.6" y1="156" x2="260.6" y2="302" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+<circle cx="260.6" cy="150" r="5" fill="#1e40af"/>
+<line x1="118" y1="298" x2="253.6" y2="298" stroke="#334155" stroke-width="1.4"/><polygon points="260.6,298 253.6,301.5 253.6,294.5" fill="#334155"/>
+<text x="266.6" y="302" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#334155" text-anchor="start">2.30</text>
+<circle cx="312.6" cy="298" r="13" fill="#1e40af" filter="url(#csh)"/><text x="312.6" y="303" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<line x1="279.2" y1="88" x2="279.2" y2="282" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+<circle cx="279.2" cy="82" r="5" fill="#1e40af"/>
+<line x1="118" y1="278" x2="272.2" y2="278" stroke="#334155" stroke-width="1.4"/><polygon points="279.2,278 272.2,281.5 272.2,274.5" fill="#334155"/>
+<text x="285.2" y="282" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#334155" text-anchor="start">2.60</text>
+<circle cx="331.2" cy="278" r="13" fill="#1e40af" filter="url(#csh)"/><text x="331.2" y="283" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<line x1="319.5" y1="156" x2="319.5" y2="262" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+<circle cx="319.5" cy="150" r="5" fill="#1e40af"/>
+<line x1="118" y1="258" x2="312.5" y2="258" stroke="#334155" stroke-width="1.4"/><polygon points="319.5,258 312.5,261.5 312.5,254.5" fill="#334155"/>
+<text x="325.5" y="262" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#334155" text-anchor="start">3.25</text>
+<circle cx="371.5" cy="258" r="13" fill="#1e40af" filter="url(#csh)"/><text x="371.5" y="263" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<line x1="359.8" y1="164" x2="359.8" y2="242" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+<circle cx="359.8" cy="158" r="5" fill="#1e40af"/>
+<line x1="118" y1="238" x2="352.8" y2="238" stroke="#334155" stroke-width="1.4"/><polygon points="359.8,238 352.8,241.5 352.8,234.5" fill="#334155"/>
+<text x="365.8" y="242" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#334155" text-anchor="start">3.90</text>
+<circle cx="411.8" cy="238" r="13" fill="#1e40af" filter="url(#csh)"/><text x="411.8" y="243" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<line x1="118" y1="330" x2="426.2" y2="330" stroke="#334155" stroke-width="1.4"/><polygon points="434.2,330 426.2,334 426.2,326" fill="#334155"/>
+<line x1="118" y1="330" x2="48.5" y2="330" stroke="#334155" stroke-width="1.4"/><polygon points="40.5,330 48.5,326 48.5,334" fill="#334155"/>
+<line x1="56" y1="326" x2="56" y2="334" stroke="#334155" stroke-width="1.4"/>
+<text x="56" y="348" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#334155" text-anchor="middle">−1</text>
+<line x1="118" y1="326" x2="118" y2="334" stroke="#334155" stroke-width="1.4"/>
+<text x="127" y="322" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#334155" text-anchor="middle">0</text>
+<line x1="180" y1="326" x2="180" y2="334" stroke="#334155" stroke-width="1.4"/>
+<text x="180" y="348" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#334155" text-anchor="middle">1</text>
+<line x1="242" y1="326" x2="242" y2="334" stroke="#334155" stroke-width="1.4"/>
+<text x="242" y="348" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#334155" text-anchor="middle">2</text>
+<line x1="304" y1="326" x2="304" y2="334" stroke="#334155" stroke-width="1.4"/>
+<text x="304" y="348" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#334155" text-anchor="middle">3</text>
+<line x1="366" y1="326" x2="366" y2="334" stroke="#334155" stroke-width="1.4"/>
+<text x="366" y="348" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#334155" text-anchor="middle">4</text>
+<text x="444.2" y="335" font-family="IBM Plex Sans, sans-serif" font-size="16" font-weight="bold" fill="#334155" text-anchor="start">+</text>
+<text x="30.5" y="335" font-family="IBM Plex Sans, sans-serif" font-size="16" font-weight="bold" fill="#334155" text-anchor="end">−</text>
+<circle cx="474.2" cy="330" r="13" fill="#1e40af" filter="url(#csh)"/><text x="474.2" y="335" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<circle cx="79.6" cy="92" r="13" fill="#1e40af" filter="url(#csh)"/><text x="79.6" y="97" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+<line x1="79.6" y1="105" x2="79.6" y2="122" stroke="#94a3b8" stroke-width="1.2"/>
+</svg>

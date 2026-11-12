@@ -1,4 +1,6 @@
 """Figure 30-2. Engine failure after takeoff: the cone ahead, and why the turn back fails. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -20,5 +22,5 @@ def plate():
         ],
         "canvas": [640, 430],
         "background": "pale",
-        "reskin": {"svg": "fig-30-02-engine-failure-after-takeoff.svg"},
+        "reskin": h_plan.layer({"svg": "fig-30-02-engine-failure-after-takeoff.svg"}, "terrain-30-02", seed=302, kind="farm", veil=0.26, fields=[(0.84, 0.74, 0.06)], village=(0.72, 0.30)),
     }

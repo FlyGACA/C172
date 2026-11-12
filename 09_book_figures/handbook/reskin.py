@@ -166,9 +166,48 @@ def reskin(plate, sprite_markup, sprite_aspect):
     svg = TURNED.sub(turned, svg)
     svg = SIDE.sub(side, svg)
     svg = svg.replace('font-family="sans-serif"', 'font-family="Inter, sans-serif"').replace('font-family="monospace"', 'font-family="JetBrains Mono, monospace"')
+    if cfg.get("halo"):                                      # the drawing lies on a picture (a terrain): its lines and its words get a pale casing so that they can be read
+        svg = add_halo(svg, **(cfg["halo"] if isinstance(cfg["halo"], dict) else {}))
     root = re.search(r"<svg[^>]*>", svg).group(0)
     new_root = root.replace("<svg ", '<svg xmlns:xlink="http://www.w3.org/1999/xlink" data-px-per-unit="3" ', 1) if "data-px-per-unit" not in root else root
     return svg.replace(root, new_root, 1)
+
+
+PALE_STROKES = {"#ffffff", "#fff", "#f3f4f6", "#e5e7eb", "#f8fafc", "#ffffffcc"}
+
+
+def add_halo(svg, width=3.2, opacity=0.82, text_width=3.0, min_stroke=1.1, colour="#FFFFFF"):
+    """A casing under every stroked line, path and outline (a copy of it in `colour`, wider, solid, without fill or arrowheads) and round every word (a stroke of the same colour behind
+    the letters), so that a diagram lying on a picture is read as it is on a white page. Anything inside <defs> is left alone."""
+    head, sep, rest = svg.partition("</defs>")
+    if not sep:
+        head, rest = "", svg
+
+    def halo(m):
+        tag = m.group(0)
+        sw = re.search(r'stroke-width="([\d.]+)"', tag)
+        st = re.search(r'\bstroke="(#[0-9a-fA-F]{3,8})"', tag)
+        if not sw or not st or float(sw.group(1)) < min_stroke or st.group(1).lower() in PALE_STROKES:
+            return tag
+        copy = tag
+        copy = re.sub(r'\bstroke="#[0-9a-fA-F]{3,8}"', f'stroke="{colour}"', copy)
+        copy = re.sub(r'stroke-width="[\d.]+"', f'stroke-width="{float(sw.group(1)) + width:.2f}"', copy)
+        copy = re.sub(r'\s(?:stroke-dasharray|stroke-opacity|marker-start|marker-mid|marker-end|opacity|fill-opacity)="[^"]*"', "", copy)
+        copy = re.sub(r'\sfill="[^"]*"', "", copy)
+        copy = copy.replace("/>", f' fill="none" stroke-opacity="{opacity}" stroke-linecap="round" stroke-linejoin="round"/>', 1)
+        return copy + tag
+
+    rest = re.sub(r"<(?:line|path|polyline|circle|ellipse|polygon|rect)\b[^>]*/>", halo, rest)
+
+    def words(m):
+        tag = m.group(0)
+        fill = re.search(r'\bfill="(#[0-9a-fA-F]{3,8})"', tag)
+        if "stroke=" in tag or (fill and fill.group(1).lower() in ("#ffffff", "#fff")):         # (white words lie on a dark disc or a dark runway: a white casing would only fatten them)
+            return tag
+        return tag[:-1] + f' stroke="{colour}" stroke-width="{text_width}" stroke-opacity="{opacity}" stroke-linejoin="round" paint-order="stroke">'
+
+    rest = re.sub(r"<text\b[^>]*>", words, rest)
+    return head + sep + rest
 
 
 def sprites_used(plate):

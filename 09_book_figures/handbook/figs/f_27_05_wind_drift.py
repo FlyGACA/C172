@@ -1,4 +1,6 @@
 """Figure 27-5. Drift and crab: following a road in a crosswind, and the wind triangles at 90 kt in a 15 kt wind. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -18,5 +20,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-27-05-wind-drift.svg"},
+        "reskin": h_plan.layer({"svg": "fig-27-05-wind-drift.svg"}, "terrain-27-05", seed=275, kind="farm", veil=0.22, fields=[(0.06, 0.82, 0.05), (0.40, 0.22, 0.05), (0.42, 0.78, 0.05)], markup='<rect x="330" y="12" width="302" height="376" rx="14" fill="#FBF6E8" fill-opacity="0.93" stroke="#FFFFFF" stroke-width="2.4"/>'),
     }
