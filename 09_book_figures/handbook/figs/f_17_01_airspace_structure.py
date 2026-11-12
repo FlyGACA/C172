@@ -1,4 +1,4 @@
-"""Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side: a vertical section along the line from Thumamah (OETH) to Riyadh King Khalid (OERK), drawn from
+"""Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side: a vertical section along the line from Thumamah (OETH) to Riyadh King Khaled (OERK), drawn from
 data/saudi_airspace.json (AIP AMDT 11/26).
 
 The frame: the distance along the line from OETH (the line is 15.5 NM long, true bearing 166 degrees; positive towards OERK, north on the left), from -9 to +27 NM, in an
@@ -288,7 +288,7 @@ def plate():
         "replaces": "fig-17-01-airspace-structure.svg",
         "book_file": "plate-17-01-airspace-structure.jpg",
         "caption": "Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side",
-        "desc": ("Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side. A vertical section along the line from Thumamah (OETH) to Riyadh King Khalid (OERK): "
+        "desc": ("Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side. A vertical section along the line from Thumamah (OETH) to Riyadh King Khaled (OERK): "
                  "the Thumamah aerodrome traffic zone, the Riyadh control zone, the terminal control area and the final director area, uncontrolled air under their floor, FL 150 and "
                  "the control area above. Drawn to the limits of the AIP (AMDT 11/26) along the line from Thumamah to Riyadh, 15.5 NM; the ground is schematic; not for navigation."),
         "legend": [
@@ -300,7 +300,7 @@ def plate():
             "Uncontrolled airspace (grey): Class G.",
             "A VFR aeroplane under the floor of the terminal area, outside every controlled block.",
             "Thumamah, without a tower: its aerodrome traffic zone is Class G, radius 5 NM, surface to 3 000 ft AMSL.",
-            "Riyadh King Khalid, with a tower, inside its control zone.",
+            "Riyadh King Khaled, with a tower, inside its control zone.",
             "The Riyadh control area, Class A, from FL 150; its floor is the dashed line.",
         ],
         "canvas": [W, HT],

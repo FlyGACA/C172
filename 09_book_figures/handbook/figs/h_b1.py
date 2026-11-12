@@ -1,6 +1,6 @@
 """Helpers of worker b1 (the Saudi round, the two side views: Figure 17-1 and Figure 17-8).
 
-* the real geometry of the vertical section from Thumamah (OETH) to Riyadh King Khalid (OERK), worked out from data/saudi_airspace.json in an equirectangular frame round the
+* the real geometry of the vertical section from Thumamah (OETH) to Riyadh King Khaled (OERK), worked out from data/saudi_airspace.json in an equirectangular frame round the
   Thumamah ARP (x_nm = (lon - lon0) * 60 * cos(lat0), y_nm = (lat - lat0) * 60): where the line crosses each ring of the file, the ground between the two elevations;
 * a plot (the map from distance and height to canvas units), the colours of the airspace classes, boundaries (a dashed line over a white casing), hatches, class discs, small
   tags of numbers;
@@ -262,7 +262,7 @@ def hangar(uid, x, yg, w=13.0, h=5.6, colour="#E3DCC8"):
 
 
 def tower(uid, x, yg, height=21.0):
-    """The control tower of Riyadh King Khalid: A2.tower, scaled so that it is `height` tall (its natural height is 52 units at s = 1), cut off at the ground line (its long shadow
+    """The control tower of Riyadh King Khaled: A2.tower, scaled so that it is `height` tall (its natural height is 52 units at s = 1), cut off at the ground line (its long shadow
     would fall on the soil of a section)."""
     k = height / 52.0
     return (f'<defs><clipPath id="{uid}cl"><rect x="{n(x - 40 * k)}" y="{n(yg - 70 * k)}" width="{n(90 * k)}" height="{n(70 * k + 0.3)}"/></clipPath></defs>'

@@ -1,4 +1,4 @@
-"""Figure 17-6. The air traffic services a VFR flight meets from departure to arrival: a plan of the flight from Riyadh King Khalid (OERK) to Thumamah (OETH), 15.5 NM on the true
+"""Figure 17-6. The air traffic services a VFR flight meets from departure to arrival: a plan of the flight from Riyadh King Khaled (OERK) to Thumamah (OETH), 15.5 NM on the true
 bearing 346 degrees, on an aerial view of the plain, drawn to scale from the AIP (AMDT 11/26) data of data/saudi_airspace.json (frame: an equirectangular projection round the middle of
 the two aerodromes, 17 canvas units to the NM, north up). The Riyadh control zone (Class D, 10 NM round OERK), the Thumamah aerodrome traffic zone (Class G, 5 NM round OETH), the final
 director area for runway 15L (Class C, the rotated rectangle of the file) and the terminal control area (Class C: the faint indigo over all the ground, with the two zones cut out of it);
@@ -155,7 +155,7 @@ def plate():
         "desc": ("Figure 17-6. The air traffic services a VFR flight meets from departure to arrival. "
                  "North up; limits from the AIP (AMDT 11/26); the whole leg lies inside the Riyadh terminal control area except the two zones; not for navigation."),
         "legend": [
-            "Riyadh King Khalid: the tower clears you to taxi and take off [[§91.99(f)]] [[§91.127(i)]].",
+            "Riyadh King Khaled: the tower clears you to taxi and take off [[§91.99(f)]] [[§91.127(i)]].",
             "Leaving the Riyadh control zone (Class D): the tower hands you over to Riyadh Approach.",
             "In the Riyadh terminal control area (Class C): Riyadh Approach, which gives the clearance and the instructions, as far as the edge of the Thumamah ATZ.",
             "Approaching Thumamah, which has no tower: the UNICOM, and broadcasts on the TIBA frequency [[§91.121(d)]].",
