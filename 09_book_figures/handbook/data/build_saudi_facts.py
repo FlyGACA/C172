@@ -107,7 +107,7 @@ facts["areas"] = {
     "riyadh_east_tma_part1": {"ring": ring(atc["riyadh-east-terminal-control-area-tma-part-1"]), "lower": "700 FT AGL", "upper": "FL195", "class": "C", "exclusions": "Excluding Riyadh CTR. KHASHM ALAN ATZ, THUMAMAH ATZ."},
     "riyadh_east_tma_part2": {"ring": ring(atc["riyadh-east-terminal-control-area-tma-part-2"]), "lower": "2500 FT AGL", "upper": "FL195", "class": "C"},
     "riyadh_final_director_east_15l": {"ring": ring(atc["riyadh-final-director-east-rwy15l"]), "lower": "700 FT AGL", "upper": "11000 FT AMSL", "class": "C", "exclusions": "Excluding Riyadh CTR",
-                                       "note": "the whole Thumamah ATZ lies inside this polygon; the printed exclusion names only the Riyadh CTR"},
+                                       "note": "the Thumamah ATZ lies inside this polygon, whose west edge is 4.97 NM from the Thumamah reference point (the ATZ radius is 5 NM, so within about 55 m); the printed exclusion names only the Riyadh CTR"},
     "prd": {k: {"ring": ring(prd[k]), "type": prd[k]["properties"]["type"], "lower": prd[k]["properties"]["lower"]["raw"], "upper": prd[k]["properties"]["upper"]["raw"], "remarks": prd[k]["properties"]["remarks"]}
             for k in ("OED25", "OER212", "OED33")},
 }

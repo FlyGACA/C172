@@ -248,14 +248,14 @@ def plate():
         "desc": ("Figure 18-2. Naming a runway from its magnetic direction. Left, Thumamah (OETH): a compass with magnetic north up and runway 17/35 laid along its direction of 168 degrees magnetic, "
                  "with the two landings (towards 168 and towards 348 degrees) ending at the numbers 17 and 35. Right, Jeddah (OEJN), north up: its three parallel runways, 16L, 16C and 16R "
                  "(34R, 34C and 34L from the other end), the westernmost 3 800 m long and the other two 4 000 m. Runway widths are exaggerated so that the numbers can be read. "
-                 "Jeddah's three runways are drawn to scale from their thresholds (scale bar 1 NM); Thumamah's runway is a symbol on the compass; not for navigation."),
+                 "Thumamah drawn from its AIP data, Jeddah's runways from their thresholds, at one scale; not for navigation."),
         "legend": [
             "Magnetic north.",
             "The direction of the runway at Thumamah, 168° magnetic: 171° true less the variation, 3° E.",
             "Landing towards 168°, you read `17` at the near end (16.8 rounds to 17).",
             "Landing towards 348°, you read `35` (34.8 rounds to 35).",
-            "Jeddah has three parallel runways. Flying towards runway 16, the pilot has `16L` on the left, `16C` ahead and `16R` on the right (the picture is north up, so the left runway is the one on the right of the page).",
-            "Flying towards runway 34 from the other end, the same three runways are `34R` on the left, `34C` ahead and `34L` on the right.",
+            "Jeddah has three parallel runways: approaching runway 16, from left to right they are `16L`, `16C` and `16R`.",
+            "From the other end, the same three runways are `34R`, `34C` and `34L`.",
         ],
         "canvas": [W, HT],
         "background": "pale",

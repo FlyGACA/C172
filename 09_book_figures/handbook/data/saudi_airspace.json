@@ -2732,7 +2732,7 @@
    "upper": "11000 FT AMSL",
    "class": "C",
    "exclusions": "Excluding Riyadh CTR",
-   "note": "the whole Thumamah ATZ lies inside this polygon; the printed exclusion names only the Riyadh CTR"
+   "note": "the Thumamah ATZ lies inside this polygon, whose west edge is 4.97 NM from the Thumamah reference point (the ATZ radius is 5 NM, so within about 55 m); the printed exclusion names only the Riyadh CTR"
   },
   "prd": {
    "OED25": {

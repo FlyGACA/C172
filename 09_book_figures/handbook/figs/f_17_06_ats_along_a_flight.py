@@ -117,7 +117,7 @@ def plane():
 
 
 def letters():
-    out = [H.class_disc(U, T[0] + 44, T[1] - 52, "G"), H.class_disc(U, K[0] + 90, K[1] - 64, "D"), H.class_disc(U, 168, 132, "C"), H.class_disc(U, 452, 120, "C")]
+    out = [H.class_disc(U, T[0] + 44, T[1] - 52, "G"), H.class_disc(U, K[0] + 90, K[1] - 64, "D"), H.class_disc(U, 198, 160, "C"), H.class_disc(U, 410, 138, "C")]
     out.append(H.label("OETH", T[0] - 25, T[1] - 4, 7.0, H.INK, anchor="end"))
     out.append(H.label("OERK", K[0] - 44, K[1] + 24, 7.0, H.INK, anchor="end"))
     return "".join(out)
