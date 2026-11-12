@@ -38,7 +38,7 @@ MARKUP = (
     + rain(336, 238, 396, 330, [338, 347, 356, 365, 374, 383, 392]) + up(292, 334, 130) + up(310, 334, 156) + down(338, 126, 300) + down(356, 150, 300)
     + f'<path d="M 366 306 C 367.7 309.3 371 321.5 376 326 C 381 330.5 390 331.7 396 333 C 402 334.3 409.3 333.6 412 333.7" fill="none" stroke="{BLUE}" stroke-width="3"/>'
     + f'<polygon points="420,334 409.8,339.1 410.2,328.1" fill="{BLUE}"/>' + hail([(398, 104), (406, 118), (394, 130), (404, 142), (398, 156), (407, 168)])
-    + callout(6, 236, 30, 262, 70) + callout(5, 402, 214, 376, 214) + callout(8, 378, 190, 397, 158) + callout(7, 402, 306, 398, 330) + callout(4, 250, 296, 289, 296)
+    + callout(6, 236, 30, 262, 98) + callout(5, 402, 214, 376, 214) + callout(8, 378, 190, 397, 158) + callout(7, 402, 306, 398, 330) + callout(4, 250, 296, 289, 296)
     # third panel: downdrafts only, light rain
     + rain(494, 198, 556, 300, [494, 506, 518, 530, 542, 554], width=1, dash="3 7", drift=-4) + down(506, 140, 318) + down(530, 132, 326) + down(554, 140, 318) + callout(5, 596, 268, 559, 268)
 )
@@ -70,7 +70,7 @@ def plate():
                         ['<line x1="427" y1="14" x2="427" y2="340" stroke="#f3f4f6" stroke-width="2"/>', '<line x1="427" y1="14" x2="427" y2="340" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/>']],
             "drop": [[START, END, {"sprites": [
                 {"name": "cloud-congestus", "at": [107, 183], "width": 111},
-                {"name": "cloud-cb", "at": [320, 135], "width": 200},
+                {"name": "cloud-cb", "at": [326, 152], "width": 196},
                 {"name": "cloud-anvil", "at": [538, 70], "width": 178},
                 {"name": "cloud-congestus", "at": [527, 142], "width": 86, "opacity": 0.6},
             ], "markup": MARKUP}]],

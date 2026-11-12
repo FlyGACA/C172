@@ -60,11 +60,14 @@ returns a plate in the same form; `plates_spec.py` joins them), written in three
 The pictures of the aeroplane are `figs/sprites.py`: from above, from the side (both sides), from ahead, from behind, from above by moonlight and in a
 developed spin, rendered once on a transparent background, and the four instruments of Figure 31-4 (`npm run plates:render` makes them with the rest).
 
-The clouds of the weather figures are `figs/clouds.py` (recipes) and `blender/render_clouds.py` (the renderer; the model is not needed): each cloud is a few nested
-shells of metaballs, filled with a scattering volume whose density is eroded by noise (a ragged edge, billows on billows) and cut flat at the base where the recipe
-says so, lit by a white sun from the upper left and a blue sky, and rendered on a transparent background as a sprite (`renders/cloud-<kind>.png`:
-cumulus, towering cumulus, cumulonimbus, an anvil, stratus, a veil, nimbostratus, stratocumulus, altocumulus, a lens, a roll, cirrus). `npm run plates:render:clouds`
-makes them (`--cloud <id>` and `--quick` after `--`; a few minutes each, the towers longest). A weather figure keeps its old diagram (the arrows, the rain, the
+The clouds of the weather figures are `figs/clouds.py` (recipes) and `blender/render_clouds.py` (the renderer; the model is not needed). A cloud is a few volumes of a
+scattering medium lit by a physical sky and a white sun from the upper left: the heaps (cumulus, towering cumulus, the tower and the anvil of a cumulonimbus, a roll, the
+fields of cloudlets of altocumulus and stratocumulus) are metaballs made into a closed mesh and then, by geometry nodes, into a grid whose density rises gently from the surface,
+times a noise pattern that eats it into billows and wisps and is cut flat at the foot where the recipe says so; the layers (stratus, nimbostratus, a veil, cirrus) are a box whose
+shader carries the whole pattern (a thickness that tapers and follows a slow noise, a foot ragged by noise, fibres of stretched ridged noise). Each is rendered on a transparent
+background as a sprite (`renders/cloud-<kind>.png`: cumulus, towering cumulus, cumulonimbus, a dying anvil, stratus, a veil, nimbostratus, stratocumulus, altocumulus, a stack of
+lenses, a roll, cirrus). `npm run plates:render:clouds` makes them (`--cloud <id>`, `--quick`, `--pixels`, `--samples`, `--set '{...}'` and `--suffix` after `--`; a minute or two for
+the layers, ten to twenty for the towers, about two hours in all on four cores). A weather figure keeps its old diagram (the arrows, the rain, the
 numbered callouts), takes the outlined clouds out with `"remove"`, puts a sky behind it with `"replace"` and lays the clouds in with a `"drop"` of the kind that
 only inserts (the same text twice): a sprite overlay names the cloud, gives its place and `"width"`, and `"height"` where the figure wants it taller or thinner than
 the cloud is; `"tint"` paints a cloud the colour of dust.
@@ -94,7 +97,7 @@ and the viewer keep the 172N's.
 ```bash
 npm run plates:fine       # the dials at 1024 px a cell (the model carries 512), once        -> handbook/cache/ (not kept)
 npm run plates:render     # the renders in Blender, 5 to 25 minutes each                      -> handbook/renders/<id>.png
-npm run plates:render:clouds   # the clouds in Blender (no model), a few minutes each          -> handbook/renders/cloud-<kind>.png
+npm run plates:render:clouds   # the clouds in Blender (no model), about two hours in all      -> handbook/renders/cloud-<kind>.png
 npm run plates:build      # compose (build_plates.py), flatten (rasterize.mjs), encode (book_plates.py) -> handbook/out/, handbook/out/book/
 npm run test:plates:py    # the book's rules for artwork, on plates.json, on out/ and on out/book/
 ```

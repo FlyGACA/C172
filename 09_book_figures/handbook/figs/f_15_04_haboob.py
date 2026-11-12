@@ -38,7 +38,7 @@ def plate():
             "remove": REMOVE,
             "replace": [[BACKGROUND, BACKGROUND + SKY], [GROUND, GROUND.replace("#f3f4f6", "#E7DCC3")]],
             "drop": [[FIRST_RAIN, FIRST_RAIN, {"sprites": [
-                {"name": "cloud-cb", "at": [505, -36], "width": 330},
+                {"name": "cloud-stormbase", "at": [486, 70], "width": 250},
                 {"name": "cloud-congestus", "at": [240, 204], "width": 176, "tint": "#C9A06B", "tint_strength": 0.75},
             ]}]],
         },
