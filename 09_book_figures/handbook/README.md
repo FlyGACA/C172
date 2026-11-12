@@ -97,7 +97,7 @@ and the viewer keep the 172N's.
 ```bash
 npm run plates:fine       # the dials at 1024 px a cell (the model carries 512), once        -> handbook/cache/ (not kept)
 npm run plates:render     # the renders in Blender, 5 to 25 minutes each                      -> handbook/renders/<id>.png
-npm run plates:render:clouds   # the clouds in Blender (no model), a few minutes each          -> handbook/renders/cloud-<kind>.png
+npm run plates:render:clouds   # the clouds in Blender (no model), about two hours in all      -> handbook/renders/cloud-<kind>.png
 npm run plates:build      # compose (build_plates.py), flatten (rasterize.mjs), encode (book_plates.py) -> handbook/out/, handbook/out/book/
 npm run test:plates:py    # the book's rules for artwork, on plates.json, on out/ and on out/book/
 ```
