@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <title>Gravity fuel system</title>
+  <desc>High-wing aeroplane fuel system using gravity feed from tanks to engine</desc>
+  <defs>
+    <linearGradient id="fuelGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.45"/>
+    </linearGradient>
+    <linearGradient id="tankGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <linearGradient id="engineGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="60%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+    <filter id="csh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.18"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0,0 8,3 0,6" fill="#f59e0b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="640" height="360" fill="#f8fafc"/>
+  <!-- Wing structure -->
+  <rect x="30" y="40" width="580" height="46" rx="22" fill="#e8eefc" stroke="#334155" stroke-width="2.5" filter="url(#shadow)"/>
+  <!-- Left fuel tank -->
+  <rect x="70" y="48" width="180" height="30" rx="3" fill="url(#tankGrad)" stroke="#334155" stroke-width="1.5"/>
+  <rect x="71" y="58" width="178" height="19" rx="2" fill="url(#fuelGrad)"/>
+  <line x1="71" y1="58" x2="249" y2="58" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.6"/>
+  <!-- Right fuel tank -->
+  <rect x="390" y="48" width="180" height="30" rx="3" fill="url(#tankGrad)" stroke="#334155" stroke-width="1.5"/>
+  <rect x="391" y="58" width="178" height="19" rx="2" fill="url(#fuelGrad)"/>
+  <line x1="391" y1="58" x2="569" y2="58" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.6"/>
+  <!-- Tank caps -->
+  <line x1="110" y1="40" x2="110" y2="48" stroke="#334155" stroke-width="3"/>
+  <rect x="99" y="31" width="22" height="9" rx="3" fill="#475569" stroke="#334155" stroke-width="1"/>
+  <line x1="530" y1="40" x2="530" y2="48" stroke="#334155" stroke-width="3"/>
+  <rect x="519" y="31" width="22" height="9" rx="3" fill="#475569" stroke="#334155" stroke-width="1"/>
+  <!-- Left vent line -->
+  <polyline points="84,48 84,44 58,44 58,106" stroke="#475569" stroke-width="2" fill="none"/>
+  <line x1="53" y1="106" x2="63" y2="106" stroke="#475569" stroke-width="2"/>
+  <!-- Left flow arrow -->
+  <line x1="58" y1="130" x2="58" y2="118" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <!-- Right vent line -->
+  <polyline points="556,48 556,44 582,44 582,106" stroke="#475569" stroke-width="2" fill="none"/>
+  <line x1="577" y1="106" x2="587" y2="106" stroke="#475569" stroke-width="2"/>
+  <!-- Right flow arrow -->
+  <line x1="582" y1="130" x2="582" y2="118" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <!-- Left tank outlet -->
+  <line x1="160" y1="78" x2="160" y2="86" stroke="#334155" stroke-width="2"/>
+  <rect x="155" y="86" width="10" height="8" rx="2" fill="#475569"/>
+  <!-- Right tank outlet -->
+  <line x1="480" y1="78" x2="480" y2="86" stroke="#334155" stroke-width="2"/>
+  <rect x="475" y="86" width="10" height="8" rx="2" fill="#475569"/>
+  <!-- Left fuel line to selector -->
+  <polyline points="240,78 240,136 305,176" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="240,124 234.6,115 245.4,115" fill="#f59e0b"/>
+  <!-- Right fuel line to selector -->
+  <polyline points="400,78 400,136 335,176" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="400,124 394.6,115 405.4,115" fill="#f59e0b"/>
+  <!-- Fuel selector valve -->
+  <circle cx="320" cy="184" r="17" fill="#f1f5f9" stroke="#334155" stroke-width="2.5" filter="url(#shadow)"/>
+  <line x1="320" y1="192" x2="320" y2="172" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+  <polygon points="320,164 314,174 326,174" fill="#334155"/>
+  <!-- Fuel line from selector to strainer -->
+  <line x1="320" y1="201" x2="320" y2="262" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linejoin="round"/>
+  <polygon points="320,240 314.6,231 325.4,231" fill="#f59e0b"/>
+  <!-- Fuel strainer -->
+  <rect x="304" y="262" width="32" height="38" rx="7" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="305.5" y="270" width="29" height="28" rx="6" fill="#f59e0b" fill-opacity="0.2"/>
+  <line x1="312" y1="268" x2="312" y2="294" stroke="#475569" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="328" y1="268" x2="328" y2="294" stroke="#475569" stroke-width="1" stroke-dasharray="2,2"/>
+  <!-- Fuel line to engine -->
+  <line x1="320" y1="300" x2="320" y2="312" stroke="#334155" stroke-width="2.5"/>
+  <rect x="314" y="312" width="12" height="7" rx="2" fill="#475569"/>
+  <!-- Return/excess fuel line -->
+  <polyline points="336,272 446,272 446,262 470,262" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="430,272 421,266.6 421,277.4" fill="#f59e0b"/>
+  <!-- Engine compartment -->
+  <rect x="440" y="134" width="160" height="80" rx="8" fill="url(#engineGrad)" fill-opacity="0.5" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+  <!-- Engine cylinders -->
+  <rect x="455" y="142" width="24" height="30" rx="4" fill="#f8fafc" stroke="#475569" stroke-width="1.2"/>
+  <rect x="491" y="142" width="24" height="30" rx="4" fill="#f8fafc" stroke="#475569" stroke-width="1.2"/>
+  <rect x="527" y="142" width="24" height="30" rx="4" fill="#f8fafc" stroke="#475569" stroke-width="1.2"/>
+  <rect x="563" y="142" width="24" height="30" rx="4" fill="#f8fafc" stroke="#475569" stroke-width="1.2"/>
+  <!-- Engine block -->
+  <rect x="500" y="214" width="20" height="26" rx="2" fill="#94a3b8" fill-opacity="0.5" stroke="#475569" stroke-width="1.5"/>
+  <!-- Fuel pump/carburetor -->
+  <rect x="470" y="240" width="80" height="40" rx="5" fill="#f8fafc" stroke="#334155" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="471.5" y="260" width="77" height="18.5" rx="3" fill="#f59e0b" fill-opacity="0.2"/>
+  <!-- Fuel line connection -->
+  <line x1="380" y1="272" x2="380" y2="226" stroke="#f59e0b" stroke-width="2"/>
+  <rect x="372" y="204" width="16" height="22" rx="2" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+  <line x1="380" y1="204" x2="380" y2="190" stroke="#334155" stroke-width="2.5"/>
+  <line x1="372" y1="190" x2="388" y2="190" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+  <!-- Dash line -->
+  <polyline points="388,214 418,214 418,158 455,158" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" fill="none"/>
+  <!-- Callout 1: Tank cap -->
+  <line x1="66" y1="18" x2="99" y2="34" stroke="#475569" stroke-width="1.2"/><circle cx="99" cy="34" r="2.2" fill="#475569"/><circle cx="66" cy="18" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="66" y="23" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+  <!-- Callout 2: Vent -->
+  <line x1="30" y1="150" x2="54" y2="128" stroke="#475569" stroke-width="1.2"/><circle cx="54" cy="128" r="2.2" fill="#475569"/><circle cx="30" cy="150" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="30" y="155" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+  <!-- Callout 3: Tank outlet -->
+  <line x1="200" y1="118" x2="165" y2="92" stroke="#475569" stroke-width="1.2"/><circle cx="165" cy="92" r="2.2" fill="#475569"/><circle cx="200" cy="118" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="200" y="123" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+  <!-- Callout 4: Fuel selector -->
+  <line x1="266" y1="206" x2="304" y2="190" stroke="#475569" stroke-width="1.2"/><circle cx="304" cy="190" r="2.2" fill="#475569"/><circle cx="266" cy="206" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="266" y="211" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+  <!-- Callout 5: Fuel strainer -->
+  <line x1="266" y1="300" x2="304" y2="286" stroke="#475569" stroke-width="1.2"/><circle cx="304" cy="286" r="2.2" fill="#475569"/><circle cx="266" cy="300" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="266" y="305" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+  <!-- Callout 6: Fuel pump -->
+  <line x1="346" y1="196" x2="372" y2="210" stroke="#475569" stroke-width="1.2"/><circle cx="372" cy="210" r="2.2" fill="#475569"/><circle cx="346" cy="196" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="346" y="201" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+  <!-- Callout 7: Engine -->
+  <line x1="592" y1="312" x2="550" y2="276" stroke="#475569" stroke-width="1.2"/><circle cx="550" cy="276" r="2.2" fill="#475569"/><circle cx="592" cy="312" r="13" fill="#1e40af" stroke="#1e3a8a" stroke-width="1" filter="url(#csh)"/><text x="592" y="317" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+</svg>

@@ -40,4 +40,6 @@ def sprites():
         dial_sprite("dial-31-04-asi", "ASI", {"ASI": 75}),
         dial_sprite("dial-31-04-alt", "ALT", {"ALT": 1200}),
         dial_sprite("dial-31-04-vsi", "VSI", {"VSI": 700}),
+        # the heading indicator of Figure 9-3, pointing north
+        dial_sprite("dial-09-03-dg", "DG", {"heading": 360}),
     ]

@@ -4,6 +4,8 @@ size (a little larger, so the picture can be read), tinted where the symbol was 
 
     "reskin": {"svg": "fig-18-06-circuit.svg", "grow": 1.7, "grow_side": 1.4, "remove": [regex, ...],
                "drop": [[from text, up to text]], "sprites": [sprite overlays with "at"], "markup": "svg markup"}  (the last three: a stretch of the old drawing replaced)
+    "reskin": {"svg": ..., "blank": True, "layers": ["svg markup", {"name": "cloud-cb", "at": [x, y], "width": w}, ...]}   a new drawing on the old figure's canvas
+               (figs/scene.py makes the skies, the land, the arrows), drawn in order from the back to the front
 
 build_plates.py writes the result to cache/flat-src/<id>.svg like any plate; rasterize.mjs and book_plates.py do the rest."""
 import math
@@ -52,6 +54,13 @@ def reskin(plate, sprite_markup, sprite_aspect):
     cfg = plate["reskin"]
     with open(os.path.join(HERE, "old", cfg["svg"]), encoding="utf-8") as f:
         svg = f.read()
+    if cfg.get("blank"):                                     # a new drawing on the old figure's canvas: its root, title and description and nothing else
+        root = re.search(r"<svg[^>]*>", svg).group(0)
+        cw, ch = plate["canvas"]                              # (the new drawing may be taller or wider than the old one)
+        root = re.sub(r'viewBox="[^"]*"', f'viewBox="0 0 {cw} {ch}"', root)
+        root = re.sub(r'\bwidth="[^"]*"', f'width="{cw}"', root, count=1)
+        root = re.sub(r'\bheight="[^"]*"', f'height="{ch}"', root, count=1)
+        svg = root + "".join(re.findall(r"<title>.*?</title>|<desc>.*?</desc>", svg, re.S)) + "@@INSERT@@</svg>"
     for pattern in cfg.get("remove", []):
         svg = re.sub(pattern, "", svg, flags=re.S)
     for old, new in cfg.get("replace", []):                  # a few words of the old drawing changed (a colour, a ground)
@@ -65,7 +74,10 @@ def reskin(plate, sprite_markup, sprite_aspect):
         extra = spec[2] if len(spec) > 2 else None           # {"before": "...", "sprites": [...], "markup": "..."} for this stretch alone (before: drawn under the sprites); otherwise the figure's own, at the first
         piece = extra.get("before", "") + "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in extra.get("sprites", [])) + extra.get("markup", "") if extra else "@@INSERT@@"
         svg = svg[:a] + piece + svg[b:]
-    insert = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in cfg.get("sprites", [])) + cfg.get("markup", "")
+    if "layers" in cfg:                                      # in order, back to front: a string is markup, a dict is a sprite ("at", "width", ...)
+        insert = "".join(item if isinstance(item, str) else sprite_markup(item, item["at"][0], item["at"][1]) for item in cfg["layers"])
+    else:
+        insert = "".join(sprite_markup(o, o["at"][0], o["at"][1]) for o in cfg.get("sprites", [])) + cfg.get("markup", "")
     if "@@INSERT@@" in svg:
         svg = svg.replace("@@INSERT@@", insert, 1)
     else:                                                    # (under everything else of the old drawing, as its own symbols were: after the white ground)

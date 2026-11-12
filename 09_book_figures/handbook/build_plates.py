@@ -154,7 +154,7 @@ def sprite_source(name):
 
 def sprite_image(o):
     """An overlay {"type": "sprite", "name": "sprite-top", "at": [x, y] or an anchor, "width": canvas units across the aeroplane, "angle": degrees clockwise,
-    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity", "height" (canvas units: stretches the picture, as a thin veil of cloud)}: the
+    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity", "height" (canvas units: stretches the picture, as a thin veil of cloud), "haze", "flip"}: the
     aeroplane of figs/sprites.py as a picture, with its middle on the point. Returns (picture, its size in canvas units)."""
     k = o.get("px", 4.0)                                      # pixels to a canvas unit in the file (the plate itself is flattened at 3)
     source = sprite_source(o["name"])
@@ -167,6 +167,29 @@ def sprite_image(o):
         base = Image.merge("RGB", (r, g, b))
         mixed = Image.blend(base, ImageChops.multiply(base, Image.new("RGB", image.size, rgb)), o.get("tint_strength", 0.5))
         image = Image.merge("RGBA", (*mixed.split(), a))
+    if o.get("haze"):                                         # a distant thing takes the colour of the air: {"colour": "#9FC3EA", "amount": 0.3}
+        hz = o["haze"]
+        rgb = tuple(int(hz["colour"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+        r, g, b, a = image.split()
+        hazed = Image.blend(Image.merge("RGB", (r, g, b)), Image.new("RGB", image.size, rgb), hz.get("amount", 0.3))
+        image = Image.merge("RGBA", (*hazed.split(), a))
+    if o.get("haze_y"):                                       # the far part of a picture (the bottom, for a deck of cloud seen from the ground) takes the colour of the air more:
+        hy = o["haze_y"]                                      # {"colour": "#DCEBF8", "top": 0.0, "bottom": 0.6}
+        rgb = tuple(int(hy["colour"].lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+        r, g, b, a = image.split()
+        ramp = Image.linear_gradient("L").resize(image.size).point(lambda v: round(255 * (hy.get("top", 0.0) + (hy.get("bottom", 0.6) - hy.get("top", 0.0)) * v / 255)))
+        base = Image.merge("RGB", (r, g, b))
+        image = Image.merge("RGBA", (*Image.composite(Image.new("RGB", image.size, rgb), base, ramp).split(), a))
+    if o.get("feather"):                                      # the edges of a picture that a frame cut off fade out: {"x": 0.1, "y": 0.0} (fractions of the width and the height)
+        fx, fy = o["feather"].get("x", 0.0), o["feather"].get("y", 0.0)
+        w, h = image.size
+        xs = [min(1.0, min(i, w - 1 - i) / max(1.0, fx * w)) if fx else 1.0 for i in range(w)]
+        ys = [min(1.0, min(j, h - 1 - j) / max(1.0, fy * h)) if fy else 1.0 for j in range(h)]
+        mask = Image.new("L", (w, h))
+        mask.putdata([round(255 * (3 * a * a - 2 * a ** 3) * (3 * b * b - 2 * b ** 3)) for b in ys for a in xs])
+        image.putalpha(ImageChops.multiply(image.split()[3], mask))
+    if o.get("flip"):                                         # mirrored (another cloud from the same render)
+        image = image.transpose(Image.FLIP_LEFT_RIGHT)
     ol, sh = o.get("outline"), o.get("shadow")
     pad = round(((ol["width"] if ol else 0) + (sh["blur"] * 3 + abs(sh.get("dx", 0)) + abs(sh.get("dy", 0)) if sh else 0) + 1) * k)
     canvas = Image.new("RGBA", (image.width + 2 * pad, image.height + 2 * pad), (0, 0, 0, 0))

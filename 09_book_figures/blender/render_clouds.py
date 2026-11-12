@@ -229,6 +229,36 @@ def kind_stratocumulus(rnd, width=16.0, height=1.8, depth=1.4, rows=2, per_row=5
     return [lumpy(cloudlet_field(rnd, width, per_row, rows, flat=0.46, jitter=0.12, depth=depth))]
 
 
+def kind_deck(rnd, deck=None, **_):
+    """A deck of cloudlets (altocumulus, cirrocumulus, stratocumulus) seen from the ground: rows of puffs of one size on a level some way over the camera, a patch that
+    is long in the middle and short at its rim, with breaks in the rows and clear sky between them, which the perspective camera (the recipe's "view": "deck") turns
+    into rows that shrink and close up towards the horizon."""
+    d = {"h": 8.0, "y0": 12.0, "y1": 48.0, "xw": 30.0, "size": 1.25, "flat": 0.5, "pitch": 3.2, "split": 0.12, "step": 1.5, **(deck or {})}
+    out, yc, hy = [], (d["y0"] + d["y1"]) / 2, (d["y1"] - d["y0"]) / 2
+    wob = (rnd.uniform(0, 6.28), rnd.uniform(0, 6.28))
+    y = d["y0"]
+    while y <= d["y1"]:
+        uy = (y - yc) / hy
+        if abs(uy) < 1.0:
+            half = d["xw"] * 1.25                                              # (the puffs beyond the ellipse are dropped below, by the wavering rim)
+            x = -half
+            while x <= half:
+                if rnd.random() < d["split"]:                                # a break in the row
+                    x += rnd.uniform(1.5, 4.0) * d["size"]
+                    continue
+                u = math.hypot(x / d["xw"], uy)
+                ang = math.atan2(uy, x / d["xw"])
+                u *= 1 + 0.16 * math.sin(4.1 * ang + wob[0]) + 0.11 * math.sin(7.3 * ang + wob[1])        # (a rim that is not a perfect ellipse)
+                if u >= 1.0:
+                    x += d["pitch"]
+                    continue
+                sz = d["size"] * (0.62 + 0.38 * (1 - u)) * rnd.uniform(0.85, 1.2)
+                out += cloudlet(rnd, x, y + rnd.uniform(-0.12, 0.12) * d["pitch"], d["h"] + sz * d["flat"] * rnd.uniform(0.8, 1.5), sz, d["flat"])
+                x += sz * d["step"]
+        y += d["pitch"] * rnd.uniform(0.9, 1.1)
+    return [lumpy(out)]
+
+
 def kind_sheet_parts(rnd, width=18.0, height=1.4, pattern="stratus", depth=None, **_):
     return [sheet_part((0.0, 0.0, 0.0), (width, depth or width * 0.5, height), pattern=pattern)]
 
@@ -241,7 +271,7 @@ def kind_screen_parts(rnd, width=14.0, height=4.0, pattern="cirrus", depth=0.8, 
 KINDS = {
     "cumulus": ("lumpy", kind_cumulus), "congestus": ("lumpy", kind_congestus),
     "cb": ("parts", kind_cb), "anvil": ("parts", kind_anvil), "lenticular": ("parts", kind_lenticular), "roll": ("parts", kind_roll),
-    "altocumulus": ("parts", kind_altocumulus), "stratocumulus": ("parts", kind_stratocumulus),
+    "altocumulus": ("parts", kind_altocumulus), "stratocumulus": ("parts", kind_stratocumulus), "deck": ("deck", kind_deck),
     "stratus": ("parts", lambda rnd, **k: kind_sheet_parts(rnd, pattern="stratus", **k)),
     "nimbostratus": ("parts", lambda rnd, **k: kind_sheet_parts(rnd, pattern="stratus", **k)),
     "veil": ("parts", lambda rnd, **k: kind_screen_parts(rnd, pattern="veil", **k)),
@@ -528,11 +558,12 @@ def render_cloud(recipe, out_path, quick=False):
     rnd = random.Random(recipe.get("seed", 1))
     width = recipe.get("width", 9.0)
     way, make = KINDS[recipe["kind"]]
-    args = {k: v for k, v in recipe.items() if k in ("width", "height", "anvil", "rows", "per_row", "layers", "girth", "depth", "lean", "lens_density", "lens_erode")}
+    args = {k: v for k, v in recipe.items() if k in ("width", "height", "anvil", "rows", "per_row", "layers", "girth", "depth", "lean", "lens_density", "lens_erode", "deck")}
     if way == "lumpy":
         parts = [lumpy(make(rnd, **args))]
     else:
         parts = make(rnd, **args)
+    deck = way == "deck"
     x0, x1, z0, z1 = bounds_of(parts)
     pad = 0.08 * max(x1 - x0, z1 - z0)
     if recipe.get("floor"):
@@ -540,13 +571,16 @@ def render_cloud(recipe, out_path, quick=False):
     x0, x1, z0, z1 = x0 - pad, x1 + pad, z0 - pad, z1 + pad
     elevation = math.radians(recipe.get("elevation", 0.0))                  # a field of cloudlets is seen from a little above
     span_x = x1 - x0
-    span_z = (z1 - z0) * math.cos(elevation) + 2 * depth_of(parts) * math.sin(elevation)
+    span_z = (z1 - z0) * math.cos(elevation) + 2 * depth_of(parts) * abs(math.sin(elevation))      # (a negative elevation looks up at the underside: a deck seen from the ground)
     px = recipe.get("pixels", 1200)
     px_w = recipe.get("pixels_override") or (px // 2 if quick else px)
-    px_h = max(64, round(px_w * span_z / span_x))
+    px_h = max(64, round(px_w * (recipe.get("aspect", 0.4) if deck else span_z / span_x)))
     voxel = max(0.02, recipe.get("voxel", 0.009) * span_x)
     band_unit = recipe.get("band", 0.025) * span_x                           # (the soft edge is a fraction of the cloud, so a big cloud and a small one have the same crispness)
     resolution = max(0.025, 0.005 * span_x)
+    if deck:                                                                 # the puffs are small against the whole patch: the grid and the mesh follow the puff
+        size = recipe.get("deck", {}).get("size", 1.25)
+        voxel, band_unit, resolution = max(0.02, size / 6.5), size * 0.22, max(0.02, size / 9.0)
     for k, part in enumerate(parts):
         mat = volume_material(f"m{k}", recipe, part)
         band = part.get("band", 1.0) * band_unit
@@ -560,14 +594,21 @@ def render_cloud(recipe, out_path, quick=False):
             hard_volume(sc, f"p{k}", mesh_of_box(part["centre"], part["size"]), mat)
     lights_and_sky(sc, recipe)
     cam = bpy.data.cameras.new("cam")
-    cam.type = "ORTHO"
     cam.sensor_fit = "HORIZONTAL"                                           # (the scale is the width, whatever the shape of the picture)
-    cam.ortho_scale = span_x
     co = bpy.data.objects.new("cam", cam)
     sc.collection.objects.link(co)
-    centre = Vector(((x0 + x1) / 2, 0.0, (z0 + z1) / 2))
-    co.location = centre + Vector((0.0, -60.0 * math.cos(elevation), 60.0 * math.sin(elevation)))
-    co.rotation_euler = (math.radians(90) - elevation, 0, 0)
+    if deck:                                                                # from the ground, looking up at the deck, with a lens
+        cam.type = "PERSP"
+        cam.lens_unit = "FOV"
+        cam.angle = math.radians(recipe.get("fov", 70.0))
+        co.location = (0.0, 0.0, 0.0)
+        co.rotation_euler = (math.radians(90.0 + recipe.get("tilt", 22.0)), 0, 0)
+    else:
+        cam.type = "ORTHO"
+        cam.ortho_scale = span_x
+        centre = Vector(((x0 + x1) / 2, 0.0, (z0 + z1) / 2))
+        co.location = centre + Vector((0.0, -60.0 * math.cos(elevation), 60.0 * math.sin(elevation)))
+        co.rotation_euler = (math.radians(90) - elevation, 0, 0)
     sc.camera = co
     sc.render.engine = "CYCLES"
     sc.cycles.device = "CPU"
