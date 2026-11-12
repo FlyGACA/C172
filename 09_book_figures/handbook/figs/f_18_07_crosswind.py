@@ -1,11 +1,13 @@
 """Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind. At the left a card with the sky and the desert in which three windsocks hang from their poles in
 the three states (a slack sleeve, a half-filled one, one blown straight out), drawn as shaded cloth, with the wind coming from the left as a ribbon; over the aerial view of the desert, the
-vector triangle (the wind, its headwind and its crosswind, with the angle between the wind and the runway) as ribbons and runway 33 of asphalt with its dashes, bars and number painted
-(330 degrees, up). The seven numbered callouts of the old figure are kept, in the same order and meaning (figs/scene.py makes the card, the ribbons and the callouts; figs/h_a2.py the
-asphalt, the paint and the windsocks)."""
+vector triangle (the wind, its headwind and its crosswind, with the angle between the wind and the runway) as ribbons and runway 35 of asphalt with its dashes, bars and number painted
+(348 degrees, up). The example is Thumamah's runway 35 (Saudi round: its magnetic direction is 348 degrees in data/saudi_airspace.json) with a wind from 318 degrees at 20 kt, so that the
+angle is still 30 degrees and the triangle is the old one. The seven numbered callouts of the old figure are kept, in the same order and meaning (figs/scene.py makes the card, the ribbons and
+the callouts; figs/h_a2.py the asphalt, the paint and the windsocks)."""
 import math
 
 from figs import h_a2 as H
+from figs import h_b3 as B
 from figs import scene as S
 from figs import terrain
 
@@ -14,6 +16,13 @@ terrain.ensure("terrain-18-07", size=(W * 4, HT * 4), seed=187, kind="plain", fe
 
 U = "a187"
 PAINT = "#F6F3EA"
+# the example: runway 35 of Thumamah, 348 degrees magnetic (the file), and a wind 30 degrees to the left of it
+_RW = next(r for r in B.facts()["oeth"]["runways"] if r["id"] == "35")
+RWY = _RW["id"]                                                        # "35"
+RWY_DEG = round(_RW["magnetic_deg_derived"])                           # 348
+ANGLE = 30
+WIND_DEG = RWY_DEG - ANGLE                                             # 318, from the left of the runway direction
+assert (RWY, RWY_DEG, WIND_DEG) == ("35", 348, 318)
 BLUE, ORANGE, RED = "#1D4ED8", "#B45309", "#B91C1C"
 n = S.n
 
@@ -48,8 +57,8 @@ def labels():
     def word(s_, x, y, colour, height=12.5, anchor="start"):
         return (H.glyph_text(s_, x, y, height, "#FFFFFF", anchor=anchor, stroke="#FFFFFF", stroke_width=3.2, spacing=0.4)
                 + H.glyph_text(s_, x, y, height, colour, anchor=anchor, stroke=colour, stroke_width=0.35, spacing=0.4))
-    return "".join([word("300°", 306, 46, BLUE, 13, "end"), word("20", 392, 134, BLUE, 13.5), word("17", 310, 170.6, ORANGE, 13.5, "end"), word("10", 370, 253.2, RED, 13.5, "middle"),
-                    word("30°", 340, 120, "#1F2937", 12)])
+    return "".join([word(f"{WIND_DEG}°", 306, 46, BLUE, 13, "end"), word("20", 392, 134, BLUE, 13.5), word("17", 310, 170.6, ORANGE, 13.5, "end"), word("10", 370, 253.2, RED, 13.5, "middle"),
+                    word(f"{ANGLE}°", 340, 120, "#1F2937", 12)])
 
 
 def triangle():
@@ -73,11 +82,11 @@ def runway():
            f'<rect x="{x0}" y="{y0}" width="{w}" height="{h}" fill="none" stroke="#10151D" stroke-opacity="0.5" stroke-width="0.5"/>']
     paint = "".join(f'<rect x="576.1" y="{y}" width="1.9" height="13"/>' for y in range(44, 240, 26))
     paint += "".join(f'<rect x="{x - 1.1}" y="302" width="2.2" height="12"/>' for x in (565, 570, 584, 589))
-    paint += H.glyph_text("33", 577, 289, 11.5, PAINT, spacing=1.0, stroke=PAINT, stroke_width=0.4)
+    paint += H.glyph_text(RWY, 577, 289, 11.5, PAINT, spacing=1.0, stroke=PAINT, stroke_width=0.4)
     out.append(f'<g fill="{PAINT}" filter="url(#{U}pw)">{paint}</g>')
     # the runway direction, up, with its number
     out.append(S.ribbon(U + "rd", [(577, 31), (577, 20), (577, 8)], 5.2, "#1F2937", "#566178", head=2.0, tail=0.9))
-    out.append(H.glyph_text("330°", 584, 13, 12.5, "#FFFFFF", anchor="start", stroke="#FFFFFF", stroke_width=3.2, spacing=0.4) + H.glyph_text("330°", 584, 13, 12.5, "#1F2937", anchor="start", stroke="#1F2937", stroke_width=0.35, spacing=0.4))
+    out.append(H.glyph_text(f"{RWY_DEG}°", 584, 13, 12.5, "#FFFFFF", anchor="start", stroke="#FFFFFF", stroke_width=3.2, spacing=0.4) + H.glyph_text(f"{RWY_DEG}°", 584, 13, 12.5, "#1F2937", anchor="start", stroke="#1F2937", stroke_width=0.35, spacing=0.4))
     return "".join(out)
 
 
@@ -100,12 +109,13 @@ def plate():
         "replaces": "fig-18-07-crosswind.svg",
         "book_file": "plate-18-07-crosswind.jpg",
         "caption": "Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind",
-        "desc": "Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind",
+        "desc": ("Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind. The right-hand panel shows runway 35 at Thumamah, taken here as 348°, "
+                 "with its direction up; the vector triangle is drawn to scale."),
         "legend": [
             "Sock hanging down: calm or a light wind.",
             "Sock partly filled: a moderate wind.",
             "Sock straight out: a strong wind. In 1 to 3 the wind blows from the left.",
-            "Wind from 300° at 20 kt.",
+            "Wind from 318° at 20 kt.",
             "Headwind component, 17 kt.",
             "Crosswind component, 10 kt, from the left.",
             "The angle between the wind and the runway direction, 30°.",
