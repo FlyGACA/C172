@@ -23,6 +23,10 @@ rises gently from the surface, so no edge is sharp) times a pattern in the shade
     erode      [low, high]: the noise below `low` is no cloud, above `high` it is full cloud (a narrow range is a ragged cloud)      noise  the size of the noise (27)
     band       the soft edge, as a fraction of the cloud's width (0.025)       voxel  the grid's cell, the same way (0.009)       elevation  look from above, in degrees
     pixels     the width of the picture       samples  path tracing samples (the finished renders use 72 to 240)
+    lean       the anvil of a cumulonimbus: 0 is even about the tower, 0.2 is longer downwind      absorb_white  the scattering colour at the top of a storm cloud (1 is white)
+    per_row    the cloudlets in a row           lens_density, lens_erode   the medium of a stack of lenses
+    taper, end_fade, lens, ragged, gaps, gap_floor, fibre, fibre_scale, curl, haze   the shape of a layer (see volume_material)
+    ambient, sun, rim, fill, exposure, anisotropy, bounces, step_rate   the light and the path tracing (the defaults are 0.5, 4.5, 0.8, 0.7, 0, 0.55, 12 and 1.5)
 """
 import argparse
 import math
