@@ -39,8 +39,8 @@ def plate():
             "drop": [
                 ['<path d="M 222 390 L 222 372', '<circle cx="392" cy="270" r="8"', {"sprites": [{"name": "cloud-veil", "at": [320, 380], "width": 196, "height": 34}]}],
                 ['<path d="M 454 310 L 454 302', '<line x1="472" y1="386" x2="472" y2="350"', {"sprites": [
-                    {"name": "cloud-stratocumulus", "at": [476, 304], "width": 48, "height": 12}, {"name": "cloud-stratocumulus", "at": [528, 304], "width": 48, "height": 12},
-                    {"name": "cloud-stratocumulus", "at": [580, 304], "width": 48, "height": 12}]}],
+                    {"name": "cloud-cumulus-b", "at": [476, 303], "width": 50, "height": 17}, {"name": "cloud-cumulus-b", "at": [529, 304], "width": 46, "height": 15},
+                    {"name": "cloud-cumulus-b", "at": [580, 303], "width": 50, "height": 17}]}],               # (low lumps of stratocumulus: flat-bottomed cumulus, pressed down)
             ],
         },
     }

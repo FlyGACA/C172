@@ -25,6 +25,6 @@ def plate():
         "background": "pale",
         "reskin": {
             "svg": "fig-14-01-atmosphere-layers.svg",
-            "drop": [[CLOUD, BOLT, {"sprites": [{"name": "cloud-cb", "at": [466, 252], "width": 130, "height": 162}]}]],
+            "drop": [[CLOUD, BOLT, {"sprites": [{"name": "cloud-cb", "at": [466, 252], "width": 170, "height": 150}]}]],
         },
     }
