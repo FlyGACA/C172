@@ -184,7 +184,7 @@ def plate():
         "legend": [
             "The Thumamah ATZ, Class G: radius 5 NM, surface to 3 000 ft AMSL.",
             "The Riyadh terminal control areas (East and West), Class C, from 700 ft above the ground: all the ground in the frame except the ATZ and the control zone.",
-            "The Riyadh final director area for runway 15L, Class C, 700 ft above the ground to 11 000 ft AMSL: it covers the ATZ.",
+            "The Riyadh final director area for runway 15L, Class C, 700 ft above the ground to 11 000 ft AMSL: it contains the whole ATZ.",
             "The Riyadh control zone, Class D: radius 10 NM, surface to 4 500 ft AMSL.",
             "The North VRP.",
             "The East VRP.",
