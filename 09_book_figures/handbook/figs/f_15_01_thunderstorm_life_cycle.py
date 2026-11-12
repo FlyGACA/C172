@@ -1,47 +1,77 @@
-"""Figure 15-1. The three stages of a thunderstorm cell. The diagram of the book's figure with the clouds of the model of the sky (reskin.py, figs/clouds.py): the
-outlined circles that stood for a cloud are towering cumulus, cumulonimbus and a dying anvil, on a sky; the arrows, the rain, the hail and the numbered
-callouts are drawn again where the new clouds are."""
+"""Figure 15-1. The three stages of a thunderstorm cell. Three scenes in cards over a plain of the Peninsula: a towering cumulus with its updrafts (cumulus stage), a mature
+cumulonimbus with updrafts and downdrafts side by side, rain, hail, a bolt and the gust front (mature stage), and a spent anvil over a fading tower with light rain
+(dissipating stage); one dashed line across all three marks the freezing level. The clouds are the sprites of figs/clouds.py, the ribbon arrows, the rain and the land come
+from figs/scene.py; the nine numbered callouts of the old figure and their places are kept."""
+from figs import scene as S
 
-SKY = ('<defs><linearGradient id="f1501-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A5C3E6"/><stop offset="1" stop-color="#E6EFF9"/></linearGradient></defs>'
-       '<rect x="0" y="0" width="640" height="340" fill="url(#f1501-sky)"/>')
-FIRST_LINE = '<line x1="213" y1="14" x2="213" y2="340" stroke="#f3f4f6" stroke-width="2"/>'
-START = '<circle cx="70" cy="244" r="22" fill="#9ca3af" stroke="#9ca3af" stroke-width="3"/>'          # the first circle of the first cloud ...
-END = '<circle cx="107" cy="362" r="11" fill="#1f2937"/>'                                              # ... up to the number under the first panel
-BROWN, BLUE = "#b45309", "#1d4ed8"
-
-
-def up(x, tail, tip):
-    return f'<line x1="{x}" y1="{tail}" x2="{x}" y2="{tip + 8}" stroke="{BROWN}" stroke-width="3"/><polygon points="{x},{tip} {x + 5.5},{tip + 10} {x - 5.5},{tip + 10}" fill="{BROWN}"/>'
-
-
-def down(x, tail, tip):
-    return f'<line x1="{x}" y1="{tail}" x2="{x}" y2="{tip - 8}" stroke="{BLUE}" stroke-width="3"/><polygon points="{x},{tip} {x - 5.5},{tip - 10} {x + 5.5},{tip - 10}" fill="{BLUE}"/>'
+CARDS = {1: (6, 6, 200, 330), 2: (220, 6, 200, 330), 3: (434, 6, 200, 330)}
+HZ = 270                                         # the horizon of every card
+ORANGE = ("#E8782E", "#F8BE73")
+BLUE = ("#2F63C8", "#8DB3F2")
+DAY = [(0.0, "#3A74C0"), (0.55, "#7FB0E4"), (0.92, "#D6E7F7"), (1.0, "#F4F1DF")]
+STORM = [(0.0, "#2F3F66"), (0.45, "#5D7099"), (0.9, "#A9B6CC"), (1.0, "#C9D0DA")]
+FADE = [(0.0, "#5E86BE"), (0.5, "#9DBFE6"), (0.92, "#E3EDF7"), (1.0, "#F6EEDA")]
 
 
-def rain(x0, y0, x1, y1, xs, width=1.3, dash="5 5", drift=-6):
-    return "".join(f'<line x1="{x}" y1="{y0 + (6 if i % 2 else 0)}" x2="{x + drift}" y2="{y1}" stroke="{BLUE}" stroke-width="{width}" stroke-dasharray="{dash}"/>' for i, x in enumerate(xs))
+def backs():
+    out = []
+    for k, stops in ((1, DAY), (2, STORM), (3, FADE)):
+        x, y, w, h = CARDS[k]
+        extra = ""
+        if k == 1:
+            extra = S.sun("f1501s1", x + 168, y + 36, 8)
+        if k == 3:
+            extra = S.sun("f1501s3", x + 36, y + 40, 8)
+        out.append(S.card(f"f1501b{k}", x, y, w, h, stops, extra))
+    return "".join(out)
 
 
-def callout(n, cx, cy, tx, ty):
-    return (f'<line x1="{tx}" y1="{ty}" x2="{cx}" y2="{cy}" stroke="#6b7280" stroke-width="1.2"/><circle cx="{cx}" cy="{cy}" r="11" fill="#1f2937"/>'
-            f'<text x="{cx}" y="{cy + 4.6}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">{n}</text>')
+def fronts():
+    out = []
+    for k, tone, houses, palms, acacias in ((1, "day", [(30, 306, 1.0), (150, 300, 0.8)], [(56, 316, 1.1), (176, 314, 1.0)], [(112, 322, 1.0)]),
+                                           (2, "storm", [(236, 304, 0.9)], [(250, 318, 1.0), (404, 314, 1.0)], [(300, 322, 1.1), (352, 328, 1.0)]),
+                                           (3, "dusk", [(450, 302, 0.9), (572, 310, 1.0)], [(470, 316, 1.0), (606, 318, 0.9)], [(530, 324, 1.1)])):
+        x, y, w, h = CARDS[k]
+        body = S.plain(f"f1501g{k}", x, x + w, HZ, y + h, seed=2 + k, tone=tone, houses=houses, palms=palms, acacias=acacias)
+        body += S.altitude_line(x, x + w, 196, "#FFFFFF", 0.85, dash="6 5", width=1.4) + S.snowflake(x + 12, 196)
+        if k == 2:
+            body += (S.rain("f1501r2", 334, 392, 232, 300, slant=-6, count=44, seed=4, colour="#3A63B4", veil=0.26) + S.lightning("f1501l", 266, 238, 292, seed=3)
+                     + S.hailstones([(397, 142), (405, 158), (395, 173), (404, 189), (398, 204), (406, 219)]))
+        if k == 3:
+            body += S.rain("f1501r3", 492, 576, 214, 296, slant=-4, count=24, seed=6, colour="#4F73B8", veil=0.10)
+        out.append(S.card_front(f"f1501f{k}", x, y, w, h, body))
+    return "".join(out)
 
 
-def hail(points):
-    return "".join(f'<circle cx="{x}" cy="{y}" r="3.2" fill="#ffffff" stroke="#1f2937" stroke-width="1.2"/>' for x, y in points)
+def arrows():
+    r = S.ribbon
+    a = []
+    # cumulus stage: updrafts only
+    a += [r("f1501u1", [(88, 318), (88, 270), (88, 214)], 6.0, *ORANGE), r("f1501u2", [(106, 322), (106, 250), (106, 156)], 6.5, *ORANGE), r("f1501u3", [(124, 318), (124, 270), (124, 214)], 6.0, *ORANGE)]
+    # mature stage: updrafts on the left of the tower, downdrafts and rain on the right, the gust front on the ground
+    a += [r("f1501u4", [(287, 322), (286, 240), (286, 140)], 6.0, *ORANGE), r("f1501u5", [(303, 322), (303, 240), (302, 166)], 6.0, *ORANGE),
+          r("f1501d1", [(335, 128), (335, 200), (335, 292)], 6.0, *BLUE), r("f1501d2", [(351, 152), (351, 214), (352, 292)], 6.0, *BLUE),
+          r("f1501g", [(352, 316), (380, 318), (416, 316)], 5.5, *BLUE)]
+    # dissipating stage: downdrafts only
+    a += [r("f1501d3", [(506, 150), (506, 230), (506, 308)], 5.5, *BLUE), r("f1501d4", [(530, 142), (530, 226), (530, 316)], 5.5, *BLUE), r("f1501d5", [(554, 150), (554, 230), (554, 308)], 5.5, *BLUE)]
+    return "".join(a)
 
 
-MARKUP = (
-    # first panel: updrafts only
-    up(88, 330, 196) + up(107, 334, 150) + up(126, 330, 196) + callout(4, 166, 296, 129, 296)
-    # second panel: updrafts on the left of the tower, downdrafts and rain on the right, the gust front on the ground, hail from under the anvil
-    + rain(336, 238, 396, 330, [338, 347, 356, 365, 374, 383, 392]) + up(292, 334, 130) + up(310, 334, 156) + down(338, 126, 300) + down(356, 150, 300)
-    + f'<path d="M 366 306 C 367.7 309.3 371 321.5 376 326 C 381 330.5 390 331.7 396 333 C 402 334.3 409.3 333.6 412 333.7" fill="none" stroke="{BLUE}" stroke-width="3"/>'
-    + f'<polygon points="420,334 409.8,339.1 410.2,328.1" fill="{BLUE}"/>' + hail([(398, 104), (406, 118), (394, 130), (404, 142), (398, 156), (407, 168)])
-    + callout(6, 236, 30, 262, 98) + callout(5, 402, 214, 376, 214) + callout(8, 378, 190, 397, 158) + callout(7, 402, 306, 398, 330) + callout(4, 250, 296, 289, 296)
-    # third panel: downdrafts only, light rain
-    + rain(494, 198, 556, 300, [494, 506, 518, 530, 542, 554], width=1, dash="3 7", drift=-4) + down(506, 140, 318) + down(530, 132, 326) + down(554, 140, 318) + callout(5, 596, 268, 559, 268)
-)
+def callouts():
+    c = S.callout
+    strip = ('<defs><linearGradient id="f1501strip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDF2F9"/><stop offset="1" stop-color="#DCE5F1"/></linearGradient></defs>'
+             '<rect x="0" y="344" width="640" height="40" fill="url(#f1501strip)"/><line x1="0" y1="344" x2="640" y2="344" stroke="#B7C3D6" stroke-width="1"/>')
+    return strip + "".join([c(1, 107, 364), c(2, 320, 364), c(3, 533, 364),
+                            c(4, 166, 296, 128, 296), c(4, 250, 296, 284, 296), c(6, 236, 30, 258, 122), c(5, 402, 214, 356, 214), c(8, 372, 196, 395, 176), c(7, 404, 292, 392, 314),
+                            c(5, 596, 268, 560, 268), c(9, 190, 196)])
+
+
+CLOUDS = [
+    {"name": "cloud-congestus", "at": [106, 186], "width": 140},
+    {"name": "cloud-cb", "at": [320, 172], "width": 200, "height": 190},
+    {"name": "cloud-anvil", "at": [534, 84], "width": 196},
+    {"name": "cloud-congestus", "at": [534, 178], "width": 96, "opacity": 0.5},
+]
 
 
 def plate():
@@ -64,15 +94,6 @@ def plate():
         ],
         "canvas": [640, 384],
         "background": "pale",
-        "reskin": {
-            "svg": "fig-15-01-thunderstorm-life-cycle.svg",
-            "replace": [[FIRST_LINE, SKY + '<line x1="213" y1="14" x2="213" y2="340" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/>'],
-                        ['<line x1="427" y1="14" x2="427" y2="340" stroke="#f3f4f6" stroke-width="2"/>', '<line x1="427" y1="14" x2="427" y2="340" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/>']],
-            "drop": [[START, END, {"sprites": [
-                {"name": "cloud-congestus", "at": [107, 183], "width": 111},
-                {"name": "cloud-cb", "at": [326, 152], "width": 196},
-                {"name": "cloud-anvil", "at": [538, 70], "width": 178},
-                {"name": "cloud-congestus", "at": [527, 142], "width": 86, "opacity": 0.6},
-            ], "markup": MARKUP}]],
-        },
+        "reskin": {"svg": "fig-15-01-thunderstorm-life-cycle.svg", "blank": True,
+                   "layers": ['<rect x="0" y="0" width="640" height="384" fill="#ffffff"/>', backs(), *CLOUDS, fronts(), arrows(), callouts()]},
     }

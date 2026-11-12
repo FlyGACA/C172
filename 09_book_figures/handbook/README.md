@@ -66,11 +66,19 @@ fields of cloudlets of altocumulus and stratocumulus) are metaballs made into a 
 times a noise pattern that eats it into billows and wisps and is cut flat at the foot where the recipe says so; the layers (stratus, nimbostratus, a veil, cirrus) are a box whose
 shader carries the whole pattern (a thickness that tapers and follows a slow noise, a foot ragged by noise, fibres of stretched ridged noise). Each is rendered on a transparent
 background as a sprite (`renders/cloud-<kind>.png`: cumulus, towering cumulus, cumulonimbus, a dying anvil, stratus, a veil, nimbostratus, stratocumulus, altocumulus, a stack of
-lenses, a roll, cirrus). `npm run plates:render:clouds` makes them (`--cloud <id>`, `--quick`, `--pixels`, `--samples`, `--set '{...}'` and `--suffix` after `--`; a minute or two for
+lenses, a roll, cirrus in two patterns, a thick altostratus, a wide cumulus, and the three decks of cirrocumulus, altocumulus and stratocumulus seen from the ground). `npm run plates:render:clouds` makes them (`--cloud <id>`, `--quick`, `--pixels`, `--samples`, `--set '{...}'` and `--suffix` after `--`; a minute or two for
 the layers, ten to twenty for the towers, about two hours in all on four cores). A weather figure keeps its old diagram (the arrows, the rain, the
 numbered callouts), takes the outlined clouds out with `"remove"`, puts a sky behind it with `"replace"` and lays the clouds in with a `"drop"` of the kind that
 only inserts (the same text twice): a sprite overlay names the cloud, gives its place and `"width"`, and `"height"` where the figure wants it taller or thinner than
-the cloud is; `"tint"` paints a cloud the colour of dust.
+the cloud is; `"tint"` paints a cloud the colour of dust; `"haze"` fades a far cloud into the colour of the sky, `"feather"` softens its edge, `"flip"` turns it over.
+
+The weather figures that show a place (14-3, 14-6, 14-7, 14-8, 14-9, 15-1, 15-4, 15-6) are drawn again as **illustrated scenes** on the old figure's canvas: a plate whose
+`"reskin"` has `"blank": True` and `"layers"` starts from nothing and lays strings of SVG and cloud sprites in order, back to front. `figs/scene.py` is the kit: skies and the sun
+and moon, the country of the Peninsula (hills, dunes, a sandy plain with scrub, date palms, acacias, flat-roofed houses, a sea with a dhow, a mountain of rock with strata, gullies
+and a lit and a shaded face, a V valley with a lake of fog), ribbon arrows that curve and carry a shadow, rain, lightning, hail, banks of fog and dust, glass blocks for the fronts,
+rounded cards for the figures that show several places, and the numbered callouts in the book's style. 15-2 keeps its diagram and gets the dark base of a storm and billows of dust.
+The figures that are charts of numbers (14-1, 14-5, 15-3, 15-7, 16-4) stay drawings. The captions, the numbered lists and the callouts are the old figures', in both editions;
+the artwork has no words, only digits, symbols and METAR codes.
 
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
 them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
