@@ -101,6 +101,15 @@ them and removes the figures they replace; then the book's own `build_handbook.p
 again, and `build_plates.py` skips a plate whose render is missing (a re-skinned plate waits only for the pictures of the aeroplane it lays on its drawing,
 and the message names the ones missing; a plate named on the command line is built or fails).
 
+## Real Saudi data (chapters 17, 18 and 26)
+
+Nine of the book's figures show real places and real airspace instead of invented ones: 17-1 (the airspace blocks between Thumamah and Riyadh in a vertical section), 17-6 (the air traffic services along a flight from Riyadh to Thumamah), 17-7 and 17-8 (the worked example, a local flight from Thumamah, in plan and in profile), 18-1 (the plan of Thumamah), 18-2 (naming a runway: Thumamah, and the three parallel runways of Jeddah), 18-6 and 26-1 (the circuit of Thumamah) and 18-7 (relabelled: runway 35 at Thumamah). They draw from two data files that scripts in `data/` build from the `saudi-airspace` repository (pass the path of a checkout, default `/workspace/saudi-airspace`):
+
+- `data/saudi_airspace.json` (`build_saudi_facts.py`): the AIP's values (AIRAC AIP AMDT 11/26, effective 2026-10-29) for Thumamah, Riyadh, Jeddah and Red Sea, the polygons of the airspace blocks and of the special use areas, and the numbers derived from them, marked `_derived` (distances, bearings, magnetic directions, the legs of the worked example). Before it was used, every value of AD 2 OETH was compared with the official page (54 values, all found verbatim) and the runway thresholds of Jeddah and Red Sea with theirs.
+- `data/oeth_plan.json` (`build_oeth_plan.py`): the outlines of Thumamah in the runway frame. The runway, its stopways and its thresholds are the AIP's; the pavements, buildings, road and berm were traced by the `saudi-airspace` project from satellite imagery (Esri World Imagery, captured 2024-12-21, edges ±10 m). Outlines only: no imagery pixels are in the files or in the pictures.
+
+The legends of these figures are the ones in the book's chapters (not the old figures' lists), and the pictures say "not for navigation". The book's `docs/saudi-examples.md` records the sources, what was compared and the open items.
+
 ## What changed against the figures it replaces
 
 The old figures were drawn by hand as flat vectors: a toy aeroplane in 5-1, a lens-shaped section with no camber in 5-2, a
