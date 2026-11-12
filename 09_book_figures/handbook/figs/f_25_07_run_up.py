@@ -1,4 +1,6 @@
 """Figure 25-7. A run-up position: into wind, on a clean surface, with nothing in the propeller blast. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -20,5 +22,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-25-07-run-up.svg"},
+        "reskin": h_plan.layer({"svg": "fig-25-07-run-up.svg", "remove": [r'<circle cx="[\d.]+" cy="[\d.]+" r="1\.3" fill="#b45309"/>']}, "terrain-25-07", seed=257, kind="plain", veil=0.30, fills={"#f3f4f6": "concrete", "#fdf0e1": "gravel"}),
     }

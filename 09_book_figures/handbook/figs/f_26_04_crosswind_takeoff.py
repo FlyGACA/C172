@@ -1,4 +1,6 @@
 """Figure 26-4. A crosswind takeoff from above, with the control positions at each stage. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -19,5 +21,5 @@ def plate():
         ],
         "canvas": [640, 330],
         "background": "pale",
-        "reskin": {"svg": "fig-26-04-crosswind-takeoff.svg"},
+        "reskin": h_plan.layer({"svg": "fig-26-04-crosswind-takeoff.svg"}, "terrain-26-04", seed=26, kind='plain', veil=0.3),
     }

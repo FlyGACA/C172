@@ -83,6 +83,16 @@ and the float of the carburettor, the battery, the master switch and the alterna
 sprites of `figs/sprites.py`, with a heading indicator `dial-09-03-dg` added; `npm run plates:render` makes them). The figures that are charts of numbers (14-1, 14-5, 15-3, 15-7, 16-4) stay drawings. The captions, the numbered lists and the callouts are the old figures', in both editions;
 the artwork has no words, only digits, symbols and METAR codes.
 
+The figures that show a manoeuvre, a pattern or a piece of country from above (18-6, 25-6, 25-7, 26-4, 26-5, 27-2, 27-5, 27-7, 27-8, 28-8, 30-2, 30-3, 30-4) keep their diagrams and lie
+on an **aerial view of the country**. `figs/terrain.py` makes it (numpy and Pillow, a few seconds a picture, the same picture for the same seed; it is written to
+`renders/terrain-*.png`, which are not kept in git, so a plate's module asks for it as it is imported): gravel and sand shaded as a height field, dry beds, bushes, tracks, circles of
+irrigated crop (one of them may lie fallow), villages, a concrete apron in slabs, a salt flat cracked into plates, soft sand, gravel strewn with stones, a wall of billowing dust, and
+`piece()` cuts any of these to a shape: a framed tile of a figure, a hill given a dome so that the light finds slopes on it, a dry river bed between its banks. `figs/h_plan.py` is what such
+a figure takes from the kit: `layer()` puts the terrain under the old drawing and gives its flat grey, pale and tinted rectangles a surface (asphalt with a shoulder and edge lines, a
+tarred road, a taxiway, a slab of concrete, a crop, a ploughed plot, gravel, a flat roof), `panel()` makes a card with a sky for the side view that shares the canvas, and `path_points()`
+samples a curve of the old drawing to cut a picture to it; `reskin.py`'s `"halo"` puts a white casing under every line and word of the old drawing so that it can be read on the picture.
+The ground is soft on purpose: the book takes a JPEG of 800 kB at most, and fine grain costs most.
+
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at
 them and removes the figures they replace; then the book's own `build_handbook.py --swap` and `build_review_packet.py`. The raw renders
 (`renders/`) and the web SVGs (`out/<id>.svg`) of these plates are **not kept in git** (they are large): `npm run plates:render` makes them

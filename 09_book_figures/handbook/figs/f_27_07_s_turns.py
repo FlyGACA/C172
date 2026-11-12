@@ -1,4 +1,6 @@
 """Figure 27-7. S-turns across a road: the bank changes in each half circle. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -20,5 +22,5 @@ def plate():
         ],
         "canvas": [640, 420],
         "background": "pale",
-        "reskin": {"svg": "fig-27-07-s-turns.svg"},
+        "reskin": h_plan.layer({"svg": "fig-27-07-s-turns.svg"}, "terrain-27-07", seed=27, kind='farm', veil=0.26, fields=[(0.2, 0.2, 0.07), (0.82, 0.8, 0.07)]),
     }

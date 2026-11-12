@@ -1,4 +1,6 @@
 """Figure 18-6. The aerodrome traffic circuit from above and from the side. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -22,5 +24,5 @@ def plate():
         ],
         "canvas": [640, 610],
         "background": "pale",
-        "reskin": {"svg": "fig-18-06-circuit.svg"},
+        "reskin": h_plan.layer({"svg": "fig-18-06-circuit.svg"}, "terrain-18-06", seed=186, kind="plain", veil=0.30, markup=h_plan.panel("hp186", 8, 394, 624, 208, ground_y=578)),
     }

@@ -1,4 +1,6 @@
 """Figure 25-6. Holding the controls while taxiing a nosewheel aeroplane in wind. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+from figs import h_plan
+
 
 
 def plate():
@@ -16,5 +18,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-25-06-taxi-wind.svg"},
+        "reskin": h_plan.layer({"svg": "fig-25-06-taxi-wind.svg"}, "terrain-25-06", seed=256, kind="apron", features=("tyres",), veil=0.0, soft=1.0, markup='<line x1="320" y1="0" x2="320" y2="400" stroke="#2B2A25" stroke-opacity="0.22" stroke-width="5.4"/><line x1="320" y1="0" x2="320" y2="400" stroke="#F2BE2B" stroke-width="3"/>'),
     }
