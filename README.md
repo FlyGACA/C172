@@ -32,6 +32,19 @@ python3 -m http.server 8000
 
 ![Book figure S-4: major components of the aircraft](09_book_figures/out/preview/aircraft-exterior.en.png)
 
+## Explore the model and its references
+
+Start with [Phase 8](08_realistic_digital_twin/) for the Blender model or [Phase 9](09_book_figures/) for book figures. Use the [shape reference](08_realistic_digital_twin/docs/05_shape_reference.md) and [parts index](08_realistic_digital_twin/docs/06_parts_index.md) to trace geometry and components.
+
+```mermaid
+flowchart LR
+    N0["Three-view reference"]
+    N1["Blender airframe and systems"]
+    N2["GLB exports and browser viewer"]
+    N0 --> N1
+    N1 --> N2
+```
+
 ## Phases
 
 | # | Folder | Contents |
