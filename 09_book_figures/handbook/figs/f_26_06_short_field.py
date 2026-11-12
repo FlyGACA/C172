@@ -16,17 +16,17 @@ LOWER = [(70, 297.4, 4, 30), (262, 410, -9, 30)]
 
 
 def world_a():
-    land = H.mast(430, GYA + 1.5, 48, 12, 4)
+    land = H.mast(430, GYA + 1.5, 48, 12, 4) + H.windsock(608, GYA - 6.5, 24, wind=-1)
     return H.profile("a1a", A, GYA, seed=11, sun=(80, 70), runway_args={"x0": 14, "x1": 330, "threshold": True, "half": 4.2, "dash_from": 30},
                      clouds=[H.cloud("cloud-cumulus-b", 92, 40, 78), H.cloud("cloud-cumulus-a", 372, 34, 74), H.cloud("cloud-cumulus-b", 596, 26, 52, 0.85)],
-                     palms=[(520, GYA - 6, 0.55), (538, GYA - 5, 0.45)], acacias=[(610, GYA - 5, 0.5)], objects=land)
+                     palms=[(520, GYA - 6, 0.55), (538, GYA - 5, 0.45)], objects=land)
 
 
 def world_b():
-    land = H.mast(130, GYB + 1.5, 48, 12, 4)
+    land = H.mast(130, GYB + 1.5, 48, 12, 4) + H.windsock(598, GYB - 6.5, 24, wind=-1)
     return H.profile("a1b", B, GYB, seed=17, sun=(80, 70), runway_args={"x0": 190, "x1": 630, "threshold": True, "aim": 215, "half": 4.2, "dash_from": 240},
                      clouds=[H.cloud("cloud-cumulus-a", 330, 262, 84), H.cloud("cloud-cumulus-b", 520, 300, 74), H.cloud("cloud-cumulus-b", 594, 250, 52, 0.85)],
-                     palms=[(60, GYB - 6, 0.55), (78, GYB - 4, 0.45)], acacias=[(590, GYB - 5, 0.5)], objects=land)
+                     palms=[(60, GYB - 6, 0.55), (78, GYB - 4, 0.45)], objects=land)
 
 
 def paths():

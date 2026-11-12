@@ -459,3 +459,32 @@ def control_tower(x, gy, h=36.0, shaft=7.0, cab=17.0):
            f'<rect x="{n(x - cab / 2 - 2)}" y="{n(top - 1.6)}" width="{n(cab + 4)}" height="2.8" rx="1" fill="#E7ECF3" stroke="#7C8798" stroke-width="0.5"/>',
            f'<line x1="{n(x)}" y1="{n(top - 1.6)}" x2="{n(x)}" y2="{n(top - 8)}" stroke="#7C8798" stroke-width="0.9"/><circle cx="{n(x)}" cy="{n(top - 8.4)}" r="1.2" fill="#E5322B"/>']
     return "".join(out)
+
+
+def glass_prism(uid, poly, dx=12.0, dy=10.0, fill="#7FA6F2", front=0.34, ink="#1D4ED8", top_fill="#E4EFFF", side_fill="#3F6FD0"):
+    """A block of airspace as a pane of glass with depth: the profile polygon (rectilinear, in canvas units) is the front face; the block runs back and up to the right by (dx, dy), so
+    that the top faces and the right faces show. The front is a translucent fill with a gloss, a white edge and a thin line in the colour of the class; the back and the sides are
+    fainter. Returns markup (draw the terrain first, then this, then whatever stands in front)."""
+    m = len(poly)
+    area = 0.5 * sum(poly[i][0] * poly[(i + 1) % m][1] - poly[(i + 1) % m][0] * poly[i][1] for i in range(m))
+    sgn = 1 if area > 0 else -1
+    xs, ys = [p[0] for p in poly], [p[1] for p in poly]
+    out = [f'<defs>{S.gradient(uid + "f", [(0, fill, front + 0.12), (1, fill, front * 0.7)])}'
+           f'<linearGradient id="{uid}g" gradientUnits="userSpaceOnUse" x1="{n(min(xs))}" y1="{n(min(ys))}" x2="{n(min(xs) + (max(xs) - min(xs)) * 0.7 + 40)}" y2="{n(max(ys))}">'
+           f'<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.08"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>']
+    back = [(x + dx, y - dy) for x, y in poly]
+    out.append(f'<polygon points="{pts(back)}" fill="{fill}" fill-opacity="{n(front * 0.45)}" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="0.8" stroke-linejoin="round"/>')
+    for i in range(m):
+        p, q = poly[i], poly[(i + 1) % m]
+        ex, ey = q[0] - p[0], q[1] - p[1]
+        d = math.hypot(ex, ey) or 1.0
+        nx, ny = sgn * ey / d, -sgn * ex / d
+        quad = [p, q, (q[0] + dx, q[1] - dy), (p[0] + dx, p[1] - dy)]
+        if ny < -0.5:
+            out.append(f'<polygon points="{pts(quad)}" fill="{top_fill}" fill-opacity="0.62" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="0.9" stroke-linejoin="round"/>')
+        elif nx > 0.5:
+            out.append(f'<polygon points="{pts(quad)}" fill="{side_fill}" fill-opacity="0.34" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="0.9" stroke-linejoin="round"/>')
+    out.append(f'<polygon points="{pts(poly)}" fill="url(#{uid}f)"/><polygon points="{pts(poly)}" fill="url(#{uid}g)"/>')
+    out.append(f'<polygon points="{pts(poly)}" fill="none" stroke="{ink}" stroke-opacity="0.75" stroke-width="1.2" stroke-linejoin="round"/>'
+               f'<polygon points="{pts(poly)}" fill="none" stroke="#FFFFFF" stroke-opacity="0.9" stroke-width="0.7" stroke-linejoin="round" transform="translate(0.5 0.5)"/>')
+    return "".join(out)

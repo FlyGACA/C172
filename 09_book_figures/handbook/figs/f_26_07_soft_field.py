@@ -20,13 +20,13 @@ PATH_DOWN = ("M 20 262 C 31.7 267.7 60 281.3 90 296 C 120 310.7 170 334.7 200 35
 
 
 def world_a():
-    objects = H.grass_strip("a1sa", 8, 632, GYA, 4.6, seed=3) + H.air_block("a1za", 290, 143, 632, GYA + 4.6, colour="#B9D5F5", opacity=0.62)
+    objects = H.grass_strip("a1sa", 8, 632, GYA, 4.6, seed=3) + H.windsock(578, GYA - 6.5, 24, wind=-1) + H.air_block("a1za", 290, 143, 632, GYA + 4.6, colour="#A5C8F2", opacity=0.8)
     return H.profile("a1a", A, GYA, seed=23, sun=(80, 70), clouds=[H.cloud("cloud-cumulus-b", 96, 40, 78), H.cloud("cloud-cumulus-a", 268, 40, 78), H.cloud("cloud-cumulus-b", 560, 24, 48, 0.85)],
                      palms=[(30, GYA - 6, 0.5), (246, GYA - 5, 0.45)], acacias=[(122, GYA - 5, 0.5), (260, GYA - 5, 0.4)], objects=objects)
 
 
 def world_b():
-    objects = H.grass_strip("a1sb", 8, 632, GYB, 4.6, seed=7)
+    objects = H.grass_strip("a1sb", 8, 632, GYB, 4.6, seed=7) + H.windsock(402, GYB - 6.5, 24, wind=-1)
     return H.profile("a1b", B, GYB, seed=29, sun=(80, 70), clouds=[H.cloud("cloud-cumulus-a", 300, 270, 88), H.cloud("cloud-cumulus-b", 520, 258, 70)],
                      palms=[(214, GYB - 6, 0.5), (232, GYB - 4, 0.4)], acacias=[(52, GYB - 5, 0.5)], objects=objects)
 

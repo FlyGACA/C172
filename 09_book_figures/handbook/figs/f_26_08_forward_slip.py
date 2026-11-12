@@ -6,7 +6,7 @@ from figs import h_a1 as H
 from figs import scene as S
 from figs import terrain
 
-terrain.ensure("terrain-26-08", size=(2560, 1600), seed=26, kind="plain", features=("scrub", "wadis"), veil=0.3, soft=2.6)
+terrain.ensure("terrain-26-08", size=(2560, 1600), seed=26, kind="plain", features=("scrub", "wadis"), veil=0.4, soft=3.6)
 
 TL = (8, 8, 306, 242)
 TR = (326, 8, 306, 242)
@@ -26,6 +26,7 @@ def top_left():
              '<polygon points="170.2,91 178,92.4 178,111 170.2,111.6" fill="#1D4ED8"/></g>')
     out = H.profile("a1tl", TL, GYT, seed=31, sun=(70, 60), far=22, mid=10, base=14, clouds=[H.cloud("cloud-cumulus-b", 270, 150, 40, 0.9)],
                     palms=[(262, GYT + 14, 0.5)], acacias=[(40, GYT + 18, 0.5)], scrub_count=14)
+    out.append(H.windsock(286, GYT + 12, 20, wind=1))
     out.append(S.ribbon("a1lift", [(168, 118), (159, 78), (149, 40)], 6.5, *BLUE))
     out.append({"name": "sprite-rear", "at": [169.1, 121.2], "width": 210, "angle": -18, **H.LOOK})
     out.append(marks)

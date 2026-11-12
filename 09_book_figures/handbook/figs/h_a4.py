@@ -174,8 +174,8 @@ def bezel(uid, cx, cy, r_in, r_out, labels, bold=(), step=10, major=30, fill="#1
 # ------------------------------------------------------------------------------------------------------------------ the station
 def vor_top(uid, cx, cy, k=1.0, pad=True, shed=True):
     """A VOR/DME station seen from above: a square concrete pad, a hexagonal white building (a flat roof with a parapet) with a dome in the middle, a small equipment shed for
-    the DME, and the long soft shadows the sun from the upper left throws. `k` is the scale (the hexagon's circumradius is 12 k)."""
-    R = 12.0 * k
+    the DME, and the long soft shadows the sun from the upper left throws. `k` is the scale (the hexagon's circumradius is 14 k)."""
+    R = 14.0 * k
     hexa = lambda r, ox=0.0, oy=0.0: [(cx + ox + r * math.cos(math.radians(a)), cy + oy + r * math.sin(math.radians(a))) for a in range(0, 360, 60)]
     out = [f'<defs><filter id="{uid}b" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="{n(1.7 * k)}"/></filter>'
            f'{S.gradient(uid + "w", [(0, "#FFFFFF"), (1, "#D5DCE8")], cx - R, cy - R, cx + R, cy + R, "userSpaceOnUse")}'
@@ -183,14 +183,14 @@ def vor_top(uid, cx, cy, k=1.0, pad=True, shed=True):
            f'<radialGradient id="{uid}d" cx="0.34" cy="0.3" r="0.8"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.45" stop-color="#E2E8F2"/><stop offset="1" stop-color="#8E9CB6"/></radialGradient>'
            f'{S.gradient(uid + "p", [(0, "#EFE8D6"), (1, "#D8CFB6")], cx - 26 * k, cy - 26 * k, cx + 26 * k, cy + 26 * k, "userSpaceOnUse")}</defs>']
     if pad:
-        half = 24.0 * k
+        half = 21.5 * k
         out.append(f'<rect x="{n(cx - half + 3 * k)}" y="{n(cy - half + 4 * k)}" width="{n(2 * half)}" height="{n(2 * half)}" rx="{n(2.5 * k)}" fill="#3A2E1E" opacity="0.30" filter="url(#{uid}b)"/>')
         out.append(f'<rect x="{n(cx - half)}" y="{n(cy - half)}" width="{n(2 * half)}" height="{n(2 * half)}" rx="{n(2.5 * k)}" fill="url(#{uid}p)" stroke="#B9AE92" stroke-width="{n(0.9 * k)}"/>')
         out.append(f'<rect x="{n(cx - half + 3.0 * k)}" y="{n(cy - half + 3.0 * k)}" width="{n(2 * half - 6.0 * k)}" height="{n(2 * half - 6.0 * k)}" fill="none" stroke="#6E6350" stroke-opacity="0.75" stroke-width="{n(0.55 * k)}" stroke-dasharray="{n(1.1 * k)} {n(1.5 * k)}"/>')
     # shadow of the building: the hexagon pushed down and to the right, and a longer, fainter one from the dome
     out.append(f'<polygon points="{pts(hexa(R, 4.2 * k, 5.2 * k))}" fill="#2C2216" opacity="0.38" filter="url(#{uid}b)"/>')
     if shed:
-        sx, sy = cx + 13.5 * k, cy + 13.5 * k
+        sx, sy = cx + 15.5 * k, cy + 14.5 * k
         out.append(f'<rect x="{n(sx - 3 * k + 2 * k)}" y="{n(sy - 2.4 * k + 2.4 * k)}" width="{n(10 * k)}" height="{n(6.6 * k)}" fill="#2C2216" opacity="0.34" filter="url(#{uid}b)"/>'
                    f'<rect x="{n(sx - 3 * k)}" y="{n(sy - 2.4 * k)}" width="{n(10 * k)}" height="{n(6.6 * k)}" rx="{n(0.8 * k)}" fill="url(#{uid}r)" stroke="#A9B4C6" stroke-width="{n(0.6 * k)}"/>'
                    f'<rect x="{n(sx - 1.8 * k)}" y="{n(sy - 1.2 * k)}" width="{n(7.6 * k)}" height="{n(4.2 * k)}" fill="none" stroke="#B5C0D2" stroke-width="{n(0.5 * k)}"/>')
@@ -435,8 +435,6 @@ def ruler(uid, x0, y0, length, height, zero, per_unit, ticks, labels, step_minor
            f'<rect x="{n(x0)}" y="{n(y0)}" width="{n(length)}" height="{n(height)}" rx="3" fill="url(#{uid}m)" stroke="#8795AB" stroke-width="0.9" filter="url(#{uid}s)"/>',
            f'<rect x="{n(x0 + 1)}" y="{n(y0 + 1)}" width="{n(length - 2)}" height="1.8" rx="0.9" fill="#FFFFFF" opacity="0.9"/>',
            f'<rect x="{n(x0 + 1)}" y="{n(y0 + height - 2.4)}" width="{n(length - 2)}" height="1.4" rx="0.7" fill="#6F7E95" opacity="0.35"/>']
-    for i in range(0, 90):
-        pass
     vals = sorted(set(list(ticks) + ([v for v in range(0, 200, step_minor)] if step_minor else [])))
     for v in vals:
         x = zero + v * per_unit

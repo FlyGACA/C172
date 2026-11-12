@@ -23,15 +23,15 @@ def track_points():
 
 
 def plate():
-    st = H.vor_top("a3s", STN[0], STN[1], 1.32)
+    st = H.vor_top("a3s", STN[0], STN[1], 1.2)
     layers = [{"name": "terrain-21-03", "at": [320, 205], "width": 640}]
     # the 120 radial: a ray of light from the station to the aeroplane's starting point
-    layers.append(H.rays("a3y", STN[0], STN[1], [120], 30, 160, w0=1.4, w1=3.6, a0=1.0, a1=0.75, glow=5.6, glow_opacity=0.62))
+    layers.append(H.rays("a3y", STN[0], STN[1], [120], 20, 160, w0=1.4, w1=3.6, a0=1.0, a1=0.75, glow=5.6, glow_opacity=0.62))
     # dotted threads from the three places to their displays
     layers.append(H.dotted([(239.9, 375.0), (512, 330.5)]) + H.dotted([(279.3, 213.2), (512, 235.0)]) + H.dotted([(382.8, 146.5), (512, 140.0)]))
     # the 060 radial, the track, the wind
     layers.append(H.ribbon("a3t", track_points(), width=3.8, colours=("#1B2433", "#586377"), head=1.0, arrow=False, casing=1.8, per=10))
-    layers.append(H.ribbon("a3r", [(96 + 42 * math.sin(math.radians(60)), 300 - 42 * math.cos(math.radians(60))), (480.0, 78.5)], width=5.8, colours=H.BLUE, head=2.1))
+    layers.append(H.ribbon("a3r", [(96 + 24 * math.sin(math.radians(60)), 300 - 24 * math.cos(math.radians(60))), (480.0, 78.5)], width=5.8, colours=H.BLUE, head=2.1))
     layers.append(H.ribbon("a3w", [(298.8, 72.5), (321.8, 112.3)], width=5.0, colours=H.GREEN, head=2.2, casing=1.8))
     # the heading ahead of the aeroplane on the radial, the 15 degree line through the turn point and the 45 degree angle
     layers.append(H.halo_line(368.8, 142.5, 424.0, 99.4, "#1F2937", 1.4, "4 3"))

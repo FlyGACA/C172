@@ -20,7 +20,8 @@ AWAY = 'M 503.8 242 C 507.5 238.5 518.8 229.3 526.2 220.7 C 533.8 212.1 541.2 20
 
 def scene(uid, box, horizon, seed, clouds):
     x, y, w, h = box
-    return H.profile(uid, box, horizon + 13, seed=seed, sun=(60, 40), far=22, mid=10, base=13, sky=H.horizon_sky((horizon - y) / h), clouds=clouds, scrub_count=10, grain=False)
+    return H.profile(uid, box, horizon + 13, seed=seed, sun=(60, 40), far=22, mid=10, base=13, sky=H.horizon_sky((horizon - y) / h), clouds=clouds, scrub_count=10, grain=False,
+                     palms=[(x + 24, horizon + 11, 0.42), (x + 40, horizon + 13, 0.34)], acacias=[(x + 292, horizon + 12, 0.34)])
 
 
 def throttle(x, y, fill):

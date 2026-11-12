@@ -10,7 +10,7 @@ from figs import scene as S
 
 SKY = [(0.0, "#0E1B42"), (0.34, "#274F9A"), (0.62, "#5F97D6"), (0.84, "#B8D5EE"), (1.0, "#F2EBD5")]
 APEX, RADIUS = 312.0, 1000.0
-AIR = (208.0, 226.0)                      # where the links meet: the antenna on the roof of the aeroplane
+AIR = (218.0, 226.2)                      # where the links meet: the antenna on the roof of the aeroplane
 
 
 def gy(x):

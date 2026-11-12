@@ -166,64 +166,77 @@ def tank(uid, x, y, r=7.0):
 
 
 # ------------------------------------------------------------------------------------------------------------------ windsocks
-SOCK_ORANGE = ("#F59A4B", "#D9661B", "#A94A0E")
-SOCK_WHITE = ("#FFFFFF", "#EEF1F5", "#B9C1CD")
+SOCK_ORANGE = ("#FFB877", "#F0782B", "#B04A0F")
+SOCK_WHITE = ("#FFFFFF", "#EEF1F6", "#A9B4C6")
 
 
-def windsock(uid, px, py, length=34.0, angle=0.0, mouth=7.0, segments=4, droop=0.12, pole=34.0, base=True, shadow=True, flutter=0.0, scale=1.0):
-    """A windsock on a pole whose foot is on (px, py): the pole is `pole` tall and the sock hangs from its top (ring, sleeve of four bands, orange and white), pointing at `angle`
-    degrees from straight down towards the right (0 hangs, 90 streams out to the right). A band is a piece of a cone, shaded across (the top lit, the underside dark) with a soft
-    crease between bands, and the whole sleeve narrows from `mouth` to a third of it. `droop` bends a streaming sock down at its far end. Returns markup."""
+def windsock(uid, px, py, length=34.0, angle=0.0, mouth=7.0, segments=4, droop=0.12, pole=34.0, base=True, shadow=True, flutter=0.0, taper=0.6, wobble=0.0, seed=1):
+    """A windsock on a pole whose foot is on (px, py): the pole is `pole` tall and the sock hangs from a ring on its top, a sleeve of `segments` bands, orange and white, pointing at
+    `angle` degrees from straight down towards the right (0 hangs, 90 streams out to the right). The cloth is shaded across the sleeve (lit on the upper left, dark on the lower
+    right), with a seam between the bands, a few creases along it and a light along its upper edge; `mouth` is the width of the ring and the sleeve narrows to (1 - taper) of it;
+    `droop` bends a sock that streams out down at its far end, `wobble` makes the sleeve of a slack sock uneven and `flutter` waves it. Returns markup."""
+    rnd = random.Random(seed)
     out = []
     tx, ty = px, py - pole
+    a = math.radians(angle)
+    dirx, diry = math.sin(a), math.cos(a)
     if shadow:
-        sh = [(px - 0.7, py), (px + 0.7, py), (px + 0.7 + pole * 0.30 + length * 0.35 * math.sin(math.radians(angle)), py + pole * 0.20 + 2.2), (px - 0.7 + pole * 0.30, py + pole * 0.20)]
+        sh = [(px - 0.8, py), (px + 0.8, py), (px + 0.8 + pole * 0.34, py + pole * 0.20), (px - 0.8 + pole * 0.34, py + pole * 0.20)]
         out.append(f'<defs>{blur_filter(uid + "sk", 1.0)}</defs><polygon points="{pts(sh)}" fill="{SHADOW}" opacity="0.30" filter="url(#{uid}sk)"/>')
     if base:
-        out.append(f'<ellipse cx="{n(px)}" cy="{n(py + 0.6)}" rx="3.4" ry="1.4" fill="#C9CCCF"/><ellipse cx="{n(px)}" cy="{n(py + 0.2)}" rx="2.6" ry="1.0" fill="#8D9299"/>')
-    out.append(f'<line x1="{n(px)}" y1="{n(py)}" x2="{n(tx)}" y2="{n(ty)}" stroke="#7A828E" stroke-width="2.2" stroke-linecap="round"/>'
-               f'<line x1="{n(px - 0.5)}" y1="{n(py)}" x2="{n(tx - 0.5)}" y2="{n(ty)}" stroke="#E6EAEF" stroke-width="0.8" stroke-linecap="round"/>')
-    # the centre line of the sock: from the ring along `angle`, bending down towards the far end
-    a = math.radians(angle)
-    steps = 40
+        out.append(f'<ellipse cx="{n(px)}" cy="{n(py + 0.5)}" rx="{n(3.6)}" ry="1.5" fill="#CFD2D6"/><ellipse cx="{n(px)}" cy="{n(py + 0.1)}" rx="2.6" ry="1.0" fill="#8D9299"/>')
+    out.append(f'<defs><linearGradient id="{uid}pl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F3F5F8"/><stop offset="0.5" stop-color="#B8BFCA"/><stop offset="1" stop-color="#6F7886"/></linearGradient></defs>'
+               f'<polygon points="{pts([(px - 1.2, py), (px + 1.2, py), (tx + 0.8, ty), (tx - 0.8, ty)])}" fill="url(#{uid}pl)"/>')
+    # the centre line of the sock, from the ring along `angle`, bending down towards the far end
+    steps = 48
     centre = []
     for i in range(steps + 1):
         t = i / steps
-        dirx, diry = math.sin(a), math.cos(a)
-        x = tx + length * (dirx * t)
-        y = ty + length * (diry * t) + length * droop * (t ** 2) * (math.sin(a) ** 2) + flutter * math.sin(t * 9) * 1.2
+        x = tx + length * dirx * t
+        y = ty + length * diry * t + length * droop * (t ** 2) * (math.sin(a) ** 2) + flutter * math.sin(t * 9) * 1.2
+        if wobble:
+            x += wobble * length * 0.09 * math.sin(t * 6.0 + 1.3) * t
         centre.append((x, y))
-    radius = lambda t: mouth * 0.5 * (1.0 - 0.62 * t)
     left, right = [], []
     for i, (x, y) in enumerate(centre):
         j0, j1 = max(0, i - 1), min(steps, i + 1)
         dx, dy = centre[j1][0] - centre[j0][0], centre[j1][1] - centre[j0][1]
         nn = math.hypot(dx, dy) or 1.0
         nx, ny = -dy / nn, dx / nn
-        r = radius(i / steps)
+        t = i / steps
+        r = mouth * 0.5 * (1.0 - taper * t) * (1.0 + (wobble * 0.22 * math.sin(t * 9 + 0.7) if wobble else 0.0))
         left.append((x + nx * r, y + ny * r))
         right.append((x - nx * r, y - ny * r))
-    # which edge is the upper one: the one with the smaller y at the middle
+    # the side that faces the light (upper left) is the lit one
     mid = steps // 2
-    upper, lower = (left, right) if left[mid][1] <= right[mid][1] else (right, left)
-    out.append(f'<defs>')
-    for nm, (c1, c2, c3) in (("o", SOCK_ORANGE), ("w", SOCK_WHITE)):
-        out.append(f'<linearGradient id="{uid}{nm}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{c1}"/><stop offset="0.5" stop-color="{c2}"/><stop offset="1" stop-color="{c3}"/></linearGradient>')
-    out.append('</defs>')
+    nx_m, ny_m = left[mid][0] - centre[mid][0], left[mid][1] - centre[mid][1]
+    lit_left = (nx_m + ny_m) < 0
+    lit, dark = (left, right) if lit_left else (right, left)
     per = steps // segments
     for s_ in range(segments):
-        a0, a1 = s_ * per, (s_ + 1) * per
-        poly = upper[a0:a1 + 1] + lower[a0:a1 + 1][::-1]
-        # the gradient runs across the sock, which is not vertical when it streams out: use the local up direction, approximated by a vertical gradient for streaming socks
-        # and by a horizontal-ish one for a hanging sock
-        fill = f"url(#{uid}{'o' if s_ % 2 == 0 else 'w'})"
-        out.append(f'<polygon points="{pts(poly)}" fill="{fill}" stroke="#4A3B2E" stroke-opacity="0.55" stroke-width="0.35" stroke-linejoin="round"/>')
-        # a soft shade over the lower part of the band, a crease at its start
-        out.append(f'<polyline points="{pts([lower[a0], upper[a0]])}" fill="none" stroke="#2B1E12" stroke-opacity="0.28" stroke-width="0.5"/>')
-    # the mouth ring
-    ring = [upper[0], lower[0]]
-    out.append(f'<line x1="{n(ring[0][0])}" y1="{n(ring[0][1])}" x2="{n(ring[1][0])}" y2="{n(ring[1][1])}" stroke="#6C7480" stroke-width="1.3" stroke-linecap="round"/>')
-    out.append(f'<circle cx="{n(tx)}" cy="{n(ty)}" r="1.1" fill="#8D96A3" stroke="#FFFFFF" stroke-width="0.3"/>')
+        a0, a1 = s_ * per, (s_ + 1) * per if s_ < segments - 1 else steps
+        stops = SOCK_ORANGE if s_ % 2 == 0 else SOCK_WHITE
+        m = (a0 + a1) // 2
+        gx0, gy0 = lit[m]
+        gx1, gy1 = dark[m]
+        out.append(f'<defs><linearGradient id="{uid}g{s_}" gradientUnits="userSpaceOnUse" x1="{n(gx0)}" y1="{n(gy0)}" x2="{n(gx1)}" y2="{n(gy1)}">'
+                   f'<stop offset="0" stop-color="{stops[0]}"/><stop offset="0.42" stop-color="{stops[1]}"/><stop offset="1" stop-color="{stops[2]}"/></linearGradient></defs>')
+        poly = lit[a0:a1 + 1] + dark[a0:a1 + 1][::-1]
+        out.append(f'<polygon points="{pts(poly)}" fill="url(#{uid}g{s_})" stroke="#3B2A1C" stroke-opacity="0.45" stroke-width="0.3" stroke-linejoin="round"/>')
+        # a soft seam where the band is sewn to the next
+        out.append(f'<polyline points="{pts([lit[a0], dark[a0]])}" fill="none" stroke="#2B1D12" stroke-opacity="0.22" stroke-width="0.7"/>')
+    # creases along the cloth and the light along its upper edge
+    for f_, op in ((-0.45, 0.10), (0.30, 0.13), (0.62, 0.09)):
+        line = [(c[0] + (d[0] - c[0]) * (0.5 + f_ * 0.5), c[1] + (d[1] - c[1]) * (0.5 + f_ * 0.5)) for c, d in zip(centre[4:-3], dark[4:-3])]
+        out.append(f'<polyline points="{pts(line)}" fill="none" stroke="#1A1208" stroke-opacity="{op}" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round"/>')
+    out.append(f'<polyline points="{pts(lit[2:-1])}" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>')
+    # the open far end, and the wire ring at the mouth (seen almost edge on) with its swivel on the pole
+    ex, ey = centre[-1]
+    rend = mouth * 0.5 * (1.0 - taper)
+    deg = math.degrees(math.atan2(diry, dirx))
+    out.append(f'<ellipse cx="{n(ex)}" cy="{n(ey)}" rx="0.7" ry="{n(rend)}" transform="rotate({n(deg)} {n(ex)} {n(ey)})" fill="#4A2A12" opacity="0.7"/>')
+    out.append(f'<ellipse cx="{n(tx)}" cy="{n(ty)}" rx="0.95" ry="{n(mouth * 0.54)}" transform="rotate({n(deg)} {n(tx)} {n(ty)})" fill="#2A303B" stroke="#C7CFDB" stroke-width="0.5"/>')
+    out.append(f'<circle cx="{n(tx)}" cy="{n(ty)}" r="1.3" fill="#C9D0DA" stroke="#4B5565" stroke-width="0.4"/>')
     return "".join(out)
 
 

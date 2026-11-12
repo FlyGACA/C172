@@ -27,12 +27,12 @@ def plan():
     out.append(H.bezel("a1z", CX, CY, R_IN, R_OUT, labels, bold={60, 240}))
     # the two courses: the 060 radial outbound and the 240 radial (ribbons with casings)
     for a in (60, 240):
-        p0, p1 = H.polar(CX, CY, 30, a), H.polar(CX, CY, 118, a)
+        p0, p1 = H.polar(CX, CY, 26, a), H.polar(CX, CY, 118, a)
         out.append(H.ribbon(f"a1c{a}", [p0, p1], width=5.6, colours=H.BLUE, head=2.1))
     # magnetic north: the arrow above the ring
     out.append(H.ribbon("a1n", [(190, 62), (190, 30)], width=5.0, colours=("#16233D", "#4A5A78"), head=2.3))
     # the station
-    out.append(H.vor_top("a1s", CX, CY, 1.32))
+    out.append(H.vor_top("a1s", CX, CY, 1.2))
     return "".join(out)
 
 

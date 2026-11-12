@@ -1,6 +1,6 @@
 """Figure 23-6. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion. Three illustrated scenes on the old figure's canvas. Above: the leans, three
 pictures of the aeroplane from behind on a wide desert sky (the aeroplane of the model, banked or level, with the pilot's head; the attitude felt drawn over it in blue dashes, the true
-vertical in white dashes; a roll arrow; the pilot leaning in a glass cutaway of the cabin). Below left: the graveyard spiral, the old figure's track as a dark glossy tube (the far side of
+vertical in grey dashes; a roll arrow; the pilot leaning in a glass cutaway of the cabin). Below left: the graveyard spiral, the old figure's track as a dark glossy tube (the far side of
 each loop thinner and paler), the three red beads on it, the sand of the ground. Below right: the somatogravic illusion, the aeroplane nose-up in the sky over a plain, with the two
 forces, what is felt as down, the angle theta and the red arrow that pushing the nose down would follow. The fifteen numbered callouts of the old figure are kept."""
 import math
@@ -17,6 +17,7 @@ RED = ("#B3261E", "#F08A7A")
 GREY = ("#6B7686", "#BAC4D3")
 SKY = [(0.0, "#6F9FD4"), (0.62, "#B9D3EE"), (1.0, "#F2F5F7")]
 FELT = "#1D4ED8"
+GREYDASH = "#7D8799"
 
 SPRITE_W, WING_PX, CENTRE_PX = 1406.0, 68.0, 151.5            # sprite-rear: its width in px, the wing line and the middle of the picture (px from its top)
 
@@ -77,8 +78,8 @@ def top_card():
 
 
 def leans():
-    """The true vertical of the first two pictures, white dashes (the third has its own in front of the cabin)."""
-    return "".join(dashed_line(cx, 168, cx, 40, "#FFFFFF", 1.3, "3 4", halo=False) for cx in (120, 320))
+    """The true vertical of the first two pictures, grey dashes (the third has its own in front of the cabin)."""
+    return "".join(dashed_line(cx, 168, cx, 40, GREYDASH, 1.5, "3.4 3.6") for cx in (120, 320))
 
 
 def planes():
@@ -107,7 +108,7 @@ def cabin():
              f'<ellipse cx="500" cy="82" rx="15" ry="7" fill="#FFFFFF" fill-opacity="0.45" transform="rotate(-24 500 82)"/></g>'
              f'<rect x="481.4" y="67.4" width="77.2" height="77.2" rx="19" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.8"/>')
     out.append(("svg", glass))
-    out.append(("svg", dashed_line(520, 160, 520, 36, "#FFFFFF", 1.3, "3 4", halo=False)))
+    out.append(("svg", dashed_line(520, 160, 520, 36, GREYDASH, 1.5, "3.4 3.6")))
     out.append(("svg", dashed_line(516, 140, 539.9, 70.2, FELT, 1.7, "5 3")))
     return out
 

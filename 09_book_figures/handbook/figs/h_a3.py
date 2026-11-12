@@ -186,7 +186,7 @@ def beam(uid, x0, y0, x1, y1, spread0=0.8, spread1=14.0, colour="#FFF3C8", opaci
 
 
 # ------------------------------------------------------------------------------------------------------------------ ground for plan views
-def terrain_card(name, w_units, h_units, radius=8.0, seed=1, kind="night", features=("scrub", "wadis"), veil=0.0, soft=2.4, px=4, road=None, village=None, fields=None, dim=1.0, flatten=0.0):
+def terrain_card(name, w_units, h_units, radius=8.0, seed=1, kind="night", features=("scrub", "wadis"), veil=0.0, soft=2.4, px=4, road=None, village=None, fields=None, dim=1.0, flatten=0.0, rock_at=None, rock_gain=1.0, rock_contrast=1.0):
     """An aerial view of the country (figs/terrain.py) cut to a card of w_units by h_units with rounded corners, written to renders/<name>.png if it is not there (the same picture for
     the same seed); lay it as a sprite {"name": name, "at": [centre], "width": w_units}. Its corners are transparent, so that it sits in a card made with scene.card."""
     import os
@@ -197,6 +197,20 @@ def terrain_card(name, w_units, h_units, radius=8.0, seed=1, kind="night", featu
         os.makedirs(terrain.RENDERS, exist_ok=True)
         w, h = round(w_units * px), round(h_units * px)
         img = terrain.build(w, h, seed, kind, tuple(features), road, village, fields, False, veil, soft).convert("RGBA")
+        if rock_at:                                                  # bare hills fading in round a point: rock_at = (x fraction, y fraction, radius as a fraction of the height)
+            import numpy as np
+            rock = terrain.build(w, h, seed + 5, "rock", ("wadis",), None, None, None, True, veil, soft).convert("RGBA")
+            fx, fy, rad = rock_at
+            yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+            d = np.sqrt(((xx / w - fx) * w / h) ** 2 + (yy / h - fy) ** 2) / rad
+            d = d + terrain.fractal(w, h, 2.6, np.random.default_rng(seed + 9)) * 0.16
+            m = np.clip(1.25 - d, 0.0, 1.0)
+            m = m * m * (3 - 2 * m)
+            a, b = np.asarray(img).astype(np.float32), np.asarray(rock).astype(np.float32)
+            if rock_gain != 1.0 or rock_contrast != 1.0:
+                bm = b[..., :3].reshape(-1, 3).mean(axis=0)
+                b[..., :3] = (bm + (b[..., :3] - bm) * rock_contrast) * rock_gain
+            img = Image.fromarray(np.clip(a * (1 - m[..., None]) + b * m[..., None], 0, 255).astype(np.uint8), "RGBA")
         if dim != 1.0 or flatten:                                    # darker, and the picture pulled towards its own mean (a quieter ground under a diagram)
             import numpy as np
             arr = np.asarray(img).astype(np.float32)

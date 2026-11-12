@@ -132,7 +132,7 @@ def ruler():
 
 
 def plate():
-    st = H.vor_top("f8s", STN[0], STN[1], 1.1)
+    st = H.vor_top("f8s", STN[0], STN[1], 1.0)
     frame_hole = f'M 0,0 H 640 V 400 H 0 Z M {FRAME[0] + 6},{FRAME[1]} H {FRAME[0] + FRAME[2] - 6} A 6,6 0 0 1 {FRAME[0] + FRAME[2]},{FRAME[1] + 6} V {FRAME[1] + FRAME[3] - 6} A 6,6 0 0 1 {FRAME[0] + FRAME[2] - 6},{FRAME[1] + FRAME[3]} H {FRAME[0] + 6} A 6,6 0 0 1 {FRAME[0]},{FRAME[1] + FRAME[3] - 6} V {FRAME[1] + 6} A 6,6 0 0 1 {FRAME[0] + 6},{FRAME[1]} Z'
     dim = (f'<defs><filter id="f8fs" x="-5%" y="-5%" width="110%" height="112%"><feDropShadow dx="0" dy="3" stdDeviation="3.2" flood-color="#10233F" flood-opacity="0.45"/></filter></defs>'
            f'<path d="{frame_hole}" fill="#1B2740" fill-opacity="0.36" fill-rule="evenodd"/>'

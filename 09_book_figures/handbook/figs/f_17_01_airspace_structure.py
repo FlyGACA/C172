@@ -215,7 +215,7 @@ def finish():
 
 
 def aeroplanes():
-    ifr = {"name": "sprite-side", "at": [X(599) + 1, Y(170)], "width": 42, "tint": "#2F66D6", "tint_strength": 0.66, "outline": {"width": 0.5, "colour": "#13296B", "opacity": 0.8}}
+    ifr = {"name": "sprite-side", "at": [X(599) + 1, Y(170)], "width": 42, "tint": "#2457D8", "tint_strength": 0.72, "outline": {"width": 0.9, "colour": "#FFFFFF", "opacity": 0.95}, "shadow": {"dx": 0.6, "dy": 1.2, "blur": 1.0, "opacity": 0.25}}
     vfr = {"name": "sprite-side", "at": [X(389), Y(258)], "width": 44, "tint": "#202B3C", "tint_strength": 0.78, "outline": {"width": 0.5, "colour": "#0B1220", "opacity": 0.85},
            "shadow": {"dx": 0.8, "dy": 1.6, "blur": 1.4, "opacity": 0.22}}
     arrow = S.ribbon(U + "ar", [(X(392), Y(238)), (X(392), Y(222)), (X(392), Y(200))], width=6, c1="#047857", c2="#34C08A", head=2.0)
