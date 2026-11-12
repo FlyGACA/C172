@@ -108,3 +108,15 @@ and are not approved for flight, maintenance or training credit. Refer to the
 aircraft-specific POH/AFM and Cessna/Lycoming manuals.
 
 [GACAR and Saudi AIP cross-reference](REGULATORY-CROSSWALK.md) — repository topics, official sections, editions and review gaps.
+
+## Independence and licence
+
+FlyGACA is an independent educational project. It is not affiliated with, endorsed by or operated by the
+General Authority of Civil Aviation (GACA / الهيئة العامة للطيران المدني), Textron Aviation (Cessna) or Lycoming.
+Manufacturer and product names are used only to identify the aircraft the model describes; handbook values
+quoted here remain their publishers' material.
+
+The project's own code and models are released under the [MIT License](LICENSE). Third-party material keeps
+its own licence, for example the vendored Three.js build (`08_realistic_digital_twin/vendor/three/LICENSE`).
+
+Security reports: see [SECURITY.md](SECURITY.md).
