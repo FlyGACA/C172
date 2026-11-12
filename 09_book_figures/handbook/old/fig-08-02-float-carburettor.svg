@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <title>Float-type carburettor</title>
+  <desc>How a float carburettor mixes fuel and air, and venturi effect</desc>
+<defs>
+  <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#e2e8f0"/>
+    <stop offset="50%" stop-color="#f8fafc"/>
+    <stop offset="100%" stop-color="#e2e8f0"/>
+  </linearGradient>
+  <linearGradient id="fuelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#b45309" stop-opacity="0.35"/>
+  </linearGradient>
+  <linearGradient id="venturiGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#e8eefc"/>
+    <stop offset="50%" stop-color="#ffffff"/>
+    <stop offset="100%" stop-color="#e8eefc"/>
+  </linearGradient>
+  <linearGradient id="flowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1e40af" stop-opacity="0.2"/>
+    <stop offset="100%" stop-color="#1e40af" stop-opacity="1"/>
+  </linearGradient>
+  <filter id="shd" x="-3%" y="-3%" width="106%" height="106%">
+    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#1e293b" flood-opacity="0.1"/>
+  </filter>
+  <filter id="csh" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+  <marker id="fuelArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+  <marker id="airArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1e40af"/></marker>
+</defs>
+<rect x="0" y="0" width="640" height="360" fill="#ffffff"/>
+
+<!-- Carburettor body outline -->
+<g filter="url(#shd)">
+<polygon points="400,342 400,300 432,222 432,196 400,132 400,20 540,20 540,132 508,196 508,222 540,300 540,342" fill="url(#venturiGrad)" stroke="none"/>
+<polyline points="400,342 400,300 432,222 432,196 400,132 400,20" fill="none" stroke="#475569" stroke-width="2.5"/>
+<polyline points="540,342 540,300 508,222 508,196 540,132 540,20" fill="none" stroke="#475569" stroke-width="2.5"/>
+</g>
+
+<!-- Venturi jet nozzles -->
+<polygon points="432.0,222.0 432.0,180.0 424.0,168.0 440.0,176.0 446.0,190.0 441.0,204.0 446.0,214.0 438.0,222.0" fill="#ffffff" stroke="#1e40af" stroke-width="1.8"/>
+<polygon points="508.0,222.0 508.0,180.0 516.0,168.0 500.0,176.0 494.0,190.0 499.0,204.0 494.0,214.0 502.0,222.0" fill="#ffffff" stroke="#1e40af" stroke-width="1.8"/>
+
+<!-- Main fuel jet (upper) -->
+<polygon points="410.5,121.2 434.5,114.2 438.5,129.2 416.5,135.2" fill="#ffffff" stroke="#1e40af" stroke-width="1.8"/>
+<polygon points="529.5,86.8 505.5,93.8 501.5,78.8 523.5,72.8" fill="#ffffff" stroke="#1e40af" stroke-width="1.8"/>
+
+<!-- Float needle valve -->
+<line x1="412.5" y1="127.2" x2="527.5" y2="80.8" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+<circle cx="470" cy="104" r="5" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+
+<!-- Float chamber -->
+<g filter="url(#shd)">
+<rect x="150" y="150" width="170" height="150" rx="4" fill="url(#bodyGrad)" stroke="#475569" stroke-width="2.5"/>
+<!-- Fuel level -->
+<rect x="151.5" y="214" width="167" height="84.5" fill="url(#fuelGrad)"/>
+<line x1="151.5" y1="214" x2="318.5" y2="214" stroke="#b45309" stroke-width="2" stroke-dasharray="6 3"/>
+</g>
+
+<!-- Float -->
+<rect x="196" y="198" width="74" height="30" rx="8" fill="#94a3b8" stroke="#475569" stroke-width="1.8"/>
+
+<!-- Fuel inlet pipe -->
+<rect x="60" y="112" width="170" height="14" rx="2" fill="url(#fuelGrad)" stroke="#475569" stroke-width="1.8"/>
+<rect x="216" y="112" width="14" height="40" rx="2" fill="url(#fuelGrad)" stroke="#475569" stroke-width="1.8"/>
+
+<!-- Float valve mechanism -->
+<polygon points="217,166 229,166 223,150" fill="#475569"/>
+<line x1="223" y1="166" x2="223" y2="198" stroke="#475569" stroke-width="2.5"/>
+
+<!-- Fuel flow arrow -->
+<line x1="70.0" y1="119.0" x2="108.0" y2="119.0" stroke="#b45309" stroke-width="3"/><polygon points="118.0,119.0 108.0,114.0 108.0,124.0" fill="#b45309"/>
+
+<!-- Discharge nozzle to venturi -->
+<polygon points="300,300 300,316 382,316 382,215 416,215 416,203 368,203 368,302 318,302 318,300" fill="url(#fuelGrad)" stroke="#475569" stroke-width="1.8"/>
+<rect x="400" y="203" width="56" height="12" fill="url(#fuelGrad)" stroke="#475569" stroke-width="1.8"/>
+
+<!-- Fuel droplets in venturi -->
+<circle cx="468" cy="196" r="2.5" fill="#b45309" opacity="0.8"/>
+<circle cx="476" cy="186" r="2.5" fill="#b45309" opacity="0.7"/>
+<circle cx="462" cy="182" r="2.5" fill="#b45309" opacity="0.6"/>
+<circle cx="484" cy="176" r="2.5" fill="#b45309" opacity="0.7"/>
+<circle cx="470" cy="170" r="2.5" fill="#b45309" opacity="0.5"/>
+<circle cx="458" cy="168" r="2.5" fill="#b45309" opacity="0.6"/>
+<circle cx="490" cy="190" r="2.5" fill="#b45309" opacity="0.8"/>
+
+<!-- Fuel in discharge tube -->
+<rect x="301.5" y="296" width="15" height="7" fill="url(#fuelGrad)"/>
+
+<!-- Throttle valve -->
+<line x1="309" y1="70" x2="309" y2="290" stroke="#475569" stroke-width="3"/>
+<polygon points="304,286 314,286 309,302" fill="#475569"/>
+<rect x="295" y="62" width="28" height="10" rx="2" fill="#475569"/>
+
+<!-- Air intake arrow (bottom) -->
+<line x1="470.0" y1="356.0" x2="470.0" y2="323.0" stroke="#475569" stroke-width="3"/><polygon points="470.0,312.0 464.5,323.0 475.5,323.0" fill="#475569"/>
+
+<!-- Venturi suction arrows -->
+<line x1="455.0" y1="160.0" x2="455.0" y2="144.0" stroke="#475569" stroke-width="2"/><polygon points="455.0,136.0 451.0,144.0 459.0,144.0" fill="#475569"/>
+<line x1="485.0" y1="160.0" x2="485.0" y2="144.0" stroke="#475569" stroke-width="2"/><polygon points="485.0,136.0 481.0,144.0 489.0,144.0" fill="#475569"/>
+
+<!-- Air flow arrow (top) -->
+<line x1="470.0" y1="66.0" x2="470.0" y2="33.0" stroke="#475569" stroke-width="3"/><polygon points="470.0,22.0 464.5,33.0 475.5,33.0" fill="#475569"/>
+
+<!-- ====== NUMBERED CALLOUTS ====== -->
+<!-- 1: Air intake -->
+<line x1="588.0" y1="330.0" x2="541.0" y2="330.0" stroke="#475569" stroke-width="1.2"/><circle cx="541.0" cy="330.0" r="2.2" fill="#475569"/><circle cx="588.0" cy="330.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="588.0" y="334.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<!-- 2: Venturi -->
+<line x1="588.0" y1="236.0" x2="514.0" y2="236.0" stroke="#475569" stroke-width="1.2"/><circle cx="514.0" cy="236.0" r="2.2" fill="#475569"/><circle cx="588.0" cy="236.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="588.0" y="240.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<!-- 3: Fuel jet -->
+<line x1="345.0" y1="180.0" x2="404.0" y2="206.0" stroke="#475569" stroke-width="1.2"/><circle cx="404.0" cy="206.0" r="2.2" fill="#475569"/><circle cx="345.0" cy="180.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="345.0" y="184.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<!-- 4: Float needle -->
+<line x1="600.0" y1="120.0" x2="520.0" y2="85.0" stroke="#475569" stroke-width="1.2"/><circle cx="520.0" cy="85.0" r="2.2" fill="#475569"/><circle cx="600.0" cy="120.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="600.0" y="124.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<!-- 5: Float -->
+<line x1="120.0" y1="270.0" x2="152.0" y2="260.0" stroke="#475569" stroke-width="1.2"/><circle cx="152.0" cy="260.0" r="2.2" fill="#475569"/><circle cx="120.0" cy="270.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="120.0" y="274.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<!-- 6: Throttle valve -->
+<line x1="262.0" y1="58.0" x2="296.0" y2="66.0" stroke="#475569" stroke-width="1.2"/><circle cx="296.0" cy="66.0" r="2.2" fill="#475569"/><circle cx="262.0" cy="58.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="262.0" y="62.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<!-- 7: Fuel inlet -->
+<circle cx="40.0" cy="119.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="40.0" y="123.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+<!-- 8: Float chamber -->
+<line x1="600.0" y1="186.0" x2="512.0" y2="186.0" stroke="#1e40af" stroke-width="1"/><circle cx="512.0" cy="186.0" r="2.2" fill="#1e40af"/><circle cx="600.0" cy="186.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="600.0" y="190.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">8</text>
+<!-- 9: Discharge nozzle -->
+<line x1="588.0" y1="40.0" x2="541.0" y2="40.0" stroke="#475569" stroke-width="1.2"/><circle cx="541.0" cy="40.0" r="2.2" fill="#475569"/><circle cx="588.0" cy="40.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="588.0" y="44.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">9</text>
+</svg>

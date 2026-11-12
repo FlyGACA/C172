@@ -77,7 +77,10 @@ The weather figures that show a place (14-3, 14-6, 14-7, 14-8, 14-9, 15-1, 15-4,
 and moon, the country of the Peninsula (hills, dunes, a sandy plain with scrub, date palms, acacias, flat-roofed houses, a sea with a dhow, a mountain of rock with strata, gullies
 and a lit and a shaded face, a V valley with a lake of fog), ribbon arrows that curve and carry a shadow, rain, lightning, hail, banks of fog and dust, glass blocks for the fronts,
 rounded cards for the figures that show several places, and the numbered callouts in the book's style. 15-2 keeps its diagram and gets the dark base of a storm and billows of dust.
-The figures that are charts of numbers (14-1, 14-5, 15-3, 15-7, 16-4) stay drawings. The captions, the numbered lists and the callouts are the old figures', in both editions;
+The systems figures (8-1 the four strokes, 8-2 the carburettor, 9-1 the fuel system, 9-2 the electrical system, 9-3 the vacuum system, 10-2 the pitot-static system) are drawn again the same
+way as illustrated cutaways and schematics: `figs/parts.py` has their gradients, lit pipes with flow arrows and a few fittings, each figure's module draws its own components (the cast body
+and the float of the carburettor, the battery, the master switch and the alternator, the tanks and the strainer, the pump), and the instruments are the twin's own pictures (the dial
+sprites of `figs/sprites.py`, with a heading indicator `dial-09-03-dg` added; `npm run plates:render` makes them). The figures that are charts of numbers (14-1, 14-5, 15-3, 15-7, 16-4) stay drawings. The captions, the numbered lists and the callouts are the old figures', in both editions;
 the artwork has no words, only digits, symbols and METAR codes.
 
 `to_book.py <book checkout>` puts the finished plates of `out/book/` into the book's `handbook/ppl/figures/`, points both editions' chapters at

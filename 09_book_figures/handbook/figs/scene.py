@@ -320,23 +320,29 @@ def front_symbols(kind, p0, p1, size=7.0, spacing=19.0, motion=1.0):
 def fog(uid, x0, x1, y_bottom, height, seed=1, opacity=0.95, colour="#FFFFFF", wisp=0.9, middle=False, side_fade=0.0, foot=1.0):
     """A bank of fog lying on the ground: dense and white at the bottom, thinning upwards into wisps (noise cut out of a gradient, then softened);
     with `middle` it is thickest in the middle of the stretch and thin towards its ends (fog in a hollow); `side_fade` (0 to 0.5, the fraction of the width) lets it thin out
-    towards both ends, `foot` (0 to 1) is how dense its lowest edge is."""
+    towards both ends, `foot` (0 to 1) is how dense its lowest edge is (below 1 the bank melts into the ground instead of ending in a line)."""
     fid = uid + "f"
     shape = (f'<radialGradient id="{uid}" cx="0.5" cy="1" r="0.62" fx="0.5" fy="1" gradientTransform="translate(0 0.0) scale(1 1)"><stop offset="0" stop-color="{colour}" stop-opacity="{n(opacity)}"/>'
              f'<stop offset="0.55" stop-color="{colour}" stop-opacity="{n(opacity * 0.7)}"/><stop offset="1" stop-color="{colour}" stop-opacity="0"/></radialGradient>') if middle else \
             gradient(uid, [(0, colour, 0.0), (0.35, colour, opacity * 0.55), (0.85, colour, opacity), (1, colour, opacity * foot)])
-    mask = ""
-    attrs = ""
+    box = f'x="{n(x0)}" y="{n(y_bottom - height)}" width="{n(x1 - x0)}" height="{n(height)}"'
+    masks, outer_open, outer_close, rect_mask = "", "", "", ""
     if side_fade:
         mid = uid + "m"
-        mask = (f'<linearGradient id="{mid}g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000"/><stop offset="{n(side_fade)}" stop-color="#fff"/><stop offset="{n(1 - side_fade)}" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
-                f'<mask id="{mid}" maskUnits="userSpaceOnUse" x="{n(x0)}" y="{n(y_bottom - height)}" width="{n(x1 - x0)}" height="{n(height)}"><rect x="{n(x0)}" y="{n(y_bottom - height)}" width="{n(x1 - x0)}" height="{n(height)}" fill="url(#{mid}g)"/></mask>')
-        attrs = f' mask="url(#{mid})"'
-    return (f'<defs>{shape}{mask}'
+        masks += (f'<linearGradient id="{mid}g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000"/><stop offset="{n(side_fade)}" stop-color="#fff"/><stop offset="{n(1 - side_fade)}" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
+                  f'<mask id="{mid}" maskUnits="userSpaceOnUse" {box}><rect {box} fill="url(#{mid}g)"/></mask>')
+        outer_open, outer_close = f'<g mask="url(#{mid})">', "</g>"
+    if foot < 1.0 and middle:
+        bid = uid + "b"
+        level = int(round(255 * foot))
+        masks += (f'<linearGradient id="{bid}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="0.7" stop-color="#fff"/><stop offset="1" stop-color="rgb({level},{level},{level})"/></linearGradient>'
+                  f'<mask id="{bid}" maskUnits="userSpaceOnUse" {box}><rect {box} fill="url(#{bid}g)"/></mask>')
+        rect_mask = f' mask="url(#{bid})"'
+    return (f'<defs>{shape}{masks}'
             f'<filter id="{fid}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.016 0.055" numOctaves="4" seed="{seed}" result="t"/>'
             f'<feColorMatrix in="t" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  {n(3.2 * wisp)} 0 0 0 {n(-0.78 * wisp)}" result="a"/>'
             f'<feComposite in="SourceGraphic" in2="a" operator="in" result="c"/><feGaussianBlur in="c" stdDeviation="1.4"/></filter></defs>'
-            f'<rect x="{n(x0)}" y="{n(y_bottom - height)}" width="{n(x1 - x0)}" height="{n(height)}" fill="url(#{uid})" filter="url(#{fid})"{attrs}/>')
+            f'{outer_open}<rect {box} fill="url(#{uid})" filter="url(#{fid})"{rect_mask}/>{outer_close}')
 
 
 def valley(uid, x0, x1, top, bottom, seed=1, depth=22.0, sides=44.0, colours=(("#7F8DB0", "#B3BFD6"), ("#C9A874", "#E4CF9F"), ("#ECDCB2", "#D5BB88"))):

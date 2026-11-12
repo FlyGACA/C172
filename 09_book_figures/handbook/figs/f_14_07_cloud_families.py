@@ -27,26 +27,26 @@ LABELS = ('<text x="500" y="431" font-family="monospace" font-size="11" font-wei
           '<text x="574" y="431" font-family="monospace" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">CB</text>')
 
 HIGH = [
-    {"name": "cloud-cirrus", "at": [140, 64], "width": 290},
-    {"name": "cloud-cirrocumulus", "at": [410, 60], "width": 250},
+    {"name": "cloud-cirrus", "at": [150, 68], "width": 330},
+    {"name": "cloud-cirrocumulus", "at": [424, 64], "width": 262, "feather": {"x": 0.14, "y": 0.0}, "haze": {"colour": "#6FA2DA", "amount": 0.14}},
     {"name": "cloud-veil", "at": [222, 132], "width": 440, "height": 26},
 ]
 MID = [
-    {"name": "cloud-altostratus", "at": [122, 214], "width": 250, "height": 74},
-    {"name": "cloud-altocumulus-deck", "at": [346, 226], "width": 250},
+    {"name": "cloud-altostratus", "at": [128, 216], "width": 272, "height": 64, "opacity": 0.9, "haze": {"colour": "#8FB8E6", "amount": 0.3}},
+    {"name": "cloud-altocumulus-deck", "at": [392, 228], "width": 262, "feather": {"x": 0.1, "y": 0.0}},
 ]
 LOW = [
     {"name": "cloud-nimbostratus", "at": [106, 336], "width": 210},
     {"name": "cloud-stratus", "at": [236, 380], "width": 132, "height": 26},
-    {"name": "cloud-stratocumulus-deck", "at": [346, 340], "width": 190},
-    {"name": "cloud-cumulus-c", "at": [444, 362], "width": 114},
-    {"name": "cloud-cb-genera", "at": [572, 214], "width": 150, "height": 330},
-    {"name": "cloud-tcu", "at": [510, 296], "width": 80, "height": 182},
+    {"name": "cloud-stratocumulus-deck", "at": [318, 330], "width": 172, "feather": {"x": 0.1, "y": 0.0}},
+    {"name": "cloud-cumulus-c", "at": [424, 352], "width": 92},
+    {"name": "cloud-cb-genera", "at": [562, 214], "width": 136, "height": 330},
+    {"name": "cloud-tcu", "at": [514, 296], "width": 72, "height": 172},
 ]
 
-CALLOUTS = (callout_at(1, 22, 96, 70, 74) + callout_at(2, 252, 36, 288, 62) + callout_at(3, 390, 112, 352, 126) + callout_at(4, 28, 222, 66, 246)
-            + callout_at(5, 410, 186, 372, 204) + callout_at(6, 400, 262, 346, 262) + callout_at(7, 22, 318, 52, 332) + callout_at(8, 190, 352, 222, 378)
-            + callout_at(9, 410, 316, 392, 330) + callout_at(10, 452, 338, 446, 358) + callout_at(11, 452, 232, 490, 260) + callout_at(12, 606, 40, 584, 76))
+CALLOUTS = (callout_at(1, 22, 100, 76, 76) + callout_at(2, 262, 34, 306, 58) + callout_at(3, 390, 112, 352, 126) + callout_at(4, 28, 222, 66, 246)
+            + callout_at(5, 424, 180, 390, 204) + callout_at(6, 410, 264, 350, 266) + callout_at(7, 22, 318, 52, 332) + callout_at(8, 190, 352, 222, 378)
+            + callout_at(9, 436, 304, 392, 326) + callout_at(10, 462, 332, 432, 354) + callout_at(11, 456, 236, 496, 262) + callout_at(12, 606, 40, 584, 80))
 
 
 def plate():

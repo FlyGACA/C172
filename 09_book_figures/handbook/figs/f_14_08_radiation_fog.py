@@ -69,8 +69,8 @@ def evening():
 def dawn():
     x, w = PANELS[1]
     sun = S.glow("f1408sg", x + 150, TOP + 96, 52, "#FFE3A8", 0.9) + f'<circle cx="{S.n(x + 150)}" cy="{S.n(TOP + 99)}" r="8" fill="#FFF3CF"/>'
-    fogs = (S.fog("f1408fa", x - 30, x + w + 30, 372, 96, seed=3, opacity=1.0, middle=True) + S.fog("f1408fb", x - 20, x + w + 20, 376, 62, seed=9, opacity=1.0, wisp=1.1, middle=True)
-            + S.fog("f1408fc", x, x + w, 372, 38, seed=21, opacity=0.9, wisp=1.0, middle=True))
+    fogs = (S.fog("f1408fa", x - 30, x + w + 30, 372, 96, seed=3, opacity=1.0, middle=True, foot=0.1) + S.fog("f1408fb", x - 20, x + w + 20, 376, 62, seed=9, opacity=1.0, wisp=1.1, middle=True, foot=0.1)
+            + S.fog("f1408fc", x, x + w, 372, 38, seed=21, opacity=0.9, wisp=1.0, middle=True, foot=0.1))
     return panel(1, [(0.0, "#5C74B0"), (0.5, "#A8B7D8"), (0.82, "#F3D3B2"), (1.0, "#FBE6C4")], sun + hollow(1, 4) + village(1) + fogs)
 
 
