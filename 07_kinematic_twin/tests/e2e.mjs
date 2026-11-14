@@ -84,7 +84,11 @@ try {
   await check('exploded view moves parts away from their assembled position', async () => {
     const before = await page.evaluate(() => window.__twin.partPos('IGNITION__dual_magneto'));
     await page.$eval('#explode', (el) => { el.value = '100'; el.dispatchEvent(new Event('input')); });
-    await page.waitForTimeout(200);
+    // Software-rendered CI frames can exceed a fixed sleep; wait for the move itself.
+    await page.waitForFunction((b) => {
+      const p = window.__twin.partPos('IGNITION__dual_magneto');
+      return Math.hypot(p[0] - b[0], p[1] - b[1], p[2] - b[2]) > 0.1;
+    }, before, { timeout: 5000 });
     const after = await page.evaluate(() => window.__twin.partPos('IGNITION__dual_magneto'));
     assert.ok(Math.hypot(after[0] - before[0], after[1] - before[1], after[2] - before[2]) > 0.1);
     await shot(page, 'engine_exploded');

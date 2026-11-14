@@ -7,15 +7,15 @@ on:
 
 concurrency:
   group: c172-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
 
 jobs:
   verify:
-    # Trusted work uses the isolated C172 runner. Fork PRs stay GitHub-hosted.
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'c172-ci' || 'ubuntu-latest' }}
+    # No self-hosted runner is registered, so the former c172-ci label queued forever.
+    runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -73,7 +73,7 @@ jobs:
   blender-rebuild:
     # Rebuilds the Phase 8 model from the scripts with the pinned Blender LTS and checks that the
     # result has the same parts and triangle counts as the committed GLBs (deterministic build).
-    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'c172-ci' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
