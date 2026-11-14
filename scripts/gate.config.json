@@ -1,0 +1,23 @@
+{
+  "name": "c172",
+  "description": "C172 study phases: bilingual parity, GACAR citations, links, freshness.",
+  "gacar": {
+    "include": ["**/*.md"],
+    "maxPart": 199
+  },
+  "bilingual": {
+    "arabic": ["**/README_AR.md"],
+    "requireCounterparts": true
+  },
+  "links": {
+    "include": ["**/*.md"],
+    "exclude": ["node_modules/**"],
+    "external": false,
+    "maxExternal": 25
+  },
+  "sources": {
+    "include": ["**/*.md"],
+    "maxAgeDays": 180,
+    "required": []
+  }
+}
