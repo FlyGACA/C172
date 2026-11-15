@@ -522,6 +522,14 @@ try {
     assert.equal(await p.evaluate(() => window.__twin.selected), null);
     assert.equal(warnings.length, 1);
   }));
+  await check('deep link: a part name that reads like an object property cannot select through the prototype', () => linked('q=low&mode=engine&part=AIRFRAME.__proto__', async (p, warnings) => {
+    const got = await p.evaluate(() => ({ selected: window.__twin.selected, mode: window.__twin.mode,
+      rejected: window.__twin.link.rejected.map((r) => `${r.key}:${r.reason}`) }));
+    assert.equal(got.selected, null, 'the model keeps its parts in a Map, so __proto__ resolves to nothing');
+    assert.deepEqual(got.rejected, ['part:no such part in this model']);
+    assert.equal(got.mode, 'engine', 'the valid mode still applies');
+    assert.equal(warnings.length, 1);
+  }));
   await check('deep link: inherited q and lang names are rejected', () => linked('q=constructor&lang=__proto__&mode=engine', async (p, warnings) => {
     const got = await p.evaluate(() => ({ quality: window.__twin.viewer.qualityName, lang: document.documentElement.lang,
       mode: window.__twin.mode, rejected: window.__twin.link.rejected.map((r) => r.key).sort() }));
