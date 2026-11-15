@@ -13,12 +13,17 @@ import { applySurvey } from './survey.js';
 import { HEAD } from './seat.js';
 import { FM_NOTES_AR } from './flight_notes_ar.js';
 import { LESSONS } from './lessons.js';
+import { parseLink } from './deeplink.js';
 
 const $ = (id) => document.getElementById(id);
 const qs = new URLSearchParams(location.search);
 const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private */ } } };
+// A deep link (js/deeplink.js): ?mode=, ?part= and ?scenario= open the viewer on one view; applied once the model is loaded.
+const link = parseLink(qs, { scenarios: [...SCENARIOS, ...LESSONS] });
+if (qs.has('lang') && !Object.hasOwn(STRINGS, qs.get('lang'))) link.rejected.push({ key: 'lang', value: qs.get('lang').slice(0, 80), reason: 'no such language' });
+if (qs.has('q') && !Object.hasOwn(QUALITY, qs.get('q'))) link.rejected.push({ key: 'q', value: qs.get('q').slice(0, 80), reason: 'no such quality level' });
 let lang = qs.get('lang') || store.get('c172.lang') || 'ar';
-if (!STRINGS[lang]) lang = 'ar';
+if (!Object.hasOwn(STRINGS, lang)) lang = 'ar';
 const T = () => STRINGS[lang];
 const tx = (o) => (o ? o[lang] ?? o.en : '');
 
@@ -63,8 +68,25 @@ rigReady.then((r) => {
   flight.cockpit = seat;
   flight.onChange = syncFlightUI;
   syncFlightUI();
+  applyLink();
   window.__twin.ready = true;
 }).catch((e) => { console.error(e); $('loading').querySelector('span').textContent = T().loadFail; });
+
+/** Open the view a deep link names: the scenario first (a lesson flies, an engine scenario opens the engine), then the mode, then the part. */
+function applyLink() {
+  if (link.scenario) {
+    startScenario(link.scenario);
+    $('scenarioSel').value = link.scenario;
+    $('scenarioBox').open = true; $('left').classList.add('open');
+  }
+  if (link.mode && link.mode !== mode) setMode(link.mode, true);
+  if (link.part) {
+    const o = rig.part(link.part);
+    if (o) select(o); else { link.rejected.push({ key: 'part', value: link.part, reason: 'no such part in this model' }); link.part = null; }
+  }
+  for (const r of link.rejected) console.warn(`link: ${r.key}=${JSON.stringify(r.value)} left out: ${r.reason}`);
+  link.applied = { mode, part: selected ? selected.name : null, scenario: scenario ? scenario.id : null };
+}
 
 // ------------------------------------------------------------------ language
 function applyLang() {
@@ -534,4 +556,4 @@ applyLang(); syncUI();
 // test hook
 window.__twin = { ready: false, get lessons() { return LESSONS; },
   /** test hook: advance the whole viewer by a number of seconds without waiting for frames */
-  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, get seat() { return seat; }, get surveyed() { return surveyed; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; } };
+  advance(seconds) { for (let t = 0; t < seconds - 1e-9; t += 1 / 30) advance(1 / 30); if (flight && flight.active) flight.place(); syncUI(); }, get exploding() { return !!explodeAnim; }, get rig() { return rig; }, get sim() { return sim; }, get flight() { return flight; }, get seat() { return seat; }, get surveyed() { return surveyed; }, beginFlight, viewer, setMode, select, startScenario, stats: () => viewer.stats(), get scenario() { return scenario; }, get ctx() { return ctx; }, get link() { return link; }, get mode() { return mode; }, get selected() { return selected; } };

@@ -16,7 +16,8 @@ jobs:
   verify:
     # No self-hosted runner is registered, so the former c172-ci label queued forever.
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # The Phase 8 browser test alone takes about 20 minutes with the deep-link checks.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +49,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Content gate regression tests
+        run: node --test test/gate.test.mjs
+      - name: Content gate (disclaimer, GACAR citations, bilingual parity, register, links, source freshness)
+        run: node scripts/gate.mjs
       - name: Unit tests (kinematics, systems simulation, scenarios — Phase 7 and Phase 8 copies)
         run: npm test
 

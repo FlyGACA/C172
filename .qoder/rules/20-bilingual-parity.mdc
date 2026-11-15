@@ -13,3 +13,4 @@ Arabic and English guides ship together.
 - Do not machine-translate a regulatory claim. Translate the explanation, keep the GACAR citation exactly as in the English source, and verify the Arabic wording against the official Arabic publication where one exists.
 - When you add a section to the English file, add it to the Arabic file in the same change; never leave the pair out of step.
 - `node scripts/gate.mjs` must report zero `bilingual` findings before a content PR is ready.
+- Exception: the seven archived `README_AR.md` files named under `bilingual.exclude` in `scripts/gate.config.json` were imported unchanged and have no English counterpart. Do not add to that list without the owner.

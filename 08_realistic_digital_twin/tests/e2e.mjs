@@ -432,6 +432,114 @@ try {
     await ps.close();
   });
 
+  await page.close();
+  // Navigate fresh pages: these must exercise URL startup, not the test hook's mode/scenario setters.
+  async function linked(query, verify) {
+    const p = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+    const warnings = [];
+    p.on('console', (m) => { if (m.type() === 'warning' && m.text().startsWith('link:')) warnings.push(m.text()); });
+    try {
+      const { errors: errs } = await open(p, query);
+      await verify(p, warnings);
+      assert.deepEqual(errs, [], 'deep link has no console or page errors');
+    } finally { await p.close(); }
+  }
+  for (const mode of ['exterior', 'cockpit', 'engine', 'systems', 'flight']) {
+    await check(`deep link: mode=${mode} opens its working view`, () => linked(`q=low&lang=en&mode=${mode}`, async (p, warnings) => {
+      const got = await p.evaluate(() => {
+        const t = window.__twin;
+        return { mode: document.querySelector('#modes .on').dataset.mode, seated: t.seat.enabled,
+          flight: t.flight.active, cowl: t.rig.state.cowlOff, xray: document.getElementById('xray').classList.contains('on') };
+      });
+      assert.equal(got.mode, mode);
+      assert.equal(!!got.seated, mode === 'cockpit');
+      assert.equal(!!got.flight, mode === 'flight');
+      assert.equal(got.cowl, mode === 'engine' ? 1 : 0);
+      assert.equal(got.xray, mode === 'systems');
+      assert.deepEqual(warnings, []);
+    }));
+  }
+  await check('deep link: combined engine, part and runup preserves q and lang', () => linked(
+    'q=low&lang=en&mode=engine&part=POWERPLANT%2Epropeller&scenario=runup', async (p, warnings) => {
+      const got = await p.evaluate(() => {
+        const t = window.__twin;
+        return { mode: document.querySelector('#modes .on').dataset.mode, part: t.selected?.name,
+          scenario: t.scenario?.id, choice: document.getElementById('scenarioSel').value,
+          quality: t.viewer.qualityName, lang: document.documentElement.lang, dir: document.documentElement.dir };
+      });
+      assert.deepEqual(got, { mode: 'engine', part: 'POWERPLANT.propeller', scenario: 'runup', choice: 'runup', quality: 'low', lang: 'en', dir: 'ltr' });
+      assert.match(await p.locator('#info').textContent(), /McCauley/);
+      assert.deepEqual(warnings, []);
+    }));
+  await check('deep link: scenario alone starts its engine view', () => linked('q=low&scenario=engine_start', async (p) => {
+    assert.equal(await p.locator('#scenarioSel').inputValue(), 'engine_start');
+    assert.equal(await p.locator('#modes .on').getAttribute('data-mode'), 'engine');
+    assert.equal(await p.evaluate(() => window.__twin.scenario.id), 'engine_start');
+  }));
+  await check('deep link: a compatible explicit mode overrides the scenario camera', () => linked('q=low&mode=systems&scenario=engine_start', async (p) => {
+    assert.equal(await p.locator('#modes .on').getAttribute('data-mode'), 'systems');
+    assert.equal(await p.evaluate(() => window.__twin.scenario.id), 'engine_start');
+  }));
+  await check('deep link: part alone opens its information without changing the default mode', () => linked('q=low&lang=en&part=POWERPLANT.propeller', async (p) => {
+    assert.equal(await p.locator('#modes .on').getAttribute('data-mode'), 'exterior');
+    assert.equal(await p.evaluate(() => window.__twin.selected.name), 'POWERPLANT.propeller');
+    assert.match(await p.locator('#info').textContent(), /McCauley/);
+  }));
+  for (const query of ['scenario=go_around', 'mode=flight&scenario=go_around', 'mode=cockpit&scenario=go_around']) {
+    await check(`deep link: lesson ${query} starts in flight without demo`, () => linked(`q=low&lang=ar&${query}`, async (p, warnings) => {
+      const got = await p.evaluate(() => {
+        const t = window.__twin;
+        return { mode: document.querySelector('#modes .on').dataset.mode, scenario: t.scenario.id,
+          active: t.flight.active, demo: !!t.flight.autopilot, choice: document.getElementById('scenarioSel').value,
+          lang: document.documentElement.lang, dir: document.documentElement.dir };
+      });
+      assert.deepEqual(got, { mode: 'flight', scenario: 'go_around', active: true, demo: false, choice: 'go_around', lang: 'ar', dir: 'rtl' });
+      assert.equal(warnings.length, query.includes('cockpit') ? 1 : 0);
+    }));
+  }
+  await check('deep link: ground scenario rejects conflicting flight mode', () => linked('q=low&mode=flight&scenario=runup', async (p, warnings) => {
+    assert.equal(await p.evaluate(() => window.__twin.flight.active), false);
+    assert.equal(await p.evaluate(() => window.__twin.scenario.id), 'runup');
+    assert.equal(await p.locator('#scenarioSel').inputValue(), 'runup');
+    assert.equal(warnings.length, 1);
+  }));
+  for (const [query, rejected] of [
+    ['mode=constructor&part=%3Cscript%3E&scenario=unknown', ['mode', 'part', 'scenario']],
+    ['mode=&part=&scenario=', ['mode', 'part', 'scenario']],
+    ['mode=engine&mode=cockpit&part=POWERPLANT.propeller&part=AIRFRAME.fuselage&scenario=runup&scenario=engine_start', ['mode', 'part', 'scenario']],
+    ['part=POWERPLANT.nonexistent', ['part']],
+  ]) {
+    await check(`deep link: invalid values fall back safely (${query})`, () => linked(`q=low&lang=en&${query}`, async (p, warnings) => {
+      const got = await p.evaluate(() => ({ mode: window.__twin.mode, part: window.__twin.selected?.name ?? null,
+        scenario: window.__twin.scenario?.id ?? null, rejected: window.__twin.link.rejected.map((r) => r.key).sort() }));
+      assert.deepEqual(got, { mode: 'exterior', part: null, scenario: null, rejected });
+      assert.equal(warnings.length, rejected.length);
+    }));
+  }
+  await check('deep link: an unknown part does not discard a valid mode and scenario', () => linked('q=low&mode=engine&scenario=runup&part=POWERPLANT.nonexistent', async (p, warnings) => {
+    assert.equal(await p.locator('#modes .on').getAttribute('data-mode'), 'engine');
+    assert.equal(await p.locator('#scenarioSel').inputValue(), 'runup');
+    assert.equal(await p.evaluate(() => window.__twin.selected), null);
+    assert.equal(warnings.length, 1);
+  }));
+  await check('deep link: a part name that reads like an object property cannot select through the prototype', () => linked('q=low&mode=engine&part=AIRFRAME.__proto__', async (p, warnings) => {
+    const got = await p.evaluate(() => ({ selected: window.__twin.selected, mode: window.__twin.mode,
+      rejected: window.__twin.link.rejected.map((r) => `${r.key}:${r.reason}`) }));
+    assert.equal(got.selected, null, 'the model keeps its parts in a Map, so __proto__ resolves to nothing');
+    assert.deepEqual(got.rejected, ['part:no such part in this model']);
+    assert.equal(got.mode, 'engine', 'the valid mode still applies');
+    assert.equal(warnings.length, 1);
+  }));
+  await check('deep link: inherited q and lang names are rejected', () => linked('q=constructor&lang=__proto__&mode=engine', async (p, warnings) => {
+    const got = await p.evaluate(() => ({ quality: window.__twin.viewer.qualityName, lang: document.documentElement.lang,
+      mode: window.__twin.mode, rejected: window.__twin.link.rejected.map((r) => r.key).sort() }));
+    assert.ok(['high', 'medium', 'low'].includes(got.quality));
+    assert.equal(got.lang, 'ar');
+    assert.equal(got.mode, 'engine');
+    assert.deepEqual(got.rejected, ['lang', 'q']);
+    assert.equal(warnings.length, 2);
+  }));
+
   await check('medium LOD loads', async () => {
     const p3 = await browser.newPage({ viewport: { width: 1200, height: 800 } });
     const { errors: errs, loadMs: ms } = await open(p3, 'lang=en&q=medium');

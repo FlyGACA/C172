@@ -7,6 +7,15 @@
   },
   "bilingual": {
     "arabic": ["**/README_AR.md"],
+    "exclude": [
+      "02_classic_analog_v2/README_AR.md",
+      "02b_refined_airframe/README_AR.md",
+      "03_education/README_AR.md",
+      "04_digital_twin/README_AR.md",
+      "04b_poh_reference/README_AR.md",
+      "05_systems_lab/README_AR.md",
+      "06_interactive_twin/README_AR.md"
+    ],
     "requireCounterparts": true
   },
   "links": {

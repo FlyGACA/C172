@@ -120,6 +120,31 @@ test('bilingual: flags an Arabic-only document', async () => {
   }
 });
 
+test('bilingual: an excluded Arabic-only document is not flagged, others still are', async () => {
+  const f = fixture();
+  try {
+    f.write('phases/03_education/README_AR.md', '# المرحلة\n\nمحتوى عربي فقط.\n');
+    f.write('phases/10_new/README_AR.md', '# المرحلة\n\nمحتوى عربي فقط.\n');
+    const result = await runGate({
+      root: f.root,
+      now: NOW,
+      only: ['bilingual'],
+      config: {
+        bilingual: {
+          arabic: ['**/README_AR.md'],
+          exclude: ['phases/03_education/README_AR.md'],
+          requireCounterparts: true,
+        },
+      },
+    });
+    assert.equal(result.errors.length, 0);
+    assert.equal(result.warnings.length, 1);
+    assert.equal(result.warnings[0].file, 'phases/10_new/README_AR.md');
+  } finally {
+    f.cleanup();
+  }
+});
+
 test('register: flags repository rows with no Owner column', async () => {
   const f = fixture();
   try {
