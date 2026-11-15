@@ -48,6 +48,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Content gate regression tests
+        run: node --test test/gate.test.mjs
       - name: Unit tests (kinematics, systems simulation, scenarios — Phase 7 and Phase 8 copies)
         run: npm test
 
