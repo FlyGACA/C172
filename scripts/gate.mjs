@@ -269,7 +269,7 @@ function checkGacar(ctx) {
 
 function checkBilingual(ctx) {
   const b = ctx.config.bilingual || {};
-  const files = matchFiles(ctx.root, b.arabic || ['**/*_AR.md']);
+  const files = matchFiles(ctx.root, b.arabic || ['**/*_AR.md'], b.exclude);
   for (const file of files) {
     const base = path.posix.basename(file);
     const english = base.replace(/_AR\.md$/i, '.md');
