@@ -23,7 +23,7 @@ export const QUALITY = {
 
 export function pickQuality(qs) {
   const q = qs.get('q');
-  if (q && QUALITY[q]) return q;
+  if (q && Object.hasOwn(QUALITY, q)) return q;
   const mem = navigator.deviceMemory || 8;
   const mobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || innerWidth < 800;
   // a tablet has the screen and the memory for the medium level; a telephone gets the low one

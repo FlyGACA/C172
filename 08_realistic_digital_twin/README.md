@@ -3,7 +3,16 @@
 **Open:** from the repository root run `python3 -m http.server 8000`, then visit
 <http://localhost:8000/08_realistic_digital_twin/>. Everything is served from this folder
 (three.js vendored), so it works offline. Arabic is the default; the top-right button switches
-to English. `?q=high|medium|low` forces a quality level; `?lang=en` forces the language.
+to English. `?q=high|medium|low` forces a quality level; `?lang=en|ar` forces the language.
+
+**Deep links:** `mode=exterior|cockpit|engine|systems|flight` opens a view; `part=` selects an exact
+model part name from the [parts index](docs/06_parts_index.md); `scenario=` starts an ID from
+[`SCENARIOS`](js/scenarios.js) or [`LESSONS`](js/lessons.js), without running a demonstration.
+For example, [open the propeller during run-up](index.html?lang=en&q=low&mode=engine&part=POWERPLANT.propeller&scenario=runup).
+The scenario starts first, then a compatible explicit mode is applied, then the part is selected.
+A flight lesson requires flight mode; a ground scenario cannot use flight mode. Conflicting modes,
+unknown, empty or repeated deep-link values, and parts absent from the loaded model are ignored with
+console warnings; other valid values still apply. With no deep link, the exterior view opens as before.
 
 [النسخة العربية](README_AR.md) · [Audit & asset-gap report](docs/01_audit_and_asset_gap_report.md) ·
 [Architecture & milestones](docs/02_modeling_architecture.md) · [Validation report](docs/03_validation_report.md) ·

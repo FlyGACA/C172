@@ -204,7 +204,8 @@ The same sources serve every reader, not only the print run.
   e-book and to FlyGACA.com unchanged.
 - **Link the page to the interactive twin.** A short link or QR code beside a figure can open the
   viewer on the matching view, so a student reads the schematic and then operates the system. The
-  viewer accepts only `?q=` and `?lang=` today; it needs deep links for mode, part and scenario first.
+  viewer accepts `mode`, `part` and `scenario` alongside `q` and `lang`; see the
+  [deep-link parameters and example](../08_realistic_digital_twin/README.md).
 - **Colour is never the only code.** Line types differ in shape as well as colour and every arc is
   named in text, so the figures still work in black and white and for colour-blind readers.
 - **Every figure carries its title as alternative text** for screen readers in the web and e-book editions.
