@@ -4,6 +4,14 @@ Canonical repository for the FlyGACA Cessna 172N educational 3D project (replace
 Reference aircraft: **Cessna 172N, 1979 model**, factory-standard educational baseline;
 the configuration of a specific serial number is not verified.
 
+## The site
+
+The repository root is the deployed folder (`c172.flygaca.com`). [`index.html`](index.html) is the front door: it opens the Phase 8 aircraft, links the flight lessons, the pilot's seat, the gallery and the parts index, and lists the earlier phases as an archive. It used to redirect to the archived Phase 6 viewer.
+
+- The facts on the page (the part count, the lessons, the phases) are read from [`site/home-data.js`](site/home-data.js), which `npm run build:site` writes from `RELEASES.md`, `shared/js/lessons.js` and the Phase 8 parts index. `npm run check:site` and `npm test` fail when it is stale.
+- The header, footer, colours and type come from the Ufuq design system, vendored in [`site/ufuq/`](site/ufuq/README.md) and never edited here. The page is in Arabic and English, in a day and a night theme.
+- Who may open the site is set at Cloudflare, not in the pages: [`docs/ACCESS.md`](docs/ACCESS.md).
+
 **Latest: [Phase 8 — realistic digital twin (Blender-built airframe, cockpit, engine)](08_realistic_digital_twin/)**
 and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe follows the
 manufacturer's three-view drawing ([how](08_realistic_digital_twin/docs/05_shape_reference.md)), and the
@@ -60,7 +68,6 @@ flowchart LR
 | 07 | [`07_kinematic_twin/`](07_kinematic_twin/) | Rebuilt model with pivots and Lycoming-correct engine, crank-driven animation, documented systems simulation, 10 guided POH scenarios, offline viewer, tests |
 | **08** | [**`08_realistic_digital_twin/`**](08_realistic_digital_twin/) | Blender-scripted realistic model (editable `.blend`, three Draco GLB quality levels, generated PBR textures), full cockpit and O-320 engine assembly, PBR viewer with HDR sky, shadows and AO, bilingual part catalogue, Phase 7 simulation and scenarios, Playwright and CI rebuild checks |
 | 09 | [`09_book_figures/`](09_book_figures/) | Book figures: [the figure plan](09_book_figures/PLAN.md), a browser-based build to print-ready PDF/SVG in English and Arabic, and four sample figures (instrument from data, system schematic, two labelled illustrations drawn from the Phase 8 model) |
-
 | 10 | [`shared/js/`](shared/js/), [`08_realistic_digital_twin/`](08_realistic_digital_twin/docs/08_flight_model.md) | Flight: a six-degree-of-freedom flight model from the handbook's numbers, flown in the Phase 8 viewer together with the systems simulation; a scripted pilot that flies the handbook's takeoff, landing and stall; three flight lessons (stall and recovery, go-around, engine failure after takeoff) with demonstrations; a first-person pilot's seat with head limits and reachable controls; the intake for a survey of the aircraft and the pilot (no record yet); tests that state the tolerances |
 
 Folders 01–06 are the original release packages, imported unchanged; see
@@ -108,3 +115,15 @@ and are not approved for flight, maintenance or training credit. Refer to the
 aircraft-specific POH/AFM and Cessna/Lycoming manuals.
 
 [GACAR and Saudi AIP cross-reference](REGULATORY-CROSSWALK.md) — repository topics, official sections, editions and review gaps.
+
+## Independence and licence
+
+FlyGACA is an independent educational project. It is not affiliated with, endorsed by or operated by the
+General Authority of Civil Aviation (GACA / الهيئة العامة للطيران المدني), Textron Aviation (Cessna) or Lycoming.
+Manufacturer and product names are used only to identify the aircraft the model describes; handbook values
+quoted here remain their publishers' material.
+
+The project's own code and models are released under the [MIT License](LICENSE). Third-party material keeps
+its own licence, for example the vendored Three.js build (`08_realistic_digital_twin/vendor/three/LICENSE`).
+
+Security reports: see [SECURITY.md](SECURITY.md).

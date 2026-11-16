@@ -1,0 +1,58 @@
+/* Layout for the C172 Twin home page. Colours, type and spacing come from the
+   Ufuq tokens (site/ufuq/ufuq.css); nothing here sets a literal colour. */
+body.page {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  margin: 0;
+  background: var(--ufuq-bg);
+  color: var(--ufuq-text);
+  font-family: var(--ufuq-font-body);
+  line-height: var(--ufuq-lh-body);
+}
+body.page > main { flex: 1; }
+
+/* The aircraft first. The render is cut out on a transparent ground and was lit
+   for a dark one, so the hero stays in the night theme in both themes. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  gap: var(--ufuq-space-5);
+  padding-block: var(--ufuq-space-8);
+  padding-inline: max(var(--ufuq-space-5), calc((100% - var(--ufuq-container)) / 2));
+  background: linear-gradient(to bottom, var(--ufuq-bg), var(--ufuq-surface));
+  color: var(--ufuq-text);
+  overflow: hidden;
+}
+.hero h1 { margin: var(--ufuq-space-1) 0 var(--ufuq-space-3); font-family: var(--ufuq-font-display); font-size: var(--ufuq-fs-display); line-height: var(--ufuq-lh-tight); }
+.hero-lead { max-inline-size: 46ch; margin: 0 0 var(--ufuq-space-5); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-lg); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--ufuq-space-3); margin: 0; }
+.hero-art { display: block; }
+.hero-art > img { display: block; inline-size: 100%; block-size: auto; }
+/* The aircraft is drawn facing one way; it is a picture, so it is not mirrored in Arabic. */
+
+.home-body { display: grid; gap: var(--ufuq-space-8); padding-block: var(--ufuq-space-8); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: var(--ufuq-space-4); }
+.home-card { display: flex; flex-direction: column; }
+.home-card .ufuq-card__body { flex: 1; }
+.lessons { display: grid; gap: var(--ufuq-space-2); margin: 0 0 var(--ufuq-space-4); padding: 0; list-style: none; }
+.lessons > li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--ufuq-space-2); }
+.honesty { max-inline-size: 80ch; }
+.archive h2 { margin: 0 0 var(--ufuq-space-1); font-family: var(--ufuq-font-display); font-size: var(--ufuq-fs-h3); }
+.archive-note { margin: 0 0 var(--ufuq-space-4); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }
+.phases { display: grid; gap: var(--ufuq-space-2); margin: 0; padding: 0; list-style: none; font-size: var(--ufuq-fs-sm); }
+.phases > li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--ufuq-space-3); padding-block-end: var(--ufuq-space-2); border-block-end: 1px solid var(--ufuq-border); }
+.phase-id { min-inline-size: 3ch; margin: 0; }
+.phase-date { margin-inline-start: auto; color: var(--ufuq-text-dim); }
+
+@media (max-width: 52rem) {
+  .hero { grid-template-columns: 1fr; padding-block: var(--ufuq-space-6); }
+  .hero-art { order: -1; }
+  .hero h1 { font-size: var(--ufuq-fs-h1); }
+}
+
+/* The full-colour C172 Twin mark has an Ivory feather and needs a dark ground;
+   on the Day theme the ink mark takes its place. */
+:root[data-theme='day'] .on-night,
+:root:not([data-theme='day']) .on-day { display: none; }
