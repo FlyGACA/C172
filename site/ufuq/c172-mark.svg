@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="C172 Twin">
+  <title>C172 Twin</title>
+  <path transform="translate(58 46) scale(0.6 0.7)" fill="#4A9CB8" d="M0 24C4 8 30 0 100 0C78 10 62 26 42 34C26 40 -2 40 0 24Z"/>
+  <path transform="translate(62 46) scale(-0.6 0.7)" fill="#4A9CB8" d="M0 24C4 8 30 0 100 0C78 10 62 26 42 34C26 40 -2 40 0 24Z"/>
+  <path transform="translate(48 96) rotate(-90) scale(0.42 0.6)" fill="#F5F2ED" d="M0 24C4 8 30 0 100 0C78 10 62 26 42 34C26 40 -2 40 0 24Z"/>
+</svg>

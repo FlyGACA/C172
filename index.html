@@ -1,7 +1,125 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FlyGACA C172N — Digital Twin</title>
-<meta name="description" content="عارض تعليمي تفاعلي لمجسم Cessna 172N من FlyGACA">
-<meta http-equiv="refresh" content="0; url=./06_interactive_twin/FlyGACA_C172N_Phase6_Viewer.html">
-<style>body{font:16px system-ui;background:#091524;color:#e8f0f8;display:grid;place-items:center;min-height:100vh}a{color:#89d7ff}</style></head>
-<body><main><h1>FlyGACA C172N Digital Twin</h1><p>جارٍ فتح العارض التعليمي...</p><a href="./06_interactive_twin/FlyGACA_C172N_Phase6_Viewer.html">افتح العارض مباشرة</a></main></body></html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C172 Twin · توأم سيسنا 172 — Fly GACA</title>
+<meta name="description" content="توأم رقمي تعليمي لطائرة Cessna 172N من فلاي قاكا: الطائرة والقمرة والمحرك ودروس طيران. An educational digital twin of the Cessna 172N.">
+<link rel="icon" href="site/ufuq/c172-mark.svg">
+<link rel="stylesheet" href="site/ufuq/ufuq.css">
+<link rel="stylesheet" href="site/ufuq/ufuq.components.css">
+<link rel="stylesheet" href="site/site.css">
+<script src="site/ufuq/ufuq.shell.js"></script>
+</head>
+<body class="page">
+<header class="ufuq-shell">
+  <a class="ufuq-shell__brand" href="./"><img class="on-night" src="site/ufuq/c172-mark.svg" alt="" width="32" height="32"><img class="on-day" src="site/ufuq/c172-mark-ink.svg" alt="" width="32" height="32"><span class="ufuq-en">C172 Twin</span><span class="ufuq-ar" lang="ar">توأم سيسنا 172</span></a>
+  <nav class="ufuq-shell__nav" aria-label="الصفحات" data-label-en="Pages" data-label-ar="الصفحات">
+    <a href="./" aria-current="page"><span class="ufuq-en">Home</span><span class="ufuq-ar" lang="ar">الرئيسية</span></a>
+    <a href="08_realistic_digital_twin/index.html"><span class="ufuq-en">The aircraft</span><span class="ufuq-ar" lang="ar">الطائرة</span></a>
+    <a href="08_realistic_digital_twin/index.html?mode=cockpit"><span class="ufuq-en">Cockpit</span><span class="ufuq-ar" lang="ar">القمرة</span></a>
+    <a href="08_realistic_digital_twin/index.html?mode=flight"><span class="ufuq-en">Fly it</span><span class="ufuq-ar" lang="ar">طِر بها</span></a>
+    <a href="08_realistic_digital_twin/docs/gallery.html"><span class="ufuq-en">Gallery</span><span class="ufuq-ar" lang="ar">المعرض</span></a>
+  </nav>
+  <div class="ufuq-shell__tools">
+    <span class="ufuq-shell__who" data-shell-who hidden></span>
+    <a class="ufuq-shell__tool" data-shell-out hidden><span class="ufuq-en">Sign out</span><span class="ufuq-ar" lang="ar">خروج</span></a>
+    <button type="button" class="ufuq-shell__tool" data-shell-theme><span class="ufuq-en">Day / Night</span><span class="ufuq-ar" lang="ar">نهاري / ليلي</span></button>
+    <button type="button" class="ufuq-shell__tool" data-shell-lang><span class="ufuq-en" lang="ar">العربية</span><span class="ufuq-ar" lang="en">English</span></button>
+  </div>
+</header>
+<main class="home">
+  <section class="hero" data-theme="dark" aria-labelledby="home-title">
+    <div class="hero-text">
+      <p class="ufuq-eyebrow"><span class="ufuq-en">Fly GACA · Cessna 172N, 1979</span><span class="ufuq-ar" lang="ar">فلاي قاكا · سيسنا 172N، موديل 1979</span></p>
+      <h1 id="home-title"><span class="ufuq-en">The whole aircraft, down to the last part</span><span class="ufuq-ar" lang="ar">الطائرة كاملة، حتى آخر قطعة</span></h1>
+      <p class="hero-lead"><span class="ufuq-en">An educational digital twin: the airframe, the cockpit and the engine, opened up system by system, and a flight model you can fly.</span><span class="ufuq-ar" lang="ar">توأم رقمي تعليمي: الهيكل والقمرة والمحرك، مفتوحة نظامًا نظامًا، ونموذج طيران يمكنك أن تطير به.</span></p>
+      <p class="hero-actions"><a class="ufuq-btn ufuq-btn--primary" href="08_realistic_digital_twin/index.html"><span class="ufuq-en">Open the aircraft</span><span class="ufuq-ar" lang="ar">افتح الطائرة</span></a><a class="ufuq-btn ufuq-btn--secondary" href="08_realistic_digital_twin/index.html?mode=flight"><span class="ufuq-en">Fly it</span><span class="ufuq-ar" lang="ar">طِر بها</span></a></p>
+    </div>
+    <a class="hero-art" href="08_realistic_digital_twin/index.html" aria-label="افتح الطائرة" data-label-en="Open the aircraft" data-label-ar="افتح الطائرة"><img src="site/hero.webp" alt="" width="1440" height="800" fetchpriority="high"></a>
+  </section>
+
+  <div class="ufuq-container home-body">
+  <section class="cards" aria-label="الوجهات" data-label-en="Destinations" data-label-ar="الوجهات">
+    <article class="ufuq-card home-card">
+      <p class="ufuq-eyebrow"><span class="ufuq-en">Exterior, engine, systems</span><span class="ufuq-ar" lang="ar">الخارج والمحرك والأنظمة</span></p>
+      <h2 class="ufuq-card__title"><span class="ufuq-en">The aircraft</span><span class="ufuq-ar" lang="ar">الطائرة</span></h2>
+      <p class="ufuq-card__body"><span class="ufuq-en">Turn it, open the cowl, explode the assembly, and select any part to read what it is.</span><span class="ufuq-ar" lang="ar">دوّرها وافتح غطاء المحرك وفكّك التجميع، واختر أي قطعة لتقرأ ما هي.</span> <span id="parts" hidden></span></p>
+      <div class="ufuq-card__actions"><a class="ufuq-btn ufuq-btn--primary" href="08_realistic_digital_twin/index.html"><span class="ufuq-en">Open</span><span class="ufuq-ar" lang="ar">افتح</span></a><a class="ufuq-btn ufuq-btn--quiet" href="08_realistic_digital_twin/index.html?mode=engine"><span class="ufuq-en">Engine</span><span class="ufuq-ar" lang="ar">المحرك</span></a><a class="ufuq-btn ufuq-btn--quiet" href="08_realistic_digital_twin/index.html?mode=systems"><span class="ufuq-en">Systems</span><span class="ufuq-ar" lang="ar">الأنظمة</span></a></div>
+    </article>
+    <article class="ufuq-card home-card">
+      <p class="ufuq-eyebrow"><span class="ufuq-en">Flight lessons</span><span class="ufuq-ar" lang="ar">دروس الطيران</span></p>
+      <h2 class="ufuq-card__title"><span class="ufuq-en">Fly it</span><span class="ufuq-ar" lang="ar">طِر بها</span></h2>
+      <p class="ufuq-card__body"><span class="ufuq-en">Each lesson is checked step by step against the handbook procedure.</span><span class="ufuq-ar" lang="ar">كل درس يُراجَع خطوة بخطوة وفق إجراء دليل الطائرة.</span></p>
+      <ul class="lessons" id="lessons"></ul>
+      <div class="ufuq-card__actions"><a class="ufuq-btn ufuq-btn--secondary" href="08_realistic_digital_twin/index.html?mode=flight"><span class="ufuq-en">Free flight</span><span class="ufuq-ar" lang="ar">طيران حر</span></a></div>
+    </article>
+    <article class="ufuq-card home-card">
+      <p class="ufuq-eyebrow"><span class="ufuq-en">Cockpit</span><span class="ufuq-ar" lang="ar">القمرة</span></p>
+      <h2 class="ufuq-card__title"><span class="ufuq-en">The pilot's seat</span><span class="ufuq-ar" lang="ar">مقعد الطيار</span></h2>
+      <p class="ufuq-card__body"><span class="ufuq-en">Sit in the left seat: turn your head, lean, and work the controls and switches you can reach.</span><span class="ufuq-ar" lang="ar">اجلس في المقعد الأيسر: أدِر رأسك ومِل بجسمك، وحرّك أذرع التحكم والمفاتيح التي تصل إليها يدك.</span></p>
+      <div class="ufuq-card__actions"><a class="ufuq-btn ufuq-btn--secondary" href="08_realistic_digital_twin/index.html?mode=cockpit"><span class="ufuq-en">Take the seat</span><span class="ufuq-ar" lang="ar">اجلس</span></a></div>
+    </article>
+    <article class="ufuq-card home-card">
+      <p class="ufuq-eyebrow"><span class="ufuq-en">Renders and figures</span><span class="ufuq-ar" lang="ar">الصور والأشكال</span></p>
+      <h2 class="ufuq-card__title"><span class="ufuq-en">Parts and figures</span><span class="ufuq-ar" lang="ar">القطع والأشكال</span></h2>
+      <p class="ufuq-card__body"><span class="ufuq-en">Renders of the model, the index of every part, and the figure atlas made for the handbook.</span><span class="ufuq-ar" lang="ar">صور للمجسّم، وفهرس كل القطع، وأطلس الأشكال المعدّ للكتاب.</span></p>
+      <div class="ufuq-card__actions"><a class="ufuq-btn ufuq-btn--secondary" href="08_realistic_digital_twin/docs/gallery.html"><span class="ufuq-en">Gallery</span><span class="ufuq-ar" lang="ar">المعرض</span></a><a class="ufuq-btn ufuq-btn--quiet" href="08_realistic_digital_twin/docs/06_parts_index.md"><span class="ufuq-en">Parts index</span><span class="ufuq-ar" lang="ar">فهرس القطع</span></a><a class="ufuq-btn ufuq-btn--quiet" href="09_book_figures/atlas/README.md"><span class="ufuq-en">Atlas</span><span class="ufuq-ar" lang="ar">الأطلس</span></a></div>
+    </article>
+  </section>
+
+  <section class="ufuq-callout ufuq-callout--caution honesty" aria-labelledby="honesty-title">
+    <p class="ufuq-callout__title" id="honesty-title"><span class="ufuq-en">What this model is, and is not</span><span class="ufuq-ar" lang="ar">ما هو هذا المجسّم، وما ليس هو</span></p>
+    <p><span class="ufuq-en">The reference is a 1979 Cessna 172N in its factory-standard configuration, as an educational baseline; it is not a specific serial number. Every number in the flight model is labelled POH, POH-derived or estimated. The model has no certified fidelity. It is study material, not a flight training device, and not for flight.</span><span class="ufuq-ar" lang="ar">المرجع طائرة سيسنا 172N موديل 1979 بتجهيزها القياسي من المصنع، كأساس تعليمي، وليست طائرة برقم تسلسلي محدّد. كل رقم في نموذج الطيران موسوم بأنه من دليل الطائرة (POH) أو مشتقّ منه أو تقديري. المجسّم بلا دقّة معتمدة. هو مادة دراسية، وليس جهاز تدريب على الطيران، وليس للطيران الفعلي.</span> <a class="ufuq-link" href="08_realistic_digital_twin/docs/08_flight_model.md"><span class="ufuq-en">The flight model and every number</span><span class="ufuq-ar" lang="ar">نموذج الطيران وكل أرقامه</span></a></p>
+  </section>
+
+  <section aria-labelledby="archive-title" class="archive">
+    <h2 id="archive-title"><span class="ufuq-en">Earlier phases</span><span class="ufuq-ar" lang="ar">المراحل السابقة</span></h2>
+    <p class="archive-note"><span class="ufuq-en">How the project got here. These are archived and are not the current aircraft.</span><span class="ufuq-ar" lang="ar">كيف وصل المشروع إلى هنا. هذه مراحل مؤرشفة وليست الطائرة الحالية.</span></p>
+    <ol class="phases" id="phases"></ol>
+  </section>
+  </div>
+</main>
+<footer class="ufuq-shell-foot">
+  <a class="ufuq-shell-foot__family" href="https://flygaca.com/"><img src="site/ufuq/flygaca-mark.png" alt="" width="48" height="48"><span class="ufuq-en">Part of Fly GACA</span><span class="ufuq-ar" lang="ar">جزء من فلاي قاكا</span></a>
+  <ul class="ufuq-shell-foot__links">
+    <li><a href="https://airspace.flygaca.com/"><span class="ufuq-en">Airspace</span><span class="ufuq-ar" lang="ar">المجال الجوي</span></a></li>
+    <li><a href="https://flygaca.com/"><span class="ufuq-en">Fly GACA</span><span class="ufuq-ar" lang="ar">فلاي قاكا</span></a></li>
+  </ul>
+  <p><span class="ufuq-en">Educational material. Not a training device and not for flight.</span><span class="ufuq-ar" lang="ar">مادة تعليمية. ليست جهاز تدريب وليست للطيران الفعلي.</span></p>
+  <p lang="en" dir="ltr">Not affiliated with GACA. Always verify against the latest official GACA publication.</p>
+  <p lang="ar" dir="rtl">غير تابعة لـ GACA. تحقّق دائمًا من أحدث منشور رسمي صادر عن GACA.</p>
+</footer>
+<script src="site/home-data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var H = window.HOME, V = '08_realistic_digital_twin/index.html';
+  if (!H) return;
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function both(parent, en, ar) { var a = el('span', 'ufuq-en', en), b = el('span', 'ufuq-ar', ar); b.lang = 'ar'; parent.appendChild(a); parent.appendChild(b); return parent; }
+  if (H.parts) {
+    var p = document.getElementById('parts');
+    both(p, H.parts.toLocaleString('en') + ' separate named parts.', H.parts.toLocaleString('en') + ' قطعة مسمّاة مستقلة.');
+    p.title = H.parts_from; p.hidden = false;
+  }
+  var ul = document.getElementById('lessons');
+  H.lessons.forEach(function (l) {
+    var li = el('li'), a = el('a', 'ufuq-link'), ref = el('span', 'ufuq-cite', l.poh);
+    a.href = V + '?mode=flight&scenario=' + encodeURIComponent(l.id);
+    both(a, l.en.charAt(0).toUpperCase() + l.en.slice(1), l.ar);
+    li.appendChild(a); li.appendChild(ref); ul.appendChild(li);
+  });
+  var ol = document.getElementById('phases');
+  H.phases.filter(function (x) { return x.id < '08'; }).forEach(function (x) {
+    var li = el('li'), id = el('span', 'ufuq-label phase-id', x.id), title = el(x.page ? 'a' : 'span', x.page ? 'ufuq-link' : '', x.title);
+    if (x.page) title.href = x.page;
+    title.lang = 'en'; title.dir = 'ltr';
+    li.appendChild(id); li.appendChild(title);
+    if (x.date) li.appendChild(el('span', 'phase-date ufuq-num', x.date));
+    ol.appendChild(li);
+  });
+})();
+</script>
+</body>
+</html>
