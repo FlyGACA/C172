@@ -1,0 +1,72 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 38RPN, 10 m bands B02 B03 B04 B08; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "per-scene scaling to the common median, then the median over the scenes",
+ "crs": "EPSG:32638",
+ "bounds_e_n_min_e_n_max": [
+  663720,
+  2786580,
+  666720,
+  2792380
+ ],
+ "pixel_m": 10,
+ "scenes": [
+  {
+   "id": "S2C_38RPN_20261115_0_L2A",
+   "datetime": "2026-11-15T07:42:52.403000Z"
+  },
+  {
+   "id": "S2C_38RPN_20261105_0_L2A",
+   "datetime": "2026-11-05T07:42:49.502000Z"
+  },
+  {
+   "id": "S2A_38RPN_20261018_1_L2A",
+   "datetime": "2026-10-18T07:43:04.452000Z"
+  },
+  {
+   "id": "S2C_38RPN_20261016_0_L2A",
+   "datetime": "2026-10-16T07:42:55.239000Z"
+  },
+  {
+   "id": "S2C_38RPN_20261006_0_L2A",
+   "datetime": "2026-10-06T07:42:55.853000Z"
+  },
+  {
+   "id": "S2A_38RPN_20260928_1_L2A",
+   "datetime": "2026-09-28T07:43:07.842000Z"
+  },
+  {
+   "id": "S2C_38RPN_20260926_0_L2A",
+   "datetime": "2026-09-26T07:42:55.185000Z"
+  },
+  {
+   "id": "S2B_38RPN_20260921_0_L2A",
+   "datetime": "2026-09-21T07:42:53.332000Z"
+  },
+  {
+   "id": "S2C_38RPN_20260916_0_L2A",
+   "datetime": "2026-09-16T07:42:53.357000Z"
+  },
+  {
+   "id": "S2C_38RPN_20260906_0_L2A",
+   "datetime": "2026-09-06T07:42:52.070000Z"
+  },
+  {
+   "id": "S2C_38RPN_20260718_0_L2A",
+   "datetime": "2026-07-18T07:42:55.665000Z"
+  },
+  {
+   "id": "S2C_38RPN_20260708_0_L2A",
+   "datetime": "2026-07-08T07:42:54.231000Z"
+  },
+  {
+   "id": "S2B_38RPN_20260703_0_L2A",
+   "datetime": "2026-07-03T07:42:51.589000Z"
+  },
+  {
+   "id": "S2A_38RPN_20260630_1_L2A",
+   "datetime": "2026-06-30T07:43:10.773000Z"
+  }
+ ]
+}

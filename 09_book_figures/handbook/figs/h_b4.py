@@ -1,13 +1,13 @@
 """Helpers of worker b4 (the circuit of Thumamah, figures 18-6 and 26-1; not a figure: plates_spec.py only loads f_*.py). Plain Python, no Blender, no Pillow.
 
-The ground plan is the one of figure 18-1 (figs/f_18_01_aerodrome_plan.py): the runway, its stopways, the pavements, the buildings, the road and the berm of Thumamah from
-data/oeth_plan.json, in the runway frame: `s` metres from the threshold of runway 17 (the north end) towards runway 35 (the south end), `t` metres to the west of the centreline. The
+The ground plan is the one of figure 18-1 (figs/f_18_01_aerodrome_plan.py): the runway and its stopways from the AIP, the pavements, the roofs and the road of Thumamah derived from open
+Sentinel-2 imagery (data/oeth_plan.json; "Contains modified Copernicus Sentinel data 2026"), in the runway frame: `s` metres from the threshold of runway 17 (the north end) towards runway 35 (the south end), `t` metres to the west of the centreline. The
 page is the frame itself: x = s, y = t (west down, so that north is to the left, a little up: the north arrow says so).
 
     Plan        the frame of a plan view: page x = x0 + s k, y = y0 + t k (k units to the metre)
     Path        a route in the frame (lines and arcs), measured along, with marks
     circuit35   the left-hand circuit for runway 35 (the AIP: circuit altitude 2 900 ft AMSL, both circuits on the west side); its shape is illustrative: the AIP gives no size
-    aerodrome   the runway, stopways, pavements, buildings, road and berm to scale, small
+    aerodrome   the runway, stopways, pavements, buildings and road to scale, small
     route       a thick ribbon with a white casing and a soft shadow, with solid arrowheads along it
     north_arrow, scale_bar, ground_card, frame, wind_arrows, profile pieces (sky card, ground)
 
@@ -283,13 +283,11 @@ def _path_of(ring_ts, P):
 
 
 def aerodrome(P, runway_text=True, markings=True):
-    """Thumamah to scale: the berm and the road as faint lines, the pavements (concrete pale grey, asphalt dark, each on a graded shoulder), the runway with its edge lines and centreline,
+    """Thumamah to scale: the road as a faint line, the pavements (concrete pale grey, asphalt dark, each on a graded shoulder), the runway with its edge lines and centreline,
     the two stopways outlined in yellow, the buildings with a short shadow. Drawn at the plan's scale `P.k` (units to the metre): small, so the paint is a hair wider than life."""
     f = P.xy
     out = []
-    berm = " ".join(f"{x:.1f},{y:.1f}" for x, y in (f(s, t) for t, s in PLAN["lines"]["EAST_BERM"]))
     road = " ".join(f"{x:.1f},{y:.1f}" for x, y in (f(s, t) for t, s in PLAN["lines"]["ACCESS_ROAD"]))
-    out.append(f'<polyline points="{berm}" fill="none" stroke="#8E7A54" stroke-opacity="0.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>')
     out.append(f'<polyline points="{road}" fill="none" stroke="#B9AD90" stroke-opacity="0.55" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>'
                f'<polyline points="{road}" fill="none" stroke="#4B5363" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>'
                f'<polyline points="{road}" fill="none" stroke="#F1E3A0" stroke-width="0.3" stroke-dasharray="1.6 1.6" stroke-linecap="round"/>')
