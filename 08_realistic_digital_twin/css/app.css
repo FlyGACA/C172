@@ -15,6 +15,8 @@ input[type=number] { width:5.5em; background:var(--panel2); border:1px solid var
 .seg button { white-space:nowrap; }
 .brand { display:flex; gap:8px; align-items:baseline; white-space:nowrap; }
 .logo { font-weight:800; color:var(--gold); letter-spacing:.5px; }
+a.logo { display:inline-flex; align-items:center; gap:6px; text-decoration:none; align-self:center; }
+a.logo:hover { text-decoration:underline; }
 #title { color:var(--mute); font-size:.9rem; }
 .seg { display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
 .seg button { border:0; border-radius:0; background:transparent; }

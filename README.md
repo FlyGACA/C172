@@ -4,6 +4,14 @@ Canonical repository for the FlyGACA Cessna 172N educational 3D project (replace
 Reference aircraft: **Cessna 172N, 1979 model**, factory-standard educational baseline;
 the configuration of a specific serial number is not verified.
 
+## The site
+
+The repository root is the deployed folder (`c172.flygaca.com`). [`index.html`](index.html) is the front door: it opens the Phase 8 aircraft, links the flight lessons, the pilot's seat, the gallery and the parts index, and lists the earlier phases as an archive. It used to redirect to the archived Phase 6 viewer.
+
+- The facts on the page (the part count, the lessons, the phases) are read from [`site/home-data.js`](site/home-data.js), which `npm run build:site` writes from `RELEASES.md`, `shared/js/lessons.js` and the Phase 8 parts index. `npm run check:site` and `npm test` fail when it is stale.
+- The header, footer, colours and type come from the Ufuq design system, vendored in [`site/ufuq/`](site/ufuq/README.md) and never edited here. The page is in Arabic and English, in a day and a night theme.
+- Who may open the site is set at Cloudflare, not in the pages: [`docs/ACCESS.md`](docs/ACCESS.md).
+
 **Latest: [Phase 8 — realistic digital twin (Blender-built airframe, cockpit, engine)](08_realistic_digital_twin/)**
 and **[Phase 9 — book figures](09_book_figures/)**. The outline of the Phase 8 airframe follows the
 manufacturer's three-view drawing ([how](08_realistic_digital_twin/docs/05_shape_reference.md)), and the
