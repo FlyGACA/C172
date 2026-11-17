@@ -1,13 +1,13 @@
-"""Figure 10-4. Compass turning and acceleration errors in the northern hemisphere. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+"""Figure 10-5. Compass turning and acceleration errors in the northern hemisphere. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
 
 
 def plate():
     return {
-        "id": "fig-10-04-compass-errors",
-        "replaces": "fig-10-04-compass-errors.svg",
-        "book_file": "plate-10-04-compass-errors.jpg",
-        "caption": "Figure 10-4. Compass turning and acceleration errors in the northern hemisphere",
-        "desc": "Figure 10-4. Compass turning and acceleration errors in the northern hemisphere",
+        "id": "fig-10-05-compass-errors",
+        "replaces": "fig-10-05-compass-errors.svg",
+        "book_file": "plate-10-05-compass-errors.jpg",
+        "caption": "Figure 10-5. Compass turning and acceleration errors in the northern hemisphere",
+        "desc": "Figure 10-5. Compass turning and acceleration errors in the northern hemisphere",
         "legend": [
             "Turning onto north, here a right turn from west: the compass lags, so roll out while it still reads short of 360°.",
             "Turning onto south, here a right turn from east: the compass leads, so roll out after it passes 180°.",
