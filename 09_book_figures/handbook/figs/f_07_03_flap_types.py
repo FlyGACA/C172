@@ -1,4 +1,4 @@
-"""Figure 7-2. Trailing-edge flap types and a leading-edge slat, in section. Six cards, each a wing section drawn as a lit solid (the outlines of the old figure, kept exactly: the same
+"""Figure 7-3. Trailing-edge flap types and a leading-edge slat, in section. Six cards, each a wing section drawn as a lit solid (the outlines of the old figure, kept exactly: the same
 aerofoil, the same hinge points, the same angles of deflection, the same slots): a light upper surface and a darker lower one, a rim of light along the top, a soft shadow, the flap in
 amber hinged on a small metal pin and deflected as in the old figure, the dashed arc the flap travels, the dashed ghost of the retracted wing for the Fowler flap, thin streamlines of
 air over and under each section, and the blue ribbons of the old figure where air runs through a slot. The six numbered callouts are kept."""
@@ -20,7 +20,7 @@ CARDS = [(8, 6, 308, 112), (8, 122, 308, 112), (8, 238, 308, 112), (324, 6, 308,
 
 def load_paths():
     """The paths of the old drawing, in the order the file has them: [(d, points)] (a polyline for the outlines, the sampled curve for the arcs and arrows)."""
-    with open(os.path.join(HERE, "old", "fig-07-02-flap-types.svg"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "old", "fig-07-03-flap-types.svg"), encoding="utf-8") as f:
         svg = f.read()
     out = []
     for m in re.finditer(r'<path d="([^"]+)" fill="([^"]*)" stroke="([^"]*)" stroke-width="([\d.]+)"([^/]*)/>', svg):
@@ -151,11 +151,11 @@ def plate():
     paths = load_paths()
     layers = ['<rect x="0" y="0" width="640" height="360" fill="#ffffff"/>', H.common_defs(U), gradients(), cells(paths), callouts()]
     return {
-        "id": "fig-07-02-flap-types",
-        "replaces": "fig-07-02-flap-types.svg",
-        "book_file": "plate-07-02-flap-types.jpg",
-        "caption": "Figure 7-2. Trailing-edge flap types and a leading-edge slat, in section",
-        "desc": "Figure 7-2. Trailing-edge flap types and a leading-edge slat, in section",
+        "id": "fig-07-03-flap-types",
+        "replaces": "fig-07-03-flap-types.svg",
+        "book_file": "plate-07-03-flap-types.jpg",
+        "caption": "Figure 7-3. Trailing-edge flap types and a leading-edge slat, in section",
+        "desc": "Figure 7-3. Trailing-edge flap types and a leading-edge slat, in section",
         "legend": [
             "Basic section, flaps retracted.",
             "Plain flap: the rear of the wing hinges down. More lift, much more drag, and a nose-down pitching tendency.",
@@ -166,5 +166,5 @@ def plate():
         ],
         "canvas": [640, 360],
         "background": "pale",
-        "reskin": {"svg": "fig-07-02-flap-types.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-07-03-flap-types.svg", "blank": True, "layers": layers},
     }
