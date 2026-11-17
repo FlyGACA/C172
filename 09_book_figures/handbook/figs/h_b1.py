@@ -1,4 +1,4 @@
-"""Helpers of worker b1 (the Saudi round, the two side views: Figure 17-1 and Figure 17-9).
+"""Helpers of worker b1 (the Saudi round, the two side views: Figure 17-1 and Figure 17-10).
 
 * the real geometry of the vertical section from Thumamah (OETH) to Riyadh King Khaled (OERK), worked out from data/saudi_airspace.json in an equirectangular frame round the
   Thumamah ARP (x_nm = (lon - lon0) * 60 * cos(lat0), y_nm = (lat - lat0) * 60): where the line crosses each ring of the file, the ground between the two elevations;

@@ -1,4 +1,4 @@
-"""Figure 17-8. The worked example in plan view: a local flight from Thumamah (OETH - North VRP - East VRP - OETH, 5.2 + 8.7 + 8.9 = 22.8 NM). A plan on a shaded relief of the real country (open elevation data, NASA SRTM; figs/terrain_real.py), drawn to
+"""Figure 17-9. The worked example in plan view: a local flight from Thumamah (OETH - North VRP - East VRP - OETH, 5.2 + 8.7 + 8.9 = 22.8 NM). A plan on a shaded relief of the real country (open elevation data, NASA SRTM; figs/terrain_real.py), drawn to
 scale from the AIP (AMDT 11/26) data of data/saudi_airspace.json: an equirectangular frame round the Thumamah reference point, 13.33 canvas units to the NM (48 x 30 NM), north up, with
 Thumamah left of the middle. The Thumamah aerodrome traffic zone (Class G, a true circle of 5 NM), the Riyadh final director area for runway 15L (Class C, the rotated rectangle of the
 file, which contains the whole zone), the Riyadh control zone (Class D, a true circle of 10 NM round Riyadh, the northern part of it), the terminal control areas (Class C: the faint indigo
@@ -19,7 +19,7 @@ OETH, OERK = H.DATA["oeth"], H.DATA["oerk"]
 AREAS = H.DATA["areas"]
 F = H.Frame(OETH["arp"]["lat"], OETH["arp"]["lon"], SCALE, 284.0, 173.3)     # Thumamah lies at (284, 173.3): the frame shows 21.3 NM to the west of it, 26.7 to the east, 13 to the north, 17 to the south
 # the ground is the real country: a shaded relief of open elevation data (NASA SRTM, public domain) in this frame, lit from the north-west
-TR.ensure("terrain-17-08-relief", F, (W, HT), veil=0.30, soft=1.0, exaggeration=9.0)
+TR.ensure("terrain-17-09-relief", F, (W, HT), veil=0.30, soft=1.0, exaggeration=9.0)
 
 T = F.xy(OETH["arp"]["lon"], OETH["arp"]["lat"])
 K = F.xy(OERK["arp"]["lon"], OERK["arp"]["lat"])
@@ -162,7 +162,7 @@ def callouts():
 
 
 def layers():
-    out = [H.defs(U, W, HT), f'<g filter="url(#{U}warm)">', {"name": "terrain-17-08-relief", "at": [W / 2, HT / 2], "width": W}, "</g>", H.vignette(U, W, HT), grid(), airspace(), special_use(), riyadh_runways()]
+    out = [H.defs(U, W, HT), f'<g filter="url(#{U}warm)">', {"name": "terrain-17-09-relief", "at": [W / 2, HT / 2], "width": W}, "</g>", H.vignette(U, W, HT), grid(), airspace(), special_use(), riyadh_runways()]
     out.append(H.route(U, ROUTE, 5.2, head_len=13.0, chevrons=0, mid_heads=head_marks()))
     out.append(thumamah_runway())                                  # the runway lies over the two ends of the ribbon: the route starts and ends at the aerodrome
     out.append(H.vrp(U, *NV, 11.0) + H.vrp(U, *EV, 11.0))
@@ -176,11 +176,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-17-08-route-plan-view",
-        "replaces": "fig-17-08-route-plan-view.svg",
-        "book_file": "plate-17-08-route-plan-view.jpg",
-        "caption": "Figure 17-8. The worked example in plan view: a local flight from Thumamah",
-        "desc": "Figure 17-8. The worked example in plan view: a local flight from Thumamah. North up; limits from the AIP (AMDT 11/26); not for navigation.",
+        "id": "fig-17-09-route-plan-view",
+        "replaces": "fig-17-09-route-plan-view.svg",
+        "book_file": "plate-17-09-route-plan-view.jpg",
+        "caption": "Figure 17-9. The worked example in plan view: a local flight from Thumamah",
+        "desc": "Figure 17-9. The worked example in plan view: a local flight from Thumamah. North up; limits from the AIP (AMDT 11/26); not for navigation.",
         "legend": [
             "The Thumamah ATZ, Class G: radius 5 NM, surface to 3 000 ft AMSL.",
             "The Riyadh terminal control areas (East and West), Class C, from 700 ft above the ground: all the ground in the frame except the ATZ and the control zone.",
@@ -197,5 +197,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-17-08-route-plan-view.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-17-09-route-plan-view.svg", "blank": True, "layers": layers()},
     }

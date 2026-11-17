@@ -124,6 +124,60 @@ facts["oers"]["comms"] = {"tower": {"callsign": "Red Sea Tower", "mhz": 118.2, "
 facts["oers"]["ctr"]["lateral_printed"] = "252743N 0370421E - 254122N 0365503E then a clockwise arc 10NM centred on 253742N 0370520E 252743N 0370421E"
 facts["oers"]["tiba_rule"] = "AD 2.22.1.2: TIBA on 122.8 MHZ in class G airspace: outside all CTAs, TMAs and CTRs; off AWYs below FL150; ...; within uncontrolled aerodrome in non-TWR operating hours; where there is no ATS unit to provide FIS"
 
+# Jeddah, typed from the official page (AD 2 OEJN, AMDT 11/26, read 2026-11-12 and again 2026-11-17): the reporting points of AD 2.22.12, the route of AD 2.22.11, the DVOR/TACAN of
+# AD 2.19 and the frequencies of AD 2.18 and of the Visual Approach Chart (page AD 2 OEJN - 205), as printed. Seconds are printed with one decimal for some points and none for others.
+def dms1(lat, lon):
+    """'215322.9N', '0391525.9E' -> degrees."""
+    a, b = float(lat[:-1]), float(lon[:-1])
+    return round(int(a // 10000) + int(a % 10000 // 100) / 60 + (a % 100) / 3600, 7), round(int(b // 10000) + int(b % 10000 // 100) / 60 + (b % 100) / 3600, 7)
+
+
+OEJN_JDW = ("214244.3N", "0390723.2E")                     # DVOR/TACAN JDW 115.300 MHZ (CH100X), declination 04 E
+OEJN_POINTS = (("VRP01", "University of Jeddah (North)", "RDL 032 from JDW 13.0NM", "215322.9N", "0391525.9E", "approach"),
+               ("VRP02", "Highway junctions and intersection of King Abdullah Sports City (0.6 NM East of King Abdullah Sports City)", "RDL 032 from JDW 4.8 NM", "214643.0N", "0391019.0E", "tower_east"),
+               ("VRP03", "Highway junctions and intersection of Airbase (3.2 NM East of King Abdulaziz international airport)", "RDL 103 from JDW 4.8 NM", "214123.0N", "0391223.0E", "tower_east"),
+               ("VRP04", "Highway junctions and intersection of Tahliya Street (0.8 NM East of AlAhli club)", "RDL 142 from JDW 10.6 NM", "213405.0N", "0391354.0E", "tower_east"),
+               ("VRP05", "Abruq Al-Rughamah (2.5 NM South East of Jeddah Central train station)", "RDL 142 from JDW 14.8 NM", "213026.2N", "0391625.9E", "approach"),
+               ("VRP06", "Makkah - Jeddah Highway junctions East of Prince Abdullah Al Faisal Stadium (0.5 NM East of Prince Abdullah Al Faisal Stadium)", "RDL 151 from JDW 17.5 NM", "212655.0N", "0391532.0E", "approach"),
+               ("VRP08", "King Abdul Aziz road junctions and intersection of Hira Street (Bank Al Jazira, the Head Office)", "RDL 175 from JDW 6.4 NM", "213622.3N", "0390714.2E", "tower_west"),
+               ("VRP09", "Marine Sciences roundabout (Abhor)", "RDL 252 from JDW 1.1 NM", "214228.0N", "0390612.0E", "tower_west"),
+               ("VRP10", "Prince Abdulmajeed Street West of King Abdullah Medical Complex", "RDL 317 from JDW 4.0 NM", "214548.0N", "0390438.0E", "tower_west"),
+               ("VRP11", "Prince Abdulmajeed street North of King Abdullah Medical Complex", "RDL 336 from JDW 5.1 NM", "214727.0N", "0390529.0E", "tower_west"),
+               ("VRP12", "Prince Abdulmajeed Street junctions and intersection of Madinah Road (East of King Abdullah Medical Complex)", "RDL 356 from JDW 5.0 NM", "214747.0N", "0390718.0E", "tower_east"),
+               ("VRP13", "Lake City", "RDL 320 from JDW 8.7 NM", "214944.0N", "0390146.4E", "approach"),
+               ("KHOAR", "-", "RDL 039 from JDW 39.4 NM", "221200.0N", "0393600.0E", None),
+               ("GHARI", "-", "RDL 039 from JDW 59.1 NM", "222600.0N", "0395100.0E", None),
+               ("AZIZI", "-", "RDL 143 from JDW 15.0 NM", "212757.0N", "0391827.0E", None))
+jdw_lat, jdw_lon = dms1(*OEJN_JDW)
+facts["oejn"]["jdw"] = {"type": "DVOR/TACAN", "id": "JDW", "mhz": 115.3, "declination_e_deg": 4, "dms": list(OEJN_JDW), "lat": jdw_lat, "lon": jdw_lon}
+facts["oejn"]["points"] = []
+for name, place, printed, la, lo, unit in OEJN_POINTS:
+    lat, lon = dms1(la, lo)
+    d_arp, b_arp = dist_brg(aer["OEJN"]["arp"]["lat"], aer["OEJN"]["arp"]["lon"], lat, lon)
+    d_jdw, b_jdw = dist_brg(jdw_lat, jdw_lon, lat, lon)
+    rdl, nm = int(printed.split()[1]), float(printed.split("JDW")[1].replace("NM", ""))
+    row = {"id": name, "place": place, "printed": printed, "dms": [la, lo], "lat": lat, "lon": lon, "contact": unit, "from_arp_nm_derived": round(d_arp, 2), "from_arp_true_deg_derived": round(b_arp, 1),
+           "inside_ctr_derived": bool(d_arp < 10), "from_jdw_nm_derived": round(d_jdw, 2), "from_jdw_magnetic_deg_derived": round((b_jdw - 4) % 360, 1)}
+    if abs(d_jdw - nm) > 0.5 or abs(((b_jdw - 4 - rdl + 180) % 360) - 180) > 3:
+        row["inconsistent"] = f"the printed coordinates lie {d_jdw:.1f} NM from JDW on radial {(b_jdw - 4) % 360:03.0f}; the printed bearing and distance say {nm:.1f} NM on radial {rdl:03d}. Kept as printed; drawn at the coordinates"
+    facts["oejn"]["points"].append(row)
+assert [r["id"] for r in facts["oejn"]["points"] if "inconsistent" in r] == ["AZIZI"]            # the only one: 3.0 NM
+assert [r["id"] for r in facts["oejn"]["points"] if r["contact"] and not r["inside_ctr_derived"]] == ["VRP01", "VRP05", "VRP06", "VRP13"]      # the four gates lie outside the zone, the eight others inside
+facts["oejn"]["comms"] = {"approach": {"callsign": "Jeddah Approach", "mhz": 124.0, "hours": "H24", "remark": "VHF APP"},
+                          "tower_west": {"callsign": "Jeddah Tower", "mhz": 118.2, "hours": "H24", "remark": "TWR West; the Visual Approach Chart prints 118.2 (W)"},
+                          "tower_east": {"callsign": "Jeddah Tower", "mhz": 118.5, "hours": "H24", "remark": "TWR EAST / East; AD 2.22.11: TWR-E on 118.500 MHz; the Visual Approach Chart prints 118.5 (E)"},
+                          "note": "AD 2.18 and the Visual Approach Chart - ICAO (AD 2 OEJN - 205, 29 OCT 2026), which prints TWR: 118.2 (W) 118.3 (C) 118.5 (E) 124.3 (E) and APP: 124.0 123.8 124.675 125.850. The remarks of AD 2.18 run together in AMDT 11/26 (TWR West; TWR Center WEST SDBY; TWR EAST East; Backup TWR EAST SDBY); AMDT 12/26 prints them as TWR West, TWR Center, TWR East and Backup, with the same frequencies"}
+facts["oejn"]["vfr"] = {"within_ctr": ["These VRPs not to be used as holding point.", "VFR flights operating via (VRP02, VRP03, VRP04 and VRP12) shall contact Jeddah TWR East.",
+                                       "VFR flights operating via (VRP08, VRP09, VRP10 and VRP11) shall contact Jeddah TWR West.",
+                                       "VFR flights operating via (VRP01, VRP05, VRP06 and VRP13) shall contact Jeddah Approach control 10NM prior the VRPs.",
+                                       "Entry and exit to and from OEJN CTR shall be via VRP01, VRP05, VRP06 and VRP13.", "Pilots expect frequency change instructions as directed by ATC."],
+                        "uvr": {"JDW1": ["VRP06", "AZIZI", "VRP01", "KHOAR", "GHARI", "DAFINAH", "MOLAQ"], "max_ft_agl": 500,
+                                "printed": ["The maximum UVR altitude is 500 FT AGL, and any request for higher altitude is subject to ATC approval.",
+                                            "Aircraft intending to utilize UVR from point AZIZI to VRP01 must first hold at AZIZI and request clearance to transition the CTR from TWR-E on 118.500 MHz.",
+                                            "Aircraft intending to utilize UVR from point VRP01 to AZIZI must first hold at VRP01 and request clearance to transition the CTR from TWR-E on 118.500 MHz.",
+                                            "No aircraft under any circumstances shall enter or exit OEJN CTR without clearance from Jeddah Aerodrome Control Tower."],
+                                "note": "AD 2.22.11 and 2.22.12. DAFINAH and MOLAQ are in the path and not in the table of points. The table has no VRP07. 2.22.11 has aircraft hold at VRP01, and 2.22.12 says of the VRPs that they are not to be used as holding point: both kept as printed. 'UVR charts are published on SANS Website': not seen"}}
+
 # ---------------------------------------------------------------- areas
 facts["areas"] = {
     "oeth_atz_ring": ring(apt[("OETH", "ATZ")]),

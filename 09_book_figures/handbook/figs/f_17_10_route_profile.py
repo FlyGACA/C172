@@ -1,4 +1,4 @@
-"""Figure 17-9. The worked example in profile along the route: the three legs of the worked example (OETH - North VRP - East VRP - OETH, 5.2 + 8.7 + 8.9 = 22.8 NM, data/saudi_airspace.json
+"""Figure 17-10. The worked example in profile along the route: the three legs of the worked example (OETH - North VRP - East VRP - OETH, 5.2 + 8.7 + 8.9 = 22.8 NM, data/saudi_airspace.json
 `worked_example_route`) unrolled into one line. x is the distance along the route in NM, from 0 to 22.8 (the picture runs from -1.9 to 24.8 so that the runway at each end shows whole); y is the
 height above mean sea level in feet, linear, from 1 500 to 5 000. The scale is 574 canvas units to 26.7 NM (21.5 units to the NM) and 330 units to 3 500 ft (94.3 units to 1 000 ft): the
 vertical scale is exaggerated (about 27 times against the horizontal one).
@@ -290,11 +290,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-17-09-route-profile",
-        "replaces": "fig-17-09-route-profile.svg",
-        "book_file": "plate-17-09-route-profile.jpg",
-        "caption": "Figure 17-9. The worked example in profile along the route",
-        "desc": ("Figure 17-9. The worked example in profile along the route. The three legs of the worked example unrolled: the Thumamah aerodrome traffic zone at each end, Class C from 700 ft above "
+        "id": "fig-17-10-route-profile",
+        "replaces": "fig-17-10-route-profile.svg",
+        "book_file": "plate-17-10-route-profile.jpg",
+        "caption": "Figure 17-10. The worked example in profile along the route",
+        "desc": ("Figure 17-10. The worked example in profile along the route. The three legs of the worked example unrolled: the Thumamah aerodrome traffic zone at each end, Class C from 700 ft above "
                  "the ground over the whole route, the climb out of Thumamah, the level at 3 500 ft past the North and East VRPs and the ridge, the descent to the circuit altitude. "
                  "Feet above mean sea level against nautical miles along the route; vertical scale exaggerated; the ground is from open elevation data (NASA SRTM) under the straight lines between the points; not for navigation."),
         "legend": [
@@ -309,5 +309,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-17-09-route-profile.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-17-10-route-profile.svg", "blank": True, "layers": layers()},
     }

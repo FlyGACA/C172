@@ -1,4 +1,4 @@
-"""Figure 17-7. The air traffic services a VFR flight meets from departure to arrival: a plan of the flight from Riyadh King Khaled (OERK) to Thumamah (OETH), 15.5 NM on the true
+"""Figure 17-8. The air traffic services a VFR flight meets from departure to arrival: a plan of the flight from Riyadh King Khaled (OERK) to Thumamah (OETH), 15.5 NM on the true
 bearing 346 degrees, on an aerial view of the plain, drawn to scale from the AIP (AMDT 11/26) data of data/saudi_airspace.json (frame: an equirectangular projection round the middle of
 the two aerodromes, 17 canvas units to the NM, north up). The Riyadh control zone (Class D, 10 NM round OERK), the Thumamah aerodrome traffic zone (Class G, 5 NM round OETH), the final
 director area for runway 15L (Class C, the rotated rectangle of the file) and the terminal control area (Class C: the faint indigo over all the ground, with the two zones cut out of it);
@@ -12,7 +12,7 @@ W, HT = 640, 400
 U = "b26"
 SCALE = 17.0                                                         # canvas units to the NM
 
-terrain.ensure("terrain-17-07-saudi", size=(W * 4, HT * 4), seed=1706, kind="plain", features=(), veil=0.42, soft=3.0)
+terrain.ensure("terrain-17-08-saudi", size=(W * 4, HT * 4), seed=1706, kind="plain", features=(), veil=0.42, soft=3.0)
 
 OETH, OERK = H.DATA["oeth"], H.DATA["oerk"]
 MID = ((OETH["arp"]["lat"] + OERK["arp"]["lat"]) / 2, (OETH["arp"]["lon"] + OERK["arp"]["lon"]) / 2)
@@ -132,7 +132,7 @@ def callouts():
 
 
 def layers():
-    out = [H.defs(U, W, HT), f'<g filter="url(#{U}warm)">', {"name": "terrain-17-07-saudi", "at": [W / 2, HT / 2], "width": W}, "</g>", H.vignette(U, W, HT), grid(), airspace()]
+    out = [H.defs(U, W, HT), f'<g filter="url(#{U}warm)">', {"name": "terrain-17-08-saudi", "at": [W / 2, HT / 2], "width": W}, "</g>", H.vignette(U, W, HT), grid(), airspace()]
     rp = route_points()
     out.append(H.band(U, rp + [N_END], 18.0, opacity=0.36))
     out.append(runways())
@@ -148,11 +148,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-17-07-ats-along-a-flight",
-        "replaces": "fig-17-07-ats-along-a-flight.svg",
-        "book_file": "plate-17-07-ats-along-a-flight.jpg",
-        "caption": "Figure 17-7. The air traffic services a VFR flight meets from departure to arrival",
-        "desc": ("Figure 17-7. The air traffic services a VFR flight meets from departure to arrival. "
+        "id": "fig-17-08-ats-along-a-flight",
+        "replaces": "fig-17-08-ats-along-a-flight.svg",
+        "book_file": "plate-17-08-ats-along-a-flight.jpg",
+        "caption": "Figure 17-8. The air traffic services a VFR flight meets from departure to arrival",
+        "desc": ("Figure 17-8. The air traffic services a VFR flight meets from departure to arrival. "
                  "North up; limits from the AIP (AMDT 11/26); the whole leg lies inside the Riyadh terminal control area except the two zones; not for navigation."),
         "legend": [
             "Riyadh King Khaled: the tower clears you to taxi and take off [[§91.99(f)]] [[§91.127(i)]].",
@@ -164,5 +164,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-17-07-ats-along-a-flight.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-17-08-ats-along-a-flight.svg", "blank": True, "layers": layers()},
     }

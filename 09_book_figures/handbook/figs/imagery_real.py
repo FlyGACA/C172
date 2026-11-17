@@ -1,6 +1,7 @@
 """A real picture of the country to lay under a map: open satellite imagery (Copernicus Sentinel-2) kept in data/open/ with what describes it,
     oeth_area_s2      the country round Thumamah, 10 m to the pixel, UTM zone 38 N (data/open/fetch_oeth_area_open.py)
     oers_area_s2      the coast round Red Sea International, 20 m to the pixel, UTM zone 37 N (data/open/fetch_oers_area_open.py)
+    oejn_area_s2      Jeddah, its coast and the sea west of it, 30 m to the pixel, UTM zone 37 N (data/open/fetch_oejn_area_open.py)
 Every use carries the attribution "Contains modified Copernicus Sentinel data 2026". numpy and Pillow only.
 
     covers(frame, canvas, picture=...)            whether the picture covers the whole map of a frame (figs/h_b2.Frame) on a canvas of (w, h) units
@@ -79,9 +80,11 @@ def covers(frame, canvas, picture=DEFAULT):
     return bool(rows.min() >= 0 and cols.min() >= 0 and rows.max() <= high - 1 and cols.max() <= wide - 1)
 
 
-def ensure(name, frame, canvas, px_per_unit=4, veil=0.14, saturation=0.9, lift=1.06, picture=DEFAULT):
+def ensure(name, frame, canvas, px_per_unit=4, veil=0.14, saturation=0.9, lift=1.06, picture=DEFAULT, deep=None):
     """The picture in the map of `frame` on a canvas of (w, h) units, a little paler (`veil` towards a pale sand), a little less coloured and a little lighter, so that
-    the lines drawn over it read; where the map leaves the picture the ground is the pale sand."""
+    the lines drawn over it read; where the map leaves the picture the ground is the pale sand. `deep` (a colour) replaces deep water: what is both dark (a lightness under
+    0.09 wholly, up to 0.2 in part) and bluer than it is red. The stretch of a picture that is half desert leaves the open sea nearly black, with the seams of the satellite's
+    tiles showing in it; it becomes one deep blue, while reefs and shallows, which are lighter, and dark ground, which is not blue, keep their colours."""
     path = os.path.join(RENDERS, name + ".png")
     if os.path.exists(path):
         return path
@@ -93,6 +96,11 @@ def ensure(name, frame, canvas, px_per_unit=4, veil=0.14, saturation=0.9, lift=1
     r0, c0 = r.astype(int), c.astype(int)
     fr, fc = (r - r0)[..., None], (c - c0)[..., None]
     rgb = pic[r0, c0] * (1 - fr) * (1 - fc) + pic[r0, c0 + 1] * (1 - fr) * fc + pic[r0 + 1, c0] * fr * (1 - fc) + pic[r0 + 1, c0 + 1] * fr * fc
+    if deep is not None:
+        dark = np.clip((0.2 - rgb.mean(axis=2, keepdims=True) / 255.0) / 0.11, 0.0, 1.0)
+        blue = np.clip((rgb[..., 2:3] - rgb[..., 0:1] + 2.0) / 8.0, 0.0, 1.0)
+        w = dark * dark * (3.0 - 2.0 * dark) * blue
+        rgb = rgb * (1.0 - w) + np.array(deep, dtype=np.float32) * w
     grey = rgb.mean(axis=2, keepdims=True)
     rgb = (grey + (rgb - grey) * saturation) * lift
     pale = np.array([244, 235, 211], dtype=np.float32)
