@@ -1,0 +1,17 @@
+{
+ "source": "NASA Shuttle Radar Topography Mission (SRTM), 1 arc-second, from the Terrain Tiles open dataset on AWS (skadi HGT tiles N24E046, N25E046, N24E047, N25E047)",
+ "licence": "SRTM data are in the public domain",
+ "attribution": "Elevation: NASA SRTM",
+ "north": 25.5,
+ "south": 24.7,
+ "west": 46.2,
+ "east": 47.2,
+ "step_arcsec": 2,
+ "shape": [
+  1441,
+  1801
+ ],
+ "units": "metres above mean sea level (EGM96)",
+ "min_m": 532,
+ "max_m": 991
+}

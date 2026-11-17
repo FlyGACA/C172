@@ -5,8 +5,8 @@ The frame: the distance along the line from OETH (the line is 15.5 NM long, true
 equirectangular frame round the Thumamah ARP (x = dlon * 60 * cos(lat0), y = dlat * 60, 1 NM = 1852 m); the height above mean sea level, linear, from 0 to 22 000 ft. The scale is
 574 canvas units to 36 NM (15.94 units to the NM) and 328 units to 22 000 ft (14.9 units to 1 000 ft). Every limit comes from the file: the ATZ (5 NM round OETH, surface to 3 000 ft), the control
 zone (10 NM round OERK, surface to 4 500 ft), the Riyadh East terminal control area part 1 (700 ft above the ground to FL 195; the line leaves its ring where the file's ring
-ends, inside the control zone), the final director area for 15L (700 ft above the ground to 11 000 ft; the line leaves its ring over the airport), FL 150. The ground runs between the two
-aerodrome elevations, 1 870 and 2 053 ft. Beyond the end of the terminal area's ring the file has no limits (the Riyadh West terminal area is not in it), so what lies there is drawn fading out.
+ends, inside the control zone), the final director area for 15L (700 ft above the ground to 11 000 ft; the line leaves its ring over the airport), FL 150. The ground is the real ground under
+the line (NASA SRTM, public domain; figs/terrain_real.py), level at each aerodrome's elevation, 1 870 and 2 053 ft, along its runways; the floors that stand 700 ft above the ground follow it. Beyond the end of the terminal area's ring the file has no limits (the Riyadh West terminal area is not in it), so what lies there is drawn fading out.
 The ten numbered callouts are those of the brief's legend (figs/h_b1.py makes the pieces)."""
 import math
 import re
@@ -14,6 +14,7 @@ import re
 from figs import h_a1 as A1
 from figs import h_b1 as B
 from figs import scene as S
+from figs import terrain_real as TR
 
 W, HT = 640, 372
 U = "b171"
@@ -65,15 +66,33 @@ OETH_RWY = SEC.runway_span(DATA["oeth"]["runways"])
 OERK_RWY = SEC.runway_span(DATA["oerk"]["runways"][:2])             # the other pair of runways lies on the same stretch of the line
 
 
+# the ground under the line: open elevation data, every 0.1 NM; level at each aerodrome's elevation along its runways
+_G0 = S0 - 0.5
+_PROFILE = [TR.elevation_m(SEC.lat0 + (_G0 + 0.1 * i) * SEC.u[1] / 60.0, SEC.lon0 + (_G0 + 0.1 * i) * SEC.u[0] / SEC.k) / TR.FT for i in range(int((S1 - S0 + 1.0) / 0.1) + 2)]
+_FLATS = ((OETH_RWY[0] - 0.15, OETH_RWY[1] + 0.15, SEC.elev0), (OERK_RWY[0] - 0.15, OERK_RWY[1] + 0.15, SEC.elev1))
+
+
+def _survey(s):
+    i = min(max((s - _G0) / 0.1, 0.0), len(_PROFILE) - 1.001)
+    k = int(i)
+    return _PROFILE[k] + (_PROFILE[k + 1] - _PROFILE[k]) * (i - k)
+
+
 def ground(s):
-    return SEC.ground_ft(s)
+    h = sum(_survey(s + o) for o in (-0.2, -0.1, 0.0, 0.1, 0.2)) / 5.0
+    for a, b, elev in _FLATS:
+        d = max(a - s, s - b, 0.0)                                   # how far outside the level stretch
+        if d < 0.6:
+            f = d / 0.6
+            return elev + (h - elev) * f
+    return h
 
 
 def floor(s):
     return ground(s) + AGL
 
 
-def span(a, b, step=1.0):
+def span(a, b, step=0.25):
     k = max(1, int(math.ceil((b - a) / step)))
     return [a + (b - a) * i / k for i in range(k + 1)]
 
@@ -91,13 +110,25 @@ def rev(points):
 
 
 # ------------------------------------------------------------------------------------------------------------------ the blocks, as polygons of (distance, height)
+def capped(a, b):
+    """The Class C floor between a and b, no higher than the top of the ATZ."""
+    return [(s, min(floor(s), ATZ_TOP)) for s in span(a, b)]
+
+
+def raised(a, b):
+    """The Class C floor between a and b, no lower than the top of the ATZ (the terminal area leaves the zone out)."""
+    return [(s, max(floor(s), ATZ_TOP)) for s in span(a, b)]
+
+
 ATZ_BOX = ground_line(*ATZ) + [(ATZ[1], ATZ_TOP), (ATZ[0], ATZ_TOP)]
 CTR_BOX = ground_line(*CTR) + [(CTR[1], CTR_TOP), (CTR[0], CTR_TOP)]
 # the terminal area: from the floor to FL 195, round and above the two boxes (it excludes them), as far as its own ring
-TMA_BLOCK = floor_line(S0, ATZ[0]) + [(ATZ[0], ATZ_TOP), (ATZ[1], ATZ_TOP)] + floor_line(ATZ[1], CTR[0]) + [(CTR[0], CTR_TOP), (TMA_END, CTR_TOP), (TMA_END, TMA_TOP), (S0, TMA_TOP)]
+TMA_BLOCK = floor_line(S0, ATZ[0]) + raised(ATZ[0], ATZ[1]) + floor_line(ATZ[1], CTR[0]) + [(CTR[0], CTR_TOP), (TMA_END, CTR_TOP), (TMA_END, TMA_TOP), (S0, TMA_TOP)]
 # the final director area: from the floor to 11 000 ft, up to the control zone (it excludes only that), over it as far as its own ring; the ATZ lies wholly inside it
 FDA_BLOCK = floor_line(S0, CTR[0]) + [(CTR[0], CTR_TOP), (FDA_END, CTR_TOP), (FDA_END, FDA_TOP), (S0, FDA_TOP)]
-OVERLAP = floor_line(*ATZ) + [(ATZ[1], ATZ_TOP), (ATZ[0], ATZ_TOP)]
+OVERLAP = capped(*ATZ) + [(ATZ[1], ATZ_TOP), (ATZ[0], ATZ_TOP)]
+# where the ground inside the zone's circle stands above 2 300 ft the floor of Class C lies above the top of the ATZ: the air between them is Class G outside the zone
+G_OVER = [(s, ATZ_TOP) for s in span(*ATZ)] + rev(raised(*ATZ))
 # class G, what is left: under the floor, outside the two boxes
 G_LEFT = ground_line(S0, ATZ[0]) + rev(floor_line(S0, ATZ[0]))
 G_SLOT = ground_line(ATZ[1], CTR[0]) + rev(floor_line(ATZ[1], CTR[0]))
@@ -129,13 +160,13 @@ def air():
     P = PL.pts
     out = []
     # what is left: the pale grey-green of uncontrolled air
-    for k, g in enumerate((G_LEFT, G_SLOT, G_RIGHT)):
+    for k, g in enumerate((G_LEFT, G_SLOT, G_RIGHT, G_OVER)):
         out.append(B.tint(f"{U}g{k}", P(g), "G", opacity=0.42, colour=B.GREY_G, top=0.9, bottom=1.1))
     # the control area and the terminal area beyond its ring, fading to the right (and the part beyond, upwards too)
     beyond_fill = (f'<defs>{S.gradient(U + "bf", [(0, B.COL["C"], 0.0), (0.22, B.COL["C"], B.FILL["C"] * 0.5), (0.6, B.COL["C"], B.FILL["C"] * 1.0), (1, B.COL["C"], B.FILL["C"] * 1.3)])}</defs>'
                    f'<polygon points="{S.pts(P(BEYOND))}" fill="url(#{U}bf)"/>')
     out.append(f'<g mask="url(#{U}fm)">' + B.tint(U + "ta", P(A_BLOCK), "A", top=1.1, bottom=0.8) + beyond_fill
-               + B.edge(P([(CTR[1], floor(CTR[1])), (S1, floor(S1))]), B.COL["C"], opacity=0.9) + '</g>')
+               + B.edge(P(floor_line(CTR[1], S1)), B.COL["C"], opacity=0.9) + '</g>')
     # the terminal area (part 1) and the final director area, both Class C: where they overlap the fills add up
     out.append(B.tint(U + "tm", P(TMA_BLOCK), "C"))
     out.append(B.tint(U + "fd", P(FDA_BLOCK), "C", top=1.0, bottom=1.0))
@@ -169,13 +200,12 @@ def ground_layer():
 
 
 def aerodromes():
-    """Thumamah: a runway bar, hangars and a windsock (no tower); Riyadh: a runway bar, a terminal and the tower."""
+    """Thumamah: a runway bar and hangars (no tower, and no windsock: the AIP lists none); Riyadh: a runway bar, a terminal and the tower."""
     out = []
     yg0, yg1 = Y(ground(0.0)), Y(ground(L))
     out.append(B.runway_bar(X(OETH_RWY[0]), X(OETH_RWY[1]), yg0))
     out.append(B.hangar(U + "h1", X(1.9), yg0 - 0.2, 12.0, 5.2))
     out.append(B.hangar(U + "h2", X(3.1), yg0 - 0.2, 10.0, 4.6, "#D9D3C0"))
-    out.append(B.windsock(U + "ws", X(-1.9), yg0, pole=9.0, length=10.5))
     out.append(B.runway_bar(X(OERK_RWY[0]), X(OERK_RWY[1]), yg1))
     out.append(B.hangar(U + "t1", X(17.2), yg1 - 0.2, 20.0, 4.6, "#E8DFC9"))
     out.append(B.tower(U + "tw", X(L + 0.55), yg1 - 0.4, 22.0))
@@ -192,7 +222,7 @@ def outlines():
     out.append(B.edge(P(floor_line(ATZ[1], CTR[0])), c))
     out.append(B.edge(P([(S0, TMA_TOP), (TMA_END, TMA_TOP), (TMA_END, CTR_TOP)]), c))
     # the final director area: its floor across the zone of the ATZ, its ceiling and its end
-    out.append(B.edge(P(floor_line(*ATZ)), c, width=1.1, opacity=0.9))
+    out.append(B.edge(P(capped(*ATZ)), c, width=1.1, opacity=0.9))
     out.append(B.edge(P([(S0, FDA_TOP), (FDA_END, FDA_TOP), (FDA_END, CTR_TOP)]), c))
     # the two boxes: the sides and the top (the foot is the ground)
     out.append(B.edge(P([(ATZ[0], ground(ATZ[0])), (ATZ[0], ATZ_TOP), (ATZ[1], ATZ_TOP), (ATZ[1], ground(ATZ[1]))]), g, width=1.45))
@@ -290,7 +320,7 @@ def plate():
         "caption": "Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side",
         "desc": ("Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side. A vertical section along the line from Thumamah (OETH) to Riyadh King Khaled (OERK): "
                  "the Thumamah aerodrome traffic zone, the Riyadh control zone, the terminal control area and the final director area, uncontrolled air under their floor, FL 150 and "
-                 "the control area above. Drawn to the limits of the AIP (AMDT 11/26) along the line from Thumamah to Riyadh, 15.5 NM; the ground is schematic; not for navigation."),
+                 "the control area above. Drawn to the limits of the AIP (AMDT 11/26) along the line from Thumamah to Riyadh, 15.5 NM; the ground is from open elevation data (NASA SRTM); not for navigation."),
         "legend": [
             "The Jeddah FIR: flight information and alerting service throughout.",
             "FL 150: at and above it, every flight is IFR [[§91.77]].",
