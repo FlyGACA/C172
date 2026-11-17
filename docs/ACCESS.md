@@ -2,7 +2,15 @@
 
 The site is a set of static files. A sign-in form written into the pages would not protect them: the model files and every other file would still answer to anyone who knows the address. The gate therefore sits in front of the whole hostname, at Cloudflare, and nothing in this repository implements it.
 
-**Status on 2026-11-16: not applied.** `https://c172.flygaca.com/` answered 200 with no sign-in. Applying the gate is the owner's action in the Cloudflare dashboard.
+**Update, later on 2026-11-16: applied.** A Cloudflare Access application, "Fly GACA C172 Twin (members only)", now covers the `c172` Worker that serves this site. It protects the whole Worker, not one hostname, so it covers `c172.flygaca.com`, the Worker's `workers.dev` address and its preview URLs through one destination of type Worker. It uses the account's one-time-PIN sign-in and one shared Allow policy, "Company domain and named members", which includes the company's email domain and a named list kept in Cloudflare. The same policy is attached to the Office, Airspace, C172 Twin and Ufuq applications, so a person is added or removed once.
+
+After it was created, requests from outside to `https://c172.flygaca.com/`, to a file that does not exist and to the Worker's `workers.dev` address all answered 302 to the Access sign-in (status codes only, checked 2026-11-16).
+
+Not established by this record: that a member can sign in end to end, which needs a person with their own email; and that the preview URLs are covered, which the documentation says a Worker destination does but nobody has requested one.
+
+The superseded entry is kept below.
+
+~~**Status on 2026-11-16, earlier: not applied.**~~ `https://c172.flygaca.com/` answered 200 with no sign-in. Applying the gate was the owner's action in the Cloudflare dashboard.
 
 ## The rule
 
@@ -14,6 +22,8 @@ One Cloudflare Access application for the hostname, with one Allow policy that i
 Sign-in is by a one-time code sent to the person's email. Nobody else gets past Cloudflare, so no file is served to them.
 
 ## Steps (owner, in the Cloudflare dashboard)
+
+These are the steps for a hostname-based application. The application that was created uses a Worker destination instead (see the update above), which makes step 6 unnecessary for it. The steps remain the way to rebuild or check it by hand.
 
 Cloudflare renames its menus from time to time. Follow the current pages rather than this list where they differ: [self-hosted applications](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/), [Access policies](https://developers.cloudflare.com/cloudflare-one/policies/access/), [one-time PIN](https://developers.cloudflare.com/cloudflare-one/identity/one-time-pin/).
 
