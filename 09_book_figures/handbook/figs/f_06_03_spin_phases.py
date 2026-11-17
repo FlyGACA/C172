@@ -1,4 +1,4 @@
-"""Figure 6-2. The phases of a spin. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+"""Figure 6-3. The phases of a spin. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
 
 
 from reskin import LOOK        # noqa: E402
@@ -6,11 +6,11 @@ from reskin import LOOK        # noqa: E402
 
 def plate():
     return {
-        "id": "fig-06-02-spin-phases",
-        "replaces": "fig-06-02-spin-phases.svg",
-        "book_file": "plate-06-02-spin-phases.jpg",
-        "caption": "Figure 6-2. The phases of a spin",
-        "desc": "Figure 6-2. The phases of a spin",
+        "id": "fig-06-03-spin-phases",
+        "replaces": "fig-06-03-spin-phases.svg",
+        "book_file": "plate-06-03-spin-phases.jpg",
+        "caption": "Figure 6-3. The phases of a spin",
+        "desc": "Figure 6-3. The phases of a spin",
         "legend": [
             "Entry: the aeroplane is stalled while yaw is applied or allowed.",
             "Incipient phase: rotation starts and builds while the path steepens; in most light aeroplanes it lasts two to four turns.",
@@ -21,7 +21,7 @@ def plate():
         "canvas": [640, 360],
         "background": "pale",
         "reskin": {
-            "svg": "fig-06-02-spin-phases.svg",
+            "svg": "fig-06-03-spin-phases.svg",
             # the four small plan symbols of the old figure are the model on the flight path: level at the entry, nose high at the stall, nose down and rolled in the spin
             # (rendered in that attitude), levelling out in the recovery
             "remove": [r'<g transform="translate\(44,104\) scale\(0\.7\)" filter="url\(#sh\)">.*?</g>',

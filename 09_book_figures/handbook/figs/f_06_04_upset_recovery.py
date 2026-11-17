@@ -1,4 +1,4 @@
-"""Figure 6-3 of the handbook: nose-high and nose-low upsets on the attitude indicator, two renders of the model's own instrument."""
+"""Figure 6-4 of the handbook: nose-high and nose-low upsets on the attitude indicator, two renders of the model's own instrument."""
 from figs.kit import arc_arrow, dial_layer
 
 BLUE = "#1D4ED8"
@@ -23,10 +23,10 @@ def plate():
         {"type": "marker", "n": 6, "at": "low.rim_w", "pos": [334, 270], "leader": True},
     ]
     return {
-        "id": "fig-06-03-upset-recovery",
-        "replaces": "fig-06-03-upset-recovery.svg",
-        "book_file": "plate-06-03-upset-recovery.jpg",
-        "caption": "Figure 6-3. Nose-high and nose-low upsets on the attitude indicator",
+        "id": "fig-06-04-upset-recovery",
+        "replaces": "fig-06-04-upset-recovery.svg",
+        "book_file": "plate-06-04-upset-recovery.jpg",
+        "caption": "Figure 6-4. Nose-high and nose-low upsets on the attitude indicator",
         "desc": "Two pictures of the attitude indicator of the training aeroplane: one nose high and banked right, one nose low and banked steeply right, each with an arrow for the roll to wings level.",
         "legend": [
             "Nose high: the horizon is far below the aeroplane symbol, about 30° nose up, in a right bank.",
