@@ -13,7 +13,9 @@
    "ENR 2.1",
    "ENR 5.1",
    "GEN 3.3",
-   "GEN 3.4"
+   "GEN 3.4",
+   "GEN 3.2",
+   "ENR 6"
   ],
   "geometry": "saudi-airspace data/structured (AIP polygons; circles and arcs sampled); pavement and building outlines of Thumamah traced by the project from satellite imagery, +/-10 m; not for navigation",
   "derived": "magnetic_deg = true_deg - variation_E; distances and bearings are great-circle from the AIP coordinates"
@@ -2837,5 +2839,493 @@
   "nm_derived": 15.5,
   "true_deg_derived": 166,
   "note": "the ATZ edge (5 NM from OETH) and the Riyadh CTR edge (10 NM from OERK) are about 0.5 NM apart on this line"
+ },
+ "charts": {
+  "source": "AIP GEN 3.2.4.2 (both series are 'constructed on Lambert Conformal Conic Projection (Standard Parallels indicated on chart)') and ENR 6 (the list of the sheets), AMDT 11/26, read 2026-11-17; the bounds of the sheets from saudi-airspace data/structured/chart_sheets.geojson (read off the frame of every sheet)",
+  "projection": {
+   "name": "Lambert Conformal Conic",
+   "printed": "Lambert Conformal Conic Projection / Standard Paralleles 25°20' and 30°40'",
+   "standard_parallels_printed": [
+    "25°20'",
+    "30°40'"
+   ],
+   "standard_parallels_deg": [
+    25.333333,
+    30.666667
+   ],
+   "read_from": "the margin of all 53 sheets, read by eye from the PDFs (the same words on every one); sheet 2546-C is page ENR 6-73, dated 29 OCT 2026",
+   "check": {
+    "what": "the convergence of the meridians and the spacing of the parallels measured on six sheets of the AIP's 1:500 000 chart, rendered at 200 dpi (data/check_chart_cone.py)",
+    "measured": "2026-11-17",
+    "printed_standard_parallels": [
+     "25°20'",
+     "30°40'"
+    ],
+    "n_of_the_printed_parallels": 0.4696,
+    "sheets": [
+     {
+      "sheet": "2446-A",
+      "west_e": 36,
+      "south_n": 30,
+      "meridians_found": 7,
+      "n_measured": 0.4644,
+      "worst_misfit_deg": 0.0133,
+      "upright_meridian_e": 36.23,
+      "px_per_degree_of_longitude_mid_page": 1422.2,
+      "parallel_gaps_used": 2,
+      "px_per_degree_of_latitude": 1652.1,
+      "scale_against_2546_C_measured": 1.0068,
+      "scale_against_2546_C_on_the_printed_cone": 1.0
+     },
+     {
+      "sheet": "2547-A",
+      "west_e": 48,
+      "south_n": 26,
+      "meridians_found": 9,
+      "n_measured": 0.4677,
+      "worst_misfit_deg": 0.007,
+      "upright_meridian_e": 49.1,
+      "px_per_degree_of_longitude_mid_page": 1470.5,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1642.7,
+      "scale_against_2546_C_measured": 1.001,
+      "scale_against_2546_C_on_the_printed_cone": 0.9988
+     },
+     {
+      "sheet": "2546-C",
+      "west_e": 45,
+      "south_n": 24,
+      "meridians_found": 9,
+      "n_measured": 0.4717,
+      "worst_misfit_deg": 0.0057,
+      "upright_meridian_e": 45.94,
+      "px_per_degree_of_longitude_mid_page": 1495.1,
+      "parallel_gaps_used": 5,
+      "px_per_degree_of_latitude": 1641.0,
+      "scale_against_2546_C_measured": 1.0,
+      "scale_against_2546_C_on_the_printed_cone": 1.0
+     },
+     {
+      "sheet": "2563-A",
+      "west_e": 54,
+      "south_n": 22,
+      "meridians_found": 7,
+      "n_measured": 0.4728,
+      "worst_misfit_deg": 0.005,
+      "upright_meridian_e": 55.02,
+      "px_per_degree_of_longitude_mid_page": 1519.4,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1641.0,
+      "scale_against_2546_C_measured": 1.0,
+      "scale_against_2546_C_on_the_printed_cone": 1.0024
+     },
+     {
+      "sheet": "2566-C",
+      "west_e": 39,
+      "south_n": 20,
+      "meridians_found": 9,
+      "n_measured": 0.4689,
+      "worst_misfit_deg": 0.0079,
+      "upright_meridian_e": 40.32,
+      "px_per_degree_of_longitude_mid_page": 1543.1,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1643.6,
+      "scale_against_2546_C_measured": 1.0016,
+      "scale_against_2546_C_on_the_printed_cone": 1.006
+     },
+     {
+      "sheet": "2668-C",
+      "west_e": 45,
+      "south_n": 16,
+      "meridians_found": 7,
+      "n_measured": 0.4686,
+      "worst_misfit_deg": 0.0047,
+      "upright_meridian_e": 46.23,
+      "px_per_degree_of_longitude_mid_page": 1592.3,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1654.8,
+      "scale_against_2546_C_measured": 1.0084,
+      "scale_against_2546_C_on_the_printed_cone": 1.0167
+     }
+    ],
+    "result": "n measured on the six sheets: 0.464 to 0.473; the printed standard parallels give 0.4696. The sheets' scales differ from sheet to sheet in a way the cone alone does not explain (compare the two scale columns), so nothing is said about the scale of the printed sheets."
+   }
+  },
+  "sheets_500k": [
+   {
+    "sheet": "2444-D",
+    "west": 48,
+    "south": 28,
+    "east": 51,
+    "north": 30
+   },
+   {
+    "sheet": "2445-A",
+    "west": 42,
+    "south": 30,
+    "east": 45,
+    "north": 32
+   },
+   {
+    "sheet": "2445-C",
+    "west": 45,
+    "south": 28,
+    "east": 48,
+    "north": 30
+   },
+   {
+    "sheet": "2445-D",
+    "west": 42,
+    "south": 28,
+    "east": 45,
+    "north": 30
+   },
+   {
+    "sheet": "2446-A",
+    "west": 36,
+    "south": 30,
+    "east": 39,
+    "north": 32
+   },
+   {
+    "sheet": "2446-B",
+    "west": 39,
+    "south": 30,
+    "east": 42,
+    "north": 32
+   },
+   {
+    "sheet": "2446-C",
+    "west": 39,
+    "south": 28,
+    "east": 42,
+    "north": 30
+   },
+   {
+    "sheet": "2446-D",
+    "west": 36,
+    "south": 28,
+    "east": 39,
+    "north": 30
+   },
+   {
+    "sheet": "2447-C",
+    "west": 33,
+    "south": 28,
+    "east": 36,
+    "north": 30
+   },
+   {
+    "sheet": "2544-B",
+    "west": 33,
+    "south": 26,
+    "east": 36,
+    "north": 28
+   },
+   {
+    "sheet": "2545-A",
+    "west": 36,
+    "south": 26,
+    "east": 39,
+    "north": 28
+   },
+   {
+    "sheet": "2545-B",
+    "west": 39,
+    "south": 26,
+    "east": 42,
+    "north": 28
+   },
+   {
+    "sheet": "2545-C",
+    "west": 39,
+    "south": 24,
+    "east": 42,
+    "north": 26
+   },
+   {
+    "sheet": "2545-D",
+    "west": 36,
+    "south": 24,
+    "east": 39,
+    "north": 26
+   },
+   {
+    "sheet": "2546-A",
+    "west": 42,
+    "south": 26,
+    "east": 45,
+    "north": 28
+   },
+   {
+    "sheet": "2546-B",
+    "west": 45,
+    "south": 26,
+    "east": 48,
+    "north": 28
+   },
+   {
+    "sheet": "2546-C",
+    "west": 45,
+    "south": 24,
+    "east": 48,
+    "north": 26
+   },
+   {
+    "sheet": "2546-D",
+    "west": 42,
+    "south": 24,
+    "east": 45,
+    "north": 26
+   },
+   {
+    "sheet": "2547-A",
+    "west": 48,
+    "south": 26,
+    "east": 51,
+    "north": 28
+   },
+   {
+    "sheet": "2547-C",
+    "west": 51,
+    "south": 24,
+    "east": 54,
+    "north": 26
+   },
+   {
+    "sheet": "2547-D",
+    "west": 48,
+    "south": 24,
+    "east": 51,
+    "north": 26
+   },
+   {
+    "sheet": "2563-A",
+    "west": 54,
+    "south": 22,
+    "east": 57,
+    "north": 24
+   },
+   {
+    "sheet": "2563-D",
+    "west": 54,
+    "south": 20,
+    "east": 57,
+    "north": 22
+   },
+   {
+    "sheet": "2564-A",
+    "west": 48,
+    "south": 22,
+    "east": 51,
+    "north": 24
+   },
+   {
+    "sheet": "2564-B",
+    "west": 51,
+    "south": 22,
+    "east": 54,
+    "north": 24
+   },
+   {
+    "sheet": "2564-C",
+    "west": 51,
+    "south": 20,
+    "east": 54,
+    "north": 22
+   },
+   {
+    "sheet": "2564-D",
+    "west": 48,
+    "south": 20,
+    "east": 51,
+    "north": 22
+   },
+   {
+    "sheet": "2565-A",
+    "west": 42,
+    "south": 22,
+    "east": 45,
+    "north": 24
+   },
+   {
+    "sheet": "2565-B",
+    "west": 45,
+    "south": 22,
+    "east": 48,
+    "north": 24
+   },
+   {
+    "sheet": "2565-C",
+    "west": 45,
+    "south": 20,
+    "east": 48,
+    "north": 22
+   },
+   {
+    "sheet": "2565-D",
+    "west": 42,
+    "south": 20,
+    "east": 45,
+    "north": 22
+   },
+   {
+    "sheet": "2566-A",
+    "west": 36,
+    "south": 22,
+    "east": 39,
+    "north": 24
+   },
+   {
+    "sheet": "2566-B",
+    "west": 39,
+    "south": 22,
+    "east": 42,
+    "north": 24
+   },
+   {
+    "sheet": "2566-C",
+    "west": 39,
+    "south": 20,
+    "east": 42,
+    "north": 22
+   },
+   {
+    "sheet": "2566-D",
+    "west": 36,
+    "south": 20,
+    "east": 39,
+    "north": 22
+   },
+   {
+    "sheet": "2667-B",
+    "west": 39,
+    "south": 18,
+    "east": 42,
+    "north": 20
+   },
+   {
+    "sheet": "2667-C",
+    "west": 39,
+    "south": 16,
+    "east": 42,
+    "north": 18
+   },
+   {
+    "sheet": "2668-A",
+    "west": 42,
+    "south": 18,
+    "east": 45,
+    "north": 20
+   },
+   {
+    "sheet": "2668-B",
+    "west": 45,
+    "south": 18,
+    "east": 48,
+    "north": 20
+   },
+   {
+    "sheet": "2668-C",
+    "west": 45,
+    "south": 16,
+    "east": 48,
+    "north": 18
+   },
+   {
+    "sheet": "2668-D",
+    "west": 42,
+    "south": 16,
+    "east": 45,
+    "north": 18
+   },
+   {
+    "sheet": "2669-A",
+    "west": 48,
+    "south": 18,
+    "east": 51,
+    "north": 20
+   },
+   {
+    "sheet": "2669-B",
+    "west": 51,
+    "south": 18,
+    "east": 54,
+    "north": 20
+   },
+   {
+    "sheet": "2669-D",
+    "west": 48,
+    "south": 16,
+    "east": 51,
+    "north": 18
+   },
+   {
+    "sheet": "2670-A",
+    "west": 54,
+    "south": 18,
+    "east": 57,
+    "north": 20
+   }
+  ],
+  "sheets_wac": [
+   {
+    "sheet": "2446",
+    "west": 36,
+    "south": 28,
+    "east": 42,
+    "north": 32
+   },
+   {
+    "sheet": "2545",
+    "west": 36,
+    "south": 24,
+    "east": 42,
+    "north": 28
+   },
+   {
+    "sheet": "2546",
+    "west": 42,
+    "south": 24,
+    "east": 48,
+    "north": 28
+   },
+   {
+    "sheet": "2564",
+    "west": 48,
+    "south": 20,
+    "east": 54,
+    "north": 24
+   },
+   {
+    "sheet": "2565",
+    "west": 42,
+    "south": 20,
+    "east": 48,
+    "north": 24
+   },
+   {
+    "sheet": "2566",
+    "west": 36,
+    "south": 20,
+    "east": 42,
+    "north": 24
+   },
+   {
+    "sheet": "2668",
+    "west": 42,
+    "south": 16,
+    "east": 48,
+    "north": 20
+   },
+   {
+    "sheet": "2669",
+    "west": 48,
+    "south": 16,
+    "east": 54,
+    "north": 20
+   }
+  ],
+  "sheet_of_oeth": "2546-C"
  }
 }

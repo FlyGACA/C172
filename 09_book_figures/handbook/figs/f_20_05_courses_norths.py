@@ -1,4 +1,4 @@
-"""Figure 20-4. Measuring the true course, and the three norths. Drawn again as two sheets lying on a table: on the left the chart (warm paper with its printed graticule) with the meridian,
+"""Figure 20-5. Measuring the true course, and the three norths. Drawn again as two sheets lying on a table: on the left the chart (warm paper with its printed graticule) with the meridian,
 the course line across it and a glass protractor centred on the crossing, its straight edge along the meridian, its scale engraved and the line cutting it at 300° in a red ring; on the
 right a worksheet (pale paper, printed grid) with the three norths and the heading as ribbons from one point (true north dark, magnetic north blue, compass north green, the heading red)
 and the two angles between the norths as glowing amber arcs, five times larger than in the example. The geometry, numbers and callouts of the old figure are kept (figs/h_a4.py has the parts)."""
@@ -105,11 +105,11 @@ def plate():
     glow_ring = '<defs><filter id="n4rg" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>'
     layers = [table(), chart(), glow_ring, protractor(), norths(), calls]
     return {
-        "id": "fig-20-04-courses-norths",
-        "replaces": "fig-20-04-courses-norths.svg",
-        "book_file": "plate-20-04-courses-norths.jpg",
-        "caption": "Figure 20-4. Measuring the true course, and the three norths",
-        "desc": "Figure 20-4. Measuring the true course, and the three norths",
+        "id": "fig-20-05-courses-norths",
+        "replaces": "fig-20-05-courses-norths.svg",
+        "book_file": "plate-20-05-courses-norths.jpg",
+        "caption": "Figure 20-5. Measuring the true course, and the three norths",
+        "desc": "Figure 20-5. Measuring the true course, and the three norths",
         "legend": [
             "The meridian nearest the middle of the leg.",
             "Protractor, centred on the crossing, its straight edge along the meridian.",
@@ -123,5 +123,5 @@ def plate():
         ],
         "canvas": [640, 360],
         "background": "pale",
-        "reskin": {"svg": "fig-20-04-courses-norths.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-20-05-courses-norths.svg", "blank": True, "layers": layers},
     }

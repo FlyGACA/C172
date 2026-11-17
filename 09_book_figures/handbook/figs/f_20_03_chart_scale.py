@@ -1,4 +1,4 @@
-"""Figure 20-2. Measuring a leg with a ruler, and checking it on the latitude scale. Drawn again as a chart lying on a table: warm paper with a printed graticule, the course line a dark
+"""Figure 20-3. Measuring a leg with a ruler, and checking it on the latitude scale. Drawn again as a chart lying on a table: warm paper with a printed graticule, the course line a dark
 ribbon from the aerodrome A (a ringed runway symbol) to the point WADI (a dark triangle), a steel ruler laid along it with its zero at WADI, engraved in centimetres, a red hairline at
 31.9 cm; at the right the latitude scale on a meridian, a steel strip engraved in minutes, with a pair of steel dividers set to the same length (86 minutes, 86 NM); and the chart's two scale
 lines, in nautical miles and in kilometres, printed in its margin. The geometry, numbers and callouts of the old figure are kept (figs/h_a4.py has the parts)."""
@@ -124,11 +124,11 @@ def plate():
         c(1, 440, 323, 417, 347), c(2, 113.7, 139.5, 131.7, 177.5), c(3, 245, 347, 270, 315), c(4, 615, 215.5, 588, 190), c(5, 140.1, 417, 116.1, 417), c(6, 146, 445, 122, 445),
     ]))
     return {
-        "id": "fig-20-02-chart-scale",
-        "replaces": "fig-20-02-chart-scale.svg",
-        "book_file": "plate-20-02-chart-scale.jpg",
-        "caption": "Figure 20-2. Measuring a leg with a ruler, and checking it on the latitude scale",
-        "desc": "Figure 20-2. Measuring a leg with a ruler, and checking it on the latitude scale",
+        "id": "fig-20-03-chart-scale",
+        "replaces": "fig-20-03-chart-scale.svg",
+        "book_file": "plate-20-03-chart-scale.jpg",
+        "caption": "Figure 20-3. Measuring a leg with a ruler, and checking it on the latitude scale",
+        "desc": "Figure 20-3. Measuring a leg with a ruler, and checking it on the latitude scale",
         "legend": [
             "Aerodrome A.",
             "Point WADI.",
@@ -139,5 +139,5 @@ def plate():
         ],
         "canvas": [640, 465],
         "background": "pale",
-        "reskin": {"svg": "fig-20-02-chart-scale.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-20-03-chart-scale.svg", "blank": True, "layers": layers},
     }

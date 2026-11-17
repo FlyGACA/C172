@@ -1,4 +1,4 @@
-"""Figure 20-7. The 1-in-60 rule and two ways back to the planned track. Drawn again on a pale chart ground with a printed grid: the planned track a dark ribbon from the town (a gold
+"""Figure 20-8. The 1-in-60 rule and two ways back to the planned track. Drawn again on a pale chart ground with a printed grid: the planned track a dark ribbon from the town (a gold
 hexagon) to WADI (a dark triangle), the track flown a red ribbon to the fix and its dashed continuation, the closing-angle track a green ribbon with its arrowhead, the double-track-error
 tracks an orange dashed ribbon that rejoins the planned track and goes on; the four angles (6°, 10°, 12°, 4°) as glowing arcs, the 2 NM offset dotted, and the 20 and 30 NM distances on
 a steel ruler laid along the top. Distances across the track are drawn three times larger, as before. The geometry, numbers and callouts of the old figure are kept (figs/h_a4.py has the parts)."""
@@ -56,11 +56,11 @@ def plate():
         c(6, 407.8, 90, 403.8, 139.7), c(7, 588, 90, 607, 105),
     ]))
     return {
-        "id": "fig-20-07-one-in-sixty",
-        "replaces": "fig-20-07-one-in-sixty.svg",
-        "book_file": "plate-20-07-one-in-sixty.jpg",
-        "caption": "Figure 20-7. The 1-in-60 rule and two ways back to the planned track",
-        "desc": "Figure 20-7. The 1-in-60 rule and two ways back to the planned track",
+        "id": "fig-20-08-one-in-sixty",
+        "replaces": "fig-20-08-one-in-sixty.svg",
+        "book_file": "plate-20-08-one-in-sixty.jpg",
+        "caption": "Figure 20-8. The 1-in-60 rule and two ways back to the planned track",
+        "desc": "Figure 20-8. The 1-in-60 rule and two ways back to the planned track",
         "legend": [
             "The town: the last fix, on track.",
             "The planned track to WADI, 300°.",
@@ -72,5 +72,5 @@ def plate():
         ],
         "canvas": [640, 330],
         "background": "pale",
-        "reskin": {"svg": "fig-20-07-one-in-sixty.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-20-08-one-in-sixty.svg", "blank": True, "layers": layers},
     }

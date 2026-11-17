@@ -1,4 +1,4 @@
-"""Build data/saudi_airspace.json, the facts the Saudi-example figures of the handbook (chapters 17, 18 and 26) draw from.
+"""Build data/saudi_airspace.json, the facts the Saudi-example figures of the handbook (chapters 17, 18, 20 and 26) draw from.
 
 Source: the saudi-airspace repository (data/structured/*), extracted from the GACA eAIP, AIRAC AIP AMDT 11/26 (effective 2026-10-29). Before it was used here, every value of AD 2 OETH
 was compared with the official AMDT 11/26 page (54 values, all found verbatim), and the runway thresholds of OEJN and OERS with their AMDT 11/26 pages (largest difference 0.01 m).
@@ -120,6 +120,26 @@ for k, a in facts["areas"]["prd"].items():
     a["centre_from_oeth_nm_derived"], a["centre_from_oeth_true_deg_derived"] = round(dd, 1), round(bb)
     near = min((dist_brg(o["arp"]["lat"], o["arp"]["lon"], p[1], p[0]) + (p,) for p in a["ring"][:-1]), key=lambda x: x[0])
     a["nearest_vertex_from_oeth_nm_derived"], a["nearest_vertex_from_oeth_true_deg_derived"] = round(near[0], 1), round(near[1])
+
+# ---------------------------------------------------------------- the AIP's visual charts (GEN 3.2, ENR 6)
+sheets = sorted(load("chart_sheets.geojson")["features"], key=lambda f: f["properties"]["sheet"])
+check_path = os.path.join(os.path.dirname(OUT), "chart_cone_check.json")
+facts["charts"] = {
+    "source": "AIP GEN 3.2.4.2 (both series are 'constructed on Lambert Conformal Conic Projection (Standard Parallels indicated on chart)') and ENR 6 (the list of the sheets), AMDT 11/26, read 2026-11-17; "
+              "the bounds of the sheets from saudi-airspace data/structured/chart_sheets.geojson (read off the frame of every sheet)",
+    "projection": {"name": "Lambert Conformal Conic", "printed": "Lambert Conformal Conic Projection / Standard Paralleles 25\u00b020' and 30\u00b040'",
+                   "standard_parallels_printed": ["25\u00b020'", "30\u00b040'"], "standard_parallels_deg": [round(25 + 20 / 60, 6), round(30 + 40 / 60, 6)],
+                   "read_from": "the margin of all 53 sheets, read by eye from the PDFs (the same words on every one); sheet 2546-C is page ENR 6-73, dated 29 OCT 2026",
+                   "check": json.load(open(check_path, encoding="utf-8")) if os.path.exists(check_path) else None},
+    "sheets_500k": [{"sheet": f["properties"]["sheet"], "west": f["properties"]["bbox"][0], "south": f["properties"]["bbox"][1], "east": f["properties"]["bbox"][2], "north": f["properties"]["bbox"][3]}
+                    for f in sheets if f["properties"]["series"].startswith("ICAO 1:500")],
+    "sheets_wac": [{"sheet": f["properties"]["sheet"], "west": f["properties"]["bbox"][0], "south": f["properties"]["bbox"][1], "east": f["properties"]["bbox"][2], "north": f["properties"]["bbox"][3]}
+                   for f in sheets if f["properties"]["series"].startswith("WAC")],
+    "sheet_of_oeth": next(f["properties"]["sheet"] for f in sheets if f["properties"]["series"].startswith("ICAO 1:500")
+                          and f["properties"]["bbox"][0] <= o["arp"]["lon"] < f["properties"]["bbox"][2] and f["properties"]["bbox"][1] <= o["arp"]["lat"] < f["properties"]["bbox"][3]),
+}
+assert len(facts["charts"]["sheets_500k"]) == 45 and len(facts["charts"]["sheets_wac"]) == 8 and facts["charts"]["sheet_of_oeth"] == "2546-C"      # the counts of ENR 6 (AMDT 11/26)
+facts["provenance"]["pages"] += ["GEN 3.2", "ENR 6"]
 
 json.dump(facts, open(OUT, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print("wrote", OUT, os.path.getsize(OUT), "bytes")

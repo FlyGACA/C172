@@ -1,4 +1,4 @@
-"""Figure 20-5. The wind triangle for leg 1, drawn to scale. Drawn again on a pale chart ground with a printed grid (a line every 5 kt through the point O, a stronger one every 20), the
+"""Figure 20-6. The wind triangle for leg 1, drawn to scale. Drawn again on a pale chart ground with a printed grid (a line every 5 kt through the point O, a stronger one every 20), the
 range rings printed in dashes, the three vectors as ribbons with their arrowheads counted as before (the wind three, the heading and airspeed one, the track and groundspeed two),
 the TAS arc and the angles as glowing arcs, the aeroplane of the model on the heading vector, and the scale as a steel ruler. The geometry, numbers and callouts of the old figure are
 kept (figs/h_a4.py has the parts)."""
@@ -74,11 +74,11 @@ def plate():
         c(6, 327.5, 108, 306.5, 152.5), c(7, 103.9, 26.3, 137.9, 49.3), c(8, 561.7, 206.6, 522.7, 239.6), c(9, 330, 366, 304, 366),
     ]))
     return {
-        "id": "fig-20-05-wind-triangle",
-        "replaces": "fig-20-05-wind-triangle.svg",
-        "book_file": "plate-20-05-wind-triangle.jpg",
-        "caption": "Figure 20-5. The wind triangle for leg 1, drawn to scale",
-        "desc": "Figure 20-5. The wind triangle for leg 1, drawn to scale",
+        "id": "fig-20-06-wind-triangle",
+        "replaces": "fig-20-06-wind-triangle.svg",
+        "book_file": "plate-20-06-wind-triangle.jpg",
+        "caption": "Figure 20-6. The wind triangle for leg 1, drawn to scale",
+        "desc": "Figure 20-6. The wind triangle for leg 1, drawn to scale",
         "legend": [
             "True north.",
             "Point O and the course line, 300° true.",
@@ -92,5 +92,5 @@ def plate():
         ],
         "canvas": [640, 410],
         "background": "pale",
-        "reskin": {"svg": "fig-20-05-wind-triangle.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-20-06-wind-triangle.svg", "blank": True, "layers": layers},
     }
