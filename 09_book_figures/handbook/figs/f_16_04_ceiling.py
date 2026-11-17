@@ -68,7 +68,7 @@ def plate():
             "`SCT030`: scattered, not a ceiling.",
             "`BKN045`: the lowest broken layer, so the ceiling is 4 500 ft.",
             "The aerodrome: report heights are measured from its elevation.",
-            "1 000 ft: under a lower ceiling you may not fly VFR beneath it within controlled airspace designated to the surface for an aerodrome [[§91.165(d)]].",
+            "1 000 ft: under a lower ceiling you may not fly VFR beneath it within controlled airspace designated to the surface for an aerodrome [[§91.165(d)]]. The AIP asks for 1 500 ft (Chapter 17) [[AIP ENR 1.2]].",
         ],
         "canvas": [640, 380],
         "background": "pale",

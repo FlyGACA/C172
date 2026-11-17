@@ -1,10 +1,10 @@
-"""Helpers of worker b3 (Saudi round: figures 18-2 and 18-7). Plain Python, no Pillow, no Blender.
+"""Helpers of worker b3 (Saudi round: figures 18-3 and 18-9). Plain Python, no Pillow, no Blender.
 
 * `facts()` reads data/saudi_airspace.json (the AIP values as printed, AMDT 11/26) and `Frame` projects latitude and longitude into it on an equirectangular
   frame around a chosen origin (x east, y north, in kilometres, 1 NM = 1852 m): x_nm = (lon - lon0) * 60 * cos(lat0), y_nm = (lat - lat0) * 60.
 * `text()` is figs/h_a2.py's glyph_text (outlines of Inter Bold, no font needed) with two more letters (k and m), a squeeze for painted numbers and an option that centres a string on its ink.
 * `end_marks()` / `runway()` paint an asphalt bar with its edge lines, its centre line, its threshold bars and the designators at both ends, in the bar's own frame
-  (its middle at the origin, y along the bar), as figs/f_18_02_runway_designators.py needs them (figs/f_18_07_crosswind.py takes only the facts).
+  (its middle at the origin, y along the bar), as figs/f_18_03_runway_designators.py needs them (figs/f_18_09_crosswind.py takes only the facts).
 """
 import json
 import math

@@ -1,0 +1,47 @@
+{
+ "source": "Natural Earth (naturalearthdata.com): shaded relief SR_HR (1:10m) and land polygons ne_50m_land (1:50m)",
+ "licence": "public domain (Natural Earth terms of use: no permission needed, credit appreciated)",
+ "attribution": "Made with Natural Earth",
+ "downloads": [
+  {
+   "url": "https://naciscdn.org/naturalearth/10m/raster/SR_HR.zip",
+   "sha256": "b2619fff2fc73c17152983c066adfaa25c4b626916b822bad2fae8bcd9be41a5",
+   "bytes": 44367365,
+   "version": "2.0.0"
+  },
+  {
+   "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_land.geojson",
+   "sha256": "e874b27a51d146452be360cafb3cc50c86001074a67d534113e6534682f9826b",
+   "bytes": 1636166
+  }
+ ],
+ "method": "the relief cut to each box (averaged to six minutes for the globe), JPEG quality 90; the land polygons drawn three times larger and averaged down; no boundaries between countries",
+ "grids": {
+  "arabia": {
+   "west": 28.0,
+   "east": 64.0,
+   "south": 8.0,
+   "north": 40.0,
+   "pixels_per_degree": 60,
+   "size_px": [
+    2160,
+    1920
+   ],
+   "land_share": 0.7372,
+   "note": "the first pixel's corner is at (west, north); longitude grows to the right, latitude falls downwards"
+  },
+  "globe": {
+   "west": -45.0,
+   "east": 135.0,
+   "south": -70.0,
+   "north": 90.0,
+   "pixels_per_degree": 10,
+   "size_px": [
+    1800,
+    1600
+   ],
+   "land_share": 0.3432,
+   "note": "the first pixel's corner is at (west, north); longitude grows to the right, latitude falls downwards"
+  }
+ }
+}

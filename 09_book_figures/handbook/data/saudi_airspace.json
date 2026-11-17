@@ -13,7 +13,9 @@
    "ENR 2.1",
    "ENR 5.1",
    "GEN 3.3",
-   "GEN 3.4"
+   "GEN 3.4",
+   "GEN 3.2",
+   "ENR 6"
   ],
   "geometry": "saudi-airspace data/structured (AIP polygons; circles and arcs sampled); pavement and building outlines of Thumamah traced by the project from satellite imagery, +/-10 m; not for navigation",
   "derived": "magnetic_deg = true_deg - variation_E; distances and bearings are great-circle from the AIP coordinates"
@@ -594,7 +596,327 @@
    "16L/34R": "CALVERT CAT I, 900 m",
    "16R/34L": "CAT II, 900 m"
   },
-  "papi": "both sides, 3 degrees, all six runways"
+  "papi": "both sides, 3 degrees, all six runways",
+  "jdw": {
+   "type": "DVOR/TACAN",
+   "id": "JDW",
+   "mhz": 115.3,
+   "declination_e_deg": 4,
+   "dms": [
+    "214244.3N",
+    "0390723.2E"
+   ],
+   "lat": 21.7123056,
+   "lon": 39.1231111
+  },
+  "points": [
+   {
+    "id": "VRP01",
+    "place": "University of Jeddah (North)",
+    "printed": "RDL 032 from JDW 13.0NM",
+    "dms": [
+     "215322.9N",
+     "0391525.9E"
+    ],
+    "lat": 21.8896944,
+    "lon": 39.2571944,
+    "contact": "approach",
+    "from_arp_nm_derived": 13.73,
+    "from_arp_true_deg_derived": 24.2,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 13.01,
+    "from_jdw_magnetic_deg_derived": 31.0
+   },
+   {
+    "id": "VRP02",
+    "place": "Highway junctions and intersection of King Abdullah Sports City (0.6 NM East of King Abdullah Sports City)",
+    "printed": "RDL 032 from JDW 4.8 NM",
+    "dms": [
+     "214643.0N",
+     "0391019.0E"
+    ],
+    "lat": 21.7786111,
+    "lon": 39.1719444,
+    "contact": "tower_east",
+    "from_arp_nm_derived": 5.92,
+    "from_arp_true_deg_derived": 8.6,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 4.82,
+    "from_jdw_magnetic_deg_derived": 30.4
+   },
+   {
+    "id": "VRP03",
+    "place": "Highway junctions and intersection of Airbase (3.2 NM East of King Abdulaziz international airport)",
+    "printed": "RDL 103 from JDW 4.8 NM",
+    "dms": [
+     "214123.0N",
+     "0391223.0E"
+    ],
+    "lat": 21.6897222,
+    "lon": 39.2063889,
+    "contact": "tower_east",
+    "from_arp_nm_derived": 2.85,
+    "from_arp_true_deg_derived": 79.5,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 4.84,
+    "from_jdw_magnetic_deg_derived": 102.3
+   },
+   {
+    "id": "VRP04",
+    "place": "Highway junctions and intersection of Tahliya Street (0.8 NM East of AlAhli club)",
+    "printed": "RDL 142 from JDW 10.6 NM",
+    "dms": [
+     "213405.0N",
+     "0391354.0E"
+    ],
+    "lat": 21.5680556,
+    "lon": 39.2316667,
+    "contact": "tower_east",
+    "from_arp_nm_derived": 7.99,
+    "from_arp_true_deg_derived": 148.1,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 10.57,
+    "from_jdw_magnetic_deg_derived": 141.0
+   },
+   {
+    "id": "VRP05",
+    "place": "Abruq Al-Rughamah (2.5 NM South East of Jeddah Central train station)",
+    "printed": "RDL 142 from JDW 14.8 NM",
+    "dms": [
+     "213026.2N",
+     "0391625.9E"
+    ],
+    "lat": 21.5072778,
+    "lon": 39.2738611,
+    "contact": "approach",
+    "from_arp_nm_derived": 12.33,
+    "from_arp_true_deg_derived": 147.8,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 14.91,
+    "from_jdw_magnetic_deg_derived": 141.6
+   },
+   {
+    "id": "VRP06",
+    "place": "Makkah - Jeddah Highway junctions East of Prince Abdullah Al Faisal Stadium (0.5 NM East of Prince Abdullah Al Faisal Stadium)",
+    "printed": "RDL 151 from JDW 17.5 NM",
+    "dms": [
+     "212655.0N",
+     "0391532.0E"
+    ],
+    "lat": 21.4486111,
+    "lon": 39.2588889,
+    "contact": "approach",
+    "from_arp_nm_derived": 15.09,
+    "from_arp_true_deg_derived": 157.6,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 17.55,
+    "from_jdw_magnetic_deg_derived": 150.4
+   },
+   {
+    "id": "VRP08",
+    "place": "King Abdul Aziz road junctions and intersection of Hira Street (Bank Al Jazira, the Head Office)",
+    "printed": "RDL 175 from JDW 6.4 NM",
+    "dms": [
+     "213622.3N",
+     "0390714.2E"
+    ],
+    "lat": 21.6061944,
+    "lon": 39.1206111,
+    "contact": "tower_west",
+    "from_arp_nm_derived": 4.92,
+    "from_arp_true_deg_derived": 203.8,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 6.37,
+    "from_jdw_magnetic_deg_derived": 177.3
+   },
+   {
+    "id": "VRP09",
+    "place": "Marine Sciences roundabout (Abhor)",
+    "printed": "RDL 252 from JDW 1.1 NM",
+    "dms": [
+     "214228.0N",
+     "0390612.0E"
+    ],
+    "lat": 21.7077778,
+    "lon": 39.1033333,
+    "contact": "tower_west",
+    "from_arp_nm_derived": 3.35,
+    "from_arp_true_deg_derived": 298.5,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 1.14,
+    "from_jdw_magnetic_deg_derived": 252.2
+   },
+   {
+    "id": "VRP10",
+    "place": "Prince Abdulmajeed Street West of King Abdullah Medical Complex",
+    "printed": "RDL 317 from JDW 4.0 NM",
+    "dms": [
+     "214548.0N",
+     "0390438.0E"
+    ],
+    "lat": 21.7633333,
+    "lon": 39.0772222,
+    "contact": "tower_west",
+    "from_arp_nm_derived": 6.61,
+    "from_arp_true_deg_derived": 318.3,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 3.99,
+    "from_jdw_magnetic_deg_derived": 316.1
+   },
+   {
+    "id": "VRP11",
+    "place": "Prince Abdulmajeed street North of King Abdullah Medical Complex",
+    "printed": "RDL 336 from JDW 5.1 NM",
+    "dms": [
+     "214727.0N",
+     "0390529.0E"
+    ],
+    "lat": 21.7908333,
+    "lon": 39.0913889,
+    "contact": "tower_west",
+    "from_arp_nm_derived": 7.51,
+    "from_arp_true_deg_derived": 331.3,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 5.04,
+    "from_jdw_magnetic_deg_derived": 335.4
+   },
+   {
+    "id": "VRP12",
+    "place": "Prince Abdulmajeed Street junctions and intersection of Madinah Road (East of King Abdullah Medical Complex)",
+    "printed": "RDL 356 from JDW 5.0 NM",
+    "dms": [
+     "214747.0N",
+     "0390718.0E"
+    ],
+    "lat": 21.7963889,
+    "lon": 39.1216667,
+    "contact": "tower_east",
+    "from_arp_nm_derived": 7.18,
+    "from_arp_true_deg_derived": 344.5,
+    "inside_ctr_derived": true,
+    "from_jdw_nm_derived": 5.05,
+    "from_jdw_magnetic_deg_derived": 355.1
+   },
+   {
+    "id": "VRP13",
+    "place": "Lake City",
+    "printed": "RDL 320 from JDW 8.7 NM",
+    "dms": [
+     "214944.0N",
+     "0390146.4E"
+    ],
+    "lat": 21.8288889,
+    "lon": 39.0295556,
+    "contact": "approach",
+    "from_arp_nm_derived": 11.34,
+    "from_arp_true_deg_derived": 321.5,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 8.73,
+    "from_jdw_magnetic_deg_derived": 319.3
+   },
+   {
+    "id": "KHOAR",
+    "place": "-",
+    "printed": "RDL 039 from JDW 39.4 NM",
+    "dms": [
+     "221200.0N",
+     "0393600.0E"
+    ],
+    "lat": 22.2,
+    "lon": 39.6,
+    "contact": null,
+    "from_arp_nm_derived": 39.77,
+    "from_arp_true_deg_derived": 38.3,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 39.53,
+    "from_jdw_magnetic_deg_derived": 38.1
+   },
+   {
+    "id": "GHARI",
+    "place": "-",
+    "printed": "RDL 039 from JDW 59.1 NM",
+    "dms": [
+     "222600.0N",
+     "0395100.0E"
+    ],
+    "lat": 22.4333333,
+    "lon": 39.85,
+    "contact": null,
+    "from_arp_nm_derived": 59.42,
+    "from_arp_true_deg_derived": 40.4,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 59.24,
+    "from_jdw_magnetic_deg_derived": 38.9
+   },
+   {
+    "id": "AZIZI",
+    "place": "-",
+    "printed": "RDL 143 from JDW 15.0 NM",
+    "dms": [
+     "212757.0N",
+     "0391827.0E"
+    ],
+    "lat": 21.4658333,
+    "lon": 39.3075,
+    "contact": null,
+    "from_arp_nm_derived": 15.44,
+    "from_arp_true_deg_derived": 146.8,
+    "inside_ctr_derived": false,
+    "from_jdw_nm_derived": 18.03,
+    "from_jdw_magnetic_deg_derived": 141.1,
+    "inconsistent": "the printed coordinates lie 18.0 NM from JDW on radial 141; the printed bearing and distance say 15.0 NM on radial 143. Kept as printed; drawn at the coordinates"
+   }
+  ],
+  "comms": {
+   "approach": {
+    "callsign": "Jeddah Approach",
+    "mhz": 124.0,
+    "hours": "H24",
+    "remark": "VHF APP"
+   },
+   "tower_west": {
+    "callsign": "Jeddah Tower",
+    "mhz": 118.2,
+    "hours": "H24",
+    "remark": "TWR West; the Visual Approach Chart prints 118.2 (W)"
+   },
+   "tower_east": {
+    "callsign": "Jeddah Tower",
+    "mhz": 118.5,
+    "hours": "H24",
+    "remark": "TWR EAST / East; AD 2.22.11: TWR-E on 118.500 MHz; the Visual Approach Chart prints 118.5 (E)"
+   },
+   "note": "AD 2.18 and the Visual Approach Chart - ICAO (AD 2 OEJN - 205, 29 OCT 2026), which prints TWR: 118.2 (W) 118.3 (C) 118.5 (E) 124.3 (E) and APP: 124.0 123.8 124.675 125.850. The remarks of AD 2.18 run together in AMDT 11/26 (TWR West; TWR Center WEST SDBY; TWR EAST East; Backup TWR EAST SDBY); AMDT 12/26 prints them as TWR West, TWR Center, TWR East and Backup, with the same frequencies"
+  },
+  "vfr": {
+   "within_ctr": [
+    "These VRPs not to be used as holding point.",
+    "VFR flights operating via (VRP02, VRP03, VRP04 and VRP12) shall contact Jeddah TWR East.",
+    "VFR flights operating via (VRP08, VRP09, VRP10 and VRP11) shall contact Jeddah TWR West.",
+    "VFR flights operating via (VRP01, VRP05, VRP06 and VRP13) shall contact Jeddah Approach control 10NM prior the VRPs.",
+    "Entry and exit to and from OEJN CTR shall be via VRP01, VRP05, VRP06 and VRP13.",
+    "Pilots expect frequency change instructions as directed by ATC."
+   ],
+   "uvr": {
+    "JDW1": [
+     "VRP06",
+     "AZIZI",
+     "VRP01",
+     "KHOAR",
+     "GHARI",
+     "DAFINAH",
+     "MOLAQ"
+    ],
+    "max_ft_agl": 500,
+    "printed": [
+     "The maximum UVR altitude is 500 FT AGL, and any request for higher altitude is subject to ATC approval.",
+     "Aircraft intending to utilize UVR from point AZIZI to VRP01 must first hold at AZIZI and request clearance to transition the CTR from TWR-E on 118.500 MHz.",
+     "Aircraft intending to utilize UVR from point VRP01 to AZIZI must first hold at VRP01 and request clearance to transition the CTR from TWR-E on 118.500 MHz.",
+     "No aircraft under any circumstances shall enter or exit OEJN CTR without clearance from Jeddah Aerodrome Control Tower."
+    ],
+    "note": "AD 2.22.11 and 2.22.12. DAFINAH and MOLAQ are in the path and not in the table of points. The table has no VRP07. 2.22.11 has aircraft hold at VRP01, and 2.22.12 says of the VRPs that they are not to be used as holding point: both kept as printed. 'UVR charts are published on SANS Website': not seen"
+   }
+  }
  },
  "oers": {
   "icao": "OERS",
@@ -1057,7 +1379,8 @@
    "remarks": "CTR is considered ATZ outside hours of applicability with Airspace classification G",
    "units": [
     "Red Sea Tower"
-   ]
+   ],
+   "lateral_printed": "252743N 0370421E - 254122N 0365503E then a clockwise arc 10NM centred on 253742N 0370520E 252743N 0370421E"
   },
   "rff_category": 8,
   "runway_status": {
@@ -1065,7 +1388,131 @@
    "15R/33L": "Closed (AD 2.12 and 2.13)"
   },
   "tiba_mhz": 122.8,
-  "vrps_note": "AD 2.22.12: entry and exit to and from the ATZ via the west, east, north and south VRPs (A, B, C, D, E, F, G)"
+  "vrps_note": "AD 2.22.12: entry and exit to and from the ATZ via the west, east, north and south VRPs (A, B, C, D, E, F, G)",
+  "vrps": [
+   {
+    "id": "A",
+    "side": "north",
+    "name": "East Coastal Road Pad",
+    "printed": "RDL 134 from WEJ 37.6 DME",
+    "dms": [
+     "254238N",
+     "0365701E"
+    ],
+    "lat": 25.710556,
+    "lon": 36.950278,
+    "from_arp_nm_derived": 9.0,
+    "from_arp_true_deg_derived": 303
+   },
+   {
+    "id": "B",
+    "side": "west",
+    "name": "North of Abu Laheq Island",
+    "printed": "RDL144 from WEJ42.5 DME",
+    "dms": [
+     "253442N",
+     "0365429E"
+    ],
+    "lat": 25.578333,
+    "lon": 36.908056,
+    "from_arp_nm_derived": 10.2,
+    "from_arp_true_deg_derived": 253
+   },
+   {
+    "id": "C",
+    "side": "west",
+    "name": "East Coastal Road Service Station",
+    "printed": "RDL138 from WEJ44.6 DME",
+    "dms": [
+     "253540N",
+     "0365952E"
+    ],
+    "lat": 25.594444,
+    "lon": 36.997778,
+    "from_arp_nm_derived": 5.3,
+    "from_arp_true_deg_derived": 248
+   },
+   {
+    "id": "D",
+    "side": "south",
+    "name": "Turtle Bay Hotel",
+    "printed": "RDL 141 from WEJ 49.0 DME",
+    "dms": [
+     "253014N",
+     "0370005E"
+    ],
+    "lat": 25.503889,
+    "lon": 37.001389,
+    "from_arp_nm_derived": 8.8,
+    "from_arp_true_deg_derived": 212
+   },
+   {
+    "id": "E",
+    "side": "east",
+    "name": "Hitteen School",
+    "printed": "RDL 124 from WEJ 50.6 DME",
+    "dms": [
+     "253921N",
+     "0371324E"
+    ],
+    "lat": 25.655833,
+    "lon": 37.223333,
+    "from_arp_nm_derived": 7.5,
+    "from_arp_true_deg_derived": 77
+   },
+   {
+    "id": "F",
+    "side": "south",
+    "name": "Shuray Construction Village",
+    "printed": "RDL 138 from WEJ 50.4 DME",
+    "dms": [
+     "253049N",
+     "0370335E"
+    ],
+    "lat": 25.513611,
+    "lon": 37.059722,
+    "from_arp_nm_derived": 7.1,
+    "from_arp_true_deg_derived": 193
+   },
+   {
+    "id": "G",
+    "side": "east",
+    "name": "Desert Rock",
+    "printed": "RDL 121 from WEJ 49.2 DME",
+    "dms": [
+     "254224N",
+     "0371359E"
+    ],
+    "lat": 25.706667,
+    "lon": 37.233056,
+    "from_arp_nm_derived": 9.1,
+    "from_arp_true_deg_derived": 59
+   }
+  ],
+  "comms": {
+   "tower": {
+    "callsign": "Red Sea Tower",
+    "mhz": 118.2,
+    "hours": "0700-1500",
+    "remark": "Call Red Sea Tower 15 min before ARR time"
+   },
+   "ground": {
+    "callsign": "Red Sea Ground",
+    "mhz": 121.95,
+    "hours": "0700-1500"
+   },
+   "atis": {
+    "mhz": 126.55,
+    "hours": "0700 - 1500"
+   },
+   "tiba": {
+    "mhz": 122.8,
+    "hours": "H24",
+    "remark": "TIBA procedure to be applied H24 outside Red Sea CTR/ATZ."
+   },
+   "note": "AD 2.18. The hours are printed without a time system; AD 2.3 pairs UTC hours with local ones (05:00 - 13:00 is 0800-1600 LT), so they are read as UTC"
+  },
+  "tiba_rule": "AD 2.22.1.2: TIBA on 122.8 MHZ in class G airspace: outside all CTAs, TMAs and CTRs; off AWYs below FL150; ...; within uncontrolled aerodrome in non-TWR operating hours; where there is no ATS unit to provide FIS"
  },
  "areas": {
   "oeth_atz_ring": [
@@ -2837,5 +3284,493 @@
   "nm_derived": 15.5,
   "true_deg_derived": 166,
   "note": "the ATZ edge (5 NM from OETH) and the Riyadh CTR edge (10 NM from OERK) are about 0.5 NM apart on this line"
+ },
+ "charts": {
+  "source": "AIP GEN 3.2.4.2 (both series are 'constructed on Lambert Conformal Conic Projection (Standard Parallels indicated on chart)') and ENR 6 (the list of the sheets), AMDT 11/26, read 2026-11-17; the bounds of the sheets from saudi-airspace data/structured/chart_sheets.geojson (read off the frame of every sheet)",
+  "projection": {
+   "name": "Lambert Conformal Conic",
+   "printed": "Lambert Conformal Conic Projection / Standard Paralleles 25°20' and 30°40'",
+   "standard_parallels_printed": [
+    "25°20'",
+    "30°40'"
+   ],
+   "standard_parallels_deg": [
+    25.333333,
+    30.666667
+   ],
+   "read_from": "the margin of all 53 sheets, read by eye from the PDFs (the same words on every one); sheet 2546-C is page ENR 6-73, dated 29 OCT 2026",
+   "check": {
+    "what": "the convergence of the meridians and the spacing of the parallels measured on six sheets of the AIP's 1:500 000 chart, rendered at 200 dpi (data/check_chart_cone.py)",
+    "measured": "2026-11-17",
+    "printed_standard_parallels": [
+     "25°20'",
+     "30°40'"
+    ],
+    "n_of_the_printed_parallels": 0.4696,
+    "sheets": [
+     {
+      "sheet": "2446-A",
+      "west_e": 36,
+      "south_n": 30,
+      "meridians_found": 7,
+      "n_measured": 0.4644,
+      "worst_misfit_deg": 0.0133,
+      "upright_meridian_e": 36.23,
+      "px_per_degree_of_longitude_mid_page": 1422.2,
+      "parallel_gaps_used": 2,
+      "px_per_degree_of_latitude": 1652.1,
+      "scale_against_2546_C_measured": 1.0068,
+      "scale_against_2546_C_on_the_printed_cone": 1.0
+     },
+     {
+      "sheet": "2547-A",
+      "west_e": 48,
+      "south_n": 26,
+      "meridians_found": 9,
+      "n_measured": 0.4677,
+      "worst_misfit_deg": 0.007,
+      "upright_meridian_e": 49.1,
+      "px_per_degree_of_longitude_mid_page": 1470.5,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1642.7,
+      "scale_against_2546_C_measured": 1.001,
+      "scale_against_2546_C_on_the_printed_cone": 0.9988
+     },
+     {
+      "sheet": "2546-C",
+      "west_e": 45,
+      "south_n": 24,
+      "meridians_found": 9,
+      "n_measured": 0.4717,
+      "worst_misfit_deg": 0.0057,
+      "upright_meridian_e": 45.94,
+      "px_per_degree_of_longitude_mid_page": 1495.1,
+      "parallel_gaps_used": 5,
+      "px_per_degree_of_latitude": 1641.0,
+      "scale_against_2546_C_measured": 1.0,
+      "scale_against_2546_C_on_the_printed_cone": 1.0
+     },
+     {
+      "sheet": "2563-A",
+      "west_e": 54,
+      "south_n": 22,
+      "meridians_found": 7,
+      "n_measured": 0.4728,
+      "worst_misfit_deg": 0.005,
+      "upright_meridian_e": 55.02,
+      "px_per_degree_of_longitude_mid_page": 1519.4,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1641.0,
+      "scale_against_2546_C_measured": 1.0,
+      "scale_against_2546_C_on_the_printed_cone": 1.0024
+     },
+     {
+      "sheet": "2566-C",
+      "west_e": 39,
+      "south_n": 20,
+      "meridians_found": 9,
+      "n_measured": 0.4689,
+      "worst_misfit_deg": 0.0079,
+      "upright_meridian_e": 40.32,
+      "px_per_degree_of_longitude_mid_page": 1543.1,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1643.6,
+      "scale_against_2546_C_measured": 1.0016,
+      "scale_against_2546_C_on_the_printed_cone": 1.006
+     },
+     {
+      "sheet": "2668-C",
+      "west_e": 45,
+      "south_n": 16,
+      "meridians_found": 7,
+      "n_measured": 0.4686,
+      "worst_misfit_deg": 0.0047,
+      "upright_meridian_e": 46.23,
+      "px_per_degree_of_longitude_mid_page": 1592.3,
+      "parallel_gaps_used": 4,
+      "px_per_degree_of_latitude": 1654.8,
+      "scale_against_2546_C_measured": 1.0084,
+      "scale_against_2546_C_on_the_printed_cone": 1.0167
+     }
+    ],
+    "result": "n measured on the six sheets: 0.464 to 0.473; the printed standard parallels give 0.4696. The sheets' scales differ from sheet to sheet in a way the cone alone does not explain (compare the two scale columns), so nothing is said about the scale of the printed sheets."
+   }
+  },
+  "sheets_500k": [
+   {
+    "sheet": "2444-D",
+    "west": 48,
+    "south": 28,
+    "east": 51,
+    "north": 30
+   },
+   {
+    "sheet": "2445-A",
+    "west": 42,
+    "south": 30,
+    "east": 45,
+    "north": 32
+   },
+   {
+    "sheet": "2445-C",
+    "west": 45,
+    "south": 28,
+    "east": 48,
+    "north": 30
+   },
+   {
+    "sheet": "2445-D",
+    "west": 42,
+    "south": 28,
+    "east": 45,
+    "north": 30
+   },
+   {
+    "sheet": "2446-A",
+    "west": 36,
+    "south": 30,
+    "east": 39,
+    "north": 32
+   },
+   {
+    "sheet": "2446-B",
+    "west": 39,
+    "south": 30,
+    "east": 42,
+    "north": 32
+   },
+   {
+    "sheet": "2446-C",
+    "west": 39,
+    "south": 28,
+    "east": 42,
+    "north": 30
+   },
+   {
+    "sheet": "2446-D",
+    "west": 36,
+    "south": 28,
+    "east": 39,
+    "north": 30
+   },
+   {
+    "sheet": "2447-C",
+    "west": 33,
+    "south": 28,
+    "east": 36,
+    "north": 30
+   },
+   {
+    "sheet": "2544-B",
+    "west": 33,
+    "south": 26,
+    "east": 36,
+    "north": 28
+   },
+   {
+    "sheet": "2545-A",
+    "west": 36,
+    "south": 26,
+    "east": 39,
+    "north": 28
+   },
+   {
+    "sheet": "2545-B",
+    "west": 39,
+    "south": 26,
+    "east": 42,
+    "north": 28
+   },
+   {
+    "sheet": "2545-C",
+    "west": 39,
+    "south": 24,
+    "east": 42,
+    "north": 26
+   },
+   {
+    "sheet": "2545-D",
+    "west": 36,
+    "south": 24,
+    "east": 39,
+    "north": 26
+   },
+   {
+    "sheet": "2546-A",
+    "west": 42,
+    "south": 26,
+    "east": 45,
+    "north": 28
+   },
+   {
+    "sheet": "2546-B",
+    "west": 45,
+    "south": 26,
+    "east": 48,
+    "north": 28
+   },
+   {
+    "sheet": "2546-C",
+    "west": 45,
+    "south": 24,
+    "east": 48,
+    "north": 26
+   },
+   {
+    "sheet": "2546-D",
+    "west": 42,
+    "south": 24,
+    "east": 45,
+    "north": 26
+   },
+   {
+    "sheet": "2547-A",
+    "west": 48,
+    "south": 26,
+    "east": 51,
+    "north": 28
+   },
+   {
+    "sheet": "2547-C",
+    "west": 51,
+    "south": 24,
+    "east": 54,
+    "north": 26
+   },
+   {
+    "sheet": "2547-D",
+    "west": 48,
+    "south": 24,
+    "east": 51,
+    "north": 26
+   },
+   {
+    "sheet": "2563-A",
+    "west": 54,
+    "south": 22,
+    "east": 57,
+    "north": 24
+   },
+   {
+    "sheet": "2563-D",
+    "west": 54,
+    "south": 20,
+    "east": 57,
+    "north": 22
+   },
+   {
+    "sheet": "2564-A",
+    "west": 48,
+    "south": 22,
+    "east": 51,
+    "north": 24
+   },
+   {
+    "sheet": "2564-B",
+    "west": 51,
+    "south": 22,
+    "east": 54,
+    "north": 24
+   },
+   {
+    "sheet": "2564-C",
+    "west": 51,
+    "south": 20,
+    "east": 54,
+    "north": 22
+   },
+   {
+    "sheet": "2564-D",
+    "west": 48,
+    "south": 20,
+    "east": 51,
+    "north": 22
+   },
+   {
+    "sheet": "2565-A",
+    "west": 42,
+    "south": 22,
+    "east": 45,
+    "north": 24
+   },
+   {
+    "sheet": "2565-B",
+    "west": 45,
+    "south": 22,
+    "east": 48,
+    "north": 24
+   },
+   {
+    "sheet": "2565-C",
+    "west": 45,
+    "south": 20,
+    "east": 48,
+    "north": 22
+   },
+   {
+    "sheet": "2565-D",
+    "west": 42,
+    "south": 20,
+    "east": 45,
+    "north": 22
+   },
+   {
+    "sheet": "2566-A",
+    "west": 36,
+    "south": 22,
+    "east": 39,
+    "north": 24
+   },
+   {
+    "sheet": "2566-B",
+    "west": 39,
+    "south": 22,
+    "east": 42,
+    "north": 24
+   },
+   {
+    "sheet": "2566-C",
+    "west": 39,
+    "south": 20,
+    "east": 42,
+    "north": 22
+   },
+   {
+    "sheet": "2566-D",
+    "west": 36,
+    "south": 20,
+    "east": 39,
+    "north": 22
+   },
+   {
+    "sheet": "2667-B",
+    "west": 39,
+    "south": 18,
+    "east": 42,
+    "north": 20
+   },
+   {
+    "sheet": "2667-C",
+    "west": 39,
+    "south": 16,
+    "east": 42,
+    "north": 18
+   },
+   {
+    "sheet": "2668-A",
+    "west": 42,
+    "south": 18,
+    "east": 45,
+    "north": 20
+   },
+   {
+    "sheet": "2668-B",
+    "west": 45,
+    "south": 18,
+    "east": 48,
+    "north": 20
+   },
+   {
+    "sheet": "2668-C",
+    "west": 45,
+    "south": 16,
+    "east": 48,
+    "north": 18
+   },
+   {
+    "sheet": "2668-D",
+    "west": 42,
+    "south": 16,
+    "east": 45,
+    "north": 18
+   },
+   {
+    "sheet": "2669-A",
+    "west": 48,
+    "south": 18,
+    "east": 51,
+    "north": 20
+   },
+   {
+    "sheet": "2669-B",
+    "west": 51,
+    "south": 18,
+    "east": 54,
+    "north": 20
+   },
+   {
+    "sheet": "2669-D",
+    "west": 48,
+    "south": 16,
+    "east": 51,
+    "north": 18
+   },
+   {
+    "sheet": "2670-A",
+    "west": 54,
+    "south": 18,
+    "east": 57,
+    "north": 20
+   }
+  ],
+  "sheets_wac": [
+   {
+    "sheet": "2446",
+    "west": 36,
+    "south": 28,
+    "east": 42,
+    "north": 32
+   },
+   {
+    "sheet": "2545",
+    "west": 36,
+    "south": 24,
+    "east": 42,
+    "north": 28
+   },
+   {
+    "sheet": "2546",
+    "west": 42,
+    "south": 24,
+    "east": 48,
+    "north": 28
+   },
+   {
+    "sheet": "2564",
+    "west": 48,
+    "south": 20,
+    "east": 54,
+    "north": 24
+   },
+   {
+    "sheet": "2565",
+    "west": 42,
+    "south": 20,
+    "east": 48,
+    "north": 24
+   },
+   {
+    "sheet": "2566",
+    "west": 36,
+    "south": 20,
+    "east": 42,
+    "north": 24
+   },
+   {
+    "sheet": "2668",
+    "west": 42,
+    "south": 16,
+    "east": 48,
+    "north": 20
+   },
+   {
+    "sheet": "2669",
+    "west": 48,
+    "south": 16,
+    "east": 54,
+    "north": 20
+   }
+  ],
+  "sheet_of_oeth": "2546-C"
  }
 }

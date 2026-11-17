@@ -1,7 +1,8 @@
 """Figure 18-1 (the Saudi round). The parts of an aerodrome seen from above, drawn from the real aerodrome: Thumamah (OETH).
 
-The runway (4 000 x 50 m, true bearing 171/351), its two stopways and the thresholds are the AIP's (AD 2.12, AMDT 11/26); the pavements (the aprons, the links, the turn loops), the buildings, the road and the
-berm were traced by the saudi-airspace project from satellite imagery (outlines only, +/-10 m; data/oeth_plan.json, built by data/build_oeth_plan.py) and the parked aeroplanes are the ones of its scene.
+The runway (4 000 x 50 m, true bearing 171/351), its two stopways and the thresholds are the AIP's (AD 2.12, AMDT 11/26); the pavements (the aprons, the links, the turn loops), the roofs and the road are
+outlines derived from open satellite imagery, a median of Copernicus Sentinel-2 scenes at 10 m (data/oeth_plan.json, built by data/build_oeth_plan.py; about 10 m; "Contains modified Copernicus Sentinel
+data 2026"); the parked aeroplanes are placed for the picture, three of them where the imagery shows aeroplanes.
 Two panels, both to scale: a strip with the whole aerodrome (4.4 km), and the northern 2.3 km in detail, with the ten numbered callouts. North is to the left (the arrow shows it): the runway lies along the
 page. Thumamah has no control tower and the AIP lists no windsock or signal area for it, so the old figure's windsock, signal area and tower are not drawn."""
 import json
@@ -58,9 +59,30 @@ def inside(pt, poly):
 
 
 PAV = {p["name"]: p for p in D["pavements"]}
-BLUE_NAMES = ("WEST TAXIWAY (s 300-900)", "DIAGONAL LINK (main apron to runway)", "MID LINK", "SOUTH LINK FILLET", "SOUTH TURN LOOP (TWY T)")
-ORANGE_NAMES = ("MAIN APRON", "NORTH PARKING APRON", "APRON NORTH OF MAIN APRON")
 BLUE, ORANGE = "#2F6FE0", "#F08A24"
+ZONE_TINT = {"taxiway": BLUE, "apron": ORANGE}       # the manoeuvring area is the runway and the taxiways; the movement area adds the aprons
+
+
+def span_at(ring, t):
+    """The s-range of a ring on the line of constant t (the first crossing pair)."""
+    xs = []
+    for i in range(len(ring) - 1):
+        (t1, s1), (t2, s2) = ring[i], ring[i + 1]
+        if (t1 > t) != (t2 > t):
+            xs.append(s1 + (t - t1) * (s2 - s1) / (t2 - t1))
+    xs.sort()
+    return xs[0], xs[1]
+
+
+def link_axis():
+    """The diagonal link between the main apron and the runway: where its middle meets the runway edge, and its direction away from the runway, in (t, s)."""
+    ring = PAV["DIAGONAL LINK"]["ring"]
+    a0, a1 = span_at(ring, RW + 6)
+    b0, b1 = span_at(ring, RW + 66)
+    ca, cb = (a0 + a1) / 2, (b0 + b1) / 2
+    n = math.hypot(60.0, cb - ca)
+    ax, ay = 60.0 / n, (cb - ca) / n
+    return ca - 6 * ay / ax, ax, ay
 
 
 def defs():
@@ -88,10 +110,8 @@ def frame(x, y, w, h):
 def detail():
     f = pm
     out = [f'<g clip-path="url(#{U}cm)">', ground_card(MX0, MY0, MW, MH, 0.18)]
-    # the road to the west and the berm to the east of the runway (traced lines)
+    # the road to the west of the aerodrome
     road = " ".join(f"{x:.1f},{y:.1f}" for x, y in (f(t, s) for t, s in D["lines"]["ACCESS_ROAD"]))
-    berm = " ".join(f"{x:.1f},{y:.1f}" for x, y in (f(t, s) for t, s in D["lines"]["EAST_BERM"]))
-    out.append(f'<polyline points="{berm}" fill="none" stroke="#8E7A54" stroke-opacity="0.5" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>')
     out.append(f'<polyline points="{road}" fill="none" stroke="#B9AD90" stroke-opacity="0.6" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>'
                f'<polyline points="{road}" fill="none" stroke="#4B5363" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#{U}at)"/>'
                f'<polyline points="{road}" fill="none" stroke="#F1E3A0" stroke-width="0.5" stroke-dasharray="3 3" stroke-linecap="round"/>')
@@ -105,7 +125,7 @@ def detail():
             out.append(f'<path d="{d}" fill="#9A9DA2" fill-rule="evenodd" filter="url(#{U}co)"/>')
         else:
             out.append(f'<path d="{d}" fill="#444" fill-rule="evenodd" filter="url(#{U}as)"/>')
-        tint = BLUE if p["name"] in BLUE_NAMES else (ORANGE if p["name"] in ORANGE_NAMES else None)
+        tint = ZONE_TINT.get(p.get("zone"))
         if tint:
             out.append(f'<path d="{d}" fill="{tint}" fill-opacity="0.30" fill-rule="evenodd"/>'
                        f'<path d="{d}" fill="none" fill-rule="evenodd" stroke="{tint}" stroke-width="1.1" stroke-dasharray="5 3" stroke-linejoin="round"/>')
@@ -165,16 +185,16 @@ def detail():
             out.append(H.lamp(U + "l", a[0], a[1], 0.5, "white", 2.2, 0.85))
     # the taxiway edge lights are blue: along the west taxiway
     # the runway-holding position on the diagonal link: two solid and two dashed yellow lines across the taxiway, 40 m from the runway edge
-    ax, ay = 0.77, -0.64                          # the axis of the link in (t, s), pointing away from the runway
-    ptx, pty = 25 + 34 * ax, 1362 + 34 * ay
+    s_join, ax, ay = link_axis()                  # the axis of the link in (t, s), pointing away from the runway
+    ptx, pty = 25 + 34 * ax, s_join + 34 * ay
     hold = []
     for off, dash in ((15.0, None), (9.4, None), (0.0, "3.0 2.4"), (-5.6, "3.0 2.4")):
-        pa = f(ptx + ax * off + 0.64 * 27, pty + ay * off + 0.77 * 27)
-        pb = f(ptx + ax * off - 0.64 * 27, pty + ay * off - 0.77 * 27)
+        pa = f(ptx + ax * off - ay * 27, pty + ay * off + ax * 27)
+        pb = f(ptx + ax * off + ay * 27, pty + ay * off - ax * 27)
         da = f' stroke-dasharray="{dash}"' if dash else ""
         hold.append(f'<line x1="{pa[0]:.1f}" y1="{pa[1]:.1f}" x2="{pb[0]:.1f}" y2="{pb[1]:.1f}" stroke-width="1.35"{da}/>')
     out.append(f'<g stroke="{YEL}" fill="none" filter="url(#{U}py)">{"".join(hold)}</g>')
-    # the buildings: oriented footprints with a soft shadow and the traced roof colour
+    # the buildings: roof outlines with a soft shadow
     ROOF = {"white": "#F3F1EA", "light": "#E6E1D3", "green": "#6D9C6B", "grey": "#BCBEC1", "tan": "#CDB88A", "beige_grey_bays": "#D9CBAA", "white_oeth": "#F3F1EA"}
     for b in D["buildings"]:
         ring = [f(t, s) for t, s in b["ring"]]
@@ -266,26 +286,26 @@ def inside_point(name, t_hint, s_hint):
 def callouts():
     c = S.callout
     f = pm
-    pts = {n: f(*inside_point(n, *h)) for n, h in (("WEST TAXIWAY (s 300-900)", (187.5, 600)), ("MAIN APRON", (150, 1150)), ("NORTH PARKING APRON", (225, 380)),
-                                                     ("NORTH COMPLEX (turn loop, hangar apron, link)", (76, 12)))}
-    hold = f(25 + 34 * 0.77, 1362 - 34 * 0.64)
+    pts = {n: f(*inside_point(n, *h)) for n, h in (("PARALLEL TAXIWAY", (182, 600)), ("MAIN APRON", (150, 1150)), ("NORTH APRON", (228, 380)), ("NORTH TURN LOOP", (76, 12)))}
+    s_join, ax, ay = link_axis()
+    hold = f(25 + 34 * ax, s_join + 34 * ay)
     des = f(0, 78)
     sw = f(0, -150)
-    b = next(x for x in D["buildings"] if x["id"] == "HANGAR_MAIN_N")
-    hang = f(sum(p[0] for p in b["ring"]) / 4, sum(p[1] for p in b["ring"]) / 4)
+    b = next(x for x in D["buildings"] if x["id"] == "HANGAR_MAIN")
+    hang = f(sum(p[0] for p in b["ring"][:-1]) / (len(b["ring"]) - 1), sum(p[1] for p in b["ring"][:-1]) / (len(b["ring"]) - 1))
     top, low = MY0 + 22, MY0 + MH - 20
     r1, r6 = f(0, 1000), f(8, 620)
     return "".join([
         c(1, 382, top, r1[0], r1[1] - 6),
         c(2, des[0] + 22, top, des[0] + 4, des[1] - 8),
-        c(3, 262, low, *pts["WEST TAXIWAY (s 300-900)"]),
+        c(3, 350, low, *pts["PARALLEL TAXIWAY"]),
         c(4, 512, top, hold[0] + 1, hold[1] - 6),
-        c(5, 350, low, *pts["MAIN APRON"]),
+        c(5, 432, low, *pts["MAIN APRON"]),
         c(6, 282, top, r6[0], r6[1] - 5),
-        c(7, 172, low, *pts["NORTH PARKING APRON"]),
+        c(7, 262, low, *pts["NORTH APRON"]),
         c(8, sw[0], top, sw[0], sw[1] - 8),
-        c(9, 80, low, *pts["NORTH COMPLEX (turn loop, hangar apron, link)"]),
-        c(10, 432, low, hang[0], hang[1] + 3),
+        c(9, 80, low, *pts["NORTH TURN LOOP"]),
+        c(10, 172, low, hang[0], hang[1] + 3),
     ])
 
 
@@ -300,7 +320,7 @@ def plate():
         "replaces": "fig-18-01-aerodrome-plan.svg",
         "book_file": "plate-18-01-aerodrome-plan.jpg",
         "caption": "Figure 18-1. The parts of an aerodrome seen from above: Thumamah (OETH)",
-        "desc": "Figure 18-1. The parts of an aerodrome seen from above: Thumamah (OETH). North is to the left, as the arrow shows; both panels are to scale; the pavements and buildings are traced outlines; not for navigation.",
+        "desc": "Figure 18-1. The parts of an aerodrome seen from above: Thumamah (OETH). North is to the left, as the arrow shows; both panels are to scale; the pavements and buildings are outlines derived from open Sentinel-2 satellite imagery (contains modified Copernicus Sentinel data 2026); not for navigation.",
         "legend": [
             "Runway 17/35: 4 000 m by 50 m, asphalt.",
             "Runway designator: `17` at the north end (in the strip, `35` at the south end).",

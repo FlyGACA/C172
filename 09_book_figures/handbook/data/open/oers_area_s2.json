@@ -1,0 +1,104 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tiles 37RBJ and 37RCJ, bands B04 B03 B02 read at 20 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "each scene scaled to the brightness of the others over the ground they share (the widest scene first), then for every pixel the median of the scenes that have it; one linear stretch for the three bands, JPEG quality 88",
+ "crs": "EPSG:32637",
+ "bounds_e_n_min_e_n_max": [
+  282120,
+  2809900,
+  334120,
+  2861900
+ ],
+ "pixel_m": 20,
+ "size_px": [
+  2600,
+  2600
+ ],
+ "arp_e_n": [
+  308120.2,
+  2835909.6
+ ],
+ "scenes_over_a_pixel": [
+  2,
+  12
+ ],
+ "stretch_reflectance_dn": [
+  107.9,
+  4300.8
+ ],
+ "scenes": [
+  {
+   "tile": "37RBJ",
+   "id": "S2C_37RBJ_20261114_0_L2A",
+   "datetime": "2026-11-14T08:12:59.728000Z",
+   "share_of_window": 0.359
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2B_37RBJ_20261112_0_L2A",
+   "datetime": "2026-11-12T08:22:56.641000Z",
+   "share_of_window": 0.532
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2B_37RBJ_20261109_0_L2A",
+   "datetime": "2026-11-09T08:13:02.315000Z",
+   "share_of_window": 0.359
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2A_37RBJ_20261030_1_L2A",
+   "datetime": "2026-10-30T08:23:02.595000Z",
+   "share_of_window": 0.532
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2B_37RBJ_20261030_0_L2A",
+   "datetime": "2026-10-30T08:13:02.493000Z",
+   "share_of_window": 0.371
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2B_37RBJ_20261020_0_L2A",
+   "datetime": "2026-10-20T08:13:05.188000Z",
+   "share_of_window": 0.107
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2C_37RCJ_20261114_0_L2A",
+   "datetime": "2026-11-14T08:12:55.148000Z",
+   "share_of_window": 0.656
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2B_37RCJ_20261112_0_L2A",
+   "datetime": "2026-11-12T08:22:52.680000Z",
+   "share_of_window": 0.655
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2B_37RCJ_20261109_0_L2A",
+   "datetime": "2026-11-09T08:12:57.747000Z",
+   "share_of_window": 0.656
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2A_37RCJ_20261030_1_L2A",
+   "datetime": "2026-10-30T08:22:58.618000Z",
+   "share_of_window": 0.654
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2B_37RCJ_20261030_0_L2A",
+   "datetime": "2026-10-30T08:12:57.986000Z",
+   "share_of_window": 0.656
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2B_37RCJ_20261020_0_L2A",
+   "datetime": "2026-10-20T08:13:03.401000Z",
+   "share_of_window": 0.047
+  }
+ ]
+}

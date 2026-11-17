@@ -1,4 +1,4 @@
-"""Shared parts for the drawings of the aircraft's systems (figs/f_08_02, f_09_01, f_09_02, f_09_03, f_10_02): the gradients they use, tubes with a lit edge, a few valves and fittings.
+"""Shared parts for the drawings of the aircraft's systems (figs/f_08_02, f_09_01 to f_09_04, f_10_02): the gradients they use, tubes with a lit edge, a few valves and fittings.
 Plain Python (no Blender, no Pillow). `defs()` returns the gradients and filters; every drawing puts it first among its layers."""
 import math
 
