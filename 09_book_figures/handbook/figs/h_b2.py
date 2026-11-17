@@ -1,4 +1,4 @@
-"""Helpers of worker b2 for the plan views of real Saudi airspace (figures 17-6 and 17-7): the map frame (an equirectangular projection round a chosen origin, drawn to scale), the
+"""Helpers of worker b2 for the plan views of real Saudi airspace (figures 17-7 and 17-8): the map frame (an equirectangular projection round a chosen origin, drawn to scale), the
 airspace blocks of the AIP as translucent areas with a white casing and a dashed edge (class G green, D blue, C indigo; danger and restricted areas red-orange with a diagonal hatch),
 runway bars, visual reporting points, the route as a ribbon with a white casing, small icons (a tower, a loudspeaker, a megaphone, a bell, a tick, a hand-over), a scale bar and a north
 arrow, as SVG markup. Plain Python (no Blender, no Pillow). Every id made here starts with the `uid` the figure passes.

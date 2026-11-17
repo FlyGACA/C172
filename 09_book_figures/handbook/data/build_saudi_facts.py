@@ -99,6 +99,31 @@ facts["oers"] = airport("OERS", {"ctr": {"name": "Red Sea (CTR)", "lateral": "ar
                                   "rff_category": 8, "runway_status": {"15L/33R": "open, 3700 x 45, ALSF-2 900 m, PAPI 3 degrees", "15R/33L": "Closed (AD 2.12 and 2.13)"}, "tiba_mhz": 122.8,
                                   "vrps_note": "AD 2.22.12: entry and exit to and from the ATZ via the west, east, north and south VRPs (A, B, C, D, E, F, G)"})
 
+# Red Sea, typed from the official page (AD 2 OERS, AMDT 11/26, read 2026-11-12 and again 2026-11-17): the reporting points of AD 2.22.12 and the frequencies of AD 2.18, as printed
+def dms(lat, lon):
+    """'254238N', '0365701E' -> degrees."""
+    return round(int(lat[0:2]) + int(lat[2:4]) / 60 + int(lat[4:6]) / 3600, 6), round(int(lon[0:3]) + int(lon[3:5]) / 60 + int(lon[5:7]) / 3600, 6)
+
+
+OERS_VRPS = (("A", "north", "East Coastal Road Pad", "RDL 134 from WEJ 37.6 DME", "254238N", "0365701E"),
+             ("B", "west", "North of Abu Laheq Island", "RDL144 from WEJ42.5 DME", "253442N", "0365429E"),
+             ("C", "west", "East Coastal Road Service Station", "RDL138 from WEJ44.6 DME", "253540N", "0365952E"),
+             ("D", "south", "Turtle Bay Hotel", "RDL 141 from WEJ 49.0 DME", "253014N", "0370005E"),
+             ("E", "east", "Hitteen School", "RDL 124 from WEJ 50.6 DME", "253921N", "0371324E"),
+             ("F", "south", "Shuray Construction Village", "RDL 138 from WEJ 50.4 DME", "253049N", "0370335E"),
+             ("G", "east", "Desert Rock", "RDL 121 from WEJ 49.2 DME", "254224N", "0371359E"))
+facts["oers"]["vrps"] = []
+for letter, side, name, radial, la, lo in OERS_VRPS:
+    lat, lon = dms(la, lo)
+    dist, brg = dist_brg(aer["OERS"]["arp"]["lat"], aer["OERS"]["arp"]["lon"], lat, lon)
+    facts["oers"]["vrps"].append({"id": letter, "side": side, "name": name, "printed": radial, "dms": [la, lo], "lat": lat, "lon": lon, "from_arp_nm_derived": round(dist, 1), "from_arp_true_deg_derived": round(brg)})
+facts["oers"]["comms"] = {"tower": {"callsign": "Red Sea Tower", "mhz": 118.2, "hours": "0700-1500", "remark": "Call Red Sea Tower 15 min before ARR time"},
+                          "ground": {"callsign": "Red Sea Ground", "mhz": 121.95, "hours": "0700-1500"}, "atis": {"mhz": 126.55, "hours": "0700 - 1500"},
+                          "tiba": {"mhz": 122.8, "hours": "H24", "remark": "TIBA procedure to be applied H24 outside Red Sea CTR/ATZ."},
+                          "note": "AD 2.18. The hours are printed without a time system; AD 2.3 pairs UTC hours with local ones (05:00 - 13:00 is 0800-1600 LT), so they are read as UTC"}
+facts["oers"]["ctr"]["lateral_printed"] = "252743N 0370421E - 254122N 0365503E then a clockwise arc 10NM centred on 253742N 0370520E 252743N 0370421E"
+facts["oers"]["tiba_rule"] = "AD 2.22.1.2: TIBA on 122.8 MHZ in class G airspace: outside all CTAs, TMAs and CTRs; off AWYs below FL150; ...; within uncontrolled aerodrome in non-TWR operating hours; where there is no ATS unit to provide FIS"
+
 # ---------------------------------------------------------------- areas
 facts["areas"] = {
     "oeth_atz_ring": ring(apt[("OETH", "ATZ")]),

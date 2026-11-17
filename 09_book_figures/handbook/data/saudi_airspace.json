@@ -1059,7 +1059,8 @@
    "remarks": "CTR is considered ATZ outside hours of applicability with Airspace classification G",
    "units": [
     "Red Sea Tower"
-   ]
+   ],
+   "lateral_printed": "252743N 0370421E - 254122N 0365503E then a clockwise arc 10NM centred on 253742N 0370520E 252743N 0370421E"
   },
   "rff_category": 8,
   "runway_status": {
@@ -1067,7 +1068,131 @@
    "15R/33L": "Closed (AD 2.12 and 2.13)"
   },
   "tiba_mhz": 122.8,
-  "vrps_note": "AD 2.22.12: entry and exit to and from the ATZ via the west, east, north and south VRPs (A, B, C, D, E, F, G)"
+  "vrps_note": "AD 2.22.12: entry and exit to and from the ATZ via the west, east, north and south VRPs (A, B, C, D, E, F, G)",
+  "vrps": [
+   {
+    "id": "A",
+    "side": "north",
+    "name": "East Coastal Road Pad",
+    "printed": "RDL 134 from WEJ 37.6 DME",
+    "dms": [
+     "254238N",
+     "0365701E"
+    ],
+    "lat": 25.710556,
+    "lon": 36.950278,
+    "from_arp_nm_derived": 9.0,
+    "from_arp_true_deg_derived": 303
+   },
+   {
+    "id": "B",
+    "side": "west",
+    "name": "North of Abu Laheq Island",
+    "printed": "RDL144 from WEJ42.5 DME",
+    "dms": [
+     "253442N",
+     "0365429E"
+    ],
+    "lat": 25.578333,
+    "lon": 36.908056,
+    "from_arp_nm_derived": 10.2,
+    "from_arp_true_deg_derived": 253
+   },
+   {
+    "id": "C",
+    "side": "west",
+    "name": "East Coastal Road Service Station",
+    "printed": "RDL138 from WEJ44.6 DME",
+    "dms": [
+     "253540N",
+     "0365952E"
+    ],
+    "lat": 25.594444,
+    "lon": 36.997778,
+    "from_arp_nm_derived": 5.3,
+    "from_arp_true_deg_derived": 248
+   },
+   {
+    "id": "D",
+    "side": "south",
+    "name": "Turtle Bay Hotel",
+    "printed": "RDL 141 from WEJ 49.0 DME",
+    "dms": [
+     "253014N",
+     "0370005E"
+    ],
+    "lat": 25.503889,
+    "lon": 37.001389,
+    "from_arp_nm_derived": 8.8,
+    "from_arp_true_deg_derived": 212
+   },
+   {
+    "id": "E",
+    "side": "east",
+    "name": "Hitteen School",
+    "printed": "RDL 124 from WEJ 50.6 DME",
+    "dms": [
+     "253921N",
+     "0371324E"
+    ],
+    "lat": 25.655833,
+    "lon": 37.223333,
+    "from_arp_nm_derived": 7.5,
+    "from_arp_true_deg_derived": 77
+   },
+   {
+    "id": "F",
+    "side": "south",
+    "name": "Shuray Construction Village",
+    "printed": "RDL 138 from WEJ 50.4 DME",
+    "dms": [
+     "253049N",
+     "0370335E"
+    ],
+    "lat": 25.513611,
+    "lon": 37.059722,
+    "from_arp_nm_derived": 7.1,
+    "from_arp_true_deg_derived": 193
+   },
+   {
+    "id": "G",
+    "side": "east",
+    "name": "Desert Rock",
+    "printed": "RDL 121 from WEJ 49.2 DME",
+    "dms": [
+     "254224N",
+     "0371359E"
+    ],
+    "lat": 25.706667,
+    "lon": 37.233056,
+    "from_arp_nm_derived": 9.1,
+    "from_arp_true_deg_derived": 59
+   }
+  ],
+  "comms": {
+   "tower": {
+    "callsign": "Red Sea Tower",
+    "mhz": 118.2,
+    "hours": "0700-1500",
+    "remark": "Call Red Sea Tower 15 min before ARR time"
+   },
+   "ground": {
+    "callsign": "Red Sea Ground",
+    "mhz": 121.95,
+    "hours": "0700-1500"
+   },
+   "atis": {
+    "mhz": 126.55,
+    "hours": "0700 - 1500"
+   },
+   "tiba": {
+    "mhz": 122.8,
+    "hours": "H24",
+    "remark": "TIBA procedure to be applied H24 outside Red Sea CTR/ATZ."
+   },
+   "note": "AD 2.18. The hours are printed without a time system; AD 2.3 pairs UTC hours with local ones (05:00 - 13:00 is 0800-1600 LT), so they are read as UTC"
+  },
+  "tiba_rule": "AD 2.22.1.2: TIBA on 122.8 MHZ in class G airspace: outside all CTAs, TMAs and CTRs; off AWYs below FL150; ...; within uncontrolled aerodrome in non-TWR operating hours; where there is no ATS unit to provide FIS"
  },
  "areas": {
   "oeth_atz_ring": [

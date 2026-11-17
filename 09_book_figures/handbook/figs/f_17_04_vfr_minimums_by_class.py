@@ -1,4 +1,4 @@
-"""Figure 17-3. VFR visibility and distance from cloud in Classes B to E. Three scenes in cards, one for each group of classes: a desert horizon under a cumulus of the model of the sky
+"""Figure 17-4. VFR visibility and distance from cloud in Classes B to E. Three scenes in cards, one for each group of classes: a desert horizon under a cumulus of the model of the sky
 (figs/clouds.py) in place of the white blob, the model seen from the right close to it (Class B, clear of clouds) and, in Classes C, D, E and in Class E high up, 500 or 1 000 ft below
 it, 1 000 ft above it and 2 000 ft (1 500 m) beside it, with the visibility as a dashed arrow along the foot of each card. Every distance, dimension line and letter of the old figure
 is kept, with its nine numbered callouts (figs/h_a1.py and figs/scene.py make the pieces)."""
@@ -58,11 +58,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-17-03-vfr-minimums-by-class",
-        "replaces": "fig-17-03-vfr-minimums-by-class.svg",
-        "book_file": "plate-17-03-vfr-minimums-by-class.jpg",
-        "caption": "Figure 17-3. VFR visibility and distance from cloud in Classes B to E",
-        "desc": "Figure 17-3. VFR visibility and distance from cloud in Classes B to E",
+        "id": "fig-17-04-vfr-minimums-by-class",
+        "replaces": "fig-17-04-vfr-minimums-by-class.svg",
+        "book_file": "plate-17-04-vfr-minimums-by-class.jpg",
+        "caption": "Figure 17-4. VFR visibility and distance from cloud in Classes B to E",
+        "desc": "Figure 17-4. VFR visibility and distance from cloud in Classes B to E",
         "legend": [
             "Class B: clear of clouds.",
             "500 ft below cloud.",
@@ -76,5 +76,5 @@ def plate():
         ],
         "canvas": [640, 392],
         "background": "pale",
-        "reskin": {"svg": "fig-17-03-vfr-minimums-by-class.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-17-04-vfr-minimums-by-class.svg", "blank": True, "layers": layers()},
     }
