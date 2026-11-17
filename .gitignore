@@ -15,3 +15,5 @@ e2e-screenshots/
 # `npm run plates:build` (Blender needed); what is kept is the finished plate of the book in 09_book_figures/handbook/out/book
 09_book_figures/handbook/renders/
 09_book_figures/handbook/out/*.svg
+# the aerodrome atlas: the cards are made again from data/ (python3 09_book_figures/atlas/card.py; node 09_book_figures/atlas/rasterize_cards.mjs)
+09_book_figures/atlas/cache/
