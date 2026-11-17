@@ -1,6 +1,6 @@
 # Aerodrome atlas: the cards
 
-A pilot batch for a separate book, the FlyGACA aerodrome atlas: one card for each civil aerodrome of the Kingdom, with what its entry AD 2 in AIP-KSA prints, on an open satellite picture. An editorial draft; nothing here is approved or verified, and nothing is for navigation. Fly GACA is independent and is not affiliated with GACA. (FlyGACA جهة مستقلة وليست تابعة للهيئة العامة للطيران المدني.)
+A first batch (24 of 29 cards; `out/sheet-all.jpg` shows them together) for a separate book, the FlyGACA aerodrome atlas: one card for each civil aerodrome of the Kingdom, with what its entry AD 2 in AIP-KSA prints, on an open satellite picture. An editorial draft; nothing here is approved or verified, and nothing is for navigation. Fly GACA is independent and is not affiliated with GACA. (FlyGACA جهة مستقلة وليست تابعة للهيئة العامة للطيران المدني.)
 
 ## Decisions of the owner (17 November 2026)
 
@@ -24,4 +24,7 @@ A pilot batch for a separate book, the FlyGACA aerodrome atlas: one card for eac
 - The pages of AMDT 11/26 are not kept here; `build_atlas_facts.py` takes their folder as an argument.
 - Two values of the repository's data are not on the AMDT 11/26 page (the ASDA of Rafha's runways) and are flagged in the facts file.
 - A card shows at most six lines of AD 2.18; at Jeddah the ATIS does not fit.
+- Five aerodromes have no picture yet (Rabigh, Arar, Red Sea, Al Jouf, Yenbo): no single cloud-free pass covers their window, so the fetcher must join two tiles for them.
+- Al Qaisumah's card shows no frequency: its AD 2.18 names its services in a way the card does not yet read.
+- The picture of Wadi Al Dawasir is pale and that of Um Almelh very red: one stretch for all aerodromes does not suit every ground.
 - No Arabic edition yet, no text beside the cards, no book around them.
