@@ -1,0 +1,57 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 39RUJ, bands B04 B03 B02 at 10 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "for every pixel the median of the scenes listed; one linear stretch for the three bands together",
+ "crs": "EPSG:32639",
+ "bounds_e_n_min_e_n_max": [
+  339490,
+  2791920,
+  355490,
+  2802920
+ ],
+ "pixel_m": 10,
+ "size_px": [
+  1600,
+  1100
+ ],
+ "centre_lon_lat": [
+  49.48526805,
+  25.2854389
+ ],
+ "centre_e_n": [
+  347492.5,
+  2797415.8
+ ],
+ "stretch_reflectance_dn": [
+  1390.0,
+  5723.0
+ ],
+ "scenes": [
+  {
+   "tile": "39RUJ",
+   "id": "S2A_39RUJ_20261114_1_L2A",
+   "datetime": "2026-11-14T07:32:39Z"
+  },
+  {
+   "tile": "39RUJ",
+   "id": "S2C_39RUJ_20261112_0_L2A",
+   "datetime": "2026-11-12T07:32:30.935000Z"
+  },
+  {
+   "tile": "39RUJ",
+   "id": "S2A_39RUJ_20261025_1_L2A",
+   "datetime": "2026-10-25T07:32:41.057000Z"
+  },
+  {
+   "tile": "39RUJ",
+   "id": "S2C_39RUJ_20261023_0_L2A",
+   "datetime": "2026-10-23T07:32:33.121000Z"
+  },
+  {
+   "tile": "39RUJ",
+   "id": "S2B_39RUJ_20261018_0_L2A",
+   "datetime": "2026-10-18T07:32:32.755000Z"
+  }
+ ]
+}
