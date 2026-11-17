@@ -1,0 +1,57 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 38QQE, bands B04 B03 B02 at 10 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "for every pixel the median of the scenes listed; one linear stretch for the three bands together",
+ "crs": "EPSG:32638",
+ "bounds_e_n_min_e_n_max": [
+  717280,
+  1926960,
+  733280,
+  1937960
+ ],
+ "pixel_m": 10,
+ "size_px": [
+  1600,
+  1100
+ ],
+ "centre_lon_lat": [
+  47.1213931,
+  17.466868050000002
+ ],
+ "centre_e_n": [
+  725283.9,
+  1932455.7
+ ],
+ "stretch_reflectance_dn": [
+  1090.0,
+  5088.0
+ ],
+ "scenes": [
+  {
+   "tile": "38QQE",
+   "id": "S2A_38QQE_20261114_1_L2A",
+   "datetime": "2026-11-14T07:34:57.173000Z"
+  },
+  {
+   "tile": "38QQE",
+   "id": "S2B_38QQE_20261107_0_L2A",
+   "datetime": "2026-11-07T07:34:52.437000Z"
+  },
+  {
+   "tile": "38QQE",
+   "id": "S2A_38QQE_20261104_1_L2A",
+   "datetime": "2026-11-04T07:34:57.703000Z"
+  },
+  {
+   "tile": "38QQE",
+   "id": "S2C_38QQE_20261102_0_L2A",
+   "datetime": "2026-11-02T07:34:48.155000Z"
+  },
+  {
+   "tile": "38QQE",
+   "id": "S2B_38QQE_20261028_0_L2A",
+   "datetime": "2026-10-28T07:34:52.367000Z"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 """Helpers of worker b2 for the plan views of real Saudi airspace (figures 17-8 and 17-9): the map frame (an equirectangular projection round a chosen origin, drawn to scale), the
 airspace blocks of the AIP as translucent areas with a white casing and a dashed edge (class G green, D blue, C indigo; danger and restricted areas red-orange with a diagonal hatch),
-runway bars, visual reporting points, the route as a ribbon with a white casing, small icons (a tower, a loudspeaker, a megaphone, a bell, a tick, a hand-over), a scale bar and a north
+runway bars, visual reporting points, the route as a ribbon with a white casing, small icons (a tower, a loudspeaker, a megaphone, a headset, a radar scope, a bell, a tick, a hand-over), a scale bar and a north
 arrow, as SVG markup. Plain Python (no Blender, no Pillow). Every id made here starts with the `uid` the figure passes.
 
 The facts are those of data/saudi_airspace.json (AIP AMDT 11/26); nothing is added to them here."""
@@ -298,6 +298,17 @@ def megaphone(uid, x, y, r=8.6, colour="#1F7A4D"):
     return badge(uid, x, y, r, colour) + f'<path d="{horn}" fill="{colour}" stroke="{colour}" stroke-width="{n(k * 0.08)}" stroke-linejoin="round"/>' + handle + waves
 
 
+def headset(uid, x, y, r=8.6, colour="#1F7A4D"):
+    """A headset, in a badge (a listening watch): the band over the head, the two ear cups, the microphone on its boom."""
+    k = r * 0.62
+    cy = y - 0.12 * k
+    band = _arc(x, cy + 0.1 * k, 0.7 * k, 188, 352)
+    cups = "".join(f'<rect x="{n(x + sg * 0.7 * k - 0.19 * k)}" y="{n(cy)}" width="{n(0.38 * k)}" height="{n(0.66 * k)}" rx="{n(0.15 * k)}" fill="{colour}"/>' for sg in (-1, 1))
+    boom = f"M {n(x - 0.7 * k)},{n(cy + 0.62 * k)} Q {n(x - 0.66 * k)},{n(cy + 1.02 * k)} {n(x - 0.1 * k)},{n(cy + 0.98 * k)}"
+    return (badge(uid, x, y, r, colour) + f'<path d="{band}" fill="none" stroke="{colour}" stroke-width="{n(k * 0.2)}" stroke-linecap="round"/>' + cups
+            + f'<path d="{boom}" fill="none" stroke="{colour}" stroke-width="{n(k * 0.14)}" stroke-linecap="round"/><circle cx="{n(x + 0.02 * k)}" cy="{n(cy + 0.98 * k)}" r="{n(0.15 * k)}" fill="{colour}"/>')
+
+
 def tower_icon(uid, x, y, r=9.5, colour="#1E5FB3"):
     """A control tower, in a badge: a glazed cab under a roof slab with a mast, a slender shaft, a foot."""
     k = r * 0.62
@@ -308,6 +319,21 @@ def tower_icon(uid, x, y, r=9.5, colour="#1E5FB3"):
     shaft = f'<polygon points="{pts([(x - 0.2 * k, y - 0.36 * k), (x + 0.2 * k, y - 0.36 * k), (x + 0.3 * k, y + 0.84 * k), (x - 0.3 * k, y + 0.84 * k)])}" fill="{colour}"/>'
     foot = f'<rect x="{n(x - 0.56 * k)}" y="{n(y + 0.8 * k)}" width="{n(1.12 * k)}" height="{n(0.16 * k)}" rx="{n(0.06 * k)}" fill="{colour}"/>'
     return badge(uid, x, y, r, colour) + mast + roof + cab + glass + shaft + foot
+
+
+def radar(uid, x, y, r=11.0, colour="#8A6A00"):
+    """A radar scope in a badge (an approach control unit): a ring, a range ring, a sweep and two blips."""
+    k = r * 0.66
+    a = math.radians(-52)
+    tip = (x + math.cos(a) * k, y + math.sin(a) * k)
+    a2 = math.radians(-92)
+    wedge = [(x, y), tip, (x + math.cos(a2) * k, y + math.sin(a2) * k)]
+    return (badge(uid, x, y, r, colour) + f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(k)}" fill="none" stroke="{colour}" stroke-width="{n(k * 0.16)}"/>'
+            f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(k * 0.5)}" fill="none" stroke="{colour}" stroke-opacity="0.55" stroke-width="{n(k * 0.1)}"/>'
+            f'<polygon points="{pts(wedge)}" fill="{colour}" fill-opacity="0.3"/>'
+            f'<line x1="{n(x)}" y1="{n(y)}" x2="{n(tip[0])}" y2="{n(tip[1])}" stroke="{colour}" stroke-width="{n(k * 0.18)}" stroke-linecap="round"/>'
+            f'<circle cx="{n(x - k * 0.42)}" cy="{n(y + k * 0.3)}" r="{n(k * 0.13)}" fill="{colour}"/><circle cx="{n(x + k * 0.36)}" cy="{n(y + k * 0.44)}" r="{n(k * 0.11)}" fill="{colour}"/>'
+            f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(k * 0.12)}" fill="{colour}"/>')
 
 
 def bell(uid, x, y, r=8.6, colour=ALERT):

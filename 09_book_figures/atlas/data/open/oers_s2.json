@@ -1,0 +1,104 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 37RCJ, bands B04 B03 B02 at 10 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "the window lies across the edge of a tile or of a pass: for every pixel the median of the scenes listed that cover it, each brought to the grid of the first tile; one linear stretch for the three bands together",
+ "crs": "EPSG:32637",
+ "bounds_e_n_min_e_n_max": [
+  299580,
+  2830980,
+  315580,
+  2841980
+ ],
+ "pixel_m": 10,
+ "size_px": [
+  1600,
+  1100
+ ],
+ "centre_lon_lat": [
+  37.08345695,
+  25.633450025000002
+ ],
+ "centre_e_n": [
+  307582.9,
+  2836484.3
+ ],
+ "stretch_reflectance_dn": [
+  1273.5,
+  3498.5
+ ],
+ "scenes": [
+  {
+   "tile": "37RCJ",
+   "id": "S2C_37RCJ_20261114_0_L2A",
+   "datetime": "2026-11-14T08:12:55.148000Z",
+   "covers": 0.974
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2B_37RCJ_20261112_0_L2A",
+   "datetime": "2026-11-12T08:22:52.680000Z",
+   "covers": 0.974
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2B_37RCJ_20261109_0_L2A",
+   "datetime": "2026-11-09T08:12:57.747000Z",
+   "covers": 0.974
+  },
+  {
+   "tile": "37RCJ",
+   "id": "S2A_37RCJ_20261030_1_L2A",
+   "datetime": "2026-10-30T08:22:58.618000Z",
+   "covers": 0.974
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2C_37RBJ_20261114_0_L2A",
+   "datetime": "2026-11-14T08:12:59.728000Z",
+   "covers": 0.637
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2B_37RBJ_20261112_0_L2A",
+   "datetime": "2026-11-12T08:22:56.641000Z",
+   "covers": 0.637
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2B_37RBJ_20261109_0_L2A",
+   "datetime": "2026-11-09T08:13:02.315000Z",
+   "covers": 0.637
+  },
+  {
+   "tile": "37RBJ",
+   "id": "S2A_37RBJ_20261030_1_L2A",
+   "datetime": "2026-10-30T08:23:02.595000Z",
+   "covers": 0.637
+  },
+  {
+   "tile": "36RZP",
+   "id": "S2C_36RZP_20261114_0_L2A",
+   "datetime": "2026-11-14T08:13:00.144000Z",
+   "covers": 0.478
+  },
+  {
+   "tile": "36RZP",
+   "id": "S2B_36RZP_20261112_0_L2A",
+   "datetime": "2026-11-12T08:22:57.096000Z",
+   "covers": 0.478
+  },
+  {
+   "tile": "36RZP",
+   "id": "S2B_36RZP_20261109_0_L2A",
+   "datetime": "2026-11-09T08:13:02.731000Z",
+   "covers": 0.478
+  },
+  {
+   "tile": "36RZP",
+   "id": "S2A_36RZP_20261030_1_L2A",
+   "datetime": "2026-10-30T08:23:03.052000Z",
+   "covers": 0.478
+  }
+ ]
+}

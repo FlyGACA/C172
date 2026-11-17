@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <title>Trim tab operation</title>
+  <desc>How a trim tab reduces control pressure by creating opposing aerodynamic force</desc>
+<defs>
+  <marker id="ab" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1e40af"/></marker>
+  <marker id="ag" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#047857"/></marker>
+  <marker id="ak" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+  <linearGradient id="stabGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#e8eefc"/>
+    <stop offset="100%" stop-color="#c7d2ee"/>
+  </linearGradient>
+  <linearGradient id="ctrlGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f59e0b"/>
+    <stop offset="100%" stop-color="#b45309"/>
+  </linearGradient>
+  <linearGradient id="trimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#34d399"/>
+    <stop offset="100%" stop-color="#047857"/>
+  </linearGradient>
+  <linearGradient id="forceGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1e40af" stop-opacity="0.3"/>
+    <stop offset="100%" stop-color="#1e40af" stop-opacity="1"/>
+  </linearGradient>
+  <filter id="shd" x="-3%" y="-3%" width="106%" height="106%">
+    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#1e293b" flood-opacity="0.1"/>
+  </filter>
+  <filter id="csh" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="640" height="360" fill="#ffffff"/>
+
+<!-- Main stabilizer body -->
+<g filter="url(#shd)">
+<path d="M350.1,230.1 L349.7,230.0 L348.4,229.9 L346.3,229.8 L343.3,229.6 L339.5,229.3 L334.9,229.0 L329.5,228.7 L323.4,228.3 L316.6,227.9 L309.1,227.5 L301.0,227.1 L292.4,226.7 L283.2,226.2 L273.6,225.8 L263.7,225.5 L253.3,225.1 L242.8,224.9 L232.0,224.7 L221.0,224.5 L210.1,224.5 L199.1,224.6 L188.1,224.7 L177.4,225.0 L166.8,225.4 L156.5,225.9 L146.5,226.6 L136.9,227.4 L127.7,228.3 L119.1,229.4 L111.0,230.6 L103.6,231.9 L96.7,233.3 L90.6,234.8 L85.3,236.5 L80.7,238.2 L76.9,240.0 L73.9,241.9 L71.7,243.9 L70.4,245.9 L70.0,248.0 L70.0,248.0 L70.4,250.1 L71.7,252.1 L73.9,254.1 L76.9,256.0 L80.7,257.8 L85.3,259.5 L90.6,261.2 L96.7,262.7 L103.6,264.1 L111.0,265.4 L119.1,266.6 L127.7,267.7 L136.9,268.6 L146.5,269.4 L156.5,270.1 L166.8,270.6 L177.4,271.0 L188.1,271.3 L199.1,271.4 L210.1,271.5 L221.0,271.5 L232.0,271.3 L242.8,271.1 L253.3,270.9 L263.7,270.5 L273.6,270.2 L283.2,269.8 L292.4,269.3 L301.0,268.9 L309.1,268.5 L316.6,268.1 L323.4,267.7 L329.5,267.3 L334.9,267.0 L339.5,266.7 L343.3,266.4 L346.3,266.2 L348.4,266.1 L349.7,266.0 L350.1,265.9 Z" fill="url(#stabGrad)" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+</g>
+
+<!-- Control surface (elevator) -->
+<g filter="url(#shd)">
+<path d="M473.0,219.4 L472.8,219.5 L472.2,219.5 L471.2,219.6 L469.9,219.7 L468.2,219.8 L466.2,219.9 L463.8,220.1 L461.1,220.3 L458.1,220.6 L454.7,220.8 L451.2,221.1 L447.3,221.4 L443.3,221.7 L439.0,222.1 L434.6,222.4 L430.0,222.8 L425.3,223.2 L420.6,223.6 L415.7,224.0 L410.8,224.5 L406.0,224.9 L401.1,225.3 L396.4,225.8 L391.7,226.2 L387.1,226.6 L382.7,227.1 L378.5,227.5 L374.4,227.9 L370.6,228.2 L367.0,228.6 L363.7,228.9 L360.7,229.2 L358.0,229.5 L355.6,229.8 L353.6,230.0 L351.9,230.1 L350.6,230.3 L349.7,230.4 L349.1,230.4 L348.9,230.5 L345.5,231.4 L342.4,233.0 L339.7,235.1 L337.4,237.8 L335.7,240.8 L334.6,244.1 L334.2,247.6 L334.5,251.1 L335.4,254.5 L337.0,257.6 L339.1,260.3 L341.8,262.6 L344.8,264.3 L348.1,265.4 L351.6,265.8 L355.1,265.5 L355.3,265.5 L355.8,265.4 L356.8,265.1 L358.0,264.8 L359.7,264.4 L361.7,263.9 L364.0,263.3 L366.6,262.7 L369.5,261.9 L372.8,261.1 L376.2,260.2 L380.0,259.3 L383.9,258.2 L388.0,257.2 L392.3,256.1 L396.7,254.9 L401.3,253.7 L405.9,252.5 L410.6,251.2 L415.3,250.0 L420.1,248.7 L424.8,247.5 L429.4,246.2 L433.9,245.0 L438.4,243.8 L442.6,242.6 L446.8,241.5 L450.7,240.4 L454.4,239.4 L457.9,238.4 L461.1,237.5 L464.0,236.7 L466.6,236.0 L468.9,235.3 L470.9,234.8 L472.5,234.3 L473.8,233.9 L474.7,233.7 L475.2,233.5 L475.4,233.5 Z" fill="url(#ctrlGrad)" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+</g>
+
+<!-- Trim tab -->
+<g filter="url(#shd)">
+<path d="M535.6,244.9 L535.5,244.9 L535.2,244.8 L534.8,244.6 L534.1,244.3 L533.3,243.9 L532.3,243.5 L531.1,243.0 L529.8,242.5 L528.3,241.8 L526.6,241.2 L524.9,240.4 L523.0,239.6 L521.0,238.8 L518.9,237.9 L516.7,237.0 L514.5,236.1 L512.2,235.1 L509.8,234.2 L507.4,233.2 L505.0,232.2 L502.6,231.2 L500.2,230.2 L497.9,229.3 L495.6,228.3 L493.3,227.4 L491.1,226.5 L489.0,225.7 L487.0,224.8 L485.1,224.1 L483.3,223.4 L481.7,222.7 L480.2,222.1 L478.9,221.6 L477.7,221.1 L476.7,220.7 L475.9,220.4 L475.2,220.1 L474.7,219.9 L474.5,219.8 L474.4,219.8 L472.9,219.5 L471.5,219.5 L470.1,219.8 L468.8,220.4 L467.6,221.2 L466.6,222.2 L465.8,223.4 L465.3,224.8 L465.1,226.2 L465.1,227.6 L465.4,229.0 L466.0,230.3 L466.8,231.5 L467.8,232.5 L469.0,233.3 L470.3,233.8 L470.4,233.8 L470.7,233.9 L471.2,234.0 L471.9,234.1 L472.8,234.2 L473.9,234.4 L475.1,234.7 L476.5,234.9 L478.1,235.2 L479.9,235.5 L481.7,235.8 L483.8,236.2 L485.9,236.6 L488.1,237.0 L490.4,237.4 L492.8,237.8 L495.3,238.2 L497.8,238.6 L500.4,239.1 L502.9,239.5 L505.5,239.9 L508.0,240.4 L510.5,240.8 L513.0,241.2 L515.4,241.6 L517.7,242.0 L520.0,242.4 L522.1,242.7 L524.1,243.1 L526.0,243.4 L527.8,243.7 L529.3,243.9 L530.8,244.1 L532.0,244.3 L533.1,244.5 L534.0,244.7 L534.7,244.8 L535.2,244.9 L535.5,244.9 L535.6,244.9 Z" fill="url(#trimGrad)" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+</g>
+
+<!-- Pivot points (highlighted) -->
+<circle cx="352.0" cy="248.0" r="4" fill="#f59e0b" stroke="#475569" stroke-width="1.5"/>
+<circle cx="352.0" cy="248.0" r="1.5" fill="#475569"/>
+<circle cx="472.3" cy="226.8" r="4" fill="#f59e0b" stroke="#475569" stroke-width="1.5"/>
+<circle cx="472.3" cy="226.8" r="1.5" fill="#475569"/>
+
+<!-- Aerodynamic force arrows (pressure) -->
+<line x1="18.0" y1="206.0" x2="92.0" y2="206.0" stroke="url(#forceGrad)" stroke-width="2.5" marker-end="url(#ab)"/>
+<line x1="18.0" y1="290.0" x2="92.0" y2="290.0" stroke="url(#forceGrad)" stroke-width="2.5" marker-end="url(#ab)"/>
+
+<!-- Trim tab aerodynamic force -->
+<line x1="489.4" y1="286.5" x2="500.8" y2="246.7" stroke="#047857" stroke-width="2.8" marker-end="url(#ag)"/>
+
+<!-- Control force -->
+<line x1="267.4" y1="276.4" x2="267.4" y2="332.4" stroke="#475569" stroke-width="2.8" marker-end="url(#ak)"/>
+
+<!-- Small aircraft symbol (top-left inset) -->
+<g filter="url(#shd)">
+<path d="M40,78 C48,62 80,58 110,58 L160,60 L245,72 L245,80 L160,90 C110,94 60,92 40,78 Z" fill="url(#stabGrad)" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M218,69 L236,34 L250,34 L247,72 Z" fill="#f0f4ff" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+<!-- Elevator tab on small aircraft -->
+<rect x="100" y="56" width="52" height="4" fill="#047857" stroke="#475569" stroke-width="1.2"/>
+<!-- Hinge lines -->
+<line x1="220" y1="76" x2="256" y2="76" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="38" y1="60" x2="38" y2="96" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+</g>
+<!-- CG symbol on aircraft -->
+<circle cx="122" cy="76" r="6" fill="#ffffff" stroke="#475569" stroke-width="1.3"/><path d="M122,70 A6,6 0 0,1 128,76 L122,76 Z" fill="#475569"/><path d="M122,82 A6,6 0 0,1 116,76 L122,76 Z" fill="#475569"/>
+
+<!-- Control surface movement arrow -->
+<line x1="238.0" y1="84.0" x2="238.0" y2="118.0" stroke="#475569" stroke-width="2.4" marker-end="url(#ak)"/>
+<!-- Dashed reference box -->
+<rect x="212" y="64" width="52" height="22" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+<!-- Trim tab movement arc -->
+<path d="M92.6,93.0 A34,34 0 0,1 93.2,58.0" fill="none" stroke="#047857" stroke-width="2.4" marker-end="url(#ag)"/>
+
+<!-- Numbered callouts -->
+<line x1="200.0" y1="330.0" x2="187.5" y2="256.0" stroke="#475569" stroke-width="1.2"/><circle cx="187.5" cy="256.0" r="2.2" fill="#475569"/><circle cx="200.0" cy="330.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="200.0" y="334.5" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<line x1="342.0" y1="168.0" x2="352.0" y2="244.0" stroke="#475569" stroke-width="1.2"/><circle cx="352.0" cy="244.0" r="2.2" fill="#475569"/><circle cx="342.0" cy="168.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="342.0" y="172.5" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<line x1="452.0" y1="168.0" x2="416.1" y2="232.8" stroke="#475569" stroke-width="1.2"/><circle cx="416.1" cy="232.8" r="2.2" fill="#475569"/><circle cx="452.0" cy="168.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="452.0" y="172.5" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<line x1="610.0" y1="300.0" x2="504.0" y2="235.8" stroke="#475569" stroke-width="1.2"/><circle cx="504.0" cy="235.8" r="2.2" fill="#475569"/><circle cx="610.0" cy="300.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="610.0" y="304.5" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<circle cx="515.4" cy="294.5" r="13" fill="#1e40af" filter="url(#csh)"/><text x="515.4" y="299.0" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<circle cx="293.4" cy="320.4" r="13" fill="#1e40af" filter="url(#csh)"/><text x="293.4" y="324.9" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<circle cx="40.0" cy="248.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="40.0" y="252.5" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+<circle cx="78.6" cy="123.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="78.6" y="127.5" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">8</text>
+</svg>

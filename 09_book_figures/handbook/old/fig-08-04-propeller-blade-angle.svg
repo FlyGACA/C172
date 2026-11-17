@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <title>Propeller blade angle</title>
+  <desc>Relationship between blade angle, engine RPM and airspeed</desc>
+<defs>
+  <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#e8eefc"/>
+    <stop offset="50%" stop-color="#c7d2ee"/>
+    <stop offset="100%" stop-color="#a5b4d4"/>
+  </linearGradient>
+  <linearGradient id="bladeStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#1e40af"/>
+    <stop offset="100%" stop-color="#3b82f6"/>
+  </linearGradient>
+  <linearGradient id="relWindGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+    <stop offset="0%" stop-color="#047857" stop-opacity="0.3"/>
+    <stop offset="100%" stop-color="#047857" stop-opacity="1"/>
+  </linearGradient>
+  <linearGradient id="rpmGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+    <stop offset="0%" stop-color="#1e40af" stop-opacity="0.3"/>
+    <stop offset="100%" stop-color="#1e40af" stop-opacity="1"/>
+  </linearGradient>
+  <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.4"/>
+    <stop offset="100%" stop-color="#94a3b8" stop-opacity="1"/>
+  </linearGradient>
+  <filter id="shd" x="-3%" y="-3%" width="106%" height="106%">
+    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#1e293b" flood-opacity="0.1"/>
+  </filter>
+  <filter id="csh" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="640" height="360" fill="#ffffff"/>
+
+<!-- Reference horizontal line (plane of rotation) -->
+<line x1="40" y1="214.0" x2="610" y2="214.0" stroke="#475569" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.6"/>
+<!-- Reference line along blade chord -->
+<line x1="127.1" y1="300.0" x2="520.3" y2="24.7" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.5"/>
+<!-- Relative wind line -->
+<line x1="129.5" y1="262.7" x2="556.0" y2="90.4" stroke="#047857" stroke-width="1.5" stroke-dasharray="2 4" opacity="0.7"/>
+
+<!-- Blade airfoil shape -->
+<g filter="url(#shd)">
+<polygon points="327.8,159.5 317.8,153.4 311.6,153.0 306.2,153.5 301.2,154.6 296.4,156.1 291.9,157.8 287.4,159.8 283.1,162.0 279.0,164.3 274.9,166.7 270.9,169.3 267.0,172.0 263.1,174.7 259.3,177.6 255.6,180.5 251.9,183.5 248.2,186.6 244.6,189.7 241.0,192.9 237.5,196.1 234.0,199.4 230.5,202.7 227.1,206.1 223.7,209.5 220.3,212.9 216.9,216.4 213.5,219.9 210.2,223.4 206.9,227.0 203.6,230.6 200.4,234.2 197.1,237.8 193.9,241.5 190.7,245.2 187.5,249.0 184.3,252.7 181.2,256.5 178.1,260.3 175.0,264.2 171.9,268.1 172.2,268.5 176.2,265.9 180.1,263.3 184.1,260.6 188.0,258.0 192.0,255.3 195.9,252.7 199.9,250.1 203.8,247.4 207.7,244.8 211.7,242.1 215.6,239.4 219.6,236.8 223.5,234.1 227.4,231.5 231.4,228.8 235.3,226.1 239.2,223.5 243.2,220.8 247.1,218.1 251.0,215.4 254.9,212.7 258.8,210.1 262.7,207.4 266.7,204.7 270.6,202.0 274.5,199.3 278.4,196.5 282.3,193.8 286.1,191.1 290.0,188.4 293.9,185.6 297.8,182.9 301.6,180.1 305.5,177.3 309.3,174.5 313.1,171.7 316.9,168.8 320.7,165.9 324.4,162.9 327.8,159.5" fill="url(#bladeGrad)" stroke="url(#bladeStroke)" stroke-width="2.5"/>
+</g>
+
+<!-- Protractor-style blade angle arc (beta) -->
+<path d="M485.0,214.0 A235,235 0 0 0 442.5,79.2" fill="none" stroke="#475569" stroke-width="2.5"/>
+<!-- Tick marks on protractor arc -->
+<line x1="485" y1="214" x2="478" y2="214" stroke="#475569" stroke-width="1.5"/>
+<line x1="477" y1="160" x2="470" y2="162" stroke="#475569" stroke-width="1.2"/>
+<line x1="460" y1="110" x2="453" y2="113" stroke="#475569" stroke-width="1.2"/>
+<line x1="442.5" y1="79.2" x2="437" y2="84" stroke="#475569" stroke-width="1.5"/>
+
+<!-- Angle of attack arc (alpha) - smaller -->
+<path d="M421.5,144.7 A185,185 0 0 0 401.5,107.9" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+
+<!-- Angle labels (Greek symbols - language-neutral) -->
+<text x="490.3" y="143.2" font-family="serif" font-size="18" font-style="italic" fill="#475569">β</text>
+<text x="397.2" y="136.9" font-family="serif" font-size="18" font-style="italic" fill="#f59e0b">α</text>
+
+<!-- Relative wind arrow (lift component) -->
+<line x1="282.0" y1="178.0" x2="282.0" y2="89.0" stroke="url(#relWindGrad)" stroke-width="3.5"/><polygon points="282.0,76.0 275.5,89.0 288.5,89.0" fill="#047857"/>
+
+<!-- RPM vector (horizontal) -->
+<line x1="340.0" y1="320.0" x2="539.0" y2="320.0" stroke="url(#rpmGrad)" stroke-width="3"/><polygon points="550.0,320.0 539.0,314.5 539.0,325.5" fill="#1e40af"/>
+<!-- Airspeed vector (vertical) -->
+<line x1="550.0" y1="320.0" x2="550.0" y2="246.2" stroke="url(#rpmGrad)" stroke-width="3"/><polygon points="550.0,235.2 544.5,246.2 555.5,246.2" fill="#1e40af"/>
+<!-- Resultant vector (diagonal) -->
+<line x1="340.0" y1="320.0" x2="536.7" y2="240.9" stroke="url(#resultGrad)" stroke-width="2.5" stroke-dasharray="6 4"/><polygon points="546.0,237.2 534.9,236.2 538.6,245.5" fill="#94a3b8"/>
+
+<!-- ====== NUMBERED CALLOUTS ====== -->
+<!-- 1: Plane of rotation -->
+<line x1="40.0" y1="236.0" x2="70.0" y2="214.0" stroke="#475569" stroke-width="1.2"/><circle cx="70.0" cy="214.0" r="2.2" fill="#475569"/><circle cx="40.0" cy="236.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="40.0" y="240.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<!-- 2: Blade chord line -->
+<line x1="590.0" y1="36.0" x2="496.0" y2="42.0" stroke="#475569" stroke-width="1.2"/><circle cx="496.0" cy="42.0" r="2.2" fill="#475569"/><circle cx="590.0" cy="36.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="590.0" y="40.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<!-- 3: Blade angle (beta) -->
+<circle cx="535.6" cy="163.6" r="13" fill="#1e40af" filter="url(#csh)"/><text x="535.6" y="167.8" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<!-- 4: RPM vector -->
+<line x1="445.0" y1="344.0" x2="445.0" y2="320.0" stroke="#475569" stroke-width="1.2"/><circle cx="445.0" cy="320.0" r="2.2" fill="#475569"/><circle cx="445.0" cy="344.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="445.0" y="348.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<!-- 5: Airspeed vector -->
+<line x1="596.0" y1="280.0" x2="552.0" y2="280.0" stroke="#475569" stroke-width="1.2"/><circle cx="552.0" cy="280.0" r="2.2" fill="#475569"/><circle cx="596.0" cy="280.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="596.0" y="284.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<!-- 6: Relative wind -->
+<line x1="612.0" y1="64.0" x2="560.0" y2="89.0" stroke="#047857" stroke-width="1"/><circle cx="560.0" cy="89.0" r="2.2" fill="#047857"/><circle cx="612.0" cy="64.0" r="13" fill="#047857" filter="url(#csh)"/><text x="612.0" y="68.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<!-- 7: Angle of attack (alpha) -->
+<circle cx="439.0" cy="111.4" r="13" fill="#f59e0b" filter="url(#csh)"/><text x="439.0" y="115.6" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+<!-- 8: Lift component -->
+<line x1="248.0" y1="96.0" x2="280.0" y2="110.0" stroke="#047857" stroke-width="1"/><circle cx="280.0" cy="110.0" r="2.2" fill="#047857"/><circle cx="248.0" cy="96.0" r="13" fill="#047857" filter="url(#csh)"/><text x="248.0" y="100.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">8</text>
+<!-- 9: Resultant -->
+<line x1="300.0" y1="300.0" x2="420.0" y2="287.7" stroke="#475569" stroke-width="1.2"/><circle cx="420.0" cy="287.7" r="2.2" fill="#475569"/><circle cx="300.0" cy="300.0" r="13" fill="#1e40af" filter="url(#csh)"/><text x="300.0" y="304.2" font-family="IBM Plex Sans, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">9</text>
+</svg>

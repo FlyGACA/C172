@@ -1,0 +1,57 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 38RLT, bands B04 B03 B02 at 10 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "for every pixel the median of the scenes listed; one linear stretch for the three bands together",
+ "crs": "EPSG:32638",
+ "bounds_e_n_min_e_n_max": [
+  345880,
+  3272830,
+  361880,
+  3283830
+ ],
+ "pixel_m": 10,
+ "size_px": [
+  1600,
+  1100
+ ],
+ "centre_lon_lat": [
+  43.4906903,
+  29.6263292
+ ],
+ "centre_e_n": [
+  353879.6,
+  3278332.3
+ ],
+ "stretch_reflectance_dn": [
+  1263.0,
+  5522.0
+ ],
+ "scenes": [
+  {
+   "tile": "38RLT",
+   "id": "S2C_38RLT_20261108_0_L2A",
+   "datetime": "2026-11-08T07:51:43.880000Z"
+  },
+  {
+   "tile": "38RLT",
+   "id": "S2B_38RLT_20261014_0_L2A",
+   "datetime": "2026-10-14T07:51:42.636000Z"
+  },
+  {
+   "tile": "38RLT",
+   "id": "S2C_38RLT_20260929_0_L2A",
+   "datetime": "2026-09-29T07:51:48.998000Z"
+  },
+  {
+   "tile": "38RLT",
+   "id": "S2B_38RLT_20260924_0_L2A",
+   "datetime": "2026-09-24T07:51:47.156000Z"
+  },
+  {
+   "tile": "38RLT",
+   "id": "S2C_38RLT_20260919_0_L2A",
+   "datetime": "2026-09-19T07:51:47.498000Z"
+  }
+ ]
+}

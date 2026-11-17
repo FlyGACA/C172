@@ -1,4 +1,4 @@
-"""Build data/saudi_airspace.json, the facts the Saudi-example figures of the handbook (chapters 17, 18, 20 and 26) draw from.
+"""Build data/saudi_airspace.json, the facts the Saudi-example figures of the handbook (chapters 4, 11, 17, 18, 19, 20, 21 and 26) draw from.
 
 Source: the saudi-airspace repository (data/structured/*), extracted from the GACA eAIP, AIRAC AIP AMDT 11/26 (effective 2026-10-29). Before it was used here, every value of AD 2 OETH
 was compared with the official AMDT 11/26 page (54 values, all found verbatim), and the runway thresholds of OEJN and OERS with their AMDT 11/26 pages (largest difference 0.01 m).
@@ -219,6 +219,106 @@ facts["charts"] = {
 }
 assert len(facts["charts"]["sheets_500k"]) == 45 and len(facts["charts"]["sheets_wac"]) == 8 and facts["charts"]["sheet_of_oeth"] == "2546-C"      # the counts of ENR 6 (AMDT 11/26)
 facts["provenance"]["pages"] += ["GEN 3.2", "ENR 6"]
+
+# ---------------------------------------------------------------- hot and high: the elevation and the reference temperature of twelve aerodromes (AD 2.2), and the density altitude they give
+# Typed from item 1 (ARP) and item 3 (Elevation/Reference temperature) of AD 2.2 on the official AMDT 11/26 page of each aerodrome, and found again there word for word on 2026-11-17.
+# The saudi-airspace index is not used for these two values: it was built from the pages of AMDT 12/26 and keeps only the whole degrees of a reference temperature.
+HOT_AND_HIGH = (("OEAB", "N181425 E0423923", "6858 FT / 33° C"), ("OEBA", "N201754 E0413809", "5459 FT / 33° C"), ("OETF", "N212900 E0403240", "4848 FT / 34.7° C"),
+                ("OENG", "N173641 E0442509", "3983 FT / 38.2° C"), ("OEHL", "N272623 E0414111", "3305 FT / 37.6° C"), ("OETB", "N282223 E0363717", "2551 FT / 37.6° C"),
+                ("OEMA", "N243301 E0394221", "2134 FT / 42° C"), ("OERK", "N245746 E0464229", "2053 FT / 42.3° C"), ("OETH", "N251251 E0463827", "1870 FT / 42° C"),
+                ("OEAH", "N251710 E0492910", "588 FT / 46° C"), ("OEDF", "N262816 E0494752", "75 FT / 45.2° C"), ("OEJN", "N214052 E0390922", "50 FT / 37.9° C"))
+ISA_T0_K, ISA_LAPSE_K_M, ISA_G, ISA_R = 288.15, 0.0065, 9.80665, 287.05287          # the standard atmosphere below the tropopause (ICAO Doc 7488)
+ISA_N = ISA_G / (ISA_R * ISA_LAPSE_K_M)
+
+
+def density_altitude_ft(pressure_altitude_ft, oat_c):
+    """The height in the standard atmosphere at which dry air has the density it has at this pressure altitude and temperature."""
+    pressure = (1 - ISA_LAPSE_K_M * pressure_altitude_ft * 0.3048 / ISA_T0_K) ** ISA_N
+    density = pressure * ISA_T0_K / (oat_c + 273.15)
+    return ISA_T0_K / ISA_LAPSE_K_M * (1 - density ** (1 / (ISA_N - 1))) / 0.3048
+
+
+def rule_of_thumb_ft(pressure_altitude_ft, oat_c):
+    """The book's rule: ISA temperature = 15 - 2 for each 1 000 ft; density altitude = pressure altitude + 120 for each degree above it."""
+    return pressure_altitude_ft + 120 * (oat_c - (15 - 2 * pressure_altitude_ft / 1000))
+
+
+rows = []
+for icao, arp, printed in HOT_AND_HIGH:
+    a = aer[icao]
+    lat = int(arp[1:3]) + int(arp[3:5]) / 60 + int(arp[5:7]) / 3600
+    lon = int(arp[9:12]) + int(arp[12:14]) / 60 + int(arp[14:16]) / 3600
+    elev, temp = int(printed.split(" FT / ")[0]), float(printed.split(" FT / ")[1].replace("° C", ""))
+    assert abs(lat - a["arp"]["lat"]) < 1e-6 and abs(lon - a["arp"]["lon"]) < 1e-6 and int(temp) == a["ref_temp_c"], icao             # the index agrees on the place and on the whole degrees
+    exact, rule = density_altitude_ft(elev, temp), rule_of_thumb_ft(elev, temp)
+    row = {"icao": icao, "name": a["name"], "arp_printed": arp, "lat": round(lat, 7), "lon": round(lon, 7), "elev_ref_printed": printed, "elev_ft": elev, "ref_temp_c": temp,
+           "isa_temp_c_derived": round(15 - ISA_LAPSE_K_M * elev * 0.3048, 1), "density_altitude_ft_derived": round(exact), "density_altitude_rounded_ft_derived": int(round(exact / 50.0) * 50),
+           "rule_of_thumb_ft_derived": round(rule), "rule_minus_exact_ft_derived": round(rule - exact)}
+    if a["elev_ft"] != elev:
+        row["amdt_12_26"] = {"elev_ft": int(a["elev_ft"]), "note": "AMDT 12/26 (effective 2026-11-26) prints this elevation; the page of AMDT 12/26 marks the old one as deleted"}
+    rows.append(row)
+assert [r["icao"] for r in rows if "amdt_12_26" in r] == ["OEAH"] and rows[9]["amdt_12_26"]["elev_ft"] == 599                           # the only one of the twelve whose AD 2.2 changes with AMDT 12/26
+assert all(150 <= r["rule_minus_exact_ft_derived"] <= 310 for r in rows), [r["rule_minus_exact_ft_derived"] for r in rows]                # the rule of thumb errs high by this much at these temperatures
+assert rows[0]["density_altitude_ft_derived"] > 10000 and rows[8]["elev_ft"] == facts["oeth"]["elev_ft"] and rows[8]["ref_temp_c"] == facts["oeth"]["ref_temp_c"]
+facts["hot_and_high"] = {
+    "source": "AIP AD 2.2 of each aerodrome, items 1 and 3, AMDT 11/26; typed here and found again word for word on the official pages on 2026-11-17 (sha256 of each page in the book's sources/registry.json)",
+    "assumptions": "the outside air temperature is the aerodrome reference temperature; QNH 1013.25 hPa, so that the pressure altitude is the elevation; dry air; the ICAO standard atmosphere (Doc 7488 constants)",
+    "derived": "isa_temp_c, density_altitude_ft (the exact value), density_altitude_rounded_ft (to 50 ft, as the figure prints it), rule_of_thumb_ft (the book's rule) and rule_minus_exact_ft are worked out here, not printed in the AIP",
+    "aerodromes": sorted(rows, key=lambda r: -r["density_altitude_ft_derived"]),
+}
+for key in ("oerk", "oejn"):                                                                # the printed reference temperatures, with their tenths (the index keeps whole degrees)
+    facts[key]["ref_temp_c"] = next(r["ref_temp_c"] for r in rows if r["icao"] == key.upper())
+facts["provenance"]["pages"] += ["AD 2 OEAB", "AD 2 OEBA", "AD 2 OETF", "AD 2 OENG", "AD 2 OEHL", "AD 2 OETB", "AD 2 OEMA", "AD 2 OEAH", "AD 2 OEDF"]
+
+# ---------------------------------------------------------------- a fix from one station: the DVOR/DME of Riyadh and the two reporting points of Thumamah
+# AD 2 OERK 2.19 (AMDT 11/26, the same text in AMDT 12/26): DVOR/DME (03° E) KSA 115.000 MHZ (CH97X) H24 245849.2N 0464008.1E, elevation of the DME antenna 2100 FT.
+# AD 2 OETH 2.22.3 places the two reporting points by it: "RDL 358 from KSA 18.83 NM" and "RDL 025 from KSA 15.82 NM".
+OERK_KSA = ("245849.2N", "0464008.1E")
+ksa_lat, ksa_lon = dms1(*OERK_KSA)
+facts["oerk"]["ksa"] = {"type": "DVOR/DME", "id": "KSA", "mhz": 115.0, "channel": "CH97X", "declination_e_deg": 3, "hours": "H24", "dms": list(OERK_KSA), "lat": ksa_lat, "lon": ksa_lon, "dme_antenna_elev_ft": 2100}
+for v, (radial, nm) in zip(facts["oeth"]["vrps"], ((358, 18.83), (25, 15.82))):
+    assert f"RDL {radial:03d} from KSA {nm} NM" in v["note"], v["note"]
+    d, b = dist_brg(ksa_lat, ksa_lon, v["lat"], v["lon"])
+    v["from_ksa_printed"] = {"radial": radial, "nm": nm}
+    v["from_ksa_nm_derived"], v["from_ksa_true_deg_derived"], v["from_ksa_magnetic_deg_derived"] = round(d, 2), round(b, 1), round((b - 3) % 360, 1)
+    assert abs(d - nm) < 0.1 and abs(((b - 3 - radial) + 180) % 360 - 180) < 0.6, (v["name"], d, b)          # the printed radial and distance agree with the printed coordinates
+
+# ---------------------------------------------------------------- the AIP as a publication: its parts, its amendments and one supplement (Figures 4-1 and 4-2)
+# Typed from the official eAIP on 2026-11-17 and found there word for word (the book's sources/registry.json has the hash of each page):
+#   GEN 0.2, RECORD OF AIP AMENDMENTS      AIRAC AIP AMDT 10/26  20 Aug 2026  01 Oct 2026;  11/26  17 Sep 2026  29 Oct 2026  (the AMDT 11/26 package);
+#                                          12/26  15 Oct 2026  26 Nov 2026  (added in the AMDT 12/26 package)
+#   the table of contents (eAIP menu)      AD 2 has 62 aerodromes, each under the same subsections AD 2.1 to AD 2.25; AD 1.3 lists the same 62
+#   the list of supplements                28 in force in the AMDT 11/26 package ("Published as of 17 SEP 2026"), among them AIP SUP 36/26, "from 17 SEP 2026"
+#   AIP SUP 36/26                          dated 10 SEP 2026, EXPANSION OF URBAN VFR ROUTES (UVRs) IN RIYADH: "This supplement supersedes the current VFR route procedures published
+#                                          under OERK AD 2.22."; "starting on17 September 2026 and remain current until the AIP is amended"; routes RYA 1 to RYA 11 and NAJD 1 to NAJD 7
+#   AD 2 OERK 2.22.11 (AMDT 11/26 and 12/26)   still lists RYA 1 to RYA 10 and NAJD1 to NAJD4
+import datetime as _dt
+
+
+def _date(s):
+    return _dt.date.fromisoformat(s)
+
+
+AMENDMENTS = [("AIRAC AIP AMDT 10/26", "2026-08-20", "2026-10-01"), ("AIRAC AIP AMDT 11/26", "2026-09-17", "2026-10-29"), ("AIRAC AIP AMDT 12/26", "2026-10-15", "2026-11-26")]
+for _name, _pub, _eff in AMENDMENTS:
+    assert (_date(_eff) - _date(_pub)).days == 42 and _date(_eff).weekday() == 3, _name                     # published six weeks ahead; the effective date is a Thursday
+assert all((_date(b[2]) - _date(a[2])).days == 28 for a, b in zip(AMENDMENTS, AMENDMENTS[1:]))               # 28 days from one effective date to the next
+oeah = next(r for r in rows if r["icao"] == "OEAH")
+assert (oeah["elev_ft"], oeah["amdt_12_26"]["elev_ft"]) == (588, 599)
+facts["aip"] = {
+    "source": "AIP-KSA, the eAIP on aimss.sans.com.sa: GEN 0.1, GEN 0.2, the table of contents, AD 1.3, the list of supplements and AIP SUP 36/26, as published with AMDT 11/26 and AMDT 12/26; typed here and found again word for word on 2026-11-17",
+    "parts": ["GEN", "ENR", "AD"],
+    "aerodromes_in_ad2": 62,
+    "ad2_subsections": 25,
+    "amendments": [{"name": n_, "published": p_, "effective": e_, "days_ahead_derived": 42} for n_, p_, e_ in AMENDMENTS],
+    "cycle_days_derived": 28,
+    "supplements_in_force": {"as_of": "2026-09-17", "count": 28, "airac": 12, "other": 16},
+    "sup_36_26": {"name": "AIP SUP 36/26", "dated": "2026-09-10", "valid_from": "2026-09-17", "subject": "EXPANSION OF URBAN VFR ROUTES (UVRs) IN RIYADH",
+                  "supersedes": "the current VFR route procedures published under OERK AD 2.22", "replaces": "AIP SUP 23/26", "until": "the AIP is amended with the relevant information",
+                  "routes": {"RYA": 11, "NAJD": 7}, "ad2_oerk_2_22_11_routes": {"RYA": 10, "NAJD": 4}},
+    "example_change": {"icao": "OEAH", "what": "aerodrome elevation, AD 2.2 item 3", "amdt_11_26_ft": 588, "amdt_12_26_ft": 599, "effective": "2026-11-26"},
+}
+facts["provenance"]["pages"] += ["GEN 0.1", "GEN 0.2", "AD 1.3", "AIP SUP 36/26"]
 
 json.dump(facts, open(OUT, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print("wrote", OUT, os.path.getsize(OUT), "bytes")
