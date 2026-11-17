@@ -1,4 +1,4 @@
-"""Figure 9-3. A vacuum system driving the attitude and heading indicators. Cabin air drawn through the inlet filter, the two gyro instruments of the model themselves (the attitude indicator
+"""Figure 9-4. A vacuum system driving the attitude and heading indicators. Cabin air drawn through the inlet filter, the two gyro instruments of the model themselves (the attitude indicator
 and the heading indicator, in parallel), a suction gauge on the line, the relief valve that lets air in to hold the suction constant, and the engine-driven vacuum pump that blows the air
 overboard. The instruments are the sprites of the twin, the rest is drawn by this module (figs/parts.py has the pipes, figs/scene.py the callouts); the seven numbered callouts of
 the old figure are kept."""
@@ -62,15 +62,15 @@ def callouts():
 
 def plate():
     return {
-        "id": "fig-09-03-vacuum-system",
-        "replaces": "fig-09-03-vacuum-system.svg",
-        "book_file": "plate-09-03-vacuum-system.jpg",
-        "caption": "Figure 9-3. A vacuum system driving the attitude and heading indicators",
-        "desc": "Figure 9-3. A vacuum system driving the attitude and heading indicators",
+        "id": "fig-09-04-vacuum-system",
+        "replaces": "fig-09-04-vacuum-system.svg",
+        "book_file": "plate-09-04-vacuum-system.jpg",
+        "caption": "Figure 9-4. A vacuum system driving the attitude and heading indicators",
+        "desc": "Figure 9-4. A vacuum system driving the attitude and heading indicators",
         "legend": ["Inlet air filter.", "Attitude indicator.", "Heading indicator.", "Suction gauge.", "Relief valve.", "Engine-driven vacuum pump.", "Overboard outlet."],
         "canvas": [640, 360],
         "background": "pale",
-        "reskin": {"svg": "fig-09-03-vacuum-system.svg", "blank": True,
+        "reskin": {"svg": "fig-09-04-vacuum-system.svg", "blank": True,
                    "layers": [P.defs(), '<rect x="0" y="0" width="640" height="360" fill="url(#ptbg)"/>', lines(), air_filter(), pump(), relief_valve(), suction_gauge(),
                               {"name": "dial-31-04-ai", "at": [250, 100], "width": 92, "shadow": SHADOW}, {"name": "dial-09-03-dg", "at": [250, 266], "width": 92, "shadow": SHADOW}, callouts()]},
     }

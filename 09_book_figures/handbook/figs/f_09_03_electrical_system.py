@@ -1,4 +1,4 @@
-"""Figure 9-2. A simple light-aeroplane electrical system. The parts drawn as the parts they are (the battery with its terminals, the master switch with its two rockers, the contactor, the
+"""Figure 9-3. A simple light-aeroplane electrical system. The parts drawn as the parts they are (the battery with its terminals, the master switch with its two rockers, the contactor, the
 ammeter dial, the alternator with its pulley, the voltage regulator with its heat sink, the warning lamp, the bus bar, the circuit breakers and a few loads, the starter, and the magnetos
 and the ignition switch in a dashed box of their own, apart from the bus), joined by wires: power in red, the alternator's output in blue, controls thin and grey. The drawing is made by
 this module (figs/scene.py supplies the callouts); the eleven numbered callouts of the old figure are kept."""
@@ -219,14 +219,14 @@ def callouts():
 
 def plate():
     return {
-        "id": "fig-09-02-electrical-system",
-        "replaces": "fig-09-02-electrical-system.svg",
-        "book_file": "plate-09-02-electrical-system.jpg",
-        "caption": "Figure 9-2. A simple light-aeroplane electrical system",
-        "desc": "Figure 9-2. A simple light-aeroplane electrical system",
+        "id": "fig-09-03-electrical-system",
+        "replaces": "fig-09-03-electrical-system.svg",
+        "book_file": "plate-09-03-electrical-system.jpg",
+        "caption": "Figure 9-3. A simple light-aeroplane electrical system",
+        "desc": "Figure 9-3. A simple light-aeroplane electrical system",
         "legend": ["Battery.", "Master switch, alternator and battery halves.", "Battery contactor.", "Ammeter.", "Alternator.", "Voltage regulator.", "Low-voltage warning light.", "Bus bar.",
                    "Circuit breakers.", "Starter contactor and starter motor.", "Magnetos and ignition switch, separate from the bus."],
         "canvas": [640, 360],
         "background": "pale",
-        "reskin": {"svg": "fig-09-02-electrical-system.svg", "blank": True, "layers": [defs(), scene(), callouts()]},
+        "reskin": {"svg": "fig-09-03-electrical-system.svg", "blank": True, "layers": [defs(), scene(), callouts()]},
     }
