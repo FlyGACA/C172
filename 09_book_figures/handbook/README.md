@@ -72,6 +72,8 @@ numbered callouts), takes the outlined clouds out with `"remove"`, puts a sky be
 only inserts (the same text twice): a sprite overlay names the cloud, gives its place and `"width"`, and `"height"` where the figure wants it taller or thinner than
 the cloud is; `"tint"` paints a cloud the colour of dust; `"haze"` fades a far cloud into the colour of the sky, `"feather"` softens its edge, `"flip"` turns it over.
 
+The **easy-to-understand teaching figures** (1-1, 2-1, 2-2, 3-1, 5-4, 5-6, 5-7, 8-3, 9-5, 10-4) are new plates drawn only from numbers and statements the chapters already give; they carry digits, codes and arrows but no words (the words are in the legends). 5-7 (ground effect), 8-3 (mixture as three balance scales) and 9-5 (cabin heat and carbon monoxide, a schematic on the side sprite) are the third round; the old 8-3 (propeller blade section) is now 8-4.
+
 The weather figures that show a place (14-3, 14-6, 14-7, 14-8, 14-9, 15-1, 15-4, 15-6) are drawn again as **illustrated scenes** on the old figure's canvas: a plate whose
 `"reskin"` has `"blank": True` and `"layers"` starts from nothing and lays strings of SVG and cloud sprites in order, back to front. `figs/scene.py` is the kit: skies and the sun
 and moon, the country of the Peninsula (hills, dunes, a sandy plain with scrub, date palms, acacias, flat-roofed houses, a sea with a dhow, a mountain of rock with strata, gullies
