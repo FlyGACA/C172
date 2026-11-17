@@ -1,4 +1,4 @@
-"""Figure 21-8. Checking a route checkpoint with VOR/DME, GNSS and the chart. Drawn again on an aerial view of the country (figs/terrain.py) seen through a framed map window: the wadi
+"""Figure 21-9. Checking a route checkpoint with VOR/DME, GNSS and the chart. Drawn again on an aerial view of the country (figs/terrain.py) seen through a framed map window: the wadi
 and the road, the planned track a blue ribbon with its two-mile ticks, the station a hexagonal white building with a dome, the planned 300 radial and the 290 radial as light rays, the
 10 NM DME arc, the aeroplane of the model at the fix with the GNSS diamond beside it, the new track dashed; beside the map the VOR indicator and the DME readout as lit instruments and
 the scale as a ruler. The geometry, numbers and callouts of the old figure are kept (figs/h_a4.py has the parts)."""
@@ -8,7 +8,7 @@ from figs import h_a4 as H
 from figs import scene as S
 from figs import terrain
 
-terrain.ensure("terrain-21-08", size=(2560, 1600), seed=218, kind="plain", features=("scrub", "tracks"), veil=0.3, soft=2.6)
+terrain.ensure("terrain-21-09", size=(2560, 1600), seed=218, kind="plain", features=("scrub", "tracks"), veil=0.3, soft=2.6)
 
 FRAME = (18.0, 26.8, 396.0, 355.2)
 STN = (364.3, 286.4)
@@ -140,7 +140,7 @@ def plate():
     new_track = H.dashed_arrow([(144.8, 196.3), (256.5, 30.4)], "#1B4FD0", 2.8, "8 5", 9.0, casing=1.6)
     card = H.glass("f8k", 436, 18, 190, 262, r=12, top="#1F2E4B", bottom="#0C1527", opacity=0.97)
     layers = [
-        {"name": "terrain-21-08", "at": [320, 200], "width": 640},
+        {"name": "terrain-21-09", "at": [320, 200], "width": 640},
         dim, plan(), track(), rays_and_arc(), st,
         H.text(364.3, 320.6, "NKL", 13, "#1B4FD0", "bold", "middle", mono=True, halo="#FFFFFF"),
         marks(), new_track,
@@ -153,11 +153,11 @@ def plate():
         c(7, 172, 100, 212.3, 96), c(8, 322, 44, 296, 36), c(9, 456, 36, 484, 62), c(10, 456, 222, 472, 222), c(11, 624, 330, 600, 330),
     ]))
     return {
-        "id": "fig-21-08-cross-check-fix",
-        "replaces": "fig-21-08-cross-check-fix.svg",
-        "book_file": "plate-21-08-cross-check-fix.jpg",
-        "caption": "Figure 21-8. Checking a route checkpoint with VOR/DME, GNSS and the chart",
-        "desc": "Figure 21-8. Checking a route checkpoint with VOR/DME, GNSS and the chart",
+        "id": "fig-21-09-cross-check-fix",
+        "replaces": "fig-21-09-cross-check-fix.svg",
+        "book_file": "plate-21-09-cross-check-fix.jpg",
+        "caption": "Figure 21-9. Checking a route checkpoint with VOR/DME, GNSS and the chart",
+        "desc": "Figure 21-9. Checking a route checkpoint with VOR/DME, GNSS and the chart",
         "legend": [
             "Planned track 030° from aerodrome A; distances from A in NM.",
             "WADI, planned for 0615 UTC: radial 300, 8.0 NM from `NKL`.",
@@ -173,5 +173,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-21-08-cross-check-fix.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-21-09-cross-check-fix.svg", "blank": True, "layers": layers},
     }

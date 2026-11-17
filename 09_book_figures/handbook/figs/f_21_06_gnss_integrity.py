@@ -1,4 +1,4 @@
-"""Figure 21-5. GNSS satellites, integrity monitoring and what degrades the signal. Drawn again as an illustrated picture on the old figure's canvas: a sky that darkens to space over
+"""Figure 21-6. GNSS satellites, integrity monitoring and what degrades the signal. Drawn again as an illustrated picture on the old figure's canvas: a sky that darkens to space over
 the curve of the earth, the satellites as spacecraft (a gold body, solar panels with cells, a dish) with a glowing link line to the aeroplane (four solid, a fifth dashed, a sixth dotted,
 a low one cut off by the airframe), the tower of the interference with its red waves, and the two position plots as lit displays in a dark card, one set agreeing and one not, with the
 warning. Every callout of the old figure is kept (figs/h_a4.py has the parts)."""
@@ -150,11 +150,11 @@ def plate():
         c(6, 466, 52, 494, 80), c(7, 466, 222, 486, 252),
     ]))
     return {
-        "id": "fig-21-05-gnss-integrity",
-        "replaces": "fig-21-05-gnss-integrity.svg",
-        "book_file": "plate-21-05-gnss-integrity.jpg",
-        "caption": "Figure 21-5. GNSS satellites, integrity monitoring and what degrades the signal",
-        "desc": "Figure 21-5. GNSS satellites, integrity monitoring and what degrades the signal",
+        "id": "fig-21-06-gnss-integrity",
+        "replaces": "fig-21-06-gnss-integrity.svg",
+        "book_file": "plate-21-06-gnss-integrity.jpg",
+        "caption": "Figure 21-6. GNSS satellites, integrity monitoring and what degrades the signal",
+        "desc": "Figure 21-6. GNSS satellites, integrity monitoring and what degrades the signal",
         "legend": [
             "Four satellites: a position in three dimensions and the time.",
             "A fifth, or four and the barometric altitude: a faulty satellite can be detected.",
@@ -166,5 +166,5 @@ def plate():
         ],
         "canvas": [640, 390],
         "background": "pale",
-        "reskin": {"svg": "fig-21-05-gnss-integrity.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-21-06-gnss-integrity.svg", "blank": True, "layers": layers},
     }

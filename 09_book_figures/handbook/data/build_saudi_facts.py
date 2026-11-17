@@ -270,6 +270,19 @@ for key in ("oerk", "oejn"):                                                    
     facts[key]["ref_temp_c"] = next(r["ref_temp_c"] for r in rows if r["icao"] == key.upper())
 facts["provenance"]["pages"] += ["AD 2 OEAB", "AD 2 OEBA", "AD 2 OETF", "AD 2 OENG", "AD 2 OEHL", "AD 2 OETB", "AD 2 OEMA", "AD 2 OEAH", "AD 2 OEDF"]
 
+# ---------------------------------------------------------------- a fix from one station: the DVOR/DME of Riyadh and the two reporting points of Thumamah
+# AD 2 OERK 2.19 (AMDT 11/26, the same text in AMDT 12/26): DVOR/DME (03° E) KSA 115.000 MHZ (CH97X) H24 245849.2N 0464008.1E, elevation of the DME antenna 2100 FT.
+# AD 2 OETH 2.22.3 places the two reporting points by it: "RDL 358 from KSA 18.83 NM" and "RDL 025 from KSA 15.82 NM".
+OERK_KSA = ("245849.2N", "0464008.1E")
+ksa_lat, ksa_lon = dms1(*OERK_KSA)
+facts["oerk"]["ksa"] = {"type": "DVOR/DME", "id": "KSA", "mhz": 115.0, "channel": "CH97X", "declination_e_deg": 3, "hours": "H24", "dms": list(OERK_KSA), "lat": ksa_lat, "lon": ksa_lon, "dme_antenna_elev_ft": 2100}
+for v, (radial, nm) in zip(facts["oeth"]["vrps"], ((358, 18.83), (25, 15.82))):
+    assert f"RDL {radial:03d} from KSA {nm} NM" in v["note"], v["note"]
+    d, b = dist_brg(ksa_lat, ksa_lon, v["lat"], v["lon"])
+    v["from_ksa_printed"] = {"radial": radial, "nm": nm}
+    v["from_ksa_nm_derived"], v["from_ksa_true_deg_derived"], v["from_ksa_magnetic_deg_derived"] = round(d, 2), round(b, 1), round((b - 3) % 360, 1)
+    assert abs(d - nm) < 0.1 and abs(((b - 3 - radial) + 180) % 360 - 180) < 0.6, (v["name"], d, b)          # the printed radial and distance agree with the printed coordinates
+
 json.dump(facts, open(OUT, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print("wrote", OUT, os.path.getsize(OUT), "bytes")
 print("route:", facts["worked_example_route"])

@@ -260,7 +260,14 @@
     "lon": 46.6727778,
     "note": "where the valley ends; RDL 358 from KSA 18.83 NM",
     "from_arp_nm_derived": 5.16,
-    "from_arp_true_deg_derived": 19.6
+    "from_arp_true_deg_derived": 19.6,
+    "from_ksa_printed": {
+     "radial": 358,
+     "nm": 18.83
+    },
+    "from_ksa_nm_derived": 18.9,
+    "from_ksa_true_deg_derived": 0.6,
+    "from_ksa_magnetic_deg_derived": 357.6
    },
    {
     "name": "Thumamah East VRP",
@@ -268,7 +275,14 @@
     "lon": 46.8055556,
     "note": "road intersection and two telecom towers; RDL 025 from KSA 15.82 NM",
     "from_arp_nm_derived": 8.95,
-    "from_arp_true_deg_derived": 90.1
+    "from_arp_true_deg_derived": 90.1,
+    "from_ksa_printed": {
+     "radial": 25,
+     "nm": 15.82
+    },
+    "from_ksa_nm_derived": 15.87,
+    "from_ksa_true_deg_derived": 27.9,
+    "from_ksa_magnetic_deg_derived": 24.9
    }
   ],
   "circuit": {
@@ -435,7 +449,22 @@
     "RIYADH APPROACH"
    ]
   },
-  "rff_category": 9
+  "rff_category": 9,
+  "ksa": {
+   "type": "DVOR/DME",
+   "id": "KSA",
+   "mhz": 115.0,
+   "channel": "CH97X",
+   "declination_e_deg": 3,
+   "hours": "H24",
+   "dms": [
+    "245849.2N",
+    "0464008.1E"
+   ],
+   "lat": 24.9803333,
+   "lon": 46.6689167,
+   "dme_antenna_elev_ft": 2100
+  }
  },
  "oejn": {
   "icao": "OEJN",
