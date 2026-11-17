@@ -24,7 +24,11 @@
    "AD 2 OETB",
    "AD 2 OEMA",
    "AD 2 OEAH",
-   "AD 2 OEDF"
+   "AD 2 OEDF",
+   "GEN 0.1",
+   "GEN 0.2",
+   "AD 1.3",
+   "AIP SUP 36/26"
   ],
   "geometry": "saudi-airspace data/structured (AIP polygons; circles and arcs sampled); pavement and building outlines of Thumamah traced by the project from satellite imagery, +/-10 m; not for navigation",
   "derived": "magnetic_deg = true_deg - variation_E; distances and bearings are great-circle from the AIP coordinates"
@@ -4001,5 +4005,66 @@
     "rule_minus_exact_ft_derived": 159
    }
   ]
+ },
+ "aip": {
+  "source": "AIP-KSA, the eAIP on aimss.sans.com.sa: GEN 0.1, GEN 0.2, the table of contents, AD 1.3, the list of supplements and AIP SUP 36/26, as published with AMDT 11/26 and AMDT 12/26; typed here and found again word for word on 2026-11-17",
+  "parts": [
+   "GEN",
+   "ENR",
+   "AD"
+  ],
+  "aerodromes_in_ad2": 62,
+  "ad2_subsections": 25,
+  "amendments": [
+   {
+    "name": "AIRAC AIP AMDT 10/26",
+    "published": "2026-08-20",
+    "effective": "2026-10-01",
+    "days_ahead_derived": 42
+   },
+   {
+    "name": "AIRAC AIP AMDT 11/26",
+    "published": "2026-09-17",
+    "effective": "2026-10-29",
+    "days_ahead_derived": 42
+   },
+   {
+    "name": "AIRAC AIP AMDT 12/26",
+    "published": "2026-10-15",
+    "effective": "2026-11-26",
+    "days_ahead_derived": 42
+   }
+  ],
+  "cycle_days_derived": 28,
+  "supplements_in_force": {
+   "as_of": "2026-09-17",
+   "count": 28,
+   "airac": 12,
+   "other": 16
+  },
+  "sup_36_26": {
+   "name": "AIP SUP 36/26",
+   "dated": "2026-09-10",
+   "valid_from": "2026-09-17",
+   "subject": "EXPANSION OF URBAN VFR ROUTES (UVRs) IN RIYADH",
+   "supersedes": "the current VFR route procedures published under OERK AD 2.22",
+   "replaces": "AIP SUP 23/26",
+   "until": "the AIP is amended with the relevant information",
+   "routes": {
+    "RYA": 11,
+    "NAJD": 7
+   },
+   "ad2_oerk_2_22_11_routes": {
+    "RYA": 10,
+    "NAJD": 4
+   }
+  },
+  "example_change": {
+   "icao": "OEAH",
+   "what": "aerodrome elevation, AD 2.2 item 3",
+   "amdt_11_26_ft": 588,
+   "amdt_12_26_ft": 599,
+   "effective": "2026-11-26"
+  }
  }
 }

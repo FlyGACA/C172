@@ -1,4 +1,4 @@
-"""Build data/saudi_airspace.json, the facts the Saudi-example figures of the handbook (chapters 11, 17, 18, 19, 20 and 26) draw from.
+"""Build data/saudi_airspace.json, the facts the Saudi-example figures of the handbook (chapters 4, 11, 17, 18, 19, 20, 21 and 26) draw from.
 
 Source: the saudi-airspace repository (data/structured/*), extracted from the GACA eAIP, AIRAC AIP AMDT 11/26 (effective 2026-10-29). Before it was used here, every value of AD 2 OETH
 was compared with the official AMDT 11/26 page (54 values, all found verbatim), and the runway thresholds of OEJN and OERS with their AMDT 11/26 pages (largest difference 0.01 m).
@@ -282,6 +282,43 @@ for v, (radial, nm) in zip(facts["oeth"]["vrps"], ((358, 18.83), (25, 15.82))):
     v["from_ksa_printed"] = {"radial": radial, "nm": nm}
     v["from_ksa_nm_derived"], v["from_ksa_true_deg_derived"], v["from_ksa_magnetic_deg_derived"] = round(d, 2), round(b, 1), round((b - 3) % 360, 1)
     assert abs(d - nm) < 0.1 and abs(((b - 3 - radial) + 180) % 360 - 180) < 0.6, (v["name"], d, b)          # the printed radial and distance agree with the printed coordinates
+
+# ---------------------------------------------------------------- the AIP as a publication: its parts, its amendments and one supplement (Figures 4-1 and 4-2)
+# Typed from the official eAIP on 2026-11-17 and found there word for word (the book's sources/registry.json has the hash of each page):
+#   GEN 0.2, RECORD OF AIP AMENDMENTS      AIRAC AIP AMDT 10/26  20 Aug 2026  01 Oct 2026;  11/26  17 Sep 2026  29 Oct 2026  (the AMDT 11/26 package);
+#                                          12/26  15 Oct 2026  26 Nov 2026  (added in the AMDT 12/26 package)
+#   the table of contents (eAIP menu)      AD 2 has 62 aerodromes, each under the same subsections AD 2.1 to AD 2.25; AD 1.3 lists the same 62
+#   the list of supplements                28 in force in the AMDT 11/26 package ("Published as of 17 SEP 2026"), among them AIP SUP 36/26, "from 17 SEP 2026"
+#   AIP SUP 36/26                          dated 10 SEP 2026, EXPANSION OF URBAN VFR ROUTES (UVRs) IN RIYADH: "This supplement supersedes the current VFR route procedures published
+#                                          under OERK AD 2.22."; "starting on17 September 2026 and remain current until the AIP is amended"; routes RYA 1 to RYA 11 and NAJD 1 to NAJD 7
+#   AD 2 OERK 2.22.11 (AMDT 11/26 and 12/26)   still lists RYA 1 to RYA 10 and NAJD1 to NAJD4
+import datetime as _dt
+
+
+def _date(s):
+    return _dt.date.fromisoformat(s)
+
+
+AMENDMENTS = [("AIRAC AIP AMDT 10/26", "2026-08-20", "2026-10-01"), ("AIRAC AIP AMDT 11/26", "2026-09-17", "2026-10-29"), ("AIRAC AIP AMDT 12/26", "2026-10-15", "2026-11-26")]
+for _name, _pub, _eff in AMENDMENTS:
+    assert (_date(_eff) - _date(_pub)).days == 42 and _date(_eff).weekday() == 3, _name                     # published six weeks ahead; the effective date is a Thursday
+assert all((_date(b[2]) - _date(a[2])).days == 28 for a, b in zip(AMENDMENTS, AMENDMENTS[1:]))               # 28 days from one effective date to the next
+oeah = next(r for r in rows if r["icao"] == "OEAH")
+assert (oeah["elev_ft"], oeah["amdt_12_26"]["elev_ft"]) == (588, 599)
+facts["aip"] = {
+    "source": "AIP-KSA, the eAIP on aimss.sans.com.sa: GEN 0.1, GEN 0.2, the table of contents, AD 1.3, the list of supplements and AIP SUP 36/26, as published with AMDT 11/26 and AMDT 12/26; typed here and found again word for word on 2026-11-17",
+    "parts": ["GEN", "ENR", "AD"],
+    "aerodromes_in_ad2": 62,
+    "ad2_subsections": 25,
+    "amendments": [{"name": n_, "published": p_, "effective": e_, "days_ahead_derived": 42} for n_, p_, e_ in AMENDMENTS],
+    "cycle_days_derived": 28,
+    "supplements_in_force": {"as_of": "2026-09-17", "count": 28, "airac": 12, "other": 16},
+    "sup_36_26": {"name": "AIP SUP 36/26", "dated": "2026-09-10", "valid_from": "2026-09-17", "subject": "EXPANSION OF URBAN VFR ROUTES (UVRs) IN RIYADH",
+                  "supersedes": "the current VFR route procedures published under OERK AD 2.22", "replaces": "AIP SUP 23/26", "until": "the AIP is amended with the relevant information",
+                  "routes": {"RYA": 11, "NAJD": 7}, "ad2_oerk_2_22_11_routes": {"RYA": 10, "NAJD": 4}},
+    "example_change": {"icao": "OEAH", "what": "aerodrome elevation, AD 2.2 item 3", "amdt_11_26_ft": 588, "amdt_12_26_ft": 599, "effective": "2026-11-26"},
+}
+facts["provenance"]["pages"] += ["GEN 0.1", "GEN 0.2", "AD 1.3", "AIP SUP 36/26"]
 
 json.dump(facts, open(OUT, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
 print("wrote", OUT, os.path.getsize(OUT), "bytes")
