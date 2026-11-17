@@ -1,4 +1,4 @@
-"""Figure 18-9. Eight marshalling signals as the pilot sees them. Eight cards, each a picture of the marshaller facing the pilot on an apron: a head with a cap, ear defenders and
+"""Figure 18-10. Eight marshalling signals as the pilot sees them. Eight cards, each a picture of the marshaller facing the pilot on an apron: a head with a cap, ear defenders and
 dark glasses, a hi-vis vest with reflective bands over a navy shirt, navy trousers and boots, gloves and two lit wands, soft shading from the upper left and a shadow on the ground,
 each in the pose of the old figure (the same shoulders, elbows, hands and wands), with the motion of the signal as ribbon arrows (blue; red for the emergency stop). The eight numbered
 callouts of the old figure are kept, in the same order (the pictures are drawn in figs/h_a2.py's style of lit forms; figs/scene.py makes the cards, the ribbons and the callouts)."""
@@ -272,11 +272,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-18-09-marshalling",
-        "replaces": "fig-18-09-marshalling.svg",
-        "book_file": "plate-18-09-marshalling.jpg",
-        "caption": "Figure 18-9. Eight marshalling signals as the pilot sees them",
-        "desc": "Figure 18-9. Eight marshalling signals as the pilot sees them",
+        "id": "fig-18-10-marshalling",
+        "replaces": "fig-18-10-marshalling.svg",
+        "book_file": "plate-18-10-marshalling.jpg",
+        "caption": "Figure 18-10. Eight marshalling signals as the pilot sees them",
+        "desc": "Figure 18-10. Eight marshalling signals as the pilot sees them",
         "legend": [
             "Straight ahead: arms out to the sides, bent at the elbows, wands moving up and down between chest and head.",
             "Turn left, from the pilot's point of view: the signalman's right arm, on your left, held out at 90° to the body, while the other hand signals \"come ahead\". The faster the signal, the faster the turn.",
@@ -289,5 +289,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-09-marshalling.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-10-marshalling.svg", "blank": True, "layers": layers()},
     }

@@ -1,0 +1,74 @@
+{
+ "provenance": {
+  "source": "Copernicus Sentinel-2 L2A, tile 38RPN, 10 m bands B04 B03 B02; open archive on AWS (sentinel-cogs), found through Earth Search",
+  "attribution": "Contains modified Copernicus Sentinel data 2026",
+  "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+  "scenes": [
+   "S2C_38RPN_20261115_0_L2A",
+   "S2C_38RPN_20261105_0_L2A",
+   "S2A_38RPN_20261018_1_L2A"
+  ],
+  "method": "the path of least brightness on the picture between two places on the highway, thinned to 12 m",
+  "accuracy_m": "about 10 (one pixel)",
+  "check": {
+   "mean_brightness_on_the_line": 28.5,
+   "median_brightness_of_the_picture": 126.7,
+   "length_km": 12.74
+  },
+  "reading": "that this road is the 'Thumamah highway' of AIP AD 2.22 is this project's reading: it is the only highway west of the aerodrome"
+ },
+ "highway_west_lat_lon": [
+  [
+   25.238192,
+   46.576957
+  ],
+  [
+   25.230021,
+   46.581219
+  ],
+  [
+   25.229571,
+   46.581114
+  ],
+  [
+   25.228754,
+   46.581501
+  ],
+  [
+   25.222941,
+   46.584701
+  ],
+  [
+   25.215939,
+   46.589374
+  ],
+  [
+   25.210293,
+   46.593866
+  ],
+  [
+   25.174539,
+   46.627133
+  ],
+  [
+   25.1728,
+   46.629293
+  ],
+  [
+   25.165045,
+   46.636531
+  ],
+  [
+   25.160842,
+   46.641038
+  ],
+  [
+   25.154346,
+   46.648788
+  ],
+  [
+   25.151696,
+   46.651629
+  ]
+ ]
+}

@@ -76,9 +76,6 @@ def corridor_max_ft(points, half_nm=0.5, step_nm=0.05):
             f = i / n
             la, lo = a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f
             for off in np.arange(-half_nm, half_nm + 1e-9, step_nm):
-                p = (la + (ue * off) / 60.0 * 0 + (-ue * 0 + ue * 0) + (off * (-ue) * 0) + (off * ue) / 60.0 * 0 + (off * (-0.0)), lo)       # placeholder, replaced below
-                pla, plo = la + off * (-ue) * 0 + off * (ue * 0) + (off * (ue) * 0) + (off * (-un) * 0) + off * (-(-ue)) / 60.0 * 0 + (off * ue) * 0, lo
-                pla, plo = la + off * (-ue) / 60.0 * -1 * 0 + (off * (ue)) * 0 + off * (-(un)) * 0 + (off * (-ue)) * 0 + (off * (ue * 0)), lo
                 # the point `off` NM to the right of the track: right of (ue, un) is (un, -ue)
                 pla, plo = la + off * (-ue) / 60.0, lo + off * un / k
                 h = elevation_m(pla, plo) / FT

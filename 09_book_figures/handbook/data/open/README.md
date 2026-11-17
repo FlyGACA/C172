@@ -1,6 +1,6 @@
 # Open data behind the pictures of Thumamah and Riyadh
 
-`../build_oeth_plan.py` builds `../oeth_plan.json`, the ground plan of Thumamah (OETH), from the Sentinel-2 files here and from the AIP values in `../saudi_airspace.json`. `../../figs/terrain_real.py` reads the elevation file for the real ground of Figures 17-1, 17-7 and 17-8. Not for navigation.
+`../build_oeth_plan.py` builds `../oeth_plan.json`, the ground plan of Thumamah (OETH), from the Sentinel-2 files here and from the AIP values in `../saudi_airspace.json`. `../../figs/terrain_real.py` reads the elevation file for the real ground of Figures 17-1, 17-7 and 17-8. `../../figs/imagery_real.py` lays the picture of the country under the map of Figure 18-8, and `../build_oeth_area.py` reads the highway west of the aerodrome off it into `../oeth_area.json`. Not for navigation.
 
 | File | What it is | Source and licence |
 | --- | --- | --- |
@@ -10,7 +10,10 @@
 | `fetch_oeth_open.py` | Fetches all of the above again (needs `rasterio` and network access) | this repository |
 | `riyadh_terrain.npz`, `riyadh_terrain.json` | Ground elevation, 24.70 to 25.50 N and 46.20 to 47.20 E, every 2 arc-seconds (about 60 m), metres above mean sea level | NASA Shuttle Radar Topography Mission (SRTM), 1 arc-second, **public domain**, from the Terrain Tiles open dataset on AWS; credit line "Elevation: NASA SRTM" |
 | `fetch_terrain_open.py` | Fetches the elevation file again (needs numpy and network access) | this repository |
+| `oeth_area_s2.jpg`, `oeth_area_s2.json` | A colour picture of the country round Thumamah, 25.8 km by 17.7 km at 10 m to the pixel: the median of three cloud-free Sentinel-2 L2A scenes (bands B04, B03, B02) with one linear stretch for the three bands; the JSON lists the scenes, the bounds and the stretch | Copernicus Sentinel-2, as above: **"Contains modified Copernicus Sentinel data 2026"** |
+| `oeth_area_check.jpg` | The highway line of `../oeth_area.json` drawn over that picture | Contains modified Copernicus Sentinel data 2026 |
+| `fetch_oeth_area_open.py` | Fetches the picture again (needs `rasterio`, pillow and network access) | this repository |
 
-To refresh: `python fetch_oeth_open.py [first date] [last date]`, then `python ../build_oeth_plan.py --check-picture` (needs numpy, pillow, scikit-image and shapely), look at `oeth_plan_check.png`, and rebuild the plates that draw the plan (18-1, 18-7, 26-1).
+To refresh: `python fetch_oeth_open.py [first date] [last date]`, then `python ../build_oeth_plan.py --check-picture` (needs numpy, pillow, scikit-image and shapely), look at `oeth_plan_check.png`, and rebuild the plates that draw the plan (18-1, 18-2, 18-7, 26-1). For the picture of the country: `python fetch_oeth_area_open.py`, then `python ../build_oeth_area.py --check-picture` (needs numpy, pillow and scikit-image), look at `oeth_area_check.jpg`, delete `../../renders/terrain-18-08-picture.png` (it is made once) and rebuild Figure 18-8.
 
 The elevation data agree with the AIP where the two can be compared: 1 877 ft at the Thumamah reference point (the AIP's elevation is 1 870 ft) and 1 867 and 1 854 ft at the two thresholds (1 870 and 1 868 ft). It is a radar survey flown in 2000, good to some tens of feet: it shows the shape of the country, not obstacles.
