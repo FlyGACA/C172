@@ -1,4 +1,4 @@
-"""Figure 3-1 (new: Chapter 3 had no figure). The clock after an occurrence: what Part 4 of the GACAR and the AIP (GEN 1.6) ask of the pilot in command, in hours from the occurrence.
+"""Figure 3-2 (new: Chapter 3 had no figure). The clock after an occurrence: what Part 4 of the GACAR and the AIP (GEN 1.6) ask of the pilot in command, in hours from the occurrence.
 
 Everything is the book's own reading of the text of Chapter 3, which cites it (data: none; nothing here is measured):
     GACAR 4.11(a)   accident or serious incident: notify the President (GACA) and the AIB as soon as practicable      (no hour is printed: an open start)
@@ -159,11 +159,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-03-01-reporting-clock",
-        "replaces": "fig-03-01-reporting-clock.svg",         # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-03-01-reporting-clock.jpg",
-        "caption": "Figure 3-1. The clock after an occurrence: what Part 4 and the AIP ask of the pilot in command, in hours",
-        "desc": ("Figure 3-1. The clock after an occurrence: what Part 4 and the AIP ask of the pilot in command, in hours from the occurrence. Four lanes: an accident or serious incident (GACAR 4.11 "
+        "id": "fig-03-02-reporting-clock",
+        "replaces": "fig-03-02-reporting-clock.svg",         # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-03-02-reporting-clock.jpg",
+        "caption": "Figure 3-2. The clock after an occurrence: what Part 4 and the AIP ask of the pilot in command, in hours",
+        "desc": ("Figure 3-2. The clock after an occurrence: what Part 4 and the AIP ask of the pilot in command, in hours from the occurrence. Four lanes: an accident or serious incident (GACAR 4.11 "
                  "and 4.13), another incident (4.15 and 4.17), what the AIP adds (GEN 1.6) and the evidence (4.3). Hours 0 to 100 along each lane; the deadlines of 48 and 96 hours marked."),
         "legend": [
             "An accident or a serious incident: the pilot in command notifies GACA and the AIB as soon as practicable, by the quickest means. No hour is printed for this.",

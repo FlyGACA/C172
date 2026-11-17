@@ -1,4 +1,4 @@
-"""Figure 12-4 (new). How the position of the CG changes the flying, from the table of Chapter 12 ("How the CG position changes the flying"), on the side view of the training aeroplane (sprite-side).
+"""Figure 12-5 (new). How the position of the CG changes the flying, from the table of Chapter 12 ("How the CG position changes the flying"), on the side view of the training aeroplane (sprite-side).
 
 Two aeroplanes, to one scale: CG near the forward limit (left) and near the aft limit (right). The centre of lift (a blue mark on the wing) is the same in both; the CG (amber mark) lies ahead of it, farther ahead on the left. The horizontal
 tail holds the nose up with a downward force (red arrow): large on the left, small on the right, as the chapter says. Under each aeroplane, four rows of arrows say what that means for the pilot, in the order of the legend: 3 stability
@@ -121,11 +121,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-12-04-cg-position",
-        "replaces": "fig-12-04-cg-position.svg",          # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-12-04-cg-position.jpg",
-        "caption": "Figure 12-4. How the position of the CG changes the flying: near the forward limit (left) and near the aft limit (right)",
-        "desc": ("Figure 12-4. How the position of the CG changes the flying, on the side view of the training aeroplane: near the forward limit (left) and near the aft limit (right). The CG lies ahead of the centre of lift, "
+        "id": "fig-12-05-cg-position",
+        "replaces": "fig-12-05-cg-position.svg",          # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-12-05-cg-position.jpg",
+        "caption": "Figure 12-5. How the position of the CG changes the flying: near the forward limit (left) and near the aft limit (right)",
+        "desc": ("Figure 12-5. How the position of the CG changes the flying, on the side view of the training aeroplane: near the forward limit (left) and near the aft limit (right). The CG lies ahead of the centre of lift, "
                  "and the horizontal tail holds the nose up with a downward force that is large with the CG forward and small with it aft. Four rows of arrows give the effects on stability in pitch, control forces, stall speed and cruise speed."),
         "legend": [
             "The CG (the amber and white mark), ahead of the centre of lift (the blue mark on the wing). Weight acts down at the CG and lift acts up at the centre of lift. The positions are drawn to show the idea.",
