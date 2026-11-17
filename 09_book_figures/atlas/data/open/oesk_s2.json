@@ -1,0 +1,128 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 37REP, bands B04 B03 B02 at 10 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "the window lies across the edge of a tile or of a pass: for every pixel the median of the scenes listed that cover it, each brought to the grid of the first tile; one linear stretch for the three bands together",
+ "crs": "EPSG:32637",
+ "bounds_e_n_min_e_n_max": [
+  598330,
+  3289980,
+  614330,
+  3300980
+ ],
+ "pixel_m": 10,
+ "size_px": [
+  1600,
+  1100
+ ],
+ "centre_lon_lat": [
+  40.100025,
+  29.7851111
+ ],
+ "centre_e_n": [
+  606326.0,
+  3295481.4
+ ],
+ "stretch_reflectance_dn": [
+  921.0,
+  4623.0
+ ],
+ "scenes": [
+  {
+   "tile": "37REP",
+   "id": "S2C_37REP_20261114_0_L2A",
+   "datetime": "2026-11-14T08:11:35.881000Z",
+   "covers": 0.7
+  },
+  {
+   "tile": "37REP",
+   "id": "S2B_37REP_20261109_0_L2A",
+   "datetime": "2026-11-09T08:11:38.491000Z",
+   "covers": 0.7
+  },
+  {
+   "tile": "37REP",
+   "id": "S2C_37REP_20261104_0_L2A",
+   "datetime": "2026-11-04T08:11:33.590000Z",
+   "covers": 0.7
+  },
+  {
+   "tile": "37REP",
+   "id": "S2B_37REP_20261030_0_L2A",
+   "datetime": "2026-10-30T08:11:38.739000Z",
+   "covers": 0.7
+  },
+  {
+   "tile": "37REN",
+   "id": "S2C_37REN_20261114_0_L2A",
+   "datetime": "2026-11-14T08:11:50.486000Z",
+   "covers": 0.652
+  },
+  {
+   "tile": "37REN",
+   "id": "S2B_37REN_20261109_0_L2A",
+   "datetime": "2026-11-09T08:11:53.094000Z",
+   "covers": 0.652
+  },
+  {
+   "tile": "37REN",
+   "id": "S2C_37REN_20261104_0_L2A",
+   "datetime": "2026-11-04T08:11:48.195000Z",
+   "covers": 0.652
+  },
+  {
+   "tile": "37REN",
+   "id": "S2B_37REN_20261030_0_L2A",
+   "datetime": "2026-10-30T08:11:53.330000Z",
+   "covers": 0.652
+  },
+  {
+   "tile": "37RFP",
+   "id": "S2C_37RFP_20261114_0_L2A",
+   "datetime": "2026-11-14T08:11:32.188000Z",
+   "covers": 0.876
+  },
+  {
+   "tile": "37RFP",
+   "id": "S2B_37RFP_20261109_0_L2A",
+   "datetime": "2026-11-09T08:11:34.809000Z",
+   "covers": 0.876
+  },
+  {
+   "tile": "37RFP",
+   "id": "S2C_37RFP_20261104_0_L2A",
+   "datetime": "2026-11-04T08:11:29.903000Z",
+   "covers": 0.876
+  },
+  {
+   "tile": "37RFP",
+   "id": "S2B_37RFP_20261030_0_L2A",
+   "datetime": "2026-10-30T08:11:35.044000Z",
+   "covers": 0.876
+  },
+  {
+   "tile": "37RFN",
+   "id": "S2C_37RFN_20261114_0_L2A",
+   "datetime": "2026-11-14T08:11:46.608000Z",
+   "covers": 0.816
+  },
+  {
+   "tile": "37RFN",
+   "id": "S2C_37RFN_20261104_0_L2A",
+   "datetime": "2026-11-04T08:11:44.318000Z",
+   "covers": 0.816
+  },
+  {
+   "tile": "37RFN",
+   "id": "S2B_37RFN_20261030_0_L2A",
+   "datetime": "2026-10-30T08:11:49.464000Z",
+   "covers": 0.816
+  },
+  {
+   "tile": "37RFN",
+   "id": "S2A_37RFN_20261017_1_L2A",
+   "datetime": "2026-10-17T08:11:59.202000Z",
+   "covers": 0.816
+  }
+ ]
+}

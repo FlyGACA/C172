@@ -1,0 +1,80 @@
+{
+ "source": "Copernicus Sentinel-2 L2A, tile 37QDG, bands B04 B03 B02 at 10 m; open archive on AWS (sentinel-cogs), found through Earth Search",
+ "attribution": "Contains modified Copernicus Sentinel data 2026",
+ "licence": "Copernicus Sentinel data: free, full and open access (Regulation (EU) No 1159/2013)",
+ "method": "the window lies across the edge of a tile or of a pass: for every pixel the median of the scenes listed that cover it, each brought to the grid of the first tile; one linear stretch for the three bands together",
+ "crs": "EPSG:32637",
+ "bounds_e_n_min_e_n_max": [
+  396860,
+  2665010,
+  412860,
+  2676010
+ ],
+ "pixel_m": 10,
+ "size_px": [
+  1600,
+  1100
+ ],
+ "centre_lon_lat": [
+  38.063544449999995,
+  24.1441778
+ ],
+ "centre_e_n": [
+  404855.7,
+  2670507.2
+ ],
+ "stretch_reflectance_dn": [
+  500.5,
+  4248.0
+ ],
+ "scenes": [
+  {
+   "tile": "37QDG",
+   "id": "S2C_37QDG_20261114_0_L2A",
+   "datetime": "2026-11-14T08:13:20.735000Z",
+   "covers": 0.806
+  },
+  {
+   "tile": "37QDG",
+   "id": "S2B_37QDG_20261109_0_L2A",
+   "datetime": "2026-11-09T08:13:23.346000Z",
+   "covers": 0.806
+  },
+  {
+   "tile": "37QDG",
+   "id": "S2C_37QDG_20261104_0_L2A",
+   "datetime": "2026-11-04T08:13:18.447000Z",
+   "covers": 0.806
+  },
+  {
+   "tile": "37QDG",
+   "id": "S2B_37QDG_20261030_0_L2A",
+   "datetime": "2026-10-30T08:13:23.593000Z",
+   "covers": 0.806
+  },
+  {
+   "tile": "37QCG",
+   "id": "S2C_37QCG_20261114_0_L2A",
+   "datetime": "2026-11-14T08:13:24.223000Z",
+   "covers": 0.809
+  },
+  {
+   "tile": "37QCG",
+   "id": "S2C_37QCG_20261104_0_L2A",
+   "datetime": "2026-11-04T08:13:21.931000Z",
+   "covers": 0.809
+  },
+  {
+   "tile": "37QCG",
+   "id": "S2B_37QCG_20261030_0_L2A",
+   "datetime": "2026-10-30T08:13:27.074000Z",
+   "covers": 0.809
+  },
+  {
+   "tile": "37QCG",
+   "id": "S2B_37QCG_20261020_0_L2A",
+   "datetime": "2026-10-20T08:13:25.934000Z",
+   "covers": 0.809
+  }
+ ]
+}

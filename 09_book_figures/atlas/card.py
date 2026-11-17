@@ -14,6 +14,8 @@ print is left out. Letters: location indicators, section numbers, ICAO abbreviat
 """
 import base64
 import io
+
+import numpy as np
 import json
 import math
 import os
@@ -82,6 +84,25 @@ def frame_for(a):
     return local, H.Frame(lat0, lon0, scale, MX + MW / 2, MY + MH / 2), scale
 
 
+TONE_LO, TONE_HI, TONE_GAIN, TONE_CHROMA = 104.0, 224.0, (0.8, 3.2), 46.0
+
+
+def tone(path):
+    """The same range of lightness for the ground of every card. Each picture has its own stretch (see data/fetch_atlas_open.py), so pale sand comes out washed and dark lava heavy; here the lightness of
+    the window (5th to 95th percentile) is brought to one range by one gain for the three bands, and where the colour is very strong (red dunes) it is drawn in until its mean is TONE_CHROMA."""
+    rgb = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32)
+    grey = rgb.mean(axis=2)
+    lo, hi = np.percentile(grey, (5.0, 95.0))
+    gain = min(max((TONE_HI - TONE_LO) / max(hi - lo, 1.0), TONE_GAIN[0]), TONE_GAIN[1])
+    mid = (lo + hi) / 2.0
+    rgb = (rgb - mid) * gain + (TONE_LO + TONE_HI) / 2.0
+    grey = rgb.mean(axis=2, keepdims=True)
+    chroma = float((rgb.max(axis=2) - rgb.min(axis=2)).mean())
+    if chroma > TONE_CHROMA:
+        rgb = grey + (rgb - grey) * (TONE_CHROMA / chroma)
+    Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8)).save(path)
+
+
 def ground(a, local):
     name = f"ground-{a['icao'].lower()}"
     path = os.path.join(IR.RENDERS, name + ".png")
@@ -89,7 +110,8 @@ def ground(a, local):
         os.remove(path)
     picture = a["icao"].lower() + "_s2"
     assert IR.covers(local, (MW, MH), picture=picture), f"{a['icao']}: the picture does not cover the map"
-    IR.ensure(name, local, (MW, MH), px_per_unit=4, veil=0.10, saturation=0.92, lift=1.22, picture=picture)
+    IR.ensure(name, local, (MW, MH), px_per_unit=4, veil=0.10, saturation=0.92, lift=1.0, picture=picture)
+    tone(path)
     buf = io.BytesIO()
     Image.open(path).convert("RGB").save(buf, "JPEG", quality=90, subsampling=0)
     b64 = base64.b64encode(buf.getvalue()).decode("ascii")
@@ -210,23 +232,35 @@ def block_airspace(a, y, h):
     return "".join(out)
 
 
-ORDER = ["TWR", "AFIS", "RADIO", "APP", "SMC", "ATIS", "TIBA"]
+ORDER = ["TWR", "AFIS", "ATS", "RADIO", "APP", "SMC", "SMGCS", "ATIS", "TIBA"]         # the service designations the pages print, in the order a pilot arriving needs them
 
 
 def block_comms(a, y, h):
-    """For each service of AD 2.18 its first VHF frequency (117.975 to 137 MHz, the emergency frequency left out), and how many more it has."""
+    """For each call sign of AD 2.18 its first VHF frequency (117.975 to 137 MHz, the emergency frequency left out), and how many more it has. Where the block has no room for every call sign, a service is shown as one row."""
     out = [block(y, h), tag("AD 2.18", PX + 8.0, y + 12.0)]
     groups = {}
     for c in a["comms"]:
         if c["service"] in ORDER and 117.975 <= c["mhz"] <= 137.0 and c["mhz"] != 121.5:
             groups.setdefault((ORDER.index(c["service"]), c["service"], c["callsign"]), []).append(c)
-    rows = [groups[k] for k in sorted(groups)][:6]
+    fit = max(int((h - 26.0) / 9.6), 3)                 # rows the block has room for
+    while len(groups) > fit:                            # too many call signs: the service with the most of them becomes one row, under the call sign printed first
+        counts = {}
+        for k in groups:
+            counts[k[0]] = counts.get(k[0], 0) + 1
+        worst = max(counts, key=lambda i: (counts[i], i))
+        if counts[worst] == 1:
+            break
+        keys = [k for k in groups if k[0] == worst]     # dicts keep the order of the page
+        groups[keys[0]] = [c for k in keys for c in groups[k]]
+        for k in keys[1:]:
+            del groups[k]
+    rows = [groups[k] for k in sorted(groups, key=lambda k: k[0])][:fit]
     step = min(13.0, (h - 26.0) / max(len(rows), 1))
     for i, g in enumerate(rows):
         yy = y + 30.0 + step * i
         c = g[0]
         more = f"+{len(g) - 1}" if len(g) > 1 else ""
-        out.append(txt(PX + 14.0, yy, c["service"], 6.8, colour=AD) + txt(PX + 50.0, yy, c["callsign"][:24], 6.0, colour=SLATE, weight="normal")
+        out.append(txt(PX + 14.0, yy, c["service"], 6.8 if len(c["service"]) < 5 else 5.8, colour=AD) + txt(PX + 50.0, yy, c["callsign"][:24], 6.0, colour=SLATE, weight="normal")
                    + txt(PX + PW - 26.0, yy, f"{c['mhz']:.3f}", 7.4, "end") + txt(PX + PW - 10.0, yy, more, 5.6, "end", colour=SLATE))
     if not rows:
         out.append(txt(PX + 62.0, y + 15.0, "NIL", 8.0, colour=SLATE))
