@@ -146,21 +146,6 @@ def limits():
     return "".join(out)
 
 
-def radar(x, y, r=11.0, colour="#8A6A00"):
-    """A radar scope in a badge (the approach control unit): a ring, a range ring, a sweep and two blips."""
-    k = r * 0.66
-    a = math.radians(-52)
-    tip = (x + math.cos(a) * k, y + math.sin(a) * k)
-    a2 = math.radians(-92)
-    wedge = [(x, y), tip, (x + math.cos(a2) * k, y + math.sin(a2) * k)]
-    return (H.badge(U, x, y, r, colour) + f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(k)}" fill="none" stroke="{colour}" stroke-width="{n(k * 0.16)}"/>'
-            f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(k * 0.5)}" fill="none" stroke="{colour}" stroke-opacity="0.55" stroke-width="{n(k * 0.1)}"/>'
-            f'<polygon points="{S.pts(wedge)}" fill="{colour}" fill-opacity="0.3"/>'
-            f'<line x1="{n(x)}" y1="{n(y)}" x2="{n(tip[0])}" y2="{n(tip[1])}" stroke="{colour}" stroke-width="{n(k * 0.18)}" stroke-linecap="round"/>'
-            f'<circle cx="{n(x - k * 0.42)}" cy="{n(y + k * 0.3)}" r="{n(k * 0.13)}" fill="{colour}"/><circle cx="{n(x + k * 0.36)}" cy="{n(y + k * 0.44)}" r="{n(k * 0.11)}" fill="{colour}"/>'
-            f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(k * 0.12)}" fill="{colour}"/>')
-
-
 KEY_X, KEY_W = 14.0, 206.0
 KEY_ROWS = {"approach": 138.0, "tower_east": 222.0, "tower_west": 270.0}          # the top of each card
 KEY_H = {"approach": 72.0, "tower_east": 40.0, "tower_west": 40.0}
@@ -172,7 +157,7 @@ def card(kind):
     cy = y + 20.0
     out.append(marker(x + 24.0, cy + 1.5, kind, size=12.0))
     if kind == "approach":
-        out.append(radar(x + 62.0, cy, 12.5))
+        out.append(H.radar(U, x + 62.0, cy, 12.5))
     else:
         out.append(H.tower_icon(U, x + 62.0, cy, 12.5, colour=COLOUR[kind]))
     out.append(H.glyph_text(MHZ[kind], x + 86.0, cy, 11.0, "#FFFFFF", spacing=0.7, anchor="start"))
