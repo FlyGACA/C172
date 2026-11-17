@@ -2,10 +2,11 @@
 in old/, the drawing the book had) and swaps its flat aeroplane symbols for pictures of the model (figs/sprites.py), in the same place, heading and
 size (a little larger, so the picture can be read), tinted where the symbol was coloured; the fonts are the book's (Inter, JetBrains Mono).
 
-    "reskin": {"svg": "fig-18-06-circuit.svg", "grow": 1.7, "grow_side": 1.4, "remove": [regex, ...],
+    "reskin": {"svg": "fig-18-07-circuit.svg", "grow": 1.7, "grow_side": 1.4, "remove": [regex, ...],
                "drop": [[from text, up to text]], "sprites": [sprite overlays with "at"], "markup": "svg markup"}  (the last three: a stretch of the old drawing replaced)
     "reskin": {"svg": ..., "blank": True, "layers": ["svg markup", {"name": "cloud-cb", "at": [x, y], "width": w}, ...]}   a new drawing on the old figure's canvas
                (figs/scene.py makes the skies, the land, the arrows), drawn in order from the back to the front
+    "reskin": {"blank": True, "layers": [...]}                                 a figure the book never had (no old drawing): the same, on the plate's own canvas
 
 build_plates.py writes the result to cache/flat-src/<id>.svg like any plate; rasterize.mjs and book_plates.py do the rest."""
 import math
@@ -52,8 +53,13 @@ def look(fill, cfg=None):
 
 def reskin(plate, sprite_markup, sprite_aspect):
     cfg = plate["reskin"]
-    with open(os.path.join(HERE, "old", cfg["svg"]), encoding="utf-8") as f:
-        svg = f.read()
+    if cfg.get("svg"):
+        with open(os.path.join(HERE, "old", cfg["svg"]), encoding="utf-8") as f:
+            svg = f.read()
+    else:                                                    # a figure the book never had: there is no old drawing, only the canvas
+        if not cfg.get("blank"):
+            raise ValueError(f"{plate['id']}: a re-skin without an old drawing (\"svg\") must be \"blank\"")
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="1" height="1"></svg>'
     if cfg.get("blank"):                                     # a new drawing on the old figure's canvas: its root, title and description and nothing else
         root = re.search(r"<svg[^>]*>", svg).group(0)
         cw, ch = plate["canvas"]                              # (the new drawing may be taller or wider than the old one)

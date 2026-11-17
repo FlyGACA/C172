@@ -1,4 +1,4 @@
-"""Helpers of worker b4 (the circuit of Thumamah, figures 18-6 and 26-1; not a figure: plates_spec.py only loads f_*.py). Plain Python, no Blender, no Pillow.
+"""Helpers of worker b4 (the circuit of Thumamah, figures 18-7 and 26-1; not a figure: plates_spec.py only loads f_*.py). Plain Python, no Blender, no Pillow.
 
 The ground plan is the one of figure 18-1 (figs/f_18_01_aerodrome_plan.py): the runway and its stopways from the AIP, the pavements, the roofs and the road of Thumamah derived from open
 Sentinel-2 imagery (data/oeth_plan.json; "Contains modified Copernicus Sentinel data 2026"), in the runway frame: `s` metres from the threshold of runway 17 (the north end) towards runway 35 (the south end), `t` metres to the west of the centreline. The

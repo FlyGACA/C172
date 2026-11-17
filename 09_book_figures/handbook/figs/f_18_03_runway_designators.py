@@ -1,4 +1,4 @@
-"""Figure 18-2. Naming a runway from its magnetic direction, drawn from the AIP data of the Saudi round (data/saudi_airspace.json, AMDT 11/26).
+"""Figure 18-3. Naming a runway from its magnetic direction, drawn from the AIP data of the Saudi round (data/saudi_airspace.json, AMDT 11/26).
 
 Left, Thumamah (OETH): a compass as a lit instrument ring (a dark bezel with its scale lit, a pane of frosted glass in it) over an aerial view of the desert, magnetic north up, with
 runway 17/35 of asphalt along its direction, 168 degrees magnetic (171 true less the 3 degrees E variation of the file), its numbers painted at the ends; magnetic north is a lit blue arrow,
@@ -17,7 +17,7 @@ from figs import scene as S
 from figs import terrain
 
 W, HT = 640, 360
-terrain.ensure("terrain-18-02", size=(W * 4, HT * 4), seed=182, kind="plain", features=("wadis", "tracks"), veil=0.32, soft=2.8)
+terrain.ensure("terrain-18-03", size=(W * 4, HT * 4), seed=182, kind="plain", features=("wadis", "tracks"), veil=0.32, soft=2.8)
 
 U = "b182"
 n = S.n
@@ -235,17 +235,17 @@ def scenery():
 
 def layers():
     ribbons, planes, pts_n, pts_s = approach_ribbons()
-    return [{"name": "terrain-18-02", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), compass_glass(), runway_in_compass(), jeddah_runways(), ribbons, compass_top(), arrows_left(),
+    return [{"name": "terrain-18-03", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), compass_glass(), runway_in_compass(), jeddah_runways(), ribbons, compass_top(), arrows_left(),
             *planes_left(), *planes, north_arrow(600, 70), scale_bar(304, 334), tag(22, 24, OETH["icao"]), tag(300, 24, OEJN["icao"]), callouts(pts_n, pts_s)]
 
 
 def plate():
     return {
-        "id": "fig-18-02-runway-designators",
-        "replaces": "fig-18-02-runway-designators.svg",
-        "book_file": "plate-18-02-runway-designators.jpg",
-        "caption": "Figure 18-2. Naming a runway from its magnetic direction",
-        "desc": ("Figure 18-2. Naming a runway from its magnetic direction. Left, Thumamah (OETH): a compass with magnetic north up and runway 17/35 laid along its direction of 168 degrees magnetic, "
+        "id": "fig-18-03-runway-designators",
+        "replaces": "fig-18-03-runway-designators.svg",
+        "book_file": "plate-18-03-runway-designators.jpg",
+        "caption": "Figure 18-3. Naming a runway from its magnetic direction",
+        "desc": ("Figure 18-3. Naming a runway from its magnetic direction. Left, Thumamah (OETH): a compass with magnetic north up and runway 17/35 laid along its direction of 168 degrees magnetic, "
                  "with the two landings (towards 168 and towards 348 degrees) ending at the numbers 17 and 35. Right, Jeddah (OEJN), north up: its three parallel runways, 16L, 16C and 16R "
                  "(34R, 34C and 34L from the other end), the westernmost 3 800 m long and the other two 4 000 m. Runway widths are exaggerated so that the numbers can be read. "
                  "Thumamah drawn from its AIP data, Jeddah's runways from their thresholds, at one scale; not for navigation."),
@@ -259,5 +259,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-02-runway-designators.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-03-runway-designators.svg", "blank": True, "layers": layers()},
     }

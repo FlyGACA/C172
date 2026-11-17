@@ -11,6 +11,6 @@
 | `riyadh_terrain.npz`, `riyadh_terrain.json` | Ground elevation, 24.70 to 25.50 N and 46.20 to 47.20 E, every 2 arc-seconds (about 60 m), metres above mean sea level | NASA Shuttle Radar Topography Mission (SRTM), 1 arc-second, **public domain**, from the Terrain Tiles open dataset on AWS; credit line "Elevation: NASA SRTM" |
 | `fetch_terrain_open.py` | Fetches the elevation file again (needs numpy and network access) | this repository |
 
-To refresh: `python fetch_oeth_open.py [first date] [last date]`, then `python ../build_oeth_plan.py --check-picture` (needs numpy, pillow, scikit-image and shapely), look at `oeth_plan_check.png`, and rebuild the plates that draw the plan (18-1, 18-6, 26-1).
+To refresh: `python fetch_oeth_open.py [first date] [last date]`, then `python ../build_oeth_plan.py --check-picture` (needs numpy, pillow, scikit-image and shapely), look at `oeth_plan_check.png`, and rebuild the plates that draw the plan (18-1, 18-7, 26-1).
 
 The elevation data agree with the AIP where the two can be compared: 1 877 ft at the Thumamah reference point (the AIP's elevation is 1 870 ft) and 1 867 and 1 854 ft at the two thresholds (1 870 and 1 868 ft). It is a radar survey flown in 2000, good to some tens of feet: it shows the shape of the country, not obstacles.

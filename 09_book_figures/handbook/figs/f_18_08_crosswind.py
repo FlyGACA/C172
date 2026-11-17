@@ -1,4 +1,4 @@
-"""Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind. At the left a card with the sky and the desert in which three windsocks hang from their poles in
+"""Figure 18-8. Reading the windsock, and splitting the wind into headwind and crosswind. At the left a card with the sky and the desert in which three windsocks hang from their poles in
 the three states (a slack sleeve, a half-filled one, one blown straight out), drawn as shaded cloth, with the wind coming from the left as a ribbon; over the aerial view of the desert, the
 vector triangle (the wind, its headwind and its crosswind, with the angle between the wind and the runway) as ribbons and runway 35 of asphalt with its dashes, bars and number painted
 (348 degrees, up). The example is Thumamah's runway 35 (Saudi round: its magnetic direction is 348 degrees in data/saudi_airspace.json) with a wind from 318 degrees at 20 kt, so that the
@@ -12,7 +12,7 @@ from figs import scene as S
 from figs import terrain
 
 W, HT = 640, 340
-terrain.ensure("terrain-18-07", size=(W * 4, HT * 4), seed=187, kind="plain", features=("wadis", "tracks"), veil=0.32, soft=2.8)
+terrain.ensure("terrain-18-08", size=(W * 4, HT * 4), seed=187, kind="plain", features=("wadis", "tracks"), veil=0.32, soft=2.8)
 
 U = "a187"
 PAINT = "#F6F3EA"
@@ -100,16 +100,16 @@ def scenery():
 
 
 def layers():
-    return [{"name": "terrain-18-07", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), card(), socks(), runway(), triangle(), labels(), callouts()]
+    return [{"name": "terrain-18-08", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), card(), socks(), runway(), triangle(), labels(), callouts()]
 
 
 def plate():
     return {
-        "id": "fig-18-07-crosswind",
-        "replaces": "fig-18-07-crosswind.svg",
-        "book_file": "plate-18-07-crosswind.jpg",
-        "caption": "Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind",
-        "desc": ("Figure 18-7. Reading the windsock, and splitting the wind into headwind and crosswind. The right-hand panel shows runway 35 at Thumamah, taken here as 348°, "
+        "id": "fig-18-08-crosswind",
+        "replaces": "fig-18-08-crosswind.svg",
+        "book_file": "plate-18-08-crosswind.jpg",
+        "caption": "Figure 18-8. Reading the windsock, and splitting the wind into headwind and crosswind",
+        "desc": ("Figure 18-8. Reading the windsock, and splitting the wind into headwind and crosswind. The right-hand panel shows runway 35 at Thumamah, taken here as 348°, "
                  "with its direction up; the vector triangle is drawn to scale."),
         "legend": [
             "Sock hanging down: calm or a light wind.",
@@ -122,5 +122,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-07-crosswind.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-08-crosswind.svg", "blank": True, "layers": layers()},
     }

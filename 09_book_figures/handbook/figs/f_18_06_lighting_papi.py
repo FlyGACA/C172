@@ -1,4 +1,4 @@
-"""Figure 18-5. Runway and taxiway lights, and the four lights of the PAPI. The lights are best seen after dark, so both halves are drawn at dusk. Above, an aerial view of a
+"""Figure 18-6. Runway and taxiway lights, and the four lights of the PAPI. The lights are best seen after dark, so both halves are drawn at dusk. Above, an aerial view of a
 lit runway on the plain at night (figs/terrain.py): the approach lights with a crossbar, the green threshold lights, the white edge lights, the red end lights, the PAPI units with
 their beams, a taxiway with blue edge lights, green centreline lights and a red stop bar; every lamp is a bulb with a halo. Below, the PAPI seen from the side at dusk: its beam
 spreading to the approach in the five sectors, the five panels the pilot sees (four lit lamps each, white or red), and the aeroplane of the model on the glide path. The eight
@@ -9,7 +9,7 @@ from figs import terrain
 
 W, HT = 640, 450
 TOP = 214                                    # the plan view is above this line, the side view below it
-terrain.ensure("terrain-18-05", size=(W * 4, TOP * 4), seed=185, kind="night", features=("wadis", "tracks"), veil=0.14, soft=2.8)
+terrain.ensure("terrain-18-06", size=(W * 4, TOP * 4), seed=185, kind="night", features=("wadis", "tracks"), veil=0.14, soft=2.8)
 
 U = "a185"
 PAINT = "#E9E7DE"
@@ -186,18 +186,18 @@ def callouts():
 
 def layers():
     plane, plane_lights = plane_plan()
-    return [{"name": "terrain-18-05", "at": [W / 2, TOP / 2], "width": W}, defs(), cones_defs(), plan(), papi_plan(), plan_lights(), plane, plane_lights,
+    return [{"name": "terrain-18-06", "at": [W / 2, TOP / 2], "width": W}, defs(), cones_defs(), plan(), papi_plan(), plan_lights(), plane, plane_lights,
             f'<line x1="0" y1="{TOP}" x2="{W}" y2="{TOP}" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1"/>',
             side(), sectors(), H.grain(U + "gn", 0, TOP, W, HT - TOP, 0.045, 1.1, 5), papi_side(), aeroplane_side(), panels(), callouts()]
 
 
 def plate():
     return {
-        "id": "fig-18-05-lighting-papi",
-        "replaces": "fig-18-05-lighting-papi.svg",
-        "book_file": "plate-18-05-lighting-papi.jpg",
-        "caption": "Figure 18-5. Runway and taxiway lights, and the four lights of the PAPI",
-        "desc": "Figure 18-5. Runway and taxiway lights, and the four lights of the PAPI",
+        "id": "fig-18-06-lighting-papi",
+        "replaces": "fig-18-06-lighting-papi.svg",
+        "book_file": "plate-18-06-lighting-papi.jpg",
+        "caption": "Figure 18-6. Runway and taxiway lights, and the four lights of the PAPI",
+        "desc": "Figure 18-6. Runway and taxiway lights, and the four lights of the PAPI",
         "legend": [
             "Approach lights, white, along the extended centreline, here with one crossbar.",
             "Threshold lights, green.",
@@ -210,5 +210,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-05-lighting-papi.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-06-lighting-papi.svg", "blank": True, "layers": layers()},
     }

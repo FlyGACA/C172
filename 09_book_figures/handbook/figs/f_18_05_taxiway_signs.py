@@ -1,4 +1,4 @@
-"""Figure 18-4. Taxiway markings, the runway-holding position and the four kinds of sign. An aerial picture on the desert plain (figs/terrain.py): a runway, the taxiway that
+"""Figure 18-5. Taxiway markings, the runway-holding position and the four kinds of sign. An aerial picture on the desert plain (figs/terrain.py): a runway, the taxiway that
 leaves it with its yellow centreline curving on to the runway centreline, the runway-holding position marking, the intermediate holding position, the aeroplane of the model on the
 centreline and the signs standing beside the taxiway, with the four kinds of sign shown large on a card at the right: solid boards on posts, lit, with a shadow. The nine callouts of
 the old figure are kept, in the same order and meaning (figs/scene.py makes the callouts, figs/h_a2.py the asphalt, the paint and the signs)."""
@@ -7,7 +7,7 @@ from figs import scene as S
 from figs import terrain
 
 W, HT = 640, 400
-terrain.ensure("terrain-18-04", size=(W * 4, HT * 4), seed=184, kind="plain", features=("wadis", "tracks"), veil=0.34, soft=2.8)
+terrain.ensure("terrain-18-05", size=(W * 4, HT * 4), seed=184, kind="plain", features=("wadis", "tracks"), veil=0.34, soft=2.8)
 
 U = "a184"
 PAINT = "#F6F3EA"
@@ -103,16 +103,16 @@ def scenery():
 
 
 def layers():
-    return [{"name": "terrain-18-04", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), pavement(), markings(), aeroplane(), signs_left(), card().replace('<image x="0" y="0" width="640" height="400" href="@@TERRAIN@@" opacity="0.0"/>', ""), signs_card(), callouts()]
+    return [{"name": "terrain-18-05", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), pavement(), markings(), aeroplane(), signs_left(), card().replace('<image x="0" y="0" width="640" height="400" href="@@TERRAIN@@" opacity="0.0"/>', ""), signs_card(), callouts()]
 
 
 def plate():
     return {
-        "id": "fig-18-04-taxiway-signs",
-        "replaces": "fig-18-04-taxiway-signs.svg",
-        "book_file": "plate-18-04-taxiway-signs.jpg",
-        "caption": "Figure 18-4. Taxiway markings, the runway-holding position and the four kinds of sign",
-        "desc": "Figure 18-4. Taxiway markings, the runway-holding position and the four kinds of sign",
+        "id": "fig-18-05-taxiway-signs",
+        "replaces": "fig-18-05-taxiway-signs.svg",
+        "book_file": "plate-18-05-taxiway-signs.jpg",
+        "caption": "Figure 18-5. Taxiway markings, the runway-holding position and the four kinds of sign",
+        "desc": "Figure 18-5. Taxiway markings, the runway-holding position and the four kinds of sign",
         "legend": [
             "Runway-holding position marking: solid lines on your side, dashed lines on the runway side.",
             "Runway-holding position sign `09-27`, with the location sign `B` outboard of it.",
@@ -126,5 +126,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-04-taxiway-signs.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-05-taxiway-signs.svg", "blank": True, "layers": layers()},
     }

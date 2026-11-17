@@ -1,4 +1,4 @@
-"""Figure 18-3. Runway markings at a normal runway end and at a displaced threshold. Two close-ups of paint on asphalt, lit from the upper left: the asphalt has its grain and its
+"""Figure 18-4. Runway markings at a normal runway end and at a displaced threshold. Two close-ups of paint on asphalt, lit from the upper left: the asphalt has its grain and its
 blotches, the paint is a little worn and stands a hair off the surface (a thin shadow on its lower right edge), the blast pad is lighter. They lie on a desert plain
 (figs/terrain.py) with the aeroplane of the model coming in at the left. The eleven callouts of the old figure are kept, in the same order and meaning (figs/scene.py makes the
 callouts and the ribbon, figs/h_a2.py the asphalt and the paint)."""
@@ -7,7 +7,7 @@ from figs import scene as S
 from figs import terrain
 
 W, HT = 640, 420
-terrain.ensure("terrain-18-03", size=(W * 4, HT * 4), seed=183, kind="plain", features=("wadis", "tracks"), veil=0.34, soft=2.8)
+terrain.ensure("terrain-18-04", size=(W * 4, HT * 4), seed=183, kind="plain", features=("wadis", "tracks"), veil=0.34, soft=2.8)
 
 U = "a183"
 PAINT = "#F6F3EA"
@@ -132,16 +132,16 @@ def callouts():
 
 def layers():
     plane, arrow = aeroplane()
-    return [{"name": "terrain-18-03", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), first_strip(), second_strip(), plane, arrow, dims(), callouts()]
+    return [{"name": "terrain-18-04", "at": [W / 2, HT / 2], "width": W}, defs(), scenery(), first_strip(), second_strip(), plane, arrow, dims(), callouts()]
 
 
 def plate():
     return {
-        "id": "fig-18-03-runway-markings",
-        "replaces": "fig-18-03-runway-markings.svg",
-        "book_file": "plate-18-03-runway-markings.jpg",
-        "caption": "Figure 18-3. Runway markings at a normal runway end and at a displaced threshold",
-        "desc": "Figure 18-3. Runway markings at a normal runway end and at a displaced threshold",
+        "id": "fig-18-04-runway-markings",
+        "replaces": "fig-18-04-runway-markings.svg",
+        "book_file": "plate-18-04-runway-markings.jpg",
+        "caption": "Figure 18-4. Runway markings at a normal runway end and at a displaced threshold",
+        "desc": "Figure 18-4. Runway markings at a normal runway end and at a displaced threshold",
         "legend": [
             "Threshold stripes: the start of the part usable for landing; wider runways have more stripes.",
             "Designator, read from the approach.",
@@ -157,5 +157,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-03-runway-markings.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-04-runway-markings.svg", "blank": True, "layers": layers()},
     }

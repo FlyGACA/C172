@@ -1,4 +1,4 @@
-"""Figure 18-6 (the Saudi round). The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah (OETH).
+"""Figure 18-7 (the Saudi round). The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah (OETH).
 
 Top panel: the aerodrome of Thumamah to scale (figs/h_b4.py draws the runway, stopways, pavements, buildings and road from data/oeth_plan.json, as figure 18-1 does) with the left-hand circuit
 for runway 35 as a thick ribbon with arrowheads, the right-hand circuit for runway 17 on the same (west) side thin and dashed, five aeroplanes of the model on the circuit, the 45 degree
@@ -12,7 +12,7 @@ from figs import scene as S
 from figs import terrain
 
 W, HT = 640, 610
-terrain.ensure("terrain-18-06-thumamah", size=(W * 4, HT * 4), seed=1806, kind="plain", features=("wadis",), veil=0.34, soft=2.8)
+terrain.ensure("terrain-18-07-thumamah", size=(W * 4, HT * 4), seed=1806, kind="plain", features=("wadis",), veil=0.34, soft=2.8)
 
 PX, PY, PW, PH = 8, 8, 624, 316                    # the plan panel (the circuit is a long, shallow loop: it needs less height than the old figure's)
 SX, SY, SW, SH = 8, 334, 624, 268                  # the side panel
@@ -158,18 +158,18 @@ def callouts():
     return "".join(out)
 
 def layers():
-    return [{"name": "terrain-18-06-thumamah", "at": [W / 2, HT / 2], "width": W}, B.defs(), A1.defs(), plan_markup(), *plan_sprites(), B.frame(PX, PY, PW, PH),
+    return [{"name": "terrain-18-07-thumamah", "at": [W / 2, HT / 2], "width": W}, B.defs(), A1.defs(), plan_markup(), *plan_sprites(), B.frame(PX, PY, PW, PH),
             B.north_arrow(PX + PW - 34, PY + 32), B.scale_bar(PX + PW - 26 - 1000 * K - 40, PY + PH - 20, 1000 * K, "1 km"),
             *side_back(), side_markup(), *side_sprites(), callouts()]
 
 
 def plate():
     return {
-        "id": "fig-18-06-circuit",
-        "replaces": "fig-18-06-circuit.svg",
-        "book_file": "plate-18-06-circuit.jpg",
-        "caption": "Figure 18-6. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah",
-        "desc": "Figure 18-6. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah. North is to the left, as the arrow shows; the shape of the circuit is illustrative, its direction and altitude are the AIP's (AMDT 11/26); not for navigation.",
+        "id": "fig-18-07-circuit",
+        "replaces": "fig-18-07-circuit.svg",
+        "book_file": "plate-18-07-circuit.jpg",
+        "caption": "Figure 18-7. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah",
+        "desc": "Figure 18-7. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah. North is to the left, as the arrow shows; the shape of the circuit is illustrative, its direction and altitude are the AIP's (AMDT 11/26); not for navigation.",
         "legend": [
             "Upwind leg: climb straight ahead after takeoff.",
             "Crosswind leg, at right angles to the runway beyond its end.",
@@ -184,5 +184,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-18-06-circuit.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-18-07-circuit.svg", "blank": True, "layers": layers()},
     }

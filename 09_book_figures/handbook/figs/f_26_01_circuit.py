@@ -1,6 +1,6 @@
 """Figure 26-1 (the Saudi round). The circuit in the example aeroplane, with speed and flap setting at each point: runway 35 at Thumamah (OETH), left-hand, wind from the north.
 
-The same ground and the same circuit as figure 18-6 (figs/h_b4.py): the aerodrome to scale from data/oeth_plan.json, north to the left (the arrow says so), the left-hand circuit for runway 35 on
+The same ground and the same circuit as figure 18-7 (figs/h_b4.py): the aerodrome to scale from data/oeth_plan.json, north to the left (the arrow says so), the left-hand circuit for runway 35 on
 the west side as a ribbon with arrowheads, five aeroplanes of the model on it, the abeam line and the 45 degree line, the old figure's five tags (speed and flap setting, with the small
 aeroplane of the model and the flap as a bar turned down by its angle: figs/h_a1.py speed_card, as in figure 26-2) and its ten numbered callouts. Below, the circuit unrolled in a card of sky: the
 ground at 1 870 ft and the circuit altitude 2 900 ft AMSL (AIP AD 2.22.2). The wind from the north is a pair of pale ribbons blowing to the south (the old figure's windsock is not drawn: the AIP
@@ -16,7 +16,7 @@ terrain.ensure("terrain-26-01-thumamah", size=(W * 4, HT * 4), seed=2601, kind="
 
 PX, PY, PW, PH = 8, 4, 624, 230                    # the plan panel
 SX, SY, SW, SH = 8, 242, 624, 200                  # the side panel
-K = 0.0775                                         # units to the metre, as in figure 18-6
+K = 0.0775                                         # units to the metre, as in figure 18-7
 P = B.Plan(112.0, 84.0, K)
 SPR = {"shadow": {"dx": 0.9, "dy": 1.5, "blur": 1.1, "opacity": 0.34}, "outline": {"width": 0.35, "colour": "#2B3648", "opacity": 0.8}}
 
