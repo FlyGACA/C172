@@ -1,4 +1,4 @@
-"""Figure 13-3 (new). The passenger briefing of GACAR 91.45(a): the eight subjects as eight tiles, each with a small drawing and its number, in the order of the rule (smoking, safety belts and harnesses, seat backs for takeoff and landing, fire extinguishers,
+"""Figure 13-4 (new). The passenger briefing of GACAR 91.45(a): the eight subjects as eight tiles, each with a small drawing and its number, in the order of the rule (smoking, safety belts and harnesses, seat backs for takeoff and landing, fire extinguishers,
 doors and emergency exits, survival equipment, ditching on a flight over water, oxygen equipment), and under them the rule of 91.45(b): the oral briefing in Arabic and in English (two speech bubbles marked AR and EN).
 No words but AR, EN and O2: shapes, colours and the numbers of the callouts. The drawings are generic."""
 import math
@@ -101,11 +101,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-13-03-passenger-briefing",
-        "replaces": "fig-13-03-passenger-briefing.svg",   # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-13-03-passenger-briefing.jpg",
-        "caption": "Figure 13-3. The passenger briefing of GACAR 91.45: the eight subjects, and the briefing in Arabic and English",
-        "desc": ("Figure 13-3. The passenger briefing of GACAR 91.45: the eight subjects as eight tiles (smoking, safety belts and harnesses, seat backs, fire extinguishers, doors and emergency exits, "
+        "id": "fig-13-04-passenger-briefing",
+        "replaces": "fig-13-04-passenger-briefing.svg",   # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-13-04-passenger-briefing.jpg",
+        "caption": "Figure 13-4. The passenger briefing of GACAR 91.45: the eight subjects, and the briefing in Arabic and English",
+        "desc": ("Figure 13-4. The passenger briefing of GACAR 91.45: the eight subjects as eight tiles (smoking, safety belts and harnesses, seat backs, fire extinguishers, doors and emergency exits, "
                  "survival equipment, ditching, oxygen equipment), and the oral briefing in Arabic and in English."),
         "legend": [
             "Smoking.",
