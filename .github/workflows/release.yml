@@ -1,0 +1,61 @@
+name: Release
+
+# Publishes a versioned, verifiable Phase 8 bundle when a vX.Y.Z tag is pushed.
+# The tag must equal "v" + package.json version, RELEASES.md must lead with that
+# version and the committed release manifest must match the tagged files.
+
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: c172-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tag, version and manifest agree
+        run: |
+          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) echo "tag $TAG is not vX.Y.Z" >&2; exit 1 ;; esac
+          mkdir -p dist
+          python scripts/release_manifest.py --check --tag "$TAG" --sums dist/bundle.sha256
+
+      - name: Build the bundle zip from the tagged commit
+        run: |
+          mapfile -t files < <(cut -d' ' -f3- dist/bundle.sha256)
+          git archive --format=zip --prefix="C172-$TAG/" -o "dist/C172-$TAG.zip" HEAD -- \
+            08_realistic_digital_twin/release-manifest.json "${files[@]}"
+          cp 08_realistic_digital_twin/release-manifest.json "dist/release-manifest-$TAG.json"
+
+      - name: Verify the zip against the manifest before publishing
+        run: |
+          rm -rf /tmp/c172-unpacked && mkdir -p /tmp/c172-unpacked
+          unzip -q "dist/C172-$TAG.zip" -d /tmp/c172-unpacked
+          (cd "/tmp/c172-unpacked/C172-$TAG" && sha256sum -c --quiet "$GITHUB_WORKSPACE/dist/bundle.sha256")
+          (cd dist && sha256sum "C172-$TAG.zip" "release-manifest-$TAG.json" bundle.sha256 > SHA256SUMS)
+
+      - name: Release notes from RELEASES.md
+        run: |
+          awk -v h="## $TAG" '$0 == h {on=1; next} on && /^## / {exit} on' RELEASES.md > /tmp/notes.md
+          test -s /tmp/notes.md
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$TAG" dist/* --title "C172 digital twin $TAG" --notes-file /tmp/notes.md --verify-tag

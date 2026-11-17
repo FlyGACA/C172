@@ -1,5 +1,13 @@
 # C172 project history
 
+## v8.0.0
+
+Current consumable release: the Phase 08 realistic digital twin bundle (the `08_realistic_digital_twin/` viewer, models, textures, data and docs, plus `shared/`). Every bundle file's sha256 and size are in [`08_realistic_digital_twin/release-manifest.json`](08_realistic_digital_twin/release-manifest.json); verify with `npm run verify:release`. Pin to the git tag `v8.0.0` or its GitHub release assets; GitHub Pages serves `main` and may be newer.
+
+To release: bump `version` in `package.json`, add a `## vX.Y.Z` heading here, run `npm run release:manifest`, merge, then push the tag `vX.Y.Z`. The release workflow refuses a tag that does not match.
+
+## Phase history
+
 01 — Editable airframe (initial procedural 3D model).
 02 — Classic analog model, browser viewer, improved procedural geometry.
 02b — Refined Phase 2 airframe with Blender enhancement script.
