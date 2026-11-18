@@ -1,6 +1,8 @@
-"""Figure 13-5 (new). The passenger briefing of GACAR 91.45(a): the eight subjects as eight tiles, each with a small drawing and its number, in the order of the rule (smoking, safety belts and harnesses, seat backs for takeoff and landing, fire extinguishers,
-doors and emergency exits, survival equipment, ditching on a flight over water, oxygen equipment), and under them the rule of 91.45(b): the oral briefing in Arabic and in English (two speech bubbles marked AR and EN).
-No words but AR, EN and O2: shapes, colours and the numbers of the callouts. The drawings are generic."""
+"""Figure 13-5 (new; redrawn in the upgrade round around a cutaway render of the model's cabin). The passenger briefing of GACAR 91.45(a) and (b).
+
+The cabin of the model from above and behind, the skin, the roof, the left door and the wings taken away, a fire extinguisher (a red cylinder, which the model lacks) on the floor between the seats:
+2 the lap belts and shoulder harnesses, 3 a seat back, 4 the fire extinguisher, 5 the door and its handle, 6 the baggage area behind the rear seat where survival equipment is stowed. At the right, four small tiles
+for what the cabin cannot show: 1 smoking (a crossed cigarette), 7 ditching (a lifebuoy on waves), 8 oxygen (a cylinder marked O2 and a mask) and 9 the briefing in Arabic and English (two bubbles, AR and EN)."""
 import math
 
 from figs import h_b2 as H
@@ -8,7 +10,7 @@ from figs import h_rich as R
 from figs import scene as S
 
 n = S.n
-W, HT = 640, 300
+W, HT = 640, 400
 U = "pb13"
 INK, SLATE, BLUE, GREEN, AMBER, RED, ORANGE = "#334155", "#475569", "#1D4ED8", "#15803D", "#B45309", "#B91C1C", "#EA580C"
 TW, TH = 142.0, 98.0
@@ -75,29 +77,70 @@ def icon(i):
     return "".join(o)
 
 
+import json
+import os
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CX, CY, CW, CH = 12.0, 12.0, 448.0, 376.0                      # the card of the cabin
+SX, SW = 472.0, 156.0                                           # the column of small tiles
+SH = (CH - 3 * 10.0) / 4
+
+
+def cabin():
+    with open(os.path.join(HERE, "renders", "cabin-13-05-briefing.anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    (pw, ph), a = d["size"], d["anchors"]
+    w = CW * 1.02
+    h = w * ph / pw
+    x0, y0 = CX + CW / 2 - w / 2, CY + CH / 2 - h / 2 + 6
+    at = lambda k: (x0 + a[k][0] * w, y0 + a[k][1] * h)
+    card = (f'<defs>{S.gradient(U + "cg", [(0, "#DCE7F3"), (1, "#F4F7FB")])}<clipPath id="{U}cc"><rect x="{n(CX)}" y="{n(CY)}" width="{n(CW)}" height="{n(CH)}" rx="10"/></clipPath>'
+            f'<filter id="{U}cf" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="2" stdDeviation="2.6" flood-color="#10233F" flood-opacity="0.26"/></filter></defs>'
+            f'<rect x="{n(CX)}" y="{n(CY)}" width="{n(CW)}" height="{n(CH)}" rx="10" fill="url(#{U}cg)" filter="url(#{U}cf)"/><g clip-path="url(#{U}cc)">')
+    lay = {"name": "cabin-13-05-briefing", "at": [x0 + w / 2, y0 + h / 2], "width": w, "shadow": {"dx": 1.5, "dy": 3.0, "blur": 3.0, "opacity": 0.28}}
+    end = f'</g><rect x="{n(CX)}" y="{n(CY)}" width="{n(CW)}" height="{n(CH)}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>'
+    return [card, lay, end], at
+
+
+def small(k, i):
+    """Tile k of the column (0 to 3) with the drawing of subject i of the old figure, moved and scaled into it."""
+    x, y = SX, CY + k * (SH + 10.0)
+    o = R.tile(f"{U}s{k}", x, y, SW, SH, ("red", "blue", "slate", "sand")[k])
+    if i is None:
+        return o
+    ox, oy = GX[i % 4] + TW / 2 + 6, GY[i // 4] + TH / 2 + 4
+    sc = 0.9
+    return o + f'<g transform="translate({n(x + SW / 2 + 8 - ox * sc)} {n(y + SH / 2 + 4 - oy * sc)}) scale({sc})">' + icon(i) + "</g>"
+
+
 def bubbles():
     """The rule of 91.45(b): the oral briefing in Arabic and in English, two speech bubbles side by side."""
-    out = []
-    y = 244.0
-    for x, label, col in ((248.0, "AR", GREEN), (392.0, "EN", BLUE)):
-        out.append(f'<path d="M{n(x - 50)} {n(y - 18)} h100 a10 10 0 0 1 10 10 v18 a10 10 0 0 1 -10 10 h-72 l-12 12 v-12 h-16 a10 10 0 0 1 -10 -10 v-18 a10 10 0 0 1 10 -10 Z" fill="{col}" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round" filter="url(#{U}ds)"/>')
-        out.append(H.glyph_text(label, x, y - 2, 10.0, "#FFFFFF", spacing=0.6))
-    out.append(f'<line x1="316" y1="{n(y - 14)}" x2="316" y2="{n(y + 10)}" stroke="{SLATE}" stroke-opacity="0.35" stroke-width="1.2"/>')
+    x, y = SX, CY + 3 * (SH + 10.0)
+    out = [small(3, None)]
+    yc = y + SH / 2 + 2
+    for bx, label, col in ((x + 46, "AR", GREEN), (x + 114, "EN", BLUE)):
+        out.append(f'<path d="M{n(bx - 22)} {n(yc - 16)} h44 a8 8 0 0 1 8 8 v16 a8 8 0 0 1 -8 8 h-28 l-10 10 v-10 h-6 a8 8 0 0 1 -8 -8 v-16 a8 8 0 0 1 8 -8 Z" fill="{col}" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round" filter="url(#{U}ds)"/>')
+        out.append(H.glyph_text(label, bx + 4, yc - 1, 10.0, "#FFFFFF", spacing=0.6))
     return "".join(out)
 
 
-def callouts():
+def callouts(at):
     c = S.callout
     out = []
-    for i in range(8):
-        x, y = GX[i % 4], GY[i // 4]
-        out.append(c(i + 1, x + 14, y + 14, r=9.0))
-    out.append(c(9, 168.0, 244.0, 196.0, 244.0, r=9.0))
+    for k, (num, anchor, pos) in enumerate(((2, "belt", (CX + 40, CY + 252)), (3, "back", (CX + 250, CY + 26)), (4, "ext", (CX + 196, CY + 330)),
+                                            (5, "door_in", (CX + 330, CY + 26)), (6, "net", (CX + 410, CY + 330)))):
+        tx, ty = at(anchor)
+        dx, dy = {"ext": (26.0, 14.0), "door_in": (52.0, -36.0)}.get(anchor, (0.0, 0.0))     # the extinguisher's middle; the frame of the right door
+        tx, ty = tx + dx, ty + dy
+        out.append(c(num, pos[0], pos[1], tx, ty, r=10.0))
+    for k, num in enumerate((1, 7, 8, 9)):
+        out.append(c(num, SX + 14, CY + k * (SH + 10.0) + 14, r=9.0))
     return "".join(out)
 
 
 def layers():
-    return [H.defs(U, W, HT), background(), *[tile(i) for i in range(8)], *[icon(i) for i in range(8)], bubbles(), callouts()]
+    cab, at = cabin()
+    return ([H.defs(U, W, HT), background()] + cab + [small(0, 0), small(1, 6), small(2, 7), bubbles(), callouts(at)])
 
 
 def plate():

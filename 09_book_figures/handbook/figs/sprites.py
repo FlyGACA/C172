@@ -57,4 +57,17 @@ def sprites():
         # the operating-limitations placard of the model, its last two lines only (Figure 26-1: the flight manual comes first)
         {"id": "panel-26-01-placard", "width_m": 0.17, "render": {"camera": {"view": "panel", "target": {"part": "PANEL.placard_speed", "at": [0.5, 0.5, 0.25]}, "width": 0.17,
             "azimuth": 0, "elevation": 0, "distance": 0.5}, "size": [1700, 260], "light": "panel", "samples": 64, "fine_textures": True, "hide": ["INTERIOR.yoke_*", "INTERIOR.yoke_shaft_*", "PANEL.control_wheel_*"]}},
+        # the cabin of the model from above and behind on the left, the skin, the roof and the wings taken away (Figure 13-5: the passenger briefing)
+        {"id": "cabin-13-05-briefing", "width_m": 3.4, "render": {"light": "outdoor", "parked": True, "propeller": "none",
+            "camera": {"view": "side", "target": [0.0, 0.55, 0.95], "width": 3.4, "azimuth": 215, "elevation": 48},
+            "hide": ["AIRFRAME.fuselage", "WING_*", "INTERIOR.headliner", "INTERIOR.overhead_console", "AIRFRAME.windshield", "AIRFRAME.rear_window", "AIRFRAME.window_rear_*",
+                     "AIRFRAME.door_L", "AIRFRAME.door_window_L", "AIRFRAME.door_*_L*", "INTERIOR.door_*_L", "INTERIOR.cabin_liner", "ELECTRICAL.adf_sense_wire", "AIRFRAME.carry_through_*",
+                     "EMPENNAGE.*", "ENGINE.*", "AIRFRAME.cabin_vent_*", "ELECTRICAL.harness_wing_*", "AIRFRAME.marking_wordmark_*"],
+            "props": [{"kind": "cylinder", "at": {"part": "INTERIOR.floor", "at": [0.5, 0.5, 1.0], "add": [0.0, 0.0, 0.17]}, "size": [0.045, 0.32], "rot": [90, 0, 0], "colour": "#C62828"}],
+            "anchors": {"belt": {"part": "INTERIOR.seat_pilot.lap_belt", "at": [0.5, 0.5, 0.5]}, "harness": {"part": "INTERIOR.shoulder_harness_R", "at": [0.5, 0.5, 0.6]},
+                        "back": {"part": "INTERIOR.seat_copilot.back", "at": [0.5, 0.5, 0.8]}, "door": {"part": "AIRFRAME.door_handle_R", "at": [0.5, 0.5, 0.5]},
+                        "door_in": {"part": "INTERIOR.door_inner_handle_R", "at": [0.5, 0.5, 0.5]}, "net": {"part": "INTERIOR.baggage_net", "at": [0.5, 0.5, 0.5]},
+                        "elt": {"part": "AVIONICS.elt", "at": [0.5, 0.5, 0.5]}, "ext": {"part": "INTERIOR.floor", "at": [0.5, 0.5, 1.0], "add": [0.0, 0.0, 0.30]},
+                        "rear_back": {"part": "INTERIOR.seat_rear.back_L", "at": [0.5, 0.5, 0.8]}, "panel": {"part": "INTERIOR.glareshield", "at": [0.5, 0.5, 0.5]}},
+            "size": [1800, 1300], "samples": 64, "mirror": True}},
     ]
