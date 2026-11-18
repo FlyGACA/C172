@@ -1,4 +1,4 @@
-"""Figure 13-3 (new). The latest takeoff time from A, from the worked example of Chapter 13 ("Daylight and delays"): a time scale from 14:00 to 18:00 worked backwards from the sunset at B.
+"""Figure 13-4 (new). The latest takeoff time from A, from the worked example of Chapter 13 ("Daylight and delays"): a time scale from 14:00 to 18:00 worked backwards from the sunset at B.
 
 Sunset at B is 17:40 local (the chapter's illustrative value); the day ends there (the hatched night). Working back: 15 minutes in hand (green, a rule of thumb), 30 minutes for a diversion to C (amber), so the latest landing at B is 17:40 - 0:30 - 0:15 = 16:55; the flight
 takes 2 h 04 min (blue), so the latest takeoff from A is 16:55 - 2:04 = 14:51. Every number is the chapter's. Digits and colons only: the words are in the legend."""
@@ -102,11 +102,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-13-03-latest-takeoff",
-        "replaces": "fig-13-03-latest-takeoff.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-13-03-latest-takeoff.jpg",
-        "caption": "Figure 13-3. The latest takeoff time from A, worked back from the sunset at B (an illustrative sunset)",
-        "desc": ("Figure 13-3. The latest takeoff time from A, worked back from a sunset at B of 17:40 (an illustrative value): 15 minutes in hand, 30 minutes for a diversion to C, "
+        "id": "fig-13-04-latest-takeoff",
+        "replaces": "fig-13-04-latest-takeoff.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-13-04-latest-takeoff.jpg",
+        "caption": "Figure 13-4. The latest takeoff time from A, worked back from the sunset at B (an illustrative sunset)",
+        "desc": ("Figure 13-4. The latest takeoff time from A, worked back from a sunset at B of 17:40 (an illustrative value): 15 minutes in hand, 30 minutes for a diversion to C, "
                  "so the latest landing at B is 16:55; the flight takes 2 h 04 min, so the latest takeoff is 14:51."),
         "legend": [
             "The latest takeoff from A, 14:51: the latest landing at B minus the 2 h 04 min of the flight. If the departure slips past it, shorten the flight or go another day.",

@@ -1,4 +1,4 @@
-"""Figure 2-3. VFR cruising altitudes on a real route: the ground under the line from Riyadh King Khaled (OERK) to Jeddah King Abdulaziz (OEJN), 460.5 NM on a great circle whose true
+"""Figure 2-5. VFR cruising altitudes on a real route: the ground under the line from Riyadh King Khaled (OERK) to Jeddah King Abdulaziz (OEJN), 460.5 NM on a great circle whose true
 course is 246 degrees at Riyadh and 243 degrees at Jeddah, against the levels that the hemispheric rule of GACAR 91.169 allows.
 
 What is drawn comes from open elevation data (NASA SRTM, public domain; data/open/fetch_route_terrain.py -> data/open/oerk_oejn_profile.json: the ground on the line and the highest ground within
@@ -219,11 +219,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-02-03-cruising-altitudes",
-        "replaces": "fig-02-03-cruising-altitudes.svg",      # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-02-03-cruising-altitudes.jpg",
-        "caption": "Figure 2-3. VFR cruising altitudes on a real route: Riyadh to Jeddah, 460 NM, against the ground under the line",
-        "desc": ("Figure 2-3. VFR cruising altitudes on a real route: Riyadh to Jeddah, 460 NM, against the ground under the line. Height above mean sea level in feet against nautical miles from "
+        "id": "fig-02-05-cruising-altitudes",
+        "replaces": "fig-02-05-cruising-altitudes.svg",      # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-02-05-cruising-altitudes.jpg",
+        "caption": "Figure 2-5. VFR cruising altitudes on a real route: Riyadh to Jeddah, 460 NM, against the ground under the line",
+        "desc": ("Figure 2-5. VFR cruising altitudes on a real route: Riyadh to Jeddah, 460 NM, against the ground under the line. Height above mean sea level in feet against nautical miles from "
                  "Riyadh; vertical scale exaggerated; the ground is from open elevation data (NASA SRTM) under a great circle between the two aerodrome reference points; the levels are those of "
                  "GACAR 91.169 for a magnetic course of about 240 degrees and for the opposite course. Not a route to fly and not for navigation."),
         "legend": [

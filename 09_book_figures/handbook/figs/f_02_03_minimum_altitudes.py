@@ -1,4 +1,4 @@
-"""Figure 2-2 (new). Minimum safe altitudes, GACAR 91.67. Each half is drawn to one scale in both directions: the town on the left at 0.07 canvas units to the foot (1 000 ft = 70 units,
+"""Figure 2-3 (new). Minimum safe altitudes, GACAR 91.67. Each half is drawn to one scale in both directions: the town on the left at 0.07 canvas units to the foot (1 000 ft = 70 units,
 2 000 ft = 140 units), the open country on the right at 0.08 (500 ft = 40 units). The two scales differ so that each half fills its side; the heights are in the labels.
 
 Left, a congested area: a town of low buildings and one tower, 300 ft tall; the aeroplane is 1 000 ft above the highest obstacle within 2 000 ft horizontally of it (a bracket 2 000 ft to each
@@ -159,11 +159,11 @@ def divider():
 
 def plate():
     return {
-        "id": "fig-02-02-minimum-altitudes",
-        "replaces": "fig-02-02-minimum-altitudes.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-02-02-minimum-altitudes.jpg",
-        "caption": "Figure 2-2. Minimum safe altitudes: over a congested area and elsewhere, to one scale",
-        "desc": ("Figure 2-2. Minimum safe altitudes: over a congested area and elsewhere, to one scale. Left, an aeroplane 1 000 ft above the highest obstacle within 2 000 ft of it over a town; "
+        "id": "fig-02-03-minimum-altitudes",
+        "replaces": "fig-02-03-minimum-altitudes.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-02-03-minimum-altitudes.jpg",
+        "caption": "Figure 2-3. Minimum safe altitudes: over a congested area and elsewhere, to one scale",
+        "desc": ("Figure 2-3. Minimum safe altitudes: over a congested area and elsewhere, to one scale. Left, an aeroplane 1 000 ft above the highest obstacle within 2 000 ft of it over a town; "
                  "right, an aeroplane 500 ft above the surface in open country, outside a ring of 500 ft round a car and a person, with a glide line to clear ground. Heights and distances chosen to show the rule (GACAR 91.67); not a map."),
         "legend": [
             "Over a congested area of a city, town or settlement, or over an open-air assembly of people: at least 1 000 ft above the highest obstacle within 2 000 ft horizontally of the aeroplane.",

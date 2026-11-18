@@ -1,4 +1,4 @@
-"""Figure 2-4 (new). VFR at night in the Kingdom and the VFR fuel reserve, from the last two sections of Chapter 2: four scenes.
+"""Figure 2-6 (new). VFR at night in the Kingdom and the VFR fuel reserve, from the last two sections of Chapter 2: four scenes.
 
 1 the night: a band of sky from day through sunset, civil twilight, night, morning twilight and sunrise, with the period in which VFR is prohibited (sunset to sunrise, §91.171) and the GACAR night (the end of evening civil twilight to the beginning of morning civil twilight)
 under it; 2 the exception (a local flight round an aerodrome, under conditions prescribed by the ATC facility, or an authorization: a green tick); 3 position lights lit from sunset to sunrise (the aeroplane from above with its red, green and white lights); 4 the VFR fuel
@@ -116,11 +116,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-02-04-night-vfr",
-        "replaces": "fig-02-04-night-vfr.svg",                # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-02-04-night-vfr.jpg",
-        "caption": "Figure 2-4. VFR at night in the Kingdom: no VFR from sunset to sunrise without an authorization, lights lit, and 45 minutes of fuel",
-        "desc": ("Figure 2-4. VFR at night in the Kingdom in four scenes: no VFR from sunset to sunrise, with the GACAR night (evening to morning civil twilight) inside that period; the exception of an authorization or a local flight under ATC conditions; "
+        "id": "fig-02-06-night-vfr",
+        "replaces": "fig-02-06-night-vfr.svg",                # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-02-06-night-vfr.jpg",
+        "caption": "Figure 2-6. VFR at night in the Kingdom: no VFR from sunset to sunrise without an authorization, lights lit, and 45 minutes of fuel",
+        "desc": ("Figure 2-6. VFR at night in the Kingdom in four scenes: no VFR from sunset to sunrise, with the GACAR night (evening to morning civil twilight) inside that period; the exception of an authorization or a local flight under ATC conditions; "
                  "position lights lit from sunset to sunrise; and the VFR fuel, 30 minutes by day or 45 minutes at night after the first point of intended landing."),
         "legend": [
             "No person may operate an aircraft under VFR from sunset to sunrise in KSA airspace. The GACAR definition of night is the period between the end of evening civil twilight and the beginning of morning civil twilight; the prohibition is stated from sunset to sunrise.",
