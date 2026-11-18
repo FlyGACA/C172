@@ -150,7 +150,7 @@ def ground_texture(name="ground-oeth-s2", x0=-6600.0, x1=18800.0, y0=-7200.0, y1
     from PIL import Image
     from figs import imagery_real as IR
     path = os.path.join(HERE, "renders", name + ".png")
-    out = {"path": path, "x0": x0, "x1": x1, "y0": y0, "y1": y1}
+    out = {"path": path, "x0": x0, "x1": x1, "y0": y0, "y1": y1, "sand": "#C29A72"}      # beyond the picture: about its mean colour, so that its edge does not show
     if os.path.exists(path):
         return out
     w, h = int(round((x1 - x0) / m_per_px)), int(round((y1 - y0) / m_per_px))
@@ -169,7 +169,8 @@ def ground_texture(name="ground-oeth-s2", x0=-6600.0, x1=18800.0, y0=-7200.0, y1
     fr, fc = np.clip(r - r0, 0, 1)[..., None], np.clip(c - c0, 0, 1)[..., None]
     img = (pic[r0, c0] * (1 - fr) * (1 - fc) + pic[r0 + 1, c0] * fr * (1 - fc) + pic[r0, c0 + 1] * (1 - fr) * fc + pic[r0 + 1, c0 + 1] * fr * fc)
     grey = img.mean(axis=2, keepdims=True)
-    img = grey + (img - grey) * saturation
+    red = np.clip(((img[..., 0:1] - img[..., 1:2]) - 68.0) / 35.0, 0.0, 1.0)     # the red sand of the dunes, which would shout over the drawing, loses more colour
+    img = grey + (img - grey) * saturation * (1.0 - 0.5 * red)
     img = img * (1 - veil) + np.array([236.0, 222.0, 196.0]) * veil
     inside = ((r >= 0) & (c >= 0) & (r <= pic.shape[0] - 1) & (c <= pic.shape[1] - 1))[..., None]
     alpha = np.where(inside, 255, 0).astype(np.uint8)
@@ -673,7 +674,7 @@ def style_c(r, track=None, ink_px=1.5):
     r = json.loads(json.dumps(r))
     r["ground_image"] = ground_texture()
     r["ink"] = {"thickness": ink_px, "colour": "#1F2937"}
-    r["haze"] = {"start": 2500.0, "depth": 22000.0, "colour": "#E6ECF1", "strength": 0.55}
+    r["haze"] = {"start": 2500.0, "depth": 22000.0, "colour": "#E8E4DC", "strength": 0.6}
     r["sun"] = {**r.get("sun", {}), "sky": 0.8}
     r["look"] = "AgX - Medium High Contrast"
     r["exposure"] = -0.1
@@ -686,7 +687,7 @@ def style_c(r, track=None, ink_px=1.5):
 
 
 def circuit_v2():
-    r = circuit_recipe("oeth-18-07-circuit-v2", {"at": [4700.0, -2300.0, 3300.0], "look": [-560.0, -480.0, 60.0], "lens": 30})
+    r = circuit_recipe("oeth-18-07-circuit-v2", {"at": [4300.0, -2700.0, 4300.0], "look": [-560.0, -380.0, 60.0], "lens": 32})
     r = style_c(r, track=r["paths"][0]["points"])
     r["transparent"] = True                                  # the figure draws the sky behind the render (its picture is laid whole, "whole": True)
     return r
@@ -698,7 +699,7 @@ def backdrop_side():
     return {"id": "backdrop-side-desert", "camera": {"at": [9000.0, -6500.0, 420.0], "look": [19000.0, 2500.0, 60.0], "lens": 30}, "size": [2400, 1450], "samples": 96,
             "sun": {"elevation": 42, "azimuth": 140, "energy": 3.2, "sky": 1.0}, "exposure": -0.15, "look": "AgX - Medium High Contrast", "transparent": True,
             "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000,
-            "haze": {"start": 1500.0, "depth": 16000.0, "colour": "#DCE7F2", "strength": 0.75}, "anchors": {}}
+            "haze": {"start": 1500.0, "depth": 16000.0, "colour": "#E8E4DC", "strength": 0.75}, "anchors": {}}
 
 
 def backdrop_plan():
