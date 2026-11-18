@@ -20,6 +20,7 @@ from lib_svg import W, PALETTE, circle, document, fmt, group, line, path, rect, 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 SIM_JS = ROOT / "shared" / "js" / "sim.js"
+POH_REFS = ROOT / "08_realistic_digital_twin" / "data" / "poh_references.json"
 
 # A number, or several numbers joined by a range/speed separator, each with an optional unit.
 # "41–85", "85 / 110", "2100–2450 RPM", "10° / 10–40°" and "5,000 ft" all match as one run.
@@ -68,6 +69,45 @@ def load_sim():
         raise SystemExit("shared/js/sim.js: ALT_STATIC_TABLE not found")
     numbers["altStatic"] = json.loads(match.group(1))
     return numbers
+
+
+def load_poh():
+    data = json.loads(POH_REFS.read_text(encoding="utf-8"))
+    return {entry["key"]: str(entry["value"]) for entry in data["values"]}
+
+
+def verify_poh(sim):
+    """Fail the build when a drawn value no longer matches the printed POH text it cites.
+
+    The figures are drawn from sim.js; this binding re-reads the POH table and refuses to build
+    if the two disagree, so a changed number cannot ship behind a citation to the old page.
+    """
+    poh = load_poh()
+    limits = re.search(r"VNE (\d+), VNO (\d+), VA (\d+) at 2300 lb, VFE (\d+) \(10 deg\) / (\d+)", poh["airspeed.limits_KIAS"])
+    markings = re.search(r"white (\d+)-(\d+), green (\d+)-(\d+), yellow (\d+)-(\d+), red line (\d+)", poh["airspeed.markings_KIAS"])
+    fuel = re.search(r"([\d.]+) gal each, (\d+) total, (\d+) usable", poh["fuel.standard_tanks"])
+    rpm = re.search(r"(\d+)", poh["engine.max_rpm"])
+    if not (limits and markings and fuel and rpm):
+        raise SystemExit("poh_references.json: the airspeed, fuel or rpm wording changed; update verify_poh()")
+    checks = [
+        ("VNE", sim["vne"], limits.group(1), "airspeed.limits_KIAS"),
+        ("VNO", sim["vno"], limits.group(2), "airspeed.limits_KIAS"),
+        ("VA at 2300 lb", sim["va2300"], limits.group(3), "airspeed.limits_KIAS"),
+        ("VFE full flap", sim["vfe"], limits.group(5), "airspeed.limits_KIAS"),
+        ("white arc start", sim["asiWhite"][0], markings.group(1), "airspeed.markings_KIAS"),
+        ("white arc end", sim["asiWhite"][1], markings.group(2), "airspeed.markings_KIAS"),
+        ("green arc start", sim["asiGreen"][0], markings.group(3), "airspeed.markings_KIAS"),
+        ("green arc end", sim["asiGreen"][1], markings.group(4), "airspeed.markings_KIAS"),
+        ("yellow arc start", sim["asiYellow"][0], markings.group(5), "airspeed.markings_KIAS"),
+        ("yellow arc end", sim["asiYellow"][1], markings.group(6), "airspeed.markings_KIAS"),
+        ("red line", sim["vne"], markings.group(7), "airspeed.markings_KIAS"),
+        ("fuel per tank total", sim["fuelPerTankTotal"], fuel.group(1), "fuel.standard_tanks"),
+        ("fuel per tank usable", sim["fuelPerTankUsable"], float(fuel.group(3)) / 2, "fuel.standard_tanks"),
+        ("maximum rpm", sim["maxRpm"], rpm.group(1), "engine.max_rpm"),
+    ]
+    for name, drawn, printed, key in checks:
+        if float(drawn) != float(printed):
+            raise SystemExit("POH binding: %s is %s in sim.js but %s in %s" % (name, drawn, printed, key))
 
 
 def v_speeds(data, t, direction, sim):
@@ -309,14 +349,19 @@ def header(figure, t, lang, direction):
     right = direction == "rtl"
     aircraft_x = W - 90 if right else 90
     tag_x = 90 if right else W - 90
+    text_dir = "rtl" if right else "ltr"
     title = figure["title"][lang]
     if right:
         title = isolate_numbers(title)
+    # Disclosure band above the plot, in the edition's language: study-only and independence from
+    # GACA come before any operational claim, not only in the footer.
     parts = [
-        text(aircraft_x, 66, t["aircraft"], anchor="start", size=18, fill=PALETTE["muted"]),
-        text(tag_x, 66, t["tier_free"] if figure["tier"] == "free" else t["tier_premium"], anchor="end", size=16, fill=PALETTE["accent"], weight=600),
-        text(aircraft_x, 136, title, anchor="start", size=40, weight=600),
-        line(90, 168, W - 90, 168, stroke=PALETTE["rule"], stroke_width=2),
+        rect(90, 16, W - 180, 34, fill="#FEF3F2", stroke="#EFC5C0", stroke_width=1, rx=6),
+        text(aircraft_x, 39, t["band"], anchor="start", size=14, fill=PALETTE["red"], weight=600, direction=text_dir),
+        text(aircraft_x, 80, t["aircraft"], anchor="start", size=18, fill=PALETTE["muted"]),
+        text(tag_x, 80, t["tier_free"] if figure["tier"] == "free" else t["tier_premium"], anchor="end", size=16, fill=PALETTE["accent"], weight=600),
+        text(aircraft_x, 146, title, anchor="start", size=40, weight=600),
+        line(90, 176, W - 90, 176, stroke=PALETTE["rule"], stroke_width=2),
     ]
     return "".join(parts)
 
@@ -353,6 +398,7 @@ def footer(figure, t, lang, direction, manifest):
 def build(out_root):
     manifest = json.loads((HERE / "manifest.json").read_text(encoding="utf-8"))
     sim = load_sim()
+    verify_poh(sim)
     written = []
     for figure in manifest["visuals"]:
         data = json.loads((HERE / "visuals" / figure["data"]).read_text(encoding="utf-8"))

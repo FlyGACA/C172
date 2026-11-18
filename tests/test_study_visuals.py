@@ -212,6 +212,28 @@ class OutputTests(unittest.TestCase):
         self.assertNotIn("\u2066C172N\u2069", text)
 
 
+class DisclosureAndBindingTests(unittest.TestCase):
+    def test_disclosure_band_precedes_the_plot(self):
+        for figure in MANIFEST["visuals"]:
+            for lang in ("en", "ar"):
+                path = STUDY / "out" / lang / ("%s.svg" % figure["id"])
+                text = path.read_text(encoding="utf-8")
+                band = MANIFEST["strings"][lang]["band"]
+                self.assertIn(band, text, "%s/%s is missing the %s band" % (lang, figure["id"], lang))
+                # the band is drawn in the header, before the first drawing group
+                self.assertLess(text.index(band), text.index("<g>"), "%s/%s draws the band below the plot" % (lang, figure["id"]))
+
+    def test_builder_refuses_values_that_drift_from_the_poh(self):
+        sim = build.load_sim()
+        build.verify_poh(sim)  # the values currently drawn bind to the printed POH text
+        with self.assertRaises(SystemExit):
+            build.verify_poh(dict(sim, vne=sim["vne"] + 1))
+        with self.assertRaises(SystemExit):
+            build.verify_poh(dict(sim, asiYellow=[sim["asiYellow"][0], sim["asiYellow"][1] - 2]))
+        with self.assertRaises(SystemExit):
+            build.verify_poh(dict(sim, fuelPerTankUsable=sim["fuelPerTankUsable"] + 1))
+
+
 class HelperTests(unittest.TestCase):
     def test_align_maps_visual_alignment_to_logical_anchor(self):
         self.assertEqual(build.align("ltr", "left"), "start")
