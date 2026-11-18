@@ -1,4 +1,4 @@
-"""Figure 1-2 (new). Staying current as a private pilot, from the section "Staying current" of Chapter 1 (GACAR 61.17 and 61.21): three rows, each a bar that ends at "now" (a vertical line at the right).
+"""Figure 1-3 (new). Staying current as a private pilot, from the section "Staying current" of Chapter 1 (GACAR 61.17 and 61.21): three rows, each a bar that ends at "now" (a vertical line at the right).
 
 Row 1, passengers by day: in the preceding 90 days at least 3 takeoffs and 3 landings (three pairs of an up arrow and a down arrow on the bar), as sole manipulator of the controls, in an aircraft of the same category and class. Row 2, passengers at night, between 1 hour after sunset and
 1 hour before sunrise (a dark bar with a moon): in the preceding 90 days at least 3 takeoffs and 3 landings to a full stop (the landings marked with a stop bar) in that same period of the day. Row 3, the flight review: in the preceding 24 calendar months at least 1 hour of flight training
@@ -106,11 +106,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-01-02-currency",
-        "replaces": "fig-01-02-currency.svg",              # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-01-02-currency.jpg",
-        "caption": "Figure 1-2. Staying current: passengers by day, passengers at night and the flight review",
-        "desc": ("Figure 1-2. Staying current as a private pilot, as three bars that end at now. Passengers by day: at least 3 takeoffs and 3 landings in the preceding 90 days. Passengers at night: at least 3 takeoffs and 3 landings "
+        "id": "fig-01-03-currency",
+        "replaces": "fig-01-03-currency.svg",              # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-01-03-currency.jpg",
+        "caption": "Figure 1-3. Staying current: passengers by day, passengers at night and the flight review",
+        "desc": ("Figure 1-3. Staying current as a private pilot, as three bars that end at now. Passengers by day: at least 3 takeoffs and 3 landings in the preceding 90 days. Passengers at night: at least 3 takeoffs and 3 landings "
                  "to a full stop in the preceding 90 days, in the period from 1 hour after sunset to 1 hour before sunrise. Flight review: in the preceding 24 calendar months, 1 hour of flight training and 1 hour of ground training."),
         "legend": [
             "Passengers by day: at least 3 takeoffs and 3 landings in the preceding 90 days, as sole manipulator of the controls, in an aircraft of the same category and class.",

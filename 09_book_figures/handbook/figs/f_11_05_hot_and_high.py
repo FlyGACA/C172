@@ -1,4 +1,4 @@
-"""Figure 11-4 (new: the chapter's worked examples are invented aerodromes). Hot and high: the density altitude of twelve aerodromes of the Kingdom at their reference temperature.
+"""Figure 11-5 (new: the chapter's worked examples are invented aerodromes). Hot and high: the density altitude of twelve aerodromes of the Kingdom at their reference temperature.
 
 Left, where the twelve lie: the land and its relief from open data (Natural Earth, public domain; figs/arabia_real.py) on the cone of the AIP's own charts, as in Figure 20-2, with
 coasts and no boundary between countries. Each aerodrome is a dot at the reference point that AD 2.2 prints, with its location indicator.
@@ -214,11 +214,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-11-04-hot-and-high",
-        "replaces": "fig-11-04-hot-and-high.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-11-04-hot-and-high.jpg",
-        "caption": "Figure 11-4. Hot and high: the density altitude of twelve aerodromes of the Kingdom at their reference temperature",
-        "desc": ("Figure 11-4. Hot and high: the density altitude of twelve aerodromes of the Kingdom at their reference temperature. The elevations and the reference temperatures are the AIP's "
+        "id": "fig-11-05-hot-and-high",
+        "replaces": "fig-11-05-hot-and-high.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-11-05-hot-and-high.jpg",
+        "caption": "Figure 11-5. Hot and high: the density altitude of twelve aerodromes of the Kingdom at their reference temperature",
+        "desc": ("Figure 11-5. Hot and high: the density altitude of twelve aerodromes of the Kingdom at their reference temperature. The elevations and the reference temperatures are the AIP's "
                  "(AD 2.2, AMDT 11/26); the density altitudes are worked out from them for dry air and a QNH of 1 013 hPa, to the nearest 50 ft. The map is on the projection of the AIP's charts, "
                  "from open data (Natural Earth), with coasts and no boundaries; not for navigation."),
         "legend": [

@@ -1,4 +1,4 @@
-"""Figure 11-5 (new). Planning a hot-and-high flight, from the last subsection group of Chapter 11: six scenes, one for each habit.
+"""Figure 11-6 (new). Planning a hot-and-high flight, from the last subsection group of Chapter 11: six scenes, one for each habit.
 
 1 depart early (the sun's arc: a cool low morning sun, the high afternoon sun, the sunset that ends the VFR day), 2 reduce mass (a weight icon, +10% on the mass gives +21% on the takeoff distance, a bag taken off the aeroplane), 3 lean for best power where the AFM allows
 (a mixture knob pulled back, an engine speed dial at its highest), 4 the point to abandon the takeoff (the runway from above, a flag at the halfway point and the 70% of lift-off speed to reach there), 5 climb out and the way back (rising ground ahead, a turn back toward lower ground and the aerodrome),
@@ -107,11 +107,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-11-05-hot-high-habits",
-        "replaces": "fig-11-05-hot-high-habits.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-11-05-hot-high-habits.jpg",
-        "caption": "Figure 11-5. Planning a hot-and-high flight: depart early, reduce mass, lean, an abort point, the climb out and the landing",
-        "desc": ("Figure 11-5. Planning a hot-and-high flight, six scenes: depart early, before the afternoon heat and the sunset; reduce mass, because 10% more mass means at least 21% more takeoff distance; lean for best power where the AFM allows; "
+        "id": "fig-11-06-hot-high-habits",
+        "replaces": "fig-11-06-hot-high-habits.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-11-06-hot-high-habits.jpg",
+        "caption": "Figure 11-6. Planning a hot-and-high flight: depart early, reduce mass, lean, an abort point, the climb out and the landing",
+        "desc": ("Figure 11-6. Planning a hot-and-high flight, six scenes: depart early, before the afternoon heat and the sunset; reduce mass, because 10% more mass means at least 21% more takeoff distance; lean for best power where the AFM allows; "
                  "a point on the runway to abandon the takeoff, with about 70% of lift-off speed by the halfway point; the climb out, with a turn back toward lower ground; and a stable landing at the normal speed, since 10% too fast adds about 21% to the landing distance."),
         "legend": [
             "Depart early: density altitude is lowest in the cool of the morning and highest in the afternoon, and the VFR day ends at sunset.",
