@@ -1,0 +1,59 @@
+{
+  "poh_keys": ["fuel.standard_tanks", "fuel.long_range_tanks", "fuel.unusable_marking"],
+  "facts": [
+    { "key": "fuel.standard_tanks", "text": "21.5 gal each, 43 total, 40 usable" },
+    { "key": "fuel.long_range_tanks", "text": "27 gal each, 54 total, 50 usable" },
+    { "key": "fuel.unusable_marking", "text": "1.5 gal unusable each standard tank" },
+    { "key": "fuel.unusable_marking", "text": "2.0 long range" }
+  ],
+  "tanks": [
+    {
+      "id": "standard",
+      "title": "tank_standard",
+      "total_per_tank_gal": 21.5,
+      "unusable_per_tank_gal": 1.5,
+      "usable_per_tank_gal": 20,
+      "total_gal": 43,
+      "usable_gal": 40
+    },
+    {
+      "id": "long_range",
+      "title": "tank_long_range",
+      "total_per_tank_gal": 27,
+      "unusable_per_tank_gal": 2,
+      "usable_per_tank_gal": 25,
+      "total_gal": 54,
+      "usable_gal": 50
+    }
+  ],
+  "strings": {
+    "en": {
+      "tank_standard": "Standard tanks",
+      "tank_long_range": "Long-range tanks",
+      "per_tank": "each tank",
+      "usable": "Usable",
+      "unusable": "Unusable (below the E red line)",
+      "total": "Total",
+      "usable_total": "Usable total",
+      "gallon": "US gal",
+      "left": "Left",
+      "right": "Right",
+      "derived": "Per-tank usable is the published usable total divided by two.",
+      "note": "Quantities are from the POH and are for planning in the study material only; they do not replace dipping the tanks."
+    },
+    "ar": {
+      "tank_standard": "الخزانات القياسية",
+      "tank_long_range": "الخزانات بعيدة المدى",
+      "per_tank": "لكل خزان",
+      "usable": "قابل للاستخدام",
+      "unusable": "غير قابل للاستخدام (تحت خط E الأحمر)",
+      "total": "الإجمالي",
+      "usable_total": "إجمالي القابل للاستخدام",
+      "gallon": "جالون أمريكي",
+      "left": "يسار",
+      "right": "يمين",
+      "derived": "القابل للاستخدام لكل خزان هو الإجمالي المنشور مقسومًا على اثنين.",
+      "note": "الكميات من دليل الطيران وللتخطيط في المادة الدراسية فقط، ولا تغني عن قياس الخزانات."
+    }
+  }
+}

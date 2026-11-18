@@ -1,0 +1,27 @@
+{
+  "poh_keys": ["alternate_static.calibration"],
+  "facts": [
+    { "key": "alternate_static.calibration", "text": "40->39" },
+    { "key": "alternate_static.calibration", "text": "100->101" },
+    { "key": "alternate_static.calibration", "text": "140->141" },
+    { "key": "alternate_static.calibration", "text": "flaps up, heater/vents and windows closed" }
+  ],
+  "strings": {
+    "en": {
+      "x_label": "Indicated airspeed (KIAS)",
+      "y_label": "Corrected airspeed (KIAS)",
+      "series_table": "POH calibration points",
+      "series_identity": "No correction (reference)",
+      "conditions": "Flaps UP · heater, vents and windows CLOSED",
+      "note": "Points are the POH table; the line between them is a straight-line interpolation for study only. Pull the alternate static source valve and read the corrected speed."
+    },
+    "ar": {
+      "x_label": "السرعة الجوية المؤشَّرة (KIAS)",
+      "y_label": "السرعة الجوية المصحَّحة (KIAS)",
+      "series_table": "نقاط المعايرة من دليل الطيران",
+      "series_identity": "دون تصحيح (مرجع)",
+      "conditions": "القلابات مرفوعة · التدفئة والفتحات والنوافذ مغلقة",
+      "note": "النقاط من جدول دليل الطيران، والخط بينها استيفاء مستقيم للدراسة فقط. اسحب صمام مصدر الاستاتيك البديل واقرأ السرعة المصحَّحة."
+    }
+  }
+}
