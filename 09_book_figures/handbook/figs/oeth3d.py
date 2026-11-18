@@ -57,6 +57,24 @@ def circuit_heights(path):
     return h, ab
 
 
+# What the book takes from the saudi-airspace scene: the AIP's runway and obstacles, the ICAO markings, the SRTM terrain and the PAPI placed from
+# the AIP (statuses of its scene_index.json). Its pavements, buildings and compounds are traced from Esri World Imagery, whose licence the
+# book's open ground plan avoids, so they are left out and the plan of data/oeth_plan.json (open Sentinel-2 imagery) is built instead.
+KEEP_SOURCES = ["aip", "icao_standard", "srtm", "estimated"]
+
+
+def open_plan():
+    """The ground plan of figs/h_b4.py (data/oeth_plan.json, rings as [t, s]) in the scene frame: pavements, sand islands, roofs and the road."""
+    def ring(r):
+        return [[round(c, 2) for c in xy(s, t)] for t, s in r]
+    return {
+        "pavements": [{"name": p["name"], "zone": p["zone"], "ring": ring(p["ring"]), "holes": [ring(h) for h in p["holes"]]} for p in B.PLAN["pavements"]],
+        "islands": [{"ring": ring(r)} for r in B.PLAN["islands"]],
+        "buildings": [{"name": b["id"], "ring": ring(b["ring"]), "height": b["height_m_estimated"]} for b in B.PLAN["buildings"]],
+        "roads": [{"points": ring(pts), "width": 9.0} for pts in B.PLAN["lines"].values()],
+    }
+
+
 def circuit_recipe(rid, camera, size=(2400, 1220), scale=30.0, D=1000.0, R=300.0):
     c = B.circuit35(D=D, R=R)
     h, ab = circuit_heights(c)
@@ -95,6 +113,7 @@ def circuit_recipe(rid, camera, size=(2400, 1220), scale=30.0, D=1000.0, R=300.0
     }
     return {
         "id": rid, "camera": camera, "size": list(size), "samples": 96, "sun": {"elevation": 42, "azimuth": 120, "energy": 3.2}, "exposure": -0.3, "look": "AgX - High Contrast",
+        "keep_sources": KEEP_SOURCES, "plan": open_plan(),
         "aircraft": aircraft,
         "paths": [{"points": pts, "colour": "#1D4ED8", "radius": 15.0, "arrows": 1100.0, "arrow_size": 85.0},
                   {"points": [[*j0, top + 6.0], [*j1, top + 6.0]], "colour": "#15803D", "radius": 13.0, "arrows": 1500.0, "arrow_size": 75.0},

@@ -13,6 +13,9 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
     anchors   {name: [x, y, z] | {"object": name, "at": [u, v, w]}} projected into the picture as fractions (0..1) of its width and height
     tint      {"object prefix": "#RRGGBB"}: paint those objects one flat colour (to show what a callout is about)
     paths     [{"points": [[x, y, z], ...], "colour": "#RRGGBB", "radius": m}] tubes drawn in the scene (a circuit, a track)
+    keep_sources  statuses of scene/oeth/models/scene_index.json to keep (all by default); every other object of the scene is deleted
+    plan      {"pavements": [{"zone", "ring", "holes"}], "islands": [{"ring"}], "buildings": [{"ring", "height"}], "roads": [{"points", "width"}]}
+              in the scene frame (x, y): a ground plan laid on the terrain in place of the scene's own (figs/oeth3d.py: the book's open plan)
 """
 import argparse
 import json
@@ -23,6 +26,7 @@ import sys
 import bpy
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Euler, Vector
+from mathutils.geometry import tessellate_polygon
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 C172 = os.path.dirname(os.path.dirname(HERE))
@@ -115,6 +119,81 @@ def restyle(obs):
             o.location.z += 0.15 if "markings" not in n.lower() and not n.startswith(("Designator", "Stopway chevrons", "Apron pads")) else 0.3
 
 
+def drop_sources(obs, keep):
+    """Delete the scene objects whose status (scene_index.json) is not in keep; a mesh carries its index entry's name, or that name and a suffix."""
+    index = json.load(open(os.path.join(SCENE, "scene_index.json")))["objects"]
+    status = {e["name"]: e.get("status") for e in index}
+    names = sorted(status, key=len, reverse=True)
+    left, unlisted = [], 0
+    for o in obs:
+        base = next((n for n in names if o.name == n or o.name.startswith(n + ".") or o.name.startswith(n + "_")), None)
+        unlisted += base is None and o.type == "MESH"     # the lights (listed apart in the index) and anything new: left out
+        if base is None or status[base] not in keep:
+            if o.type == "MESH":
+                bpy.data.objects.remove(o, do_unlink=True)
+                continue
+        left.append(o)
+    print(f"render_oeth: kept {len(left)} objects of the scene; {unlisted} meshes not in scene_index.json left out")
+    return left
+
+
+def ground_z(x, y):
+    hit, loc, *_ = bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(), Vector((x, y, 2000.0)), Vector((0, 0, -1)))
+    return loc.z if hit else 0.0
+
+
+def _mesh(name, verts, faces, mat):
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.update()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(ob)
+    me.materials.append(mat)
+    return ob
+
+
+def flat_poly(name, rings, lift, mat, z=None):
+    """A flat polygon (an outer ring and holes) draped on the ground at the height of its first point, lift metres above it."""
+    pts = [Vector((x, y, 0.0)) for r in rings for x, y in r]
+    z0 = (ground_z(*rings[0][0]) if z is None else z) + lift
+    tris = tessellate_polygon([[Vector((x, y, 0.0)) for x, y in r] for r in rings])
+    return _mesh(name, [(p.x, p.y, z0) for p in pts], [tuple(t) for t in tris], mat)
+
+
+def build(name, ring, height, walls, roof):
+    """A building: its footprint extruded to height (the walls), with a roof."""
+    r = ring[:-1] if ring[0] == ring[-1] else ring
+    z0 = min(ground_z(x, y) for x, y in r) - 0.5
+    n = len(r)
+    verts = [(x, y, z0) for x, y in r] + [(x, y, z0 + 0.5 + height) for x, y in r]
+    faces = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+    ob = _mesh(name, verts, faces, walls)
+    tris = tessellate_polygon([[Vector((x, y, 0.0)) for x, y in r]])
+    _mesh(name + " roof", [(x, y, z0 + 0.5 + height + 0.05) for x, y in r], [tuple(t) for t in tris], roof)
+    return ob
+
+
+def lay_plan(plan):
+    twy = bpy.data.materials["taxi"]
+    apron = bpy.data.materials["apron"]
+    island = bpy.data.materials["island"]
+    walls = bpy.data.materials["walls"]
+    roof = flat_material("roof", "#F4F1EA")
+    for p in plan.get("pavements", []):
+        flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], 0.30, apron if p["zone"] == "apron" else twy)
+    for i, p in enumerate(plan.get("islands", [])):
+        flat_poly(f"plan island {i}", [p["ring"]], 0.45, island)
+    for b in plan.get("buildings", []):
+        build("plan " + b["name"], b["ring"], b["height"], walls, roof)
+    for i, rd in enumerate(plan.get("roads", [])):
+        pts, w = rd["points"], rd.get("width", 8.0) / 2.0
+        for j, (a, c) in enumerate(zip(pts, pts[1:])):
+            dx, dy = c[0] - a[0], c[1] - a[1]
+            L = math.hypot(dx, dy) or 1.0
+            nx, ny = -dy / L * w, dx / L * w
+            flat_poly(f"plan road {i}.{j}", [[(a[0] + nx, a[1] + ny), (c[0] + nx, c[1] + ny), (c[0] - nx, c[1] - ny), (a[0] - nx, a[1] - ny)]], 0.25, twy)
+
+
 def import_glb(path):
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=path)
@@ -193,8 +272,13 @@ def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc = bpy.context.scene
     scene_obs = import_glb(os.path.join(SCENE, "OETH_scene_high.glb"))
+    if "keep_sources" in r:
+        scene_obs = drop_sources(scene_obs, set(r["keep_sources"]))
     if r.get("restyle", True):
         restyle(scene_obs)
+    if "plan" in r:
+        bpy.context.view_layer.update()
+        lay_plan(r["plan"])
     if r.get("far_ground", True):                      # the terrain ends 20 km out: a sand plane below it carries the desert to the horizon
         bpy.ops.mesh.primitive_plane_add(size=600000, location=(0, 0, -6.0))
         g = bpy.context.active_object
