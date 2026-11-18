@@ -1,4 +1,4 @@
-"""Figure 23-5. The inner ear's balance organs, and how the canal fluid lags in a turn. Drawn again as an anatomical illustration (left): the three semicircular canals as glossy
+"""Figure 23-6. The inner ear's balance organs, and how the canal fluid lags in a turn. Drawn again as an anatomical illustration (left): the three semicircular canals as glossy
 glass tubes in three planes, their ampullae, the vestibule with the utricle and the saccule and their maculae (hair cells under a gel weighted with crystals), the vestibular nerve and
 the cochlea as a spiral, on a card of pale tissue; and four rings of a canal in cross-section (right) with the cupula, the arrows of the old figure (actual rotation in black, the
 rotation felt in blue, the fluid's movement in grey) and the key under them. The thirteen numbered callouts of the old figure and what they name are kept."""
@@ -214,11 +214,11 @@ def callouts():
 def plate():
     rings = "".join([ring(400, 100, 0, U + "a"), ring(560, 100, 1, U + "b"), ring(400, 268, 2, U + "c"), ring(560, 268, 3, U + "d")])
     return {
-        "id": "fig-23-05-inner-ear",
-        "replaces": "fig-23-05-inner-ear.svg",
-        "book_file": "plate-23-05-inner-ear.jpg",
-        "caption": "Figure 23-5. The inner ear's balance organs, and how the canal fluid lags in a turn",
-        "desc": "Figure 23-5. The inner ear's balance organs, and how the canal fluid lags in a turn",
+        "id": "fig-23-06-inner-ear",
+        "replaces": "fig-23-06-inner-ear.svg",
+        "book_file": "plate-23-06-inner-ear.jpg",
+        "caption": "Figure 23-6. The inner ear's balance organs, and how the canal fluid lags in a turn",
+        "desc": "Figure 23-6. The inner ear's balance organs, and how the canal fluid lags in a turn",
         "legend": [
             "The three semicircular canals, at about right angles: together they sense roll, pitch and yaw.",
             "The ampulla, where each canal widens: hair cells in a flap of gel, the cupula, which the fluid bends.",
@@ -236,6 +236,6 @@ def plate():
         ],
         "canvas": [640, 380],
         "background": "pale",
-        "reskin": {"svg": "fig-23-05-inner-ear.svg", "blank": True,
+        "reskin": {"svg": "fig-23-06-inner-ear.svg", "blank": True,
                    "layers": ['<rect x="0" y="0" width="640" height="380" fill="#ffffff"/>', H.common_defs(U), defs(), tissue(), ear(), right_card(), sequence_arrows(), rings, key_row(), callouts()]},
     }

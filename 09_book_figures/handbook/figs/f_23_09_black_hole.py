@@ -1,4 +1,4 @@
-"""Figure 23-8. The black-hole approach: the path flown when the runway's picture is held constant. Drawn again as a night scene on the old figure's canvas: a deep-blue sky with stars and the glow
+"""Figure 23-9. The black-hole approach: the path flown when the runway's picture is held constant. Drawn again as a night scene on the old figure's canvas: a deep-blue sky with stars and the glow
 of a town on the horizon, a featureless black ground (no lights, no texture), the unlit rising ground as a black silhouette against the sky, the runway as a row of glowing lamps with halos
 and the PAPI (two white, two red) in front of it, the town's lights, the model's aeroplane (by night) on the approach, the correct path as a green ribbon and the sagging path as a red one,
 with the dotted continuation the aeroplane never flies. The seven numbered callouts of the old figure and what they name are kept."""
@@ -89,11 +89,11 @@ def plate():
               f'<circle cx="362.5" cy="236.5" r="9" fill="#FF4A3A" fill-opacity="0.25" filter="url(#{U}b2)"/><circle cx="362.5" cy="236.5" r="6" fill="none" stroke="#FF6A58" stroke-width="2.4"/>',
               plane, H.lamp(U, 20.8, 84.7, "r", 0.9, 1.0), papi(), callouts()]
     return {
-        "id": "fig-23-08-black-hole",
-        "replaces": "fig-23-08-black-hole.svg",
-        "book_file": "plate-23-08-black-hole.jpg",
-        "caption": "Figure 23-8. The black-hole approach: the path flown when the runway's picture is held constant",
-        "desc": "Figure 23-8. The black-hole approach: the path flown when the runway's picture is held constant",
+        "id": "fig-23-09-black-hole",
+        "replaces": "fig-23-09-black-hole.svg",
+        "book_file": "plate-23-09-black-hole.jpg",
+        "caption": "Figure 23-9. The black-hole approach: the path flown when the runway's picture is held constant",
+        "desc": "Figure 23-9. The black-hole approach: the path flown when the runway's picture is held constant",
         "legend": [
             "Dark water or desert before the runway: no lights, no texture.",
             "Runway edge lights.",
@@ -105,5 +105,5 @@ def plate():
         ],
         "canvas": [640, 330],
         "background": "pale",
-        "reskin": {"svg": "fig-23-08-black-hole.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-23-09-black-hole.svg", "blank": True, "layers": layers},
     }

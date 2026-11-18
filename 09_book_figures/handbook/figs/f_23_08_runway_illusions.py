@@ -1,4 +1,4 @@
-"""Figure 23-7. Runway width and slope illusions: what you see and where you end up. Four cards, each a pair of pictures of one approach: the windscreen as a window onto a desert
+"""Figure 23-8. Runway width and slope illusions: what you see and where you end up. Four cards, each a pair of pictures of one approach: the windscreen as a window onto a desert
 aerodrome in perspective (the runway an asphalt trapezoid with its edge lines, edge lights and centre-line dashes spaced as they are in perspective, over sand, scrub and far hills,
 with the usual runway's outline dashed in green) and, to the right, the same approach from the side (sand and far hills under a sky, the runway a slab, flat or on a slope; the correct
 path a green ribbon and the path you fly if you trust the picture a red one). The seven numbered callouts of the old figure are kept; the shapes of the runways and of the paths are the
@@ -188,11 +188,11 @@ def plate():
         layers.append(paths(c))
     layers.append(callouts())
     return {
-        "id": "fig-23-07-runway-illusions",
-        "replaces": "fig-23-07-runway-illusions.svg",
-        "book_file": "plate-23-07-runway-illusions.jpg",
-        "caption": "Figure 23-7. Runway width and slope illusions: what you see and where you end up",
-        "desc": "Figure 23-7. Runway width and slope illusions: what you see and where you end up",
+        "id": "fig-23-08-runway-illusions",
+        "replaces": "fig-23-08-runway-illusions.svg",
+        "book_file": "plate-23-08-runway-illusions.jpg",
+        "caption": "Figure 23-8. Runway width and slope illusions: what you see and where you end up",
+        "desc": "Figure 23-8. Runway width and slope illusions: what you see and where you end up",
         "legend": [
             "Narrower than usual: you seem high, fly low, and may land short or hit obstacles.",
             "Wider: you seem low, fly high, and may flare high and land hard or long.",
@@ -204,5 +204,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-23-07-runway-illusions.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-23-08-runway-illusions.svg", "blank": True, "layers": layers},
     }

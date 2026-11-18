@@ -1,4 +1,4 @@
-"""Figure 23-9 (new). The fitness check before every flight, from the last section of Chapter 23: seven questions as seven tiles, and the rule for the air as an eighth.
+"""Figure 23-10 (new). The fitness check before every flight, from the last section of Chapter 23: seven questions as seven tiles, and the rule for the air as an eighth.
 
 The chapter's list: ill or recovering (1, a thermometer), taking anything (2, a capsule), short of sleep (3, a moon and Z), short of food or water (4, a glass and an apple), under pressure (5, a clock pressed by two arrows), recently diving (6, a mask and bubbles) and going high or into dust
 or darkness (7, a mountain, dust and a moon); 8 is the rule for the air: if your capacity is significantly reduced, do not continue beyond the nearest suitable aerodrome (an aeroplane, a runway and a red stop bar beyond it). Shapes, colours and the numbers of the callouts."""
@@ -92,11 +92,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-23-09-fitness-check",
-        "replaces": "fig-23-09-fitness-check.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-23-09-fitness-check.jpg",
-        "caption": "Figure 23-9. A fitness check before every flight: seven questions, and the rule for the air",
-        "desc": ("Figure 23-9. A fitness check before every flight: seven questions as seven tiles (ill or recovering, taking anything, short of sleep, short of food or water, under pressure, "
+        "id": "fig-23-10-fitness-check",
+        "replaces": "fig-23-10-fitness-check.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-23-10-fitness-check.jpg",
+        "caption": "Figure 23-10. A fitness check before every flight: seven questions, and the rule for the air",
+        "desc": ("Figure 23-10. A fitness check before every flight: seven questions as seven tiles (ill or recovering, taking anything, short of sleep, short of food or water, under pressure, "
                  "recently diving, going high or into dust or darkness) and, as an eighth, the rule for the air: do not continue beyond the nearest suitable aerodrome if your capacity is significantly reduced."),
         "legend": [
             "Are you ill or recovering?",

@@ -1,4 +1,4 @@
-"""Figure 24-9 (new). The normal options of Chapter 24, "The go-around and the diversion are normal" and "Turning back without blame": four scenes.
+"""Figure 24-10 (new). The normal options of Chapter 24, "The go-around and the diversion are normal" and "Turning back without blame": four scenes.
 
 Drawn in the style of the other illustrated figures (figs/scene.py: sky, plain, ribbons; the aeroplane and cloud sprites laid by reskin.py): 1 a go-around from an approach that is not stable (the descent path and the climb away), 2 a diversion (the route
 A to B, the dust over B at the descent point and the way on to C, in plan), 3 a turn-back (the aeroplane turns away from a storm ahead), 4 the agreement before the first solo (the instructor and the student, and a green tick on the decision that costs
@@ -100,11 +100,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-24-09-normal-options",
-        "replaces": "fig-24-09-normal-options.svg",           # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-24-09-normal-options.jpg",
-        "caption": "Figure 24-9. The normal options: go around, divert, turn back, and agree beforehand that they are good decisions",
-        "desc": ("Figure 24-9. The normal options of a flight in four scenes: a go-around from an approach that is not stable; a diversion from the route A to B to the alternate C when B is below the minimums at the descent point; "
+        "id": "fig-24-10-normal-options",
+        "replaces": "fig-24-10-normal-options.svg",           # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-24-10-normal-options.jpg",
+        "caption": "Figure 24-10. The normal options: go around, divert, turn back, and agree beforehand that they are good decisions",
+        "desc": ("Figure 24-10. The normal options of a flight in four scenes: a go-around from an approach that is not stable; a diversion from the route A to B to the alternate C when B is below the minimums at the descent point; "
                  "a turn-back away from a storm ahead; and the agreement with the instructor before the first solo that a precautionary turn-back, diversion or go-around that costs time is a good decision."),
         "legend": [
             "A go-around is a normal manoeuvre for any approach that is not going as it should. It becomes dangerous only when delayed. Brief it before you need it: \"if the approach is not stable by the point my school specifies, I go around\".",

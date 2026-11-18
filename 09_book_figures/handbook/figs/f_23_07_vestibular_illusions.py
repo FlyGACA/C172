@@ -1,4 +1,4 @@
-"""Figure 23-6. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion. Three illustrated scenes on the old figure's canvas. Above: the leans, three
+"""Figure 23-7. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion. Three illustrated scenes on the old figure's canvas. Above: the leans, three
 pictures of the aeroplane from behind on a wide desert sky (the aeroplane of the model, banked or level, with the pilot's head; the attitude felt drawn over it in blue dashes, the true
 vertical in grey dashes; a roll arrow; the pilot leaning in a glass cutaway of the cabin). Below left: the graveyard spiral, the old figure's track as a dark glossy tube (the far side of
 each loop thinner and paler), the three red beads on it, the sand of the ground. Below right: the somatogravic illusion, the aeroplane nose-up in the sky over a plain, with the two
@@ -226,11 +226,11 @@ def plate():
     layers += [{"name": "sprite-side", "at": [472, 300], "width": 100, "angle": -6.0, **LOOK}, somato()]
     layers.append(callouts())
     return {
-        "id": "fig-23-06-vestibular-illusions",
-        "replaces": "fig-23-06-vestibular-illusions.svg",
-        "book_file": "plate-23-06-vestibular-illusions.jpg",
-        "caption": "Figure 23-6. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion",
-        "desc": "Figure 23-6. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion",
+        "id": "fig-23-07-vestibular-illusions",
+        "replaces": "fig-23-07-vestibular-illusions.svg",
+        "book_file": "plate-23-07-vestibular-illusions.jpg",
+        "caption": "Figure 23-7. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion",
+        "desc": "Figure 23-7. Vestibular illusions: the leans, the graveyard spiral and the somatogravic illusion",
         "legend": [
             "A roll too slow for the canals: you feel level.",
             "A brisk roll to wings level: you now feel banked the other way.",
@@ -250,5 +250,5 @@ def plate():
         ],
         "canvas": [640, 540],
         "background": "pale",
-        "reskin": {"svg": "fig-23-06-vestibular-illusions.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-23-07-vestibular-illusions.svg", "blank": True, "layers": layers},
     }
