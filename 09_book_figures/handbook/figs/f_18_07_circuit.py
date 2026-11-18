@@ -29,7 +29,7 @@ C17 = B.circuit35(D=D35 + 180.0, R=R).mirrored(B.S_S)
 import json
 import os
 
-R3D = "oeth-18-07-circuit"                         # the 3D view of the top panel (figs/oeth3d.py, blender/render_oeth.py)
+R3D = "oeth-18-07-circuit-v2"                      # the 3D view of the top panel (figs/oeth3d.py, blender/render_oeth.py)
 
 
 def r3d():
@@ -47,11 +47,13 @@ def plan3d():
     (orange) and the model's aeroplane, enlarged, on each leg."""
     at, ih = r3d()
     clip = (f'<defs><clipPath id="c3dp"><rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9"/></clipPath></defs><g clip-path="url(#c3dp)">')
-    img = {"name": R3D, "at": [PX + PW / 2, PY + PH / 2], "width": PW}
+    img = {"name": R3D, "at": [PX + PW / 2, PY + PH / 2], "width": PW, "whole": True}
+    sky = (f'<defs><linearGradient id="c3dk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5D93D4"/><stop offset="0.6" stop-color="#A9CBEE"/>'
+           f'<stop offset="1" stop-color="#E4EEF6"/></linearGradient></defs><rect x="{PX}" y="{PY}" width="{PW}" height="{PH * 0.25:.1f}" fill="url(#c3dk)"/>')
     marks = B.square_mark(*at("7")) + B.ring(*at("8"))
     (x0, y0), (x1, y1) = at("n0"), at("n1")
     north = B.north_arrow(PX + PW - 34, PY + 34, (x1 - x0, y1 - y0))
-    return [clip, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
+    return [clip + sky, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
 
 
 def plan_markup():

@@ -20,7 +20,11 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
               aircraft, anchors) are given already multiplied
     volumes   [{"name", "ring": [[x, y], ...], "floor": z | {"agl": m}, "ceiling": z, "colour", "alpha", "edge": m, "subtract": [names]}]
               airspace: a prism between floor and ceiling (a floor "agl" follows the ground at each corner), see-through, with its rings drawn as tubes
-    paths     ... "dash": [on, off] metres draws the tube in dashes
+    paths     ... "dash": [on, off] metres draws the tube in dashes; "shadow": false casts none
+    ground_image  {"path", "x0", "x1", "y0", "y1"}: a picture (RGBA, north up) laid on the terrain and the far ground over that box of the scene frame;
+              outside it (or where its alpha is 0) the sand
+    ink       {"thickness": px, "colour"}: outlines (Freestyle) on the aircraft and the paths only, for the crisp look of an illustration
+    haze      {"start": m, "depth": m, "colour", "strength"}: aerial perspective (the mist pass mixed toward the colour in the compositor)
 """
 import argparse
 import json
@@ -242,6 +246,104 @@ def volumes(vols):
     return built
 
 
+def ground_material(gi):
+    """Sand mixed with a picture of the ground, mapped by world x, y onto [x0, x1] x [y0, y1]."""
+    m = bpy.data.materials.new("ground_img")
+    m.use_nodes = True
+    nt = m.node_tree
+    bsdf = nt.nodes["Principled BSDF"]
+    bsdf.inputs["Roughness"].default_value = 0.95
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sep.inputs[0])
+    tc.object = bpy.data.objects.get("world origin") or _origin()
+    def lin(inp, a, b):
+        n = nt.nodes.new("ShaderNodeMapRange")
+        n.inputs["From Min"].default_value, n.inputs["From Max"].default_value = a, b
+        n.clamp = False
+        nt.links.new(inp, n.inputs["Value"])
+        return n.outputs["Result"]
+    comb = nt.nodes.new("ShaderNodeCombineXYZ")
+    nt.links.new(lin(sep.outputs["X"], gi["x0"], gi["x1"]), comb.inputs["X"])
+    nt.links.new(lin(sep.outputs["Y"], gi["y0"], gi["y1"]), comb.inputs["Y"])
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = bpy.data.images.load(gi["path"], check_existing=True)
+    tex.extension = "CLIP"
+    tex.interpolation = "Cubic"
+    nt.links.new(comb.outputs["Vector"], tex.inputs["Vector"])
+    sand = nt.nodes.new("ShaderNodeRGB")
+    sand.outputs[0].default_value = hexcol(gi.get("sand", "#D9C29A"))
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    nt.links.new(tex.outputs["Alpha"], mix.inputs["Factor"])
+    nt.links.new(sand.outputs[0], mix.inputs[6])
+    nt.links.new(tex.outputs["Color"], mix.inputs[7])
+    nt.links.new(mix.outputs[2], bsdf.inputs["Base Color"])
+    return m
+
+
+def _origin():
+    e = bpy.data.objects.new("world origin", None)
+    bpy.context.scene.collection.objects.link(e)
+    return e
+
+
+def ink(cfg, obs):
+    """Outlines on the given objects (a collection of their own), as an illustration's line art."""
+    sc = bpy.context.scene
+    col = bpy.data.collections.new("ink")
+    sc.collection.children.link(col)
+    for o in obs:
+        if o.name not in col.objects:
+            col.objects.link(o)
+    sc.render.use_freestyle = True
+    sc.render.line_thickness_mode = "ABSOLUTE"
+    vl = bpy.context.view_layer
+    vl.use_freestyle = True
+    fs = vl.freestyle_settings
+    for ls in list(fs.linesets):
+        fs.linesets.remove(ls)
+    ls = fs.linesets.new("ink")
+    ls.select_by_collection = True
+    ls.collection = col
+    ls.select_silhouette, ls.select_border, ls.select_crease = True, True, False
+    ls.linestyle.color = hexcol(cfg.get("colour", "#1F2937"))[:3]
+    ls.linestyle.thickness = cfg.get("thickness", 1.6)
+
+
+def haze(cfg):
+    """Aerial perspective on the ground only: the render mixed toward a pale colour by distance (the Z pass, from start over depth, up to strength); the sky, which has
+    no distance, keeps its own colours."""
+    sc = bpy.context.scene
+    vl = bpy.context.view_layer
+    vl.use_pass_z = True
+    sc.use_nodes = True
+    nt = sc.node_tree
+    nt.nodes.clear()
+    rl = nt.nodes.new("CompositorNodeRLayers")
+    rng = nt.nodes.new("CompositorNodeMapRange")
+    rng.inputs[1].default_value = cfg.get("start", 4000.0)
+    rng.inputs[2].default_value = cfg.get("start", 4000.0) + cfg.get("depth", 20000.0)
+    rng.inputs[3].default_value = 0.0
+    rng.inputs[4].default_value = cfg.get("strength", 0.7)
+    rng.use_clamp = True
+    nt.links.new(rl.outputs["Depth"], rng.inputs[0])
+    ground = nt.nodes.new("CompositorNodeMath")
+    ground.operation = "LESS_THAN"
+    ground.inputs[1].default_value = 1.0e7
+    nt.links.new(rl.outputs["Depth"], ground.inputs[0])
+    fac = nt.nodes.new("CompositorNodeMath")
+    fac.operation = "MULTIPLY"
+    nt.links.new(rng.outputs[0], fac.inputs[0])
+    nt.links.new(ground.outputs[0], fac.inputs[1])
+    mix = nt.nodes.new("CompositorNodeMixRGB")
+    mix.inputs[2].default_value = hexcol(cfg.get("colour", "#DCE6EE"))
+    nt.links.new(fac.outputs[0], mix.inputs[0])
+    nt.links.new(rl.outputs["Image"], mix.inputs[1])
+    out = nt.nodes.new("CompositorNodeComposite")
+    nt.links.new(mix.outputs[0], out.inputs["Image"])
+
+
 def lay_plan(plan):
     twy = bpy.data.materials["taxi"]
     apron = bpy.data.materials["apron"]
@@ -382,6 +484,30 @@ def arrows(points, mat, every, size, name):
         acc += seg
 
 
+def _path(i, p):
+    """One path of a recipe: a tube (or its dashes), its arrows and its end head."""
+    if "drape" in p:                               # laid on the ground, drape metres above it (the section line of a map)
+        bpy.context.view_layer.update()
+        p = {**p, "points": [[x, y, ground_z(x, y) + p["drape"]] for x, y, *_ in p["points"]]}
+    if p.get("dash"):
+        mat = flat_material(f"path{i}m", p.get("colour", "#1D4ED8"), emission=1.5)
+        for j, piece in enumerate(dashes(p["points"], *p["dash"])):
+            tube_mat(piece, mat, p.get("radius", 6.0), f"path{i}.{j}")
+        return
+    ob, mat = tube(p["points"], p.get("colour", "#1D4ED8"), p.get("radius", 6.0), f"path{i}")
+    if p.get("arrows"):
+        arrows(p["points"], mat, p["arrows"], p.get("arrow_size", p.get("radius", 6.0) * 5), f"path{i}")
+    if p.get("end_arrow"):                          # a head at the end of the path (a wind arrow)
+        q0, q1 = Vector(p["points"][-2]), Vector(p["points"][-1])
+        size = p.get("arrow_size", p.get("radius", 6.0) * 5)
+        u = (q1 - q0).normalized()
+        bpy.ops.mesh.primitive_cone_add(vertices=24, radius1=size * 0.55, radius2=0.0, depth=size * 1.6, location=q1 + u * size * 0.8)
+        cone = bpy.context.active_object
+        cone.name = f"path{i}_head"
+        cone.rotation_euler = u.to_track_quat("Z", "Y").to_euler()
+        cone.data.materials.append(mat)
+
+
 def main():
     a = args()
     r = json.load(open(a.recipe))
@@ -409,6 +535,13 @@ def main():
         g = bpy.context.active_object
         g.name = "far ground"
         g.data.materials.append(bpy.data.materials.get("sand"))
+    if "ground_image" in r:                            # the picture of the ground on the terrain and the far ground
+        gm = ground_material(r["ground_image"])
+        for o in bpy.data.objects:
+            if o.type == "MESH" and (o.name.startswith("Terrain") or o.name == "far ground"):
+                o.data.materials.clear()
+                o.data.materials.append(gm)
+    inked = []
     keep_air = r.get("airspace", [])
     air_obs = import_glb(os.path.join(SCENE, "OETH_airspace.glb"))
     for o in air_obs:
@@ -425,6 +558,7 @@ def main():
                 o.data.materials.append(mat)
     for i, ac in enumerate(r.get("aircraft", [])):
         obs = import_glb(os.path.join(C172, "08_realistic_digital_twin", "models", "C172N_realistic_medium.glb"))
+        inked += [o for o in obs if o.type == "MESH"]
         root = bpy.data.objects.new(f"ac{i}", None)
         sc.collection.objects.link(root)
         for o in obs:
@@ -436,27 +570,19 @@ def main():
         # the model's nose points along -y of its build frame after import (glTF: forward is +z, which becomes -y); heading is true, clockwise from north
         root.rotation_euler = Euler((math.radians(ac.get("pitch", 0.0)), math.radians(-ac.get("bank", 0.0)), math.radians(-ac.get("heading", 0.0) + 180.0)), "ZXY")
     for i, p in enumerate(r.get("paths", [])):
-        if "drape" in p:                               # laid on the ground, drape metres above it (the section line of a map)
-            bpy.context.view_layer.update()
-            p = {**p, "points": [[x, y, ground_z(x, y) + p["drape"]] for x, y, *_ in p["points"]]}
-        if p.get("dash"):
-            mat = flat_material(f"path{i}m", p.get("colour", "#1D4ED8"), emission=1.5)
-            for j, piece in enumerate(dashes(p["points"], *p["dash"])):
-                tube_mat(piece, mat, p.get("radius", 6.0), f"path{i}.{j}")
-            continue
-        ob, mat = tube(p["points"], p.get("colour", "#1D4ED8"), p.get("radius", 6.0), f"path{i}")
-        if p.get("arrows"):
-            arrows(p["points"], mat, p["arrows"], p.get("arrow_size", p.get("radius", 6.0) * 5), f"path{i}")
-        if p.get("end_arrow"):                          # a head at the end of the path (a wind arrow)
-            q0, q1 = Vector(p["points"][-2]), Vector(p["points"][-1])
-            size = p.get("arrow_size", p.get("radius", 6.0) * 5)
-            u = (q1 - q0).normalized()
-            bpy.ops.mesh.primitive_cone_add(vertices=24, radius1=size * 0.55, radius2=0.0, depth=size * 1.6, location=q1 + u * size * 0.8)
-            cone = bpy.context.active_object
-            cone.name = f"path{i}_head"
-            cone.rotation_euler = u.to_track_quat("Z", "Y").to_euler()
-            cone.data.materials.append(mat)
+        before = set(bpy.data.objects)
+        _path(i, p)
+        made = [o for o in bpy.data.objects if o not in before]
+        for o in made:
+            if p.get("shadow", True) is False:
+                o.visible_shadow = False
+        if p.get("ink", True):
+            inked += made
     world(r.get("sun", {}))
+    if "haze" in r:
+        haze(r["haze"])
+    if "ink" in r:
+        ink(r["ink"], inked)
     cam_d = bpy.data.cameras.new("cam")
     cam = bpy.data.objects.new("cam", cam_d)
     sc.collection.objects.link(cam)

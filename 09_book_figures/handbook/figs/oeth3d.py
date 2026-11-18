@@ -142,6 +142,42 @@ def circuit_recipe(rid, camera, size=(2400, 1220), scale=30.0, D=1000.0, R=300.0
     }
 
 
+def ground_texture(name="ground-oeth-s2", x0=-6600.0, x1=18800.0, y0=-7200.0, y1=10100.0, m_per_px=5.0, veil=0.16, saturation=0.7):
+    """The open Sentinel-2 picture of Thumamah (data/open/oeth_area_s2, 10 m pixels; "Contains modified Copernicus Sentinel data 2026") resampled into the
+    scene's own frame (x east, y north, metres from the ARP, local()) over [x0, x1] x [y0, y1], north up, a little paler and less coloured so that what is
+    drawn over it reads. Written once to renders/<name>.png; returns the recipe's "ground_image"."""
+    import numpy as np
+    from PIL import Image
+    from figs import imagery_real as IR
+    path = os.path.join(HERE, "renders", name + ".png")
+    out = {"path": path, "x0": x0, "x1": x1, "y0": y0, "y1": y1}
+    if os.path.exists(path):
+        return out
+    w, h = int(round((x1 - x0) / m_per_px)), int(round((y1 - y0) / m_per_px))
+    xs = x0 + (np.arange(w) + 0.5) * m_per_px
+    ys = y1 - (np.arange(h) + 0.5) * m_per_px
+    lon = ARP[1] + xs[None, :] / (111320.0 * math.cos(math.radians(ARP[0]))) * np.ones((h, 1))
+    lat = ARP[0] + ys[:, None] / 110574.0 * np.ones((1, w))
+    m = IR.meta()
+    east, north = IR.utm38(lat, lon)
+    e0, _, _, n1 = m["bounds_e_n_min_e_n_max"]
+    r = (n1 - north) / m["pixel_m"] - 0.5
+    c = (east - e0) / m["pixel_m"] - 0.5
+    pic = IR._picture()
+    r0 = np.clip(np.floor(r).astype(int), 0, pic.shape[0] - 2)
+    c0 = np.clip(np.floor(c).astype(int), 0, pic.shape[1] - 2)
+    fr, fc = np.clip(r - r0, 0, 1)[..., None], np.clip(c - c0, 0, 1)[..., None]
+    img = (pic[r0, c0] * (1 - fr) * (1 - fc) + pic[r0 + 1, c0] * fr * (1 - fc) + pic[r0, c0 + 1] * (1 - fr) * fc + pic[r0 + 1, c0 + 1] * fr * fc)
+    grey = img.mean(axis=2, keepdims=True)
+    img = grey + (img - grey) * saturation
+    img = img * (1 - veil) + np.array([236.0, 222.0, 196.0]) * veil
+    inside = ((r >= 0) & (c >= 0) & (r <= pic.shape[0] - 1) & (c <= pic.shape[1] - 1))[..., None]
+    alpha = np.where(inside, 255, 0).astype(np.uint8)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    Image.fromarray(np.concatenate([np.clip(img, 0, 255).astype(np.uint8), alpha], axis=2), "RGBA").save(path)
+    return out
+
+
 def runway_point(s, t=0.0):
     """A point s metres from the threshold of 17 along the runway (no h_b4 scaling), t to the west."""
     return (T17[0] + s * V[0] + t * WEST[0], T17[1] + s * V[1] + t * WEST[1])
@@ -631,7 +667,51 @@ def point_27_08():
     return _farm_recipe("farm-27-08-point", {"at": [150.0, -2050.0, 1650.0], "look": [0.0, 0.0, 150.0], "lens": 34}, marks, aircraft, paths, anchors)
 
 
+def style_c(r, track=None, ink_px=1.5):
+    """The house style of the second design pass (style C): the open picture of the ground, softened, on the real terrain; crisp illustrated overlays on
+    it (outlines on the aircraft and the paths, thicker paths that cast no shadow); the ground track as a dashed line on the ground; aerial haze."""
+    r = json.loads(json.dumps(r))
+    r["ground_image"] = ground_texture()
+    r["ink"] = {"thickness": ink_px, "colour": "#1F2937"}
+    r["haze"] = {"start": 2500.0, "depth": 22000.0, "colour": "#E6ECF1", "strength": 0.55}
+    r["sun"] = {**r.get("sun", {}), "sky": 0.8}
+    r["look"] = "AgX - Medium High Contrast"
+    r["exposure"] = -0.1
+    for p in r["paths"]:
+        p["shadow"] = False
+        p["radius"] = round(p.get("radius", 6.0) * 1.35, 1)
+    if track:
+        r["paths"].append({"points": [[x, y, 0.0] for x, y, *_ in track], "colour": "#1E293B", "radius": 7.0, "dash": [110.0, 80.0], "drape": 3.0, "shadow": False, "ink": False})
+    return r
+
+
+def circuit_v2():
+    r = circuit_recipe("oeth-18-07-circuit-v2", {"at": [4700.0, -2300.0, 3300.0], "look": [-560.0, -480.0, 60.0], "lens": 30})
+    r = style_c(r, track=r["paths"][0]["points"])
+    r["transparent"] = True                                  # the figure draws the sky behind the render (its picture is laid whole, "whole": True)
+    return r
+
+
+def backdrop_side():
+    """A backdrop for the side-view tiles of the illustrated figures (style C): the plateau east of Thumamah from a little above it, looking north-east over
+    the open picture of the ground on the real terrain to a hazy horizon; the sky is left clear (transparent) for the figure to draw. Nothing of the aerodrome is in it."""
+    return {"id": "backdrop-side-desert", "camera": {"at": [9000.0, -6500.0, 420.0], "look": [19000.0, 2500.0, 60.0], "lens": 30}, "size": [2400, 1450], "samples": 96,
+            "sun": {"elevation": 42, "azimuth": 140, "energy": 3.2, "sky": 1.0}, "exposure": -0.15, "look": "AgX - Medium High Contrast", "transparent": True,
+            "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000,
+            "haze": {"start": 1500.0, "depth": 16000.0, "colour": "#DCE7F2", "strength": 0.75}, "anchors": {}}
+
+
+def backdrop_plan():
+    """A backdrop for the plan-view tiles (style C): 4 km of the plateau east of Thumamah straight from above, the open picture of the ground on the terrain."""
+    return {"id": "backdrop-plan-desert", "camera": {"at": [11500.0, -2500.0, 3000.0], "look": [11500.0, -2499.0, 0.0], "ortho": 4000.0}, "size": [2400, 1450], "samples": 64,
+            "sun": {"elevation": 50, "azimuth": 140, "energy": 3.0, "sky": 0.9}, "exposure": -0.05, "look": "AgX - Medium High Contrast",
+            "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000, "anchors": {}}
+
+
 RECIPES = {
+    "backdrop-side-desert": backdrop_side,
+    "backdrop-plan-desert": backdrop_plan,
+    "oeth-18-07-circuit-v2": circuit_v2,
     "farm-27-05-drift": drift_27_05,
     "farm-27-06-rectangle": rectangle_27_06,
     "farm-27-07-s-turns": s_turns_27_07,
