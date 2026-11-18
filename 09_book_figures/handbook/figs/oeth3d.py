@@ -554,7 +554,7 @@ def drift_27_05():
              _wind(-700, 200, h + 180, 420, 90), _wind(-700, -150, h + 180, 420, 90)]
     aircraft = [_ac(math.tan(math.radians(10)) * 1300.0, 200.0, 0.0), _ac(0.0, -300.0, 350.0, z=h + 40.0)]
     anchors = {"drift": [math.tan(math.radians(10)) * 1800.0, 700.0, h], "crab": [0.0, -300.0, h + 40.0], "wind": [-700, 200, h + 180], "n0": [0, 0, 0], "n1": [0, 200, 0]}
-    return _farm_recipe("farm-27-05-drift", {"at": [-2100.0, -1700.0, 1500.0], "look": [150.0, 150.0, 150.0], "lens": 34}, marks, aircraft, paths, anchors)
+    return _farm_recipe("farm-27-05-drift", {"at": [-1100.0, -1700.0, 2700.0], "look": [150.0, 150.0, 0.0], "lens": 34}, marks, aircraft, paths, anchors)
 
 
 def rectangle_27_06():
