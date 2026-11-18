@@ -266,6 +266,16 @@ class DisclosureAndBindingTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             build.verify_figure_poh("engine-propeller", tach, poh)
 
+        propeller = copy.deepcopy(figures["engine-propeller"])
+        next(row for row in propeller["rows"] if row["label"] == "row_propeller")["value"] = "Sensenich 76EM8, fixed pitch, two blades, 75 in max / 74 in min"
+        with self.assertRaises(SystemExit):
+            build.verify_figure_poh("engine-propeller", propeller, poh)
+
+        static = copy.deepcopy(figures["engine-propeller"])
+        next(row for row in static["rows"] if row["label"] == "row_static_rpm")["value"] = "2400–2280 RPM (full throttle, carb heat off, full rich)"
+        with self.assertRaises(SystemExit):
+            build.verify_figure_poh("engine-propeller", static, poh)
+
 
 class HelperTests(unittest.TestCase):
     def test_align_maps_visual_alignment_to_logical_anchor(self):

@@ -61,7 +61,8 @@ randomness, stable file order. `out/` is committed so the funnel can serve the f
   arcs also agree with `instruments.json`; `verify_poh()` and `verify_figure_poh()` re-read the POH
   table during the build and abort if any drawn value drifts from the printed text — airspeed
   limits and arcs, both fuel tanks including the unusable markings, and the engine, propeller and
-  tach-band rows;
+  tach-band rows (numbers must match in order; the rows drawn verbatim from the POH must also match
+  its text, case and whitespace aside);
 - English and Arabic string sets have identical keys, and every SVG opens with a disclosure band
   above the plot (study-only and non-affiliation with GACA, in the edition's language) and carries the
   non-affiliation statement in both languages plus the "training and reference only" line;

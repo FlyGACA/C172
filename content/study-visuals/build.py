@@ -123,11 +123,18 @@ ENGINE_ROWS = {
     "row_propeller": "propeller",
     "row_fuel": "fuel.grade",
 }
+# Rows whose text is drawn verbatim from the POH must stay verbatim (case and whitespace aside),
+# so a digit-free rewrite such as a different propeller manufacturer cannot slip through.
+ENGINE_TEXT_ROWS = ("row_engine", "row_type", "row_rating", "row_propeller", "row_fuel")
 TANK_ROWS = {"standard": "fuel.standard_tanks", "long_range": "fuel.long_range_tanks"}
 
 
 def _numbers(value):
     return [float(token.replace(",", "")) for token in re.findall(r"\d+(?:,\d{3})*(?:\.\d+)?", str(value))]
+
+
+def _text(value):
+    return " ".join(str(value).casefold().split())
 
 
 def verify_figure_poh(figure_id, data, poh=None):
@@ -156,7 +163,9 @@ def verify_figure_poh(figure_id, data, poh=None):
             key = ENGINE_ROWS.get(row["label"])
             if key is None:
                 raise SystemExit("POH binding: engine row %s has no POH key" % row["label"])
-            if sorted(_numbers(row["value"])) != sorted(_numbers(poh[key])):
+            if _numbers(row["value"]) != _numbers(poh[key]):
+                raise SystemExit("POH binding: %s draws %r but %s prints %r" % (row["label"], row["value"], key, poh[key]))
+            if row["label"] in ENGINE_TEXT_ROWS and _text(row["value"]) != _text(poh[key]):
                 raise SystemExit("POH binding: %s draws %r but %s prints %r" % (row["label"], row["value"], key, poh[key]))
         bands = [(int(low), int(high)) for low, high in re.findall(r"(\d+)-(\d+)", poh["tach.green"])]
         drawn = [(band["from"], band["to"]) for band in data["tach_bands"]]
