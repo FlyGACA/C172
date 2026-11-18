@@ -200,9 +200,9 @@ def circuit_26_02():
         anchors_wind = (x, y + 700.0, z + 250.0 * k)
     pts.pop("wind0"); pts.pop("wind1")
     pts_xyz = {"wind": list(anchors_wind)}
-    r = circuit_recipe("oeth-26-02-circuit", {"at": [4300.0, -2700.0, 4300.0], "look": [-560.0, -380.0, 60.0], "lens": 32}, join_leave=False, extra_anchors=pts, extra_paths=wind)
+    r = circuit_recipe("oeth-26-02-circuit", {"at": [4700.0, -2300.0, 3300.0], "look": [-560.0, -480.0, 60.0], "lens": 30}, join_leave=False, extra_anchors=pts, extra_paths=wind)
     r["anchors"].update(pts_xyz)
-    r = style_c(r, track=r["paths"][0]["points"])          # style C, with the camera of 18-7 (figure 26-2 lays the render whole over a drawn sky)
+    r = style_c(r, track=r["paths"][0]["points"])          # style C, with its own camera (its speed cards sit at fixed places); laid whole over a drawn sky
     r["transparent"] = True
     return r
 
