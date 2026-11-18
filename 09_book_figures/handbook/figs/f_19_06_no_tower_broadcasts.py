@@ -1,4 +1,4 @@
-"""Figure 19-5 (new: the chapter's only circuit on the radio is at an aerodrome with a tower). With no tower: what a flight at Thumamah (OETH) broadcasts, where, and on which frequency.
+"""Figure 19-6 (new: the chapter's only circuit on the radio is at an aerodrome with a tower). With no tower: what a flight at Thumamah (OETH) broadcasts, where, and on which frequency.
 
 The map is the one of Figure 18-8 (the same frame and the same open satellite picture: Copernicus Sentinel-2; "Contains modified Copernicus Sentinel data 2026"), true north up,
 47 canvas units to the NM, with the ATZ, the runway, the left-hand circuit of runway 35, the departure of runway 35 to the North VRP and the arrival from the East VRP as
@@ -238,11 +238,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-19-05-no-tower-broadcasts",
-        "replaces": "fig-19-05-no-tower-broadcasts.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-19-05-no-tower-broadcasts.jpg",
-        "caption": "Figure 19-5. With no tower: what a flight at Thumamah broadcasts, where, and on which frequency",
-        "desc": ("Figure 19-5. With no tower: what a flight at Thumamah broadcasts, where, and on which frequency. North is up on the map and to the left on the card of the aerodrome; the card of the airspace "
+        "id": "fig-19-06-no-tower-broadcasts",
+        "replaces": "fig-19-06-no-tower-broadcasts.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-19-06-no-tower-broadcasts.jpg",
+        "caption": "Figure 19-6. With no tower: what a flight at Thumamah broadcasts, where, and on which frequency",
+        "desc": ("Figure 19-6. With no tower: what a flight at Thumamah broadcasts, where, and on which frequency. North is up on the map and to the left on the card of the aerodrome; the card of the airspace "
                  "is not to scale. The broadcasts and the frequencies are the AIP's (ENR 1.1 and AD 2 OETH, AMDT 11/26); the tracks and the taxi route are illustrative. The ground is an open satellite "
                  "picture (contains modified Copernicus Sentinel data 2026); not for navigation."),
         "legend": [

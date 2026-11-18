@@ -1,4 +1,4 @@
-"""Figure 19-6 (new). The chapter's illustrative position report read part by part, and the periodic report: "Example Control, HZ-FGA, position, WADI at 0732, 4 500 feet, SABKA at 0751, aerodrome B next."
+"""Figure 19-7 (new). The chapter's illustrative position report read part by part, and the periodic report: "Example Control, HZ-FGA, position, WADI at 0732, 4 500 feet, SABKA at 0751, aerodrome B next."
 
 Above, the report as a scene (the aeroplane over WADI on the dashed route, SABKA and aerodrome B ahead, the level and the times); in the middle, the same report as five chips in the order it is spoken (1 identification with POSITION, 2 position and time,
 3 level, 4 next position and time over, 5 ensuing waypoint); below, 6 the periodic report: a time line from the last contact at 0751, the window 20 to 40 minutes later (0811 to 0831) and the words OPERATIONS NORMAL.
@@ -107,11 +107,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-19-06-position-report",
-        "replaces": "fig-19-06-position-report.svg",          # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-19-06-position-report.jpg",
-        "caption": "Figure 19-6. The illustrative position report read part by part, and the periodic report 20 to 40 minutes after the last contact",
-        "desc": ("Figure 19-6. The chapter's illustrative position report, in a scene and in five chips in the order it is spoken: identification with the word position, WADI at 0732, 4 500 feet, SABKA at 0751, aerodrome B next. "
+        "id": "fig-19-07-position-report",
+        "replaces": "fig-19-07-position-report.svg",          # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-19-07-position-report.jpg",
+        "caption": "Figure 19-7. The illustrative position report read part by part, and the periodic report 20 to 40 minutes after the last contact",
+        "desc": ("Figure 19-7. The chapter's illustrative position report, in a scene and in five chips in the order it is spoken: identification with the word position, WADI at 0732, 4 500 feet, SABKA at 0751, aerodrome B next. "
                  "Below, the periodic report: after the last contact at 0751, report between 0811 and 0831; with nothing else to say, operations normal."),
         "legend": [
             "Aircraft identification, with POSITION immediately before or after the call sign.",

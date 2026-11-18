@@ -1,4 +1,4 @@
-"""Figure 31-9 (new). In flight at night over the Kingdom, from "In flight" of Chapter 31: four scenes.
+"""Figure 31-10 (new). In flight at night over the Kingdom, from "In flight" of Chapter 31: four scenes.
 
 1 lights deceive (the same town seen at 2 000 ft as separate points and at 5 000 ft as one mass of light), 2 the two cruise illusions (a false horizon: a sloping line of ground lights mixed with stars, with a level attitude indicator beside it to trust;
 autokinesis: a single fixed light with an arrow, keep the eyes moving), 3 weather announces itself through the lights (lights fading one by one and a halo round them: restricted visibility or ground fog ahead; turn back while the lights behind are
@@ -102,11 +102,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-31-09-night-in-flight",
-        "replaces": "fig-31-09-night-in-flight.svg",         # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-31-09-night-in-flight.jpg",
-        "caption": "Figure 31-9. In flight at night over the Kingdom: lights deceive, two illusions, weather in the lights, and the dark desert",
-        "desc": ("Figure 31-9. In flight at night over the Kingdom in four scenes: lights seen separately at 2 000 ft merge into one mass at 5 000 ft; a false horizon and autokinesis; lights fading one by one and haloed, a sign of restricted visibility or ground fog, "
+        "id": "fig-31-10-night-in-flight",
+        "replaces": "fig-31-10-night-in-flight.svg",         # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-31-10-night-in-flight.jpg",
+        "caption": "Figure 31-10. In flight at night over the Kingdom: lights deceive, two illusions, weather in the lights, and the dark desert",
+        "desc": ("Figure 31-10. In flight at night over the Kingdom in four scenes: lights seen separately at 2 000 ft merge into one mass at 5 000 ft; a false horizon and autokinesis; lights fading one by one and haloed, a sign of restricted visibility or ground fog, "
                  "so turn back while the lights behind are clear; and the dark desert with unlit high ground."),
         "legend": [
             "Lights deceive: lights seen separately at 2 000 ft may merge into one mass at 5 000 ft or higher, and a town appears long before you reach it.",

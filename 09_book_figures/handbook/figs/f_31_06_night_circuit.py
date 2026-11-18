@@ -1,4 +1,4 @@
-"""Figure 31-5. A night circuit for runway 27: the lights you use and the traps. The old plan drawn as an aerial night picture on a card of dark desert (figs/terrain.py, kind night): the
+"""Figure 31-6. A night circuit for runway 27: the lights you use and the traps. The old plan drawn as an aerial night picture on a card of dark desert (figs/terrain.py, kind night): the
 aerodrome as dim asphalt (the runway, the taxiway and the apron) with every lamp of the old figure as a glowing lamp (runway edge lamps white, green threshold, red end, blue taxiway
 edge, approach lights with their cross bar, the PAPI, the rotating beacon with its rays), the lit highway as two rows of lamps (white and amber), the town as a cluster of amber and white
 lamps over a warm glow, the circuit as a glowing dashed line with its arrowheads, the join at 45 degrees in green, the two aeroplanes (the model from above by moonlight) with their red,
@@ -20,7 +20,7 @@ GREEN = ("#0F9460", "#7DEBB4")
 
 def old_lamps():
     """The lamps the old drawing has for the highway and the town: [(x, y, colour)]."""
-    with open(os.path.join(HERE, "old", "fig-31-05-night-circuit.svg"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "old", "fig-31-06-night-circuit.svg"), encoding="utf-8") as f:
         svg = f.read()
     circles = [(float(x), float(y), float(r), fill) for x, y, r, fill, op in re.findall(r'<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="(#[0-9a-f]+)"( opacity="[\d.]+")?', svg)]
     colour = {"#ffffff": "w", "#b45309": "a"}
@@ -104,11 +104,11 @@ def plate():
               aeroplane_lights(300, 330, "e", 0) + aeroplane_lights(548, 125, "w", 0),
               '<rect x="10" y="10" width="620" height="400" rx="8" fill="none" stroke="#ffffff" stroke-width="1.6"/>', callouts()]
     return {
-        "id": "fig-31-05-night-circuit",
-        "replaces": "fig-31-05-night-circuit.svg",
-        "book_file": "plate-31-05-night-circuit.jpg",
-        "caption": "Figure 31-5. A night circuit for runway 27: the lights you use and the traps",
-        "desc": "Figure 31-5. A night circuit for runway 27: the lights you use and the traps",
+        "id": "fig-31-06-night-circuit",
+        "replaces": "fig-31-06-night-circuit.svg",
+        "book_file": "plate-31-06-night-circuit.jpg",
+        "caption": "Figure 31-6. A night circuit for runway 27: the lights you use and the traps",
+        "desc": "Figure 31-6. A night circuit for runway 27: the lights you use and the traps",
         "legend": [
             "Aerodrome beacon.",
             "Runway edge lights white, threshold green, end red.",
@@ -126,5 +126,5 @@ def plate():
         ],
         "canvas": [640, 420],
         "background": "pale",
-        "reskin": {"svg": "fig-31-05-night-circuit.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-31-06-night-circuit.svg", "blank": True, "layers": layers},
     }

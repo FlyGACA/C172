@@ -1,4 +1,4 @@
-"""Figure 31-7. Judging the flare at night, with the landing light and without it. Three night scenes on the old figure's canvas. Above: the approach with the landing light on, the
+"""Figure 31-8. Judging the flare at night, with the landing light and without it. Three night scenes on the old figure's canvas. Above: the approach with the landing light on, the
 model's aeroplane (by moonlight) high on final with a cone that does not reach the ground and lower with a cone that lights the runway (a pool of light with the tyre marks in it), the
 dashed path down to the touchdown ring, runway edge lamps along the band of asphalt. Below left: the same approach without the landing light, the sight lines (grey to the cowling's
 line, red dashed to the far-end lights) and the dashed flare path. Below right: the view over the cowling, the two rows of edge lamps running to the red bar of the far-end lights, the
@@ -120,11 +120,11 @@ def plate():
               f'<circle cx="450" cy="170" r="6.5" fill="#FFFFFF" fill-opacity="0.22" filter="url(#{U}b2)"/><circle cx="450" cy="170" r="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>',
               panel_b(), sight_lines(), p2, panel_c(), callouts()]
     return {
-        "id": "fig-31-07-night-flare",
-        "replaces": "fig-31-07-night-flare.svg",
-        "book_file": "plate-31-07-night-flare.jpg",
-        "caption": "Figure 31-7. Judging the flare at night, with the landing light and without it",
-        "desc": "Figure 31-7. Judging the flare at night, with the landing light and without it",
+        "id": "fig-31-08-night-flare",
+        "replaces": "fig-31-08-night-flare.svg",
+        "book_file": "plate-31-08-night-flare.jpg",
+        "caption": "Figure 31-8. Judging the flare at night, with the landing light and without it",
+        "desc": "Figure 31-8. Judging the flare at night, with the landing light and without it",
         "legend": [
             "Higher on final: the beam does not reach the ground.",
             "The beam shows the surface and tyre marks: round out.",
@@ -137,5 +137,5 @@ def plate():
         ],
         "canvas": [640, 430],
         "background": "pale",
-        "reskin": {"svg": "fig-31-07-night-flare.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-31-08-night-flare.svg", "blank": True, "layers": layers},
     }

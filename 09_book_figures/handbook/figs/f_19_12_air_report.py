@@ -1,4 +1,4 @@
-"""Figure 19-11 (new). The illustrative air report of Chapter 19 read part by part: "Example Control, HZ-FGA, air report, 10 miles north of WADI at 0805, 4 500 feet, heavy dust storm ahead, visibility below 1 000 metres, turning back."
+"""Figure 19-12 (new). The illustrative air report of Chapter 19 read part by part: "Example Control, HZ-FGA, air report, 10 miles north of WADI at 0805, 4 500 feet, heavy dust storm ahead, visibility below 1 000 metres, turning back."
 
 Above, the report as a scene (a tower at the left, the wadi, an aeroplane 10 miles north of it at 4 500 ft, a wall of dust ahead with visibility below 1 000 m, a turn back, the time as a clock); below, the same report as seven chips in the
 order it is spoken, each with the colour of its part in the scene and a numbered callout: 1 who is called and who calls, 2 the words air report, 3 where, 4 when, 5 the level, 6 what is met, 7 what is done. The words in the picture are the example's own (Latin capitals and digits);
@@ -97,11 +97,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-19-11-air-report",
-        "replaces": "fig-19-11-air-report.svg",              # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-19-11-air-report.jpg",
-        "caption": "Figure 19-11. The illustrative air report read part by part",
-        "desc": ("Figure 19-11. The chapter's illustrative air report, in a scene and in seven chips in the order it is spoken: who is called and who calls, the words air report, where (10 miles north of WADI), when (0805), the level (4 500 feet), "
+        "id": "fig-19-12-air-report",
+        "replaces": "fig-19-12-air-report.svg",              # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-19-12-air-report.jpg",
+        "caption": "Figure 19-12. The illustrative air report read part by part",
+        "desc": ("Figure 19-12. The chapter's illustrative air report, in a scene and in seven chips in the order it is spoken: who is called and who calls, the words air report, where (10 miles north of WADI), when (0805), the level (4 500 feet), "
                  "what is met (a heavy dust storm ahead, visibility below 1 000 metres) and what is done (turning back)."),
         "legend": [
             "Who is called and who calls: the station, then your call sign.",

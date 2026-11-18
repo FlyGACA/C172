@@ -1,4 +1,4 @@
-"""Figure 31-2. Reading other aircraft by their lights: where they are, where they are heading and whether they are closing. On the old figure's canvas: a night plan on a card of dark desert
+"""Figure 31-3. Reading other aircraft by their lights: where they are, where they are heading and whether they are closing. On the old figure's canvas: a night plan on a card of dark desert
 (figs/terrain.py) with your aeroplane in blue and the four others, the model from above by moonlight, each with its red, green and white lights as glowing lamps, their headings as pale
 ribbons, your track dashed in blue and the lines of sight dotted; and the four windscreens as night views (stars over a faint horizon, the lights as glowing lamps: a red one fixed in the
 screen and ringed, a green one drifting across, the green and red of the head-on aircraft with the starburst of its flashing light, the white tail light alone). The eight numbered callouts
@@ -94,11 +94,11 @@ def callouts():
 def plate():
     layers = ['<rect x="0" y="0" width="640" height="400" fill="#ffffff"/>', H.common_defs(U), H.night_defs(U), plan_card(), *plan(), *planes(), lights(), view1(), view2(), view3(), view4(), callouts()]
     return {
-        "id": "fig-31-02-reading-lights",
-        "replaces": "fig-31-02-reading-lights.svg",
-        "book_file": "plate-31-02-reading-lights.jpg",
-        "caption": "Figure 31-2. Reading other aircraft by their lights: where they are, where they are heading and whether they are closing",
-        "desc": "Figure 31-2. Reading other aircraft by their lights: where they are, where they are heading and whether they are closing",
+        "id": "fig-31-03-reading-lights",
+        "replaces": "fig-31-03-reading-lights.svg",
+        "book_file": "plate-31-03-reading-lights.jpg",
+        "caption": "Figure 31-3. Reading other aircraft by their lights: where they are, where they are heading and whether they are closing",
+        "desc": "Figure 31-3. Reading other aircraft by their lights: where they are, where they are heading and whether they are closing",
         "legend": [
             "Converging from your right: its red light.",
             "Crossing from your left, passing behind: its green light.",
@@ -111,5 +111,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-31-02-reading-lights.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-31-03-reading-lights.svg", "blank": True, "layers": layers},
     }

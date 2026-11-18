@@ -1,4 +1,4 @@
-"""Figure 31-8. Planning a night cross-country around what you can and cannot see. The old plan drawn as an aerial night picture on a card of dark desert (figs/terrain.py, night; bare
+"""Figure 31-9. Planning a night cross-country around what you can and cannot see. The old plan drawn as an aerial night picture on a card of dark desert (figs/terrain.py, night; bare
 hills fade in at the south-west, where the old figure has its contours): the three aerodromes with their asphalt, runway lamps and rotating beacons (the green lamp and its rays), the
 lit highway as two rows of lamps, the two towns as clusters of amber and white lamps over a warm glow, the lit mast with its red lamp, a patch of dust (a brown haze, the lamps in it
 soft and haloed), the dashed contours of the unlit high ground, the dashed ellipse of dark desert and the straight dashed line across it that was not chosen, and the planned route as
@@ -22,7 +22,7 @@ ROUTE = [[(98, 223), (250, 285)], [(250, 285), (455, 280)], [(455, 280), (527, 1
 
 
 def old_lamps():
-    with open(os.path.join(HERE, "old", "fig-31-08-night-cross-country.svg"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "old", "fig-31-09-night-cross-country.svg"), encoding="utf-8") as f:
         svg = f.read()
     circles = [(float(x), float(y), float(r), fill, op) for x, y, r, fill, op in re.findall(r'<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="(#[0-9a-f]+)"( opacity="[\d.]+")?', svg)]
     colour = {"#ffffff": "w", "#b45309": "a"}
@@ -89,11 +89,11 @@ def plate():
               {"name": "terrain-31-08", "at": [320, 210], "width": 620}, '<rect x="10" y="10" width="620" height="400" rx="8" fill="none" stroke="#ffffff" stroke-width="1.6"/>',
               guides(), haze(), town_glow(), aerodromes(), route(), lamps(), callouts()]
     return {
-        "id": "fig-31-08-night-cross-country",
-        "replaces": "fig-31-08-night-cross-country.svg",
-        "book_file": "plate-31-08-night-cross-country.jpg",
-        "caption": "Figure 31-8. Planning a night cross-country around what you can and cannot see",
-        "desc": "Figure 31-8. Planning a night cross-country around what you can and cannot see",
+        "id": "fig-31-09-night-cross-country",
+        "replaces": "fig-31-09-night-cross-country.svg",
+        "book_file": "plate-31-09-night-cross-country.jpg",
+        "caption": "Figure 31-9. Planning a night cross-country around what you can and cannot see",
+        "desc": "Figure 31-9. Planning a night cross-country around what you can and cannot see",
         "legend": [
             "Aerodrome A: beacon and runway lights.",
             "Destination B.",
@@ -108,5 +108,5 @@ def plate():
         ],
         "canvas": [640, 420],
         "background": "pale",
-        "reskin": {"svg": "fig-31-08-night-cross-country.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-31-09-night-cross-country.svg", "blank": True, "layers": layers},
     }

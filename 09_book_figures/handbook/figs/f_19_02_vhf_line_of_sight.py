@@ -1,4 +1,4 @@
-"""Figure 19-1. VHF radio reaches only as far as the line of sight. The earth's curve in section, drawn as a lit segment of a globe: a desert surface shaded from the upper left,
+"""Figure 19-2. VHF radio reaches only as far as the line of sight. The earth's curve in section, drawn as a lit segment of a globe: a desert surface shaded from the upper left,
 a thin glowing atmosphere along its limb, a ridge of rock on it, a mast for the station; the line of sight and the paths to the three aeroplanes as beams of light (blue for the line,
 green where there is contact, red where the bulge or the ridge blocks the path, ending in a cross); the radio shadows as veils of dusk; the model seen from the right (and from the left
 for the aeroplane behind the ridge); the heights of the line of sight above the ground as dimension lines with their numbers and the distances as a ruler. Every number and place of the
@@ -151,11 +151,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-19-01-vhf-line-of-sight",
-        "replaces": "fig-19-01-vhf-line-of-sight.svg",
-        "book_file": "plate-19-01-vhf-line-of-sight.jpg",
-        "caption": "Figure 19-1. VHF radio reaches only as far as the line of sight",
-        "desc": "Figure 19-1. VHF radio reaches only as far as the line of sight",
+        "id": "fig-19-02-vhf-line-of-sight",
+        "replaces": "fig-19-02-vhf-line-of-sight.svg",
+        "book_file": "plate-19-02-vhf-line-of-sight.jpg",
+        "caption": "Figure 19-2. VHF radio reaches only as far as the line of sight",
+        "desc": "Figure 19-2. VHF radio reaches only as far as the line of sight",
         "legend": [
             "A ground station, antenna height ignored.",
             "The line of sight from the station.",
@@ -168,5 +168,5 @@ def plate():
         ],
         "canvas": [640, 370],
         "background": "pale",
-        "reskin": {"svg": "fig-19-01-vhf-line-of-sight.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-19-02-vhf-line-of-sight.svg", "blank": True, "layers": layers()},
     }

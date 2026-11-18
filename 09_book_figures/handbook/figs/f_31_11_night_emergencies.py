@@ -1,4 +1,4 @@
-"""Figure 31-10 (new). Night emergencies, from the last section of Chapter 31: four scenes.
+"""Figure 31-11 (new). Night emergencies, from the last section of Chapter 31: four scenes.
 
 1 electrical failure (a panel: the ammeter needle at its low end, a radio and the position lights kept on, the landing light kept off to save it for the landing, a torch in hand), 2 engine failure (best glide, 68 kt for the example aeroplane, a turn toward a lit aerodrome and away from a lit
 town), 3 the landing light (a beam lighting the ground ahead; tested high, switched on in time, touchdown in the normal landing attitude at the slowest possible speed), 4 the four options: a lit aerodrome within gliding range, a lit town, a lit road and unlit open ground known to be suitable.
@@ -128,11 +128,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-31-10-night-emergencies",
-        "replaces": "fig-31-10-night-emergencies.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-31-10-night-emergencies.jpg",
-        "caption": "Figure 31-10. Night emergencies: electrical failure, engine failure, the landing light and the four options",
-        "desc": ("Figure 31-10. Night emergencies, four scenes: electrical failure, with the loads shed, a radio and the position lights kept on, the landing light saved for the landing and a torch in hand; engine failure, with the best glide of 68 kt for the example aeroplane "
+        "id": "fig-31-11-night-emergencies",
+        "replaces": "fig-31-11-night-emergencies.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-31-11-night-emergencies.jpg",
+        "caption": "Figure 31-11. Night emergencies: electrical failure, engine failure, the landing light and the four options",
+        "desc": ("Figure 31-11. Night emergencies, four scenes: electrical failure, with the loads shed, a radio and the position lights kept on, the landing light saved for the landing and a torch in hand; engine failure, with the best glide of 68 kt for the example aeroplane "
                  "toward a lit aerodrome and away from a lit town; the landing light, tested while high and switched on in time to light the terrain; and the four options: a lit aerodrome within gliding range, a lit town, a lit road and unlit open ground known to be suitable."),
         "legend": [
             "Electrical failure: fly the aeroplane, torch in hand. Shed every load you can spare at once; keep a radio and the position lights; save the landing light for landing. Tell ATC and land at the nearest suitable lit aerodrome.",

@@ -35,7 +35,7 @@ def sprites():
         # a developed spin to the left: nose well down, left wing down, seen from ahead and the right (Figure 6-2)
         {"id": "sprite-spin", "width_m": WIDTH_M, "render": {**common, "pitch": {"deg": -58.0, "bank": -32.0, "about": [0, 0, 1.3]},
             "camera": {"view": "side", "target": [0, 1.95, 0.9], "width": WIDTH_M, "azimuth": 38, "elevation": 14}, "size": [1536, 1536]}},
-        # the instruments of Figure 31-4, as the model's own: climbing at 75 kt through 1,200 ft, 700 ft/min up, nose 10 degrees up
+        # the instruments of Figure 31-5 (31-4 until round 40; the sprite ids keep the old number), as the model's own: climbing at 75 kt through 1,200 ft, 700 ft/min up, nose 10 degrees up
         dial_sprite("dial-31-04-ai", "AI", {"pitch": 10, "bank": 0}),
         dial_sprite("dial-31-04-asi", "ASI", {"ASI": 75}),
         dial_sprite("dial-31-04-alt", "ALT", {"ALT": 1200}),

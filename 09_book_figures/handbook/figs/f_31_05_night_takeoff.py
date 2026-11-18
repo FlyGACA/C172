@@ -1,4 +1,4 @@
-"""Figure 31-4. A night takeoff: from the runway lights to the instruments. Drawn again as a night scene on the old figure's canvas: a deep-blue sky with stars over ground so dark that the
+"""Figure 31-5. A night takeoff: from the runway lights to the instruments. Drawn again as a night scene on the old figure's canvas: a deep-blue sky with stars over ground so dark that the
 horizon is lost (the point of the figure), the runway as a band of asphalt between two rows of glowing edge lamps with green threshold and red end lamps, the model's aeroplane by moonlight
 lined up, rotating at VR and climbing at VY, each with its landing light as a soft cone (on the runway, then lost in the air), the dashed climb path, and under it a dark instrument panel
 with the model's own four instruments (nose 10 degrees up, 75 kt, climbing through 1,200 ft, 700 ft/min up). The ten numbered callouts of the old figure are kept."""
@@ -92,11 +92,11 @@ def plate():
     layers = ['<rect x="0" y="0" width="640" height="420" fill="#ffffff"/>', H.common_defs(U), H.night_defs(U), top_card(), runway(), climb_path(), beams(), planes[0], planes[1], planes[2],
               labels(), panel(), *dials(), altitude_arrow(), callouts()]
     return {
-        "id": "fig-31-04-night-takeoff",
-        "replaces": "fig-31-04-night-takeoff.svg",
-        "book_file": "plate-31-04-night-takeoff.jpg",
-        "caption": "Figure 31-4. A night takeoff: from the runway lights to the instruments",
-        "desc": "Figure 31-4. A night takeoff: from the runway lights to the instruments",
+        "id": "fig-31-05-night-takeoff",
+        "replaces": "fig-31-05-night-takeoff.svg",
+        "book_file": "plate-31-05-night-takeoff.jpg",
+        "caption": "Figure 31-5. A night takeoff: from the runway lights to the instruments",
+        "desc": "Figure 31-5. A night takeoff: from the runway lights to the instruments",
         "legend": [
             "Lined up; heading indicator checked; landing and taxi lights on.",
             "Accelerate straight between the edge lights.",
@@ -111,5 +111,5 @@ def plate():
         ],
         "canvas": [640, 420],
         "background": "pale",
-        "reskin": {"svg": "fig-31-04-night-takeoff.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-31-05-night-takeoff.svg", "blank": True, "layers": layers},
     }

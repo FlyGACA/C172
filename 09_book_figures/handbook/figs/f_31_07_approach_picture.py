@@ -1,4 +1,4 @@
-"""Figure 31-6. The approach picture at night: too high, on the path and too low. Three night windscreens and, under them, the three approaches in profile, on the old figure's canvas.
+"""Figure 31-7. The approach picture at night: too high, on the path and too low. Three night windscreens and, under them, the three approaches in profile, on the old figure's canvas.
 The windscreens are night scenes: a strip of starry sky over a black plain, the runway an asphalt trapezoid between its glowing edge lamps (white), with the green threshold row at its near
 end, the red end row at its far end, the approach lights on the centre line below the threshold and the PAPI lamps (four white, two white and two red, four red) beside it; every lamp is
 taken from the old drawing, so the shapes, the sizes and the places are the old figure's. Below: a night profile, the three paths to the threshold (the correct one a glowing green ribbon,
@@ -25,7 +25,7 @@ COLOURS = {"#ffffff": "w", "#047857": "g", "#b91c1c": "r"}
 
 def old_lamps():
     """Every lamp of the three windscreens as the old drawing has it: [(x, y, r, colour)] per card (its halos and its callout discs left out)."""
-    with open(os.path.join(HERE, "old", "fig-31-06-approach-picture.svg"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "old", "fig-31-07-approach-picture.svg"), encoding="utf-8") as f:
         svg = f.read()
     circles = [(float(x), float(y), float(r), fill, op) for x, y, r, fill, op in re.findall(r'<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="(#[0-9a-f]+)"( opacity="[\d.]+")?', svg)]
     out = []
@@ -103,11 +103,11 @@ def plate():
     layers += [window(k, lamps[k]) for k in range(3)]
     layers += [profile(), paths(), profile_papi(), *planes, callouts()]
     return {
-        "id": "fig-31-06-approach-picture",
-        "replaces": "fig-31-06-approach-picture.svg",
-        "book_file": "plate-31-06-approach-picture.jpg",
-        "caption": "Figure 31-6. The approach picture at night: too high, on the path and too low",
-        "desc": "Figure 31-6. The approach picture at night: too high, on the path and too low",
+        "id": "fig-31-07-approach-picture",
+        "replaces": "fig-31-07-approach-picture.svg",
+        "book_file": "plate-31-07-approach-picture.jpg",
+        "caption": "Figure 31-7. The approach picture at night: too high, on the path and too low",
+        "desc": "Figure 31-7. The approach picture at night: too high, on the path and too low",
         "legend": [
             "Too high: runway long and steep; four white.",
             "On the path: two white, two red.",
@@ -120,5 +120,5 @@ def plate():
         ],
         "canvas": [640, 420],
         "background": "pale",
-        "reskin": {"svg": "fig-31-06-approach-picture.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-31-07-approach-picture.svg", "blank": True, "layers": layers},
     }
