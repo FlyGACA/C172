@@ -82,8 +82,9 @@ def side_plane(tx, ty, angle, k, bbox, grow=1.15, look=None, name="sprite-side",
     return o
 
 
-def dial_sprite(sid, inst, readings, diameter=92, px=6):
+def dial_sprite(sid, inst, readings, diameter=92, px=6, anchors=None):
     """An instrument of the model on its own as a picture with a transparent ground, for a re-skinned figure (a sprite overlay of `diameter` canvas units
     names it by `sid`)."""
     layer = dial_layer(sid, inst, (0, 0), diameter, readings, px=px, shadow=False)
+    layer["render"]["anchors"].update(anchors or {})
     return {"id": sid, "width_m": BEZEL_M, "render": layer["render"]}

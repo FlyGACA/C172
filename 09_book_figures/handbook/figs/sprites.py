@@ -42,4 +42,19 @@ def sprites():
         dial_sprite("dial-31-04-vsi", "VSI", {"VSI": 700}),
         # the heading indicator of Figure 9-4, pointing north
         dial_sprite("dial-09-03-dg", "DG", {"heading": 360}),
+        # the example speeds of Figure 26-1 on the model's airspeed indicator, the needle on the normal final approach speed (65 kt)
+        dial_sprite("dial-26-01-asi", "ASI", {"ASI": 65}, anchors={f"v{v}": {"dial": "ASI", "value": v, "radius": 0.80} for v in (45, 52, 55, 60, 62, 65, 75, 90)}),
+        # the lower panel of the model about the flap switch and the flap position indicator (Figure 26-1)
+        {"id": "panel-26-01-flaps", "width_m": 0.26, "render": {"camera": {"view": "panel", "target": {"part": "PANEL.flap_switch", "at": [0.5, 0.5, 0.5]}, "width": 0.26,
+            "azimuth": 0, "elevation": 0, "distance": 0.5}, "size": [1200, 900], "light": "panel", "samples": 64, "fine_textures": True, "hide": ["INTERIOR.yoke_*", "INTERIOR.yoke_shaft_*", "PANEL.control_wheel_*"],
+            "anchors": {"switch": {"part": "PANEL.flap_switch", "at": [0.5, 0.5, 0.5]}, "ind": {"part": "PANEL.flap_ind", "at": [0.5, 0.5, 0.5]}}}},
+        # the radio stack of the model (Figure 19-1): audio panel, the two COM/NAV radios, the ADF and the transponder
+        {"id": "panel-19-01-radios", "width_m": 0.34, "render": {"camera": {"view": "panel", "target": {"part": "PANEL.radio_COMNAV1", "at": [0.5, 0.5, 0.5]}, "width": 0.34,
+            "azimuth": 0, "elevation": 0, "distance": 0.5}, "size": [1200, 1200], "light": "panel", "samples": 64, "fine_textures": True, "hide": ["INTERIOR.yoke_*", "INTERIOR.yoke_shaft_*", "PANEL.control_wheel_*"],
+            "anchors": {"audio": {"part": "PANEL.radio_AUDIO", "at": [0.5, 0.5, 0.5]}, "com1": {"part": "PANEL.radio_COMNAV1", "at": [0.5, 0.5, 0.5]},
+                        "com2": {"part": "PANEL.radio_COMNAV2", "at": [0.5, 0.5, 0.5]}, "xpdr": {"part": "PANEL.radio_XPDR", "at": [0.5, 0.5, 0.5]},
+                        "jacks": {"part": "PANEL.microphone_jacks", "at": [0.5, 0.5, 0.5]}}}},
+        # the operating-limitations placard of the model, its last two lines only (Figure 26-1: the flight manual comes first)
+        {"id": "panel-26-01-placard", "width_m": 0.17, "render": {"camera": {"view": "panel", "target": {"part": "PANEL.placard_speed", "at": [0.5, 0.5, 0.25]}, "width": 0.17,
+            "azimuth": 0, "elevation": 0, "distance": 0.5}, "size": [1700, 260], "light": "panel", "samples": 64, "fine_textures": True, "hide": ["INTERIOR.yoke_*", "INTERIOR.yoke_shaft_*", "PANEL.control_wheel_*"]}},
     ]

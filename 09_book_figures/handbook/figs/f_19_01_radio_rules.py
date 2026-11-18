@@ -1,14 +1,16 @@
-"""Figure 19-1 (new). The rules of the first section of Chapter 19, as six tiles: section 91.97 (a), (b), (e) and (g), and the controlled-flight rules of sections 91.95, 91.127(c) and 91.99(f).
+"""Figure 19-1 (new; redrawn in the upgrade round around a render of the model's radio stack). The rules of the first section of Chapter 19: section 91.97 (a), (b), (e) and (g),
+and the controlled-flight rules of sections 91.95, 91.127(c) and 91.99(f).
 
-1 discipline and standard phraseology (a headset and a speech bubble with ICAO); 2 the first call (a tower, the aeroplane and the four things it says as four dots); 3 English or Arabic (two speech bubbles, EN and AR); 4 MAYDAY and PAN PAN at the start of the first call;
-5 a controlled flight: continuous watch, and in Class D two-way contact before entering (a cylinder of airspace marked D, arrows both ways); 6 no taxiing on the manoeuvring area without a clearance (a taxiway, a stop line and the tower). Shapes, codes and the numbers of the callouts."""
+On the model's audio panel and COM/NAV radios: 1 discipline and standard phraseology (ICAO); 2 the first call (the four things it says as four dots, from the COMM window); 4 MAYDAY and PAN PAN.
+Beside it: 3 English or Arabic (two speech bubbles); 5 a controlled flight, Class D: two-way contact before entering (a cylinder of airspace about the tower, arrows both ways);
+6 no taxiing on the manoeuvring area without a clearance (a taxiway from above, the holding position marking with a red stop bar, and the aeroplane stopped before it). Shapes, codes and the numbers of the callouts."""
 from figs import h_a4 as A
 from figs import h_b2 as H
 from figs import h_rich as R
 from figs import scene as S
 
 n = S.n
-W, HT = 640, 288
+W, HT = 640, 392
 U = "rt1901"
 INK, SLATE, BLUE, GREEN, AMBER, RED, VIOLET = "#1E293B", "#475569", "#1D4ED8", "#15803D", "#B45309", "#B91C1C", "#7C3AED"
 GX = (16.0, 224.0, 432.0)
@@ -49,55 +51,127 @@ def tower(x, y, s=1.0):
             f'<path d="M{n(x - 14 * s)} {n(y - 12 * s)} H{n(x + 14 * s)} L{n(x + 10 * s)} {n(y)} H{n(x - 10 * s)} Z" fill="#8FB4E0" stroke="{SLATE}" stroke-width="1.4"/><rect x="{n(x - 16 * s)}" y="{n(y - 16 * s)}" width="{n(32 * s)}" height="{n(5 * s)}" rx="2" fill="{SLATE}"/>')
 
 
-def tiles():
-    o = ""
-    tones = ("blue", "slate", "sand", "red", "green", "slate")
-    for i in range(6):
-        o += R.tile(f"{U}t{i}", GX[i % 3], GY[i // 3], TW, TH, tones[i])
-    # 1 discipline, standard phraseology
-    x, y = GX[0], GY[0]
-    o += (f'<path d="M{n(x + 36)} {n(y + 84)} v-10 a22 22 0 0 1 44 0 v10" fill="none" stroke="{INK}" stroke-width="4" stroke-linecap="round"/>'
-          f'<rect x="{n(x + 28)}" y="{n(y + 78)}" width="13" height="22" rx="5" fill="{SLATE}"/><rect x="{n(x + 75)}" y="{n(y + 78)}" width="13" height="22" rx="5" fill="{SLATE}"/>')
-    o += bubble(x + 96, y + 34, 80, 36) + H.glyph_text("ICAO", x + 136, y + 52, 11, BLUE, spacing=0.6)
-    # 2 the first call: tower, aeroplane, four dots
-    x, y = GX[1], GY[0]
-    o += tower(x + 38, y + 66)
-    o += bubble(x + 82, y + 26, 92, 30, tail="right")
-    o += "".join(f'<circle cx="{n(x + 98 + k * 20)}" cy="{n(y + 41)}" r="6" fill="{c}"/>' for k, c in enumerate((SLATE, BLUE, VIOLET, AMBER)))
-    # 3 English or Arabic
-    x, y = GX[2], GY[0]
-    o += bubble(x + 22, y + 40, 66, 40) + H.glyph_text("EN", x + 55, y + 60, 14, BLUE, spacing=0.6)
-    o += bubble(x + 104, y + 52, 66, 40, tail="right") + H.glyph_text("AR", x + 137, y + 72, 14, GREEN, spacing=0.6)
-    # 4 MAYDAY and PAN PAN
-    x, y = GX[0], GY[1]
-    o += pill(x + TW / 2, y + 52, "MAYDAY", RED, size=11) + pill(x + TW / 2, y + 88, "PAN PAN", AMBER, size=11)
-    # 5 controlled flight, Class D: a cylinder and two-way arrows
-    x, y = GX[1], GY[1]
-    cx, top, bot = x + 120, y + 40, y + 102
-    o += (f'<path d="M{n(cx - 52)} {n(top)} V{n(bot)} A52 12 0 0 0 {n(cx + 52)} {n(bot)} V{n(top)}" fill="{BLUE}" fill-opacity="0.18" stroke="{BLUE}" stroke-width="2"/>'
-          f'<ellipse cx="{n(cx)}" cy="{n(top)}" rx="52" ry="12" fill="{BLUE}" fill-opacity="0.12" stroke="{BLUE}" stroke-width="2"/>' + pill(cx + 28, top + 30, "D", BLUE, size=10))
-    o += tower(cx - 12, bot - 30, 0.7)
-    o += (f'<path d="M{n(x + 30)} {n(y + 58)} h22" stroke="{GREEN}" stroke-width="3" stroke-linecap="round"/><path d="M{n(x + 56)} {n(y + 58)} l-7 -5 v10 Z" fill="{GREEN}"/>'
-          f'<path d="M{n(x + 30)} {n(y + 70)} h22" stroke="{GREEN}" stroke-width="3" stroke-linecap="round"/><path d="M{n(x + 26)} {n(y + 70)} l7 -5 v10 Z" fill="{GREEN}"/>')
-    # 6 no taxiing without a clearance: a taxiway, a stop line, the tower
-    x, y = GX[2], GY[1]
-    o += f'<rect x="{n(x + 24)}" y="{n(y + 76)}" width="{n(TW - 40)}" height="22" fill="#5B6577"/><line x1="{n(x + 28)}" y1="{n(y + 87)}" x2="{n(x + TW - 20)}" y2="{n(y + 87)}" stroke="#FACC15" stroke-width="2"/>'
-    o += f'<line x1="{n(x + 120)}" y1="{n(y + 70)}" x2="{n(x + 120)}" y2="{n(y + 104)}" stroke="{RED}" stroke-width="5" stroke-linecap="round"/>'
-    o += tower(x + 160, y + 34, 0.8)
-    return o
+import json
+import os
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SHADOW = {"dx": 1.4, "dy": 2.6, "blur": 2.0, "opacity": 0.28}
+OUT = {"width": 0.5, "colour": "#2B3648", "opacity": 0.85}
+
+
+def anchors(name):
+    with open(os.path.join(HERE, "renders", name + ".anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    return d["size"], d["anchors"]
+
+
+def card(uid, x, y, w, h, fill="#FFFFFF"):
+    return (f'<defs><filter id="{uid}f" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="2" stdDeviation="2.6" flood-color="#10233F" flood-opacity="0.26"/></filter>'
+            f'<clipPath id="{uid}c"><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="10"/></clipPath></defs>'
+            f'<rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="10" fill="{fill}" filter="url(#{uid}f)"/><g clip-path="url(#{uid}c)">')
+
+
+def close(x, y, w, h):
+    return f'</g><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>'
+
+
+def leader(p, q, col):
+    return (f'<line x1="{n(p[0])}" y1="{n(p[1])}" x2="{n(q[0])}" y2="{n(q[1])}" stroke="#FFFFFF" stroke-width="4.2" stroke-linecap="round"/>'
+            f'<line x1="{n(p[0])}" y1="{n(p[1])}" x2="{n(q[0])}" y2="{n(q[1])}" stroke="{col}" stroke-width="2" stroke-linecap="round"/>'
+            f'<circle cx="{n(p[0])}" cy="{n(p[1])}" r="3.4" fill="{col}" stroke="#FFFFFF" stroke-width="1.4"/>')
+
+
+POS = {}
+RX, RY, RW, RH = 12.0, 12.0, 292.0, 368.0                    # the card of the radio stack
+
+
+def radios():
+    """The model's radio stack, cropped to the audio panel and the two COM/NAV radios: callouts 1 (phraseology), 2 (the first call) and 4 (MAYDAY, PAN PAN)."""
+    (pw, ph), a = anchors("panel-19-01-radios")
+    sw = RW / 0.52
+    sh = sw * ph / pw
+    x0 = RX - 0.24 * sw                                       # the window starts at 24 % of the picture's width and 21 % of its height
+    y0 = RY - 0.21 * sh
+    at = lambda fx, fy: (x0 + fx * sw, y0 + fy * sh)
+    out = [card(f"{U}r", RX, RY, RW, RH, "#1F2125"), {"name": "panel-19-01-radios", "at": [x0 + sw / 2, y0 + sh / 2], "width": sw}]
+    over = ""
+    au = at(*a["audio"])
+    over += bubble(RX + RW - 108, RY + 14, 92, 34, fill="#FFFFFF", stroke=BLUE, tail="left") + H.glyph_text("ICAO", RX + RW - 62, RY + 31, 11, BLUE, spacing=0.6)
+    c1 = at(0.397, 0.461)                                     # the right edge of the COMM window of the first radio
+    bx, by = RX + RW - 112, c1[1] + 46
+    over += leader(c1, (bx + 6, by + 16), SLATE) + bubble(bx, by, 100, 32, fill="#FFFFFF", stroke=SLATE, tail="left")
+    over += "".join(f'<circle cx="{n(bx + 20 + k * 20)}" cy="{n(by + 16)}" r="6" fill="{c}"/>' for k, c in enumerate((SLATE, BLUE, VIOLET, AMBER)))
+    c2 = at(0.397, 0.648)
+    px, py = RX + RW - 62, c2[1] + 58
+    over += leader(c2, (px - 40, py), RED) + pill(px, py, "MAYDAY", RED, size=10) + pill(px, py + 30, "PAN PAN", AMBER, size=10)
+    c1 = (bx, by)
+    POS['mayday'] = (px - 62, py)
+    out += [over, close(RX, RY, RW, RH)]
+    return out, au, c1
+
+
+TX, TW = 316.0, 312.0
+TY = (12.0, 136.0, 260.0)
+TH = 120.0
+
+
+def languages():
+    x, y = TX, TY[0]
+    return (R.tile(f"{U}t3", x, y, TW, TH, "sand") + bubble(x + 70, y + 34, 76, 44) + H.glyph_text("EN", x + 108, y + 56, 15, BLUE, spacing=0.6)
+            + bubble(x + 168, y + 46, 76, 44, tail="right") + H.glyph_text("AR", x + 206, y + 68, 15, GREEN, spacing=0.6))
+
+
+def class_d():
+    """Class D: a cylinder of airspace about the aerodrome, the aeroplane outside it calling before it enters (two-way arrows)."""
+    x, y, w, h = TX, TY[1], TW, TH
+    uid = f"{U}d"
+    o = card(uid, x, y, w, h) + S.sky(uid + "k", x, y, w, h, [(0.0, "#4F86C9"), (0.6, "#9CC2EA"), (1.0, "#E9EEF0")]) + S.plain(uid + "l", x, x + w, y + 86, y + h, seed=4, tone="day")
+    cx, top, bot = x + 196, y + 30, y + 92
+    o += (f'<path d="M{n(cx - 78)} {n(top)} V{n(bot)} A78 12 0 0 0 {n(cx + 78)} {n(bot)} V{n(top)}" fill="{BLUE}" fill-opacity="0.16" stroke="{BLUE}" stroke-width="2" stroke-dasharray="7 4"/>'
+          f'<ellipse cx="{n(cx)}" cy="{n(top)}" rx="78" ry="12" fill="{BLUE}" fill-opacity="0.12" stroke="{BLUE}" stroke-width="2" stroke-dasharray="7 4"/>')
+    o += (f'<rect x="{n(cx - 6)}" y="{n(bot - 34)}" width="7" height="34" rx="2" fill="#D4DAE4" stroke="{SLATE}" stroke-width="1.2"/>'
+          f'<path d="M{n(cx - 15)} {n(bot - 44)} H{n(cx + 10)} L{n(cx + 7)} {n(bot - 34)} H{n(cx - 12)} Z" fill="#8FB4E0" stroke="{SLATE}" stroke-width="1.2"/>'
+          f'<rect x="{n(cx + 18)}" y="{n(bot - 4)}" width="48" height="5" rx="1" fill="#5B6577"/>')
+    o += pill(cx + 50, top + 22, "D", BLUE, size=10)
+    o += (f'<path d="M{n(x + 92)} {n(y + 52)} h24" stroke="{GREEN}" stroke-width="3" stroke-linecap="round"/><path d="M{n(x + 120)} {n(y + 52)} l-8 -5 v10 Z" fill="{GREEN}"/>'
+          f'<path d="M{n(x + 92)} {n(y + 64)} h24" stroke="{GREEN}" stroke-width="3" stroke-linecap="round"/><path d="M{n(x + 88)} {n(y + 64)} l8 -5 v10 Z" fill="{GREEN}"/>')
+    return o + close(x, y, w, h)
+
+
+def taxi():
+    """On the manoeuvring area: a taxiway seen from above, the holding position marking (two solid and two dashed yellow lines) with a red stop bar,
+    and the aeroplane stopped before it."""
+    x, y, w, h = TX, TY[2], TW, TH
+    uid = f"{U}x"
+    o = card(uid, x, y, w, h, "#E3D3AE") + f'<rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" fill="#E3D3AE"/>'
+    ty = y + h / 2
+    o += f'<rect x="{n(x - 4)}" y="{n(ty - 26)}" width="{n(w + 8)}" height="52" fill="#6B7280"/>'
+    o += f'<line x1="{n(x)}" y1="{n(ty)}" x2="{n(x + w)}" y2="{n(ty)}" stroke="#FACC15" stroke-width="2"/>'
+    hx = x + 196                                              # the holding position: two solid lines, then two dashed ones toward the runway
+    o += (f'<line x1="{n(hx)}" y1="{n(ty - 26)}" x2="{n(hx)}" y2="{n(ty + 26)}" stroke="#FACC15" stroke-width="2.2"/><line x1="{n(hx + 6)}" y1="{n(ty - 26)}" x2="{n(hx + 6)}" y2="{n(ty + 26)}" stroke="#FACC15" stroke-width="2.2"/>'
+          f'<line x1="{n(hx + 12)}" y1="{n(ty - 26)}" x2="{n(hx + 12)}" y2="{n(ty + 26)}" stroke="#FACC15" stroke-width="2.2" stroke-dasharray="6 4"/><line x1="{n(hx + 18)}" y1="{n(ty - 26)}" x2="{n(hx + 18)}" y2="{n(ty + 26)}" stroke="#FACC15" stroke-width="2.2" stroke-dasharray="6 4"/>')
+    o += "".join(f'<circle cx="{n(hx - 8)}" cy="{n(ty - 22 + k * 8.8)}" r="2.6" fill="#EF4444" stroke="#7F1D1D" stroke-width="0.8"/><circle cx="{n(hx - 8)}" cy="{n(ty - 22 + k * 8.8)}" r="5" fill="#EF4444" fill-opacity="0.25"/>' for k in range(6))
+    o += f'<rect x="{n(hx + 30)}" y="{n(y - 4)}" width="{n(w)}" height="{n(h + 8)}" fill="#4B5563"/><line x1="{n(hx + 60)}" y1="{n(y)}" x2="{n(hx + 60)}" y2="{n(y + h)}" stroke="#F8FAFC" stroke-width="2.4" stroke-dasharray="12 8"/>'
+    o += (f'<rect x="{n(x + 104)}" y="{n(y + 14)}" width="7" height="22" rx="2" fill="#D4DAE4" stroke="{SLATE}" stroke-width="1.1"/>'
+          f'<path d="M{n(x + 96)} {n(y + 6)} H{n(x + 119)} L{n(x + 116)} {n(y + 14)} H{n(x + 99)} Z" fill="#8FB4E0" stroke="{SLATE}" stroke-width="1.1"/>')
+    return o + close(x, y, w, h)
 
 
 def sprites():
-    return [A.plane(GX[1] + 156, GY[0] + 92, 36.0, name="sprite-top", angle=-90.0), A.plane(GX[1] + 66, GY[1] + 64, 30.0, name="sprite-top", angle=90.0),
-            A.plane(GX[2] + 82, GY[1] + 87, 40.0, name="sprite-top", angle=90.0)]
+    return [{"name": "sprite-side", "at": [TX + 60, TY[1] + 58], "width": 52, "outline": OUT, "shadow": SHADOW},
+            {"name": "sprite-top", "at": [TX + 140, TY[2] + TH / 2], "width": 64, "angle": 90.0, "outline": OUT, "shadow": SHADOW}]
 
 
-def callouts():
-    return "".join(S.callout(i + 1, GX[i % 3] + 15, GY[i // 3] + 15, r=9.5) for i in range(6))
+def callouts(au, c1):
+    c = S.callout
+    return (c(1, RX + 18, RY + 18, r=10) + c(2, c1[0] - 2, c1[1] - 2, r=10) + c(4, POS['mayday'][0] - 14, POS['mayday'][1], r=10)
+            + c(3, TX + 16, TY[0] + 16, r=10) + c(5, TX + 16, TY[1] + 16, r=10) + c(6, TX + 16, TY[2] + 16, r=10))
 
 
 def layers():
-    return [H.defs(U, W, HT), background(), tiles(), *sprites(), callouts()]
+    rad, au, c1 = radios()
+    sp = sprites()
+    return [H.defs(U, W, HT), background()] + rad + [languages(), class_d(), taxi()] + sp + [callouts(au, c1)]
 
 
 def plate():
