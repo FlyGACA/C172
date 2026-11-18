@@ -4,6 +4,7 @@ No words but AR, EN and O2: shapes, colours and the numbers of the callouts. The
 import math
 
 from figs import h_b2 as H
+from figs import h_rich as R
 from figs import scene as S
 
 n = S.n
@@ -25,7 +26,7 @@ def background():
 
 def tile(i):
     x, y = GX[i % 4], GY[i // 4]
-    return f'<rect x="{n(x)}" y="{n(y)}" width="{n(TW)}" height="{n(TH)}" rx="9" fill="#EEF2F7" stroke="#CBD5E1" stroke-width="1.2"/>'
+    return R.tile(f"{U}t{i}", x, y, TW, TH, ("red", "blue", "slate", "red", "green", "sand", "blue", "slate")[i])
 
 
 def icon(i):

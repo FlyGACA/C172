@@ -6,6 +6,7 @@ import math
 
 from figs import h_a4 as A
 from figs import h_b2 as H
+from figs import h_rich as R
 from figs import scene as S
 
 n = S.n
@@ -27,8 +28,7 @@ def background():
 
 def tile(i):
     x, y = GX[i % 4], GY[i // 4]
-    col, st = ("#FEF2F2", "#FCA5A5") if i == 7 else ("#EEF2F7", "#CBD5E1")
-    return f'<rect x="{n(x)}" y="{n(y)}" width="{n(TW)}" height="{n(TH)}" rx="9" fill="{col}" stroke="{st}" stroke-width="1.2"/>'
+    return R.tile(f"{U}t{i}", x, y, TW, TH, ("red", "sand", "night", "green", "blue", "slate", "night", "red")[i])
 
 
 def icon(i):
@@ -45,7 +45,7 @@ def icon(i):
                  f'<path d="M{n(cx - 6)} {n(cy - 12)} h12 a12 12 0 0 1 0 24 h-12 Z" fill="{BLUE}"/></g>')
         o.append(f'<circle cx="{n(cx + 20)}" cy="{n(cy + 20)}" r="11" fill="#FDE68A" stroke="{SLATE}" stroke-width="2" filter="url(#{U}ds)"/><line x1="{n(cx + 13)}" y1="{n(cy + 20)}" x2="{n(cx + 27)}" y2="{n(cy + 20)}" stroke="{SLATE}" stroke-width="1.6"/>')
     elif i == 2:                                         # sleep: a crescent moon and Z
-        o.append(f'<circle cx="{n(cx - 8)}" cy="{n(cy)}" r="22" fill="#1E3A8A" stroke="#FFFFFF" stroke-width="1.4" filter="url(#{U}ds)"/><circle cx="{n(cx + 2)}" cy="{n(cy - 8)}" r="19" fill="#EEF2F7"/>')
+        o.append(f'<circle cx="{n(cx - 8)}" cy="{n(cy)}" r="22" fill="#F7EBC2" stroke="#FFFFFF" stroke-width="1.4" filter="url(#{U}ds)"/><circle cx="{n(cx + 4)}" cy="{n(cy - 8)}" r="19" fill="#43558C"/>')
         for k, s in enumerate((7.0, 5.6, 4.4)):
             o.append(H.glyph_text("Z", cx + 22 + k * 5, cy - 6 - k * 12, s, SLATE, spacing=0.3))
     elif i == 3:                                         # food and water: a glass and an apple
@@ -66,7 +66,7 @@ def icon(i):
     elif i == 6:                                         # high, dust or darkness: a mountain, dust and a moon
         o.append(f'<path d="M{n(cx - 44)} {n(cy + 26)} L{n(cx - 12)} {n(cy - 22)} L{n(cx + 6)} {n(cy + 2)} L{n(cx + 18)} {n(cy - 10)} L{n(cx + 46)} {n(cy + 26)} Z" fill="#94A3B8" stroke="{SLATE}" stroke-width="2.2" stroke-linejoin="round" filter="url(#{U}ds)"/>'
                  f'<path d="M{n(cx - 12)} {n(cy - 22)} L{n(cx - 20)} {n(cy - 10)} L{n(cx - 12)} {n(cy - 14)} L{n(cx - 4)} {n(cy - 8)} Z" fill="#FFFFFF"/>')
-        o.append(f'<circle cx="{n(cx + 34)}" cy="{n(cy - 28)}" r="10" fill="#1E3A8A"/><circle cx="{n(cx + 39)}" cy="{n(cy - 32)}" r="9" fill="#EEF2F7"/>')
+        o.append(f'<circle cx="{n(cx + 34)}" cy="{n(cy - 28)}" r="10" fill="#F7EBC2"/><circle cx="{n(cx + 39)}" cy="{n(cy - 32)}" r="9" fill="#3E5084"/>')
         for k, (dx, dy) in enumerate(((-30, 14), (-20, 20), (-6, 12), (6, 20), (20, 14), (30, 22), (-36, 24), (36, 10))):
             o.append(f'<circle cx="{n(cx + dx)}" cy="{n(cy + dy)}" r="2.4" fill="#B45309" fill-opacity="0.8"/>')
     else:                                                # the rule for the air: an aeroplane, a runway and a stop bar beyond it
