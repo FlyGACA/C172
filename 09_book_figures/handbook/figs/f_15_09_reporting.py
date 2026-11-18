@@ -124,7 +124,7 @@ def plate():
         "legend": [
             "Report moderate or severe turbulence and moderate or severe icing when you encounter or observe them.",
             "Report severe mountain wave, and thunderstorms, with or without hail, that are obscured, embedded, widespread or in squall lines.",
-            "Report a heavy dust storm or heavy sandstorm, and a volcanic ash cloud or volcanic activity; and any other condition that, in your opinion, may affect the safety of other aircraft.",
+            "Report a heavy dust storm or heavy sandstorm, a volcanic ash cloud, pre-eruption volcanic activity or an eruption, and any other condition that, in your opinion, may affect the safety or markedly affect the efficiency of other aircraft operations.",
             "The report goes by air–ground data link where available, or by voice, to the nearest air traffic services unit without delay, as an air report.",
             "Say what you met, where, at what level, when, and in what type of aircraft.",
         ],
