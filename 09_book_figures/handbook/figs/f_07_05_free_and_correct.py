@@ -118,9 +118,9 @@ def plate():
                  "the column pulled back and the elevator rising; and the right pedal pushed and the rudder following it."),
         "legend": [
             "A control lock, a pin through the control column or a clamp on the surfaces, stops a free surface from being slammed against its stops in wind. Removing every lock is a checklist item, followed by a check that the controls are free and correct.",
-            "Ailerons: move the control wheel fully in each direction and watch outside; the correct aileron rises (here, to the right, the right aileron rises).",
-            "Elevator: the elevator rises when you pull.",
-            "Rudder: the rudder follows the pedal you push. Stiffness, noise or limited travel: stop and call maintenance.",
+            "Move the column and the rudder pedals fully in each direction and watch outside: the correct aileron rises,",
+            "the elevator rises when you pull,",
+            "the rudder follows the pedal you push. Stiffness, noise or limited travel: stop and call maintenance.",
         ],
         "canvas": [W, HT],
         "background": "pale",
