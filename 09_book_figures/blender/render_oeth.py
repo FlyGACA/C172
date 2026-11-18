@@ -15,7 +15,12 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
     paths     [{"points": [[x, y, z], ...], "colour": "#RRGGBB", "radius": m}] tubes drawn in the scene (a circuit, a track)
     keep_sources  statuses of scene/oeth/models/scene_index.json to keep (all by default); every other object of the scene is deleted
     plan      {"pavements": [{"zone", "ring", "holes"}], "islands": [{"ring"}], "buildings": [{"ring", "height"}], "roads": [{"points", "width"}]}
-              in the scene frame (x, y): a ground plan laid on the terrain in place of the scene's own (figs/oeth3d.py: the book's open plan)
+              in the scene frame (x, y): a ground plan laid on the terrain in place of the scene's own (figs/oeth3d.py: the book's open plan); zone "runway" is asphalt
+    zscale    heights of the ground (the scene and the far ground) drawn this many times their scale; the recipe's own heights (volumes, paths,
+              aircraft, anchors) are given already multiplied
+    volumes   [{"name", "ring": [[x, y], ...], "floor": z | {"agl": m}, "ceiling": z, "colour", "alpha", "edge": m, "subtract": [names]}]
+              airspace: a prism between floor and ceiling (a floor "agl" follows the ground at each corner), see-through, with its rings drawn as tubes
+    paths     ... "dash": [on, off] metres draws the tube in dashes
 """
 import argparse
 import json
@@ -138,8 +143,16 @@ def drop_sources(obs, keep):
 
 
 def ground_z(x, y):
-    hit, loc, *_ = bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(), Vector((x, y, 2000.0)), Vector((0, 0, -1)))
-    return loc.z if hit else 0.0
+    """The height of the ground (the scene, the far ground, the plan) under (x, y): blocks of airspace, their edges and paths are passed through."""
+    origin = Vector((x, y, 200000.0))
+    for _ in range(50):
+        hit, loc, _n, _i, ob, _m = bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(), origin, Vector((0, 0, -1)))
+        if not hit:
+            return 0.0
+        if not ob.name.startswith(("air ", "edge ", "path")):
+            return loc.z
+        origin = loc - Vector((0, 0, 0.01))
+    return 0.0
 
 
 def _mesh(name, verts, faces, mat):
@@ -173,14 +186,71 @@ def build(name, ring, height, walls, roof):
     return ob
 
 
+def glass_material(name, colour, alpha):
+    """A see-through tint for a block of airspace: transparent, mixed with a little emission of its colour."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = hexcol(colour)
+    em.inputs["Strength"].default_value = 0.9
+    mix.inputs["Fac"].default_value = alpha
+    nt.links.new(tr.outputs[0], mix.inputs[1])
+    nt.links.new(em.outputs[0], mix.inputs[2])
+    nt.links.new(mix.outputs[0], out.inputs["Surface"])
+    m.blend_method = "BLEND" if hasattr(m, "blend_method") else None
+    return m
+
+
+def volumes(vols):
+    built = {}
+    for v in vols:
+        ring = v["ring"][:-1] if v["ring"][0] == v["ring"][-1] else v["ring"]
+        n = len(ring)
+        fl = v["floor"]
+        bottom = [(x, y, ground_z(x, y) + fl["agl"]) if isinstance(fl, dict) else (x, y, fl) for x, y in ring]
+        top = [(x, y, v["ceiling"]) for x, y in ring]
+        faces = [tuple(range(n))[::-1], tuple(range(n, 2 * n))] + [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+        mat = glass_material("air_" + v["name"], v.get("colour", "#1D4ED8"), v.get("alpha", 0.15))
+        ob = _mesh("air " + v["name"], bottom + top, faces, mat)
+        built[v["name"]] = ob
+        for cut in v.get("subtract", []):
+            c = built[cut].copy()
+            c.data = built[cut].data.copy()
+            bpy.context.scene.collection.objects.link(c)
+            mod = ob.modifiers.new("cut_" + cut, "BOOLEAN")
+            mod.operation = "DIFFERENCE"
+            mod.solver = "EXACT"
+            mod.object = c
+            bpy.context.view_layer.objects.active = ob
+            bpy.ops.object.modifier_apply(modifier=mod.name)
+            bpy.data.objects.remove(c, do_unlink=True)
+        if v.get("edge"):
+            emat = flat_material("edge_" + v["name"], v.get("edge_colour", v.get("colour", "#1D4ED8")), emission=0.4)
+            for k, rng in (("floor", bottom), ("ceiling", top)):
+                if k == "floor" and v.get("no_floor_edge"):
+                    continue
+                pts = [list(p) for p in rng] + [list(rng[0])]
+                tube_mat(pts, emat, v["edge"], f"edge {v['name']} {k}")
+            if v.get("corner_edges"):                   # a prism with few corners: its upright edges too, so that it reads as a box
+                for i, (p, q) in enumerate(zip(bottom, top)):
+                    tube_mat([list(p), list(q)], emat, v["edge"] * 0.8, f"edge {v['name']} corner {i}")
+    return built
+
+
 def lay_plan(plan):
     twy = bpy.data.materials["taxi"]
     apron = bpy.data.materials["apron"]
     island = bpy.data.materials["island"]
     walls = bpy.data.materials["walls"]
     roof = flat_material("roof", "#F4F1EA")
+    rwy = bpy.data.materials["asphalt"]
     for p in plan.get("pavements", []):
-        flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], 0.30, apron if p["zone"] == "apron" else twy)
+        flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], 0.30, {"apron": apron, "runway": rwy}.get(p["zone"], twy))
     for i, p in enumerate(plan.get("islands", [])):
         flat_poly(f"plan island {i}", [p["ring"]], 0.45, island)
     for b in plan.get("buildings", []):
@@ -232,6 +302,46 @@ def find(prefix):
     return [o for o in bpy.data.objects if o.name.startswith(prefix)]
 
 
+def tube_mat(points, mat, radius, name):
+    """A tube along points with a given material (an edge of a block of airspace)."""
+    cu = bpy.data.curves.new(name, "CURVE")
+    cu.dimensions = "3D"
+    cu.bevel_depth = radius
+    cu.bevel_resolution = 2
+    sp = cu.splines.new("POLY")
+    sp.points.add(len(points) - 1)
+    for p, q in zip(sp.points, points):
+        p.co = (q[0], q[1], q[2], 1.0)
+    ob = bpy.data.objects.new(name, cu)
+    bpy.context.scene.collection.objects.link(ob)
+    ob.data.materials.append(mat)
+    return ob
+
+
+def dashes(points, on, off):
+    """The polyline cut into pieces on metres long with gaps of off metres."""
+    out, cur, acc, drawing = [], [list(points[0])], 0.0, True
+    for i in range(1, len(points)):
+        p, q = Vector(points[i - 1]), Vector(points[i])
+        seg = (q - p).length
+        t = 0.0
+        while seg - t > 1e-6:
+            left = (on if drawing else off) - acc
+            step = min(left, seg - t)
+            t += step
+            acc += step
+            pt = p.lerp(q, t / seg)
+            if drawing:
+                cur.append(list(pt))
+            if acc >= (on if drawing else off) - 1e-6:
+                if drawing:
+                    out.append(cur)
+                drawing, acc, cur = not drawing, 0.0, [list(pt)]
+    if drawing and len(cur) > 1:
+        out.append(cur)
+    return out
+
+
 def tube(points, colour, radius, name):
     cu = bpy.data.curves.new(name, "CURVE")
     cu.dimensions = "3D"
@@ -276,11 +386,20 @@ def main():
         scene_obs = drop_sources(scene_obs, set(r["keep_sources"]))
     if r.get("restyle", True):
         restyle(scene_obs)
+    k = r.get("zscale", 1.0)
+    if k != 1.0:                                       # the ground drawn k times its height (the recipe's own heights come multiplied already)
+        for o in bpy.data.objects:
+            if o.parent is None:
+                o.location.z *= k
+                o.scale.z *= k
     if "plan" in r:
         bpy.context.view_layer.update()
         lay_plan(r["plan"])
+    if "volumes" in r:
+        bpy.context.view_layer.update()
+        volumes(r["volumes"])
     if r.get("far_ground", True):                      # the terrain ends 20 km out: a sand plane below it carries the desert to the horizon
-        bpy.ops.mesh.primitive_plane_add(size=600000, location=(0, 0, -6.0))
+        bpy.ops.mesh.primitive_plane_add(size=r.get("far_ground_size", 600000), location=(0, 0, r.get("far_ground_z", -6.0)))
         g = bpy.context.active_object
         g.name = "far ground"
         g.data.materials.append(bpy.data.materials.get("sand"))
@@ -311,9 +430,26 @@ def main():
         # the model's nose points along -y of its build frame after import (glTF: forward is +z, which becomes -y); heading is true, clockwise from north
         root.rotation_euler = Euler((math.radians(ac.get("pitch", 0.0)), math.radians(-ac.get("bank", 0.0)), math.radians(-ac.get("heading", 0.0) + 180.0)), "ZXY")
     for i, p in enumerate(r.get("paths", [])):
+        if "drape" in p:                               # laid on the ground, drape metres above it (the section line of a map)
+            bpy.context.view_layer.update()
+            p = {**p, "points": [[x, y, ground_z(x, y) + p["drape"]] for x, y, *_ in p["points"]]}
+        if p.get("dash"):
+            mat = flat_material(f"path{i}m", p.get("colour", "#1D4ED8"), emission=1.5)
+            for j, piece in enumerate(dashes(p["points"], *p["dash"])):
+                tube_mat(piece, mat, p.get("radius", 6.0), f"path{i}.{j}")
+            continue
         ob, mat = tube(p["points"], p.get("colour", "#1D4ED8"), p.get("radius", 6.0), f"path{i}")
         if p.get("arrows"):
             arrows(p["points"], mat, p["arrows"], p.get("arrow_size", p.get("radius", 6.0) * 5), f"path{i}")
+        if p.get("end_arrow"):                          # a head at the end of the path (a wind arrow)
+            q0, q1 = Vector(p["points"][-2]), Vector(p["points"][-1])
+            size = p.get("arrow_size", p.get("radius", 6.0) * 5)
+            u = (q1 - q0).normalized()
+            bpy.ops.mesh.primitive_cone_add(vertices=24, radius1=size * 0.55, radius2=0.0, depth=size * 1.6, location=q1 + u * size * 0.8)
+            cone = bpy.context.active_object
+            cone.name = f"path{i}_head"
+            cone.rotation_euler = u.to_track_quat("Z", "Y").to_euler()
+            cone.data.materials.append(mat)
     world(r.get("sun", {}))
     cam_d = bpy.data.cameras.new("cam")
     cam = bpy.data.objects.new("cam", cam_d)
@@ -326,7 +462,7 @@ def main():
         cam_d.ortho_scale = c["ortho"]
     else:
         cam_d.lens = c.get("lens", 35)
-    cam_d.clip_end = 200000
+    cam_d.clip_end = r.get("clip_end", 200000)
     sc.camera = cam
     w, h = r.get("size", [1920, 1200])
     sc.render.resolution_x, sc.render.resolution_y = (w // 2, h // 2) if a.quick else (w, h)

@@ -5,85 +5,76 @@ the west side as a ribbon with arrowheads, five aeroplanes of the model on it, t
 aeroplane of the model and the flap as a bar turned down by its angle: figs/h_a1.py speed_card, as in figure 26-2) and its ten numbered callouts. Below, the circuit unrolled in a card of sky: the
 ground at 1 870 ft and the circuit altitude 2 900 ft AMSL (AIP AD 2.22.2). The wind from the north is a pair of pale ribbons blowing to the south (the old figure's windsock is not drawn: the AIP
 lists none for Thumamah). The shape of the circuit is illustrative: the AIP gives its directions and altitude and no size."""
+import json
+import os
+
 from figs import h_a1 as A1
-from figs import h_a4 as A4
 from figs import h_b4 as B
 from figs import scene as S
 from figs import terrain
 
-W, HT = 640, 450
+W, HT = 640, 536
 terrain.ensure("terrain-26-01-thumamah", size=(W * 4, HT * 4), seed=2601, kind="plain", features=("wadis",), veil=0.34, soft=2.8)
 
-PX, PY, PW, PH = 8, 4, 624, 230                    # the plan panel
-SX, SY, SW, SH = 8, 242, 624, 200                  # the side panel
-K = 0.0775                                         # units to the metre, as in figure 18-7
-P = B.Plan(112.0, 84.0, K)
-SPR = {"shadow": {"dx": 0.9, "dy": 1.5, "blur": 1.1, "opacity": 0.34}, "outline": {"width": 0.35, "colour": "#2B3648", "opacity": 0.8}}
+PX, PY, PW, PH = 8, 4, 624, 316                    # the top panel: the 3D view (figs/oeth3d.py circuit_26_02, blender/render_oeth.py)
+SX, SY, SW, SH = 8, 328, 624, 200                  # the side panel
 
 D35, R = B.DOWNWIND, B.CORNER
 C35 = B.circuit35(D=D35, R=R)
 M = C35.marks
 LIFT = B.LINE_UP_BEFORE_LIFT
-S_LINEUP, S_ROTATE, S_AIM = 3975.0, 3275.0, 3694.6
+R3D = "oeth-26-02-circuit"                          # the 3D view of the top panel; its points (line-up, rotation, aiming point) are those of figs/oeth3d.circuit_26_02
 
 
-def plan_markup():
-    f = P.xy
-    out = [f'<defs><clipPath id="b4pc"><rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9"/></clipPath></defs>', '<g clip-path="url(#b4pc)">', B.ground_card(PX, PY, PW, PH, 0.2)]
-    out.append(B.aerodrome(P))
-    out.append(B.construction(P, D35))
-    page35 = [f(s, t) for s, t in C35.pts]
-    wc = [B.strip_width(s, t) for s, t in C35.pts]
-    out.append(B.ribbon_poly(page35, [a for a, _ in wc], [b for _, b in wc]))
-    out.append(B.heads_on(P, C35, [M["up_end"] - 20, M["downwind"] + 1000, M["downwind"] + 3700, M["base_start"] + 650, M["final"] + 760], length=7.6, width=8.0))
-    # the aiming point: the two bold stripes of the marking beside the centreline, then the marks of the route
-    for sg in (-1, 1):
-        a, b = f(S_AIM + 22.0, sg * 11.0), f(S_AIM - 22.0, sg * 11.0)
-        out.append(f'<line x1="{a[0]:.2f}" y1="{a[1]:.2f}" x2="{b[0]:.2f}" y2="{b[1]:.2f}" stroke="#F8F6EE" stroke-width="1.0"/>')
-    out.append(B.ring(*f(S_LINEUP, 0.0), r=4.2))
-    out.append(B.dot_mark(*f(S_ROTATE, 0.0)))
-    for s, t in ((-500.0, 0.0), (-1000.0, 360.0), (900.0, D35), (B.S_S + D35 + R, 330.0), (4850.0, 0.0)):
-        out.append(B.small_ring(*f(s, t)))
-    out.append(B.ring(*f(B.S_S, D35), r=4.4))
-    ax, ay = f(S_AIM, 0.0)
-    out.append(f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="4.1" fill="#FFFFFF" fill-opacity="0.6"/><circle cx="{ax:.1f}" cy="{ay:.1f}" r="3.1" fill="#FFFFFF" stroke="{B.ORANGE}" stroke-width="1.5"/>')
-    out.append("</g>")
-    return "".join(out)
+# ----------------------------------------------------------------------------------------------------- the 3D view (the airport round)
+def r3d():
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "renders", R3D + ".anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    w, h = d["size"]
+    ih = PW * h / w
+    y0 = PY + PH / 2 - ih / 2
+    return lambda k: (round(PX + d["anchors"][k][0] * PW, 1), round(y0 + d["anchors"][k][1] * ih, 1))
 
 
-def plan_sprites():
-    f = P.xy
-    out = []
-
-    def sp(s, t, angle, width=22.0):
-        x, y = f(s, t)
-        out.append({"name": "sprite-top", "at": [round(x, 1), round(y, 1)], "width": width, "angle": angle, **SPR})
-    sp(-260.0, 0.0, 270)                       # climbing out
-    sp(-1000.0, 640.0, 180)                    # crosswind (flowing down the page)
-    sp(1850.0, D35, 90)                        # downwind
-    sp(B.S_S + D35 + R, 640.0, 0)              # base (flowing up the page)
-    sp(4540.0, 0.0, 270)                       # final
-    return out
+_AT = []
 
 
-def wind():
-    """Wind from the north: two pale ribbons blowing to the south (to the right of the page and 9 degrees down it: north is 9 degrees from the runway's axis)."""
-    out = []
-    for k, (x, y) in enumerate(((178.0, 16.0), (178.0, 41.0))):
-        out.append(A4.ribbon(f"b4w{k}", [(x, y), (x + 92.0, y + 14.6)], width=7.0, colours=("#5681BF", "#C1D7F2"), head=2.0, casing=2.0, casing_opacity=0.8, per=8))
-    return "".join(out)
+def AT(k):
+    """A point of the 3D view on the canvas (the anchors are read when the plate is laid out, after the render)."""
+    if not _AT:
+        _AT.append(r3d())
+    return _AT[0](k)
+
+CARD_W, CARD_H = 66.0, 42.0
+# the five tags of the old figure, each at a free place of the picture, with a leader to its point
+CARDS = (("b4t2", "climb", 548.0, 150.0, "VY 75", 0, None), ("b4t3", "rotate", 300.0, 262.0, "VR 55", 0, None), ("b4t4", "final", 16.0, 268.0, "65", 30, "#F59E0B"),
+         ("b4t5", "base", 18.0, 150.0, None, 20, "#F59E0B"), ("b4t6", "abeam", 92.0, 96.0, None, 10, "#F59E0B"))
 
 
-def tags():
-    out = []
-    out += A1.speed_card("b4t2", 46, 12, "VY 75", 0)
-    out += A1.speed_card("b4t3", 292, 12, "VR 55", 0)
-    out += A1.speed_card("b4t4", 545, 17, "65", 30, flap_colour="#F59E0B", mono=False)
-    out += A1.speed_card("b4t5", 545, 96, None, 20, flap_colour="#F59E0B")
-    out += A1.speed_card("b4t6", 462, 178, None, 10, flap_colour="#F59E0B")
-    f = P.xy
-    leaders = ((79.0, 54.0, *f(-500.0, 0.0)), (340.0, 54.0, *f(S_ROTATE, 0.0)), (545.0, 47.0, *f(4850.0, 0.0)), (545.0, 108.0, *f(B.S_S + D35 + R, 330.0)), (462.0, 190.0, *f(B.S_S, D35)))
-    return A1.flatten(out), "".join(A1.leader(x1, y1, x2, y2) for x1, y1, x2, y2 in leaders)
+def plan3d():
+    clip = (f'<defs><clipPath id="c3dq"><rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9"/></clipPath></defs><g clip-path="url(#c3dq)">')
+    img = {"name": R3D, "at": [PX + PW / 2, PY + PH / 2], "width": PW}
+    marks = B.ring(*AT("lineup"), r=4.2) + B.dot_mark(*AT("rotate")) + B.ring(*AT("abeam"), r=4.4)
+    ax, ay = AT("aim")
+    marks += f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="4.1" fill="#FFFFFF" fill-opacity="0.6"/><circle cx="{ax:.1f}" cy="{ay:.1f}" r="3.1" fill="#FFFFFF" stroke="{B.ORANGE}" stroke-width="1.5"/>'
+    for k in ("climb", "cross", "down", "base", "final"):
+        marks += B.small_ring(*AT(k))
+    (x0, y0), (x1, y1) = AT("n0"), AT("n1")
+    north = B.north_arrow(PX + PW - 34, PY + 34, (x1 - x0, y1 - y0))
+    return [clip, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
+
+
+def tags3d():
+    out, leaders = [], []
+    for cid, pt, x, y, text, flap, col in CARDS:
+        kw = {"flap_colour": col} if col else {}
+        if cid == "b4t4":
+            kw["mono"] = False
+        out += A1.speed_card(cid, x, y, text, flap, **kw)
+        tx, ty = AT(pt)
+        lx, ly = min(max(tx, x), x + CARD_W), min(max(ty, y), y + CARD_H)      # the leader leaves the card at its point nearest the target
+        leaders.append(A1.leader(lx, ly, tx, ty))
+    return A1.flatten(out), "".join(leaders)
 
 
 # ----------------------------------------------------------------------------------------------------- the side view
@@ -136,14 +127,11 @@ def side_sprites():
 
 def callouts():
     c = S.callout
-    f = P.xy
     out = []
-    for k, disc, (s, t) in ((1, (452.0, 40.0), (S_LINEUP, 0.0)), (2, (386.0, 38.0), (S_ROTATE, 0.0)), (3, (96.0, 118.0), (-500.0, 0.0)), (4, (68.0, 146.0), (-1000.0, 360.0)),
-                            (5, (200.0, 198.0), (900.0, D35)), (6, (422.0, 204.0), (B.S_S, D35)), (7, (560.0, 156.0), (B.S_S + D35 + R, 330.0)), (8, (516.0, 40.0), (4850.0, 0.0)),
-                            (9, (418.0, 48.0), (S_AIM, 0.0))):
-        tx, ty = f(s, t)
-        out.append(c(k, disc[0], disc[1], round(tx, 1), round(ty, 1)))
-    out.append(c(10, 150.0, 36.0, 182.0, 25.0))                     # the wind: its leader ends on the tail of the first ribbon
+    for k, pt, disc in ((1, "lineup", (214.0, 296.0)), (2, "rotate", (300.0, 186.0)), (3, "climb", (498.0, 170.0)), (4, "cross", (566.0, 84.0)), (5, "down", (398.0, 76.0)),
+                        (6, "abeam", (204.0, 128.0)), (7, "base", (26.0, 224.0)), (8, "final", (150.0, 298.0)), (9, "aim", (264.0, 298.0)), (10, "wind", (300.0, 30.0))):
+        tx, ty = AT(pt)
+        out.append(c(k, disc[0], disc[1], tx, ty))
     for k, d, (dx, dy) in ((2, d_of("liftoff"), (-26.0, -36.0)), (3, 2300.0, (-34.0, -30.0)), (4, d_of("cross_start", 330.0), (-34.0, -30.0)), (5, d_of("downwind", 2200.0), (0.0, -34.0)),
                            (6, ABEAM_D, (6.0, -34.0)), (7, d_of("base_start", 330.0), (34.0, -26.0)), (8, d_of("final", 560.0), (24.0, -42.0)), (9, LIFT + M["end"], (-32.0, 12.0))):
         x, y = PROF.point(d)
@@ -152,9 +140,8 @@ def callouts():
 
 
 def layers():
-    tag_layers, tag_leaders = tags()
-    return [{"name": "terrain-26-01-thumamah", "at": [W / 2, HT / 2], "width": W}, B.defs(), A1.defs(), plan_markup(), *plan_sprites(), wind(), tag_leaders, *tag_layers, B.frame(PX, PY, PW, PH),
-            B.north_arrow(PX + PW - 34, PY + PH - 36), B.scale_bar(PX + 24, PY + PH - 20, 1000 * K, "1 km"),
+    tag_layers, tag_leaders = tags3d()
+    return [{"name": "terrain-26-01-thumamah", "at": [W / 2, HT / 2], "width": W}, B.defs(), A1.defs(), *plan3d(), tag_leaders, *tag_layers,
             *side_back(), side_markup(), *side_sprites(), callouts()]
 
 
