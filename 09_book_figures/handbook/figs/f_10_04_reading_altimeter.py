@@ -2,7 +2,7 @@
 triangle for tens of thousands; 0 to 9 round the face, 10 units to a turn).
 
 The two readings are numbers the handbook already has: 1 870 ft, the elevation of Thumamah (AD 2 OETH 2.2; the altimeter on the ground with the reported setting, Chapter 10, "Setting the subscale"), and 6 500 ft, the first
-westbound VFR level that clears the ground on the line from Riyadh to Jeddah (Figure 2-2). The pointers stand where the reading puts them: hundreds hand at (ft mod 1 000) / 1 000 of a turn, thousands hand at (ft mod 10 000) / 10 000,
+westbound VFR level that clears the ground on the line from Riyadh to Jeddah (Figure 2-5). The pointers stand where the reading puts them: hundreds hand at (ft mod 1 000) / 1 000 of a turn, thousands hand at (ft mod 10 000) / 10 000,
 tens-of-thousands hand at (ft mod 100 000) / 100 000. The window at the right of the face shows the setting in hectopascals: 1 013 in both (the standard setting, 1 013.2 hPa rounded), drawn only to show where it is; the figure
 says nothing about what the setting should be. Digits only."""
 import math
