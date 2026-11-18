@@ -123,7 +123,7 @@ def plate():
         "desc": ("Figure 10-7. A schematic of the electronic flight displays: a primary flight display with attitude across the screen, an airspeed tape with the colour bands, altitude and vertical speed, heading, a bar under the bank pointer and trend vectors for 6 seconds; "
                  "a multi-function display with the map and engine instruments; and an indication replaced by a red X when the data are invalid. No values are shown."),
         "legend": [
-            "Attitude is shown across the screen: sky above, ground below, with a pitch ladder.",
+            "Attitude is shown across the screen.",
             "The airspeed tape on the left carries the same colour bands as the arcs of the traditional indicator.",
             "Altitude and vertical speed are on the right.",
             "Heading is shown below.",
