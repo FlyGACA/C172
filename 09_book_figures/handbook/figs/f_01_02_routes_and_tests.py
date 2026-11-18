@@ -116,7 +116,7 @@ def plate():
                  "20 h dual, 10 h solo, up to 5 h in an approved FSTD) and of the instructor training route (40 h flight time in aeroplanes), to one scale; and the knowledge test on thirteen areas and the practical test on twelve areas of operation."),
         "legend": [
             "Three ways to meet the training requirement: a pilot school course, a training centre course, or instructor training.",
-            "Pilot school course: 35 h ground training and 35 h flight training, including 20 h dual and 10 h solo; up to 5 h in an approved FSTD.",
+            "Pilot school course: 35 h ground training, 35 h flight training, 20 h dual instruction and 10 h solo, and up to 5 h in an approved FSTD.",
             "Instructor training route: 40 h flight time in aeroplanes. These are minimums; most students need more hours.",
             "The knowledge test covers the thirteen aeronautical knowledge areas of Appendix A to Part 141.",
             "The practical test covers the twelve areas of operation for an aeroplane single-engine course.",
