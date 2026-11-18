@@ -14,7 +14,7 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
     tint      {"object prefix": "#RRGGBB"}: paint those objects one flat colour (to show what a callout is about)
     paths     [{"points": [[x, y, z], ...], "colour": "#RRGGBB", "radius": m}] tubes drawn in the scene (a circuit, a track)
     keep_sources  statuses of scene/oeth/models/scene_index.json to keep (all by default); every other object of the scene is deleted
-    plan      {"pavements": [{"zone", "ring", "holes"}], "islands": [{"ring"}], "buildings": [{"ring", "height"}], "roads": [{"points", "width"}]}
+    plan      {"pavements": [{"zone", "ring", "holes"}], "islands": [{"ring"}], "buildings": [{"ring", "height"}], "roads": [{"points", "width"}], "marks": [{"ring", "colour"}]}
               in the scene frame (x, y): a ground plan laid on the terrain in place of the scene's own (figs/oeth3d.py: the book's open plan); zone "runway" is asphalt
     zscale    heights of the ground (the scene and the far ground) drawn this many times their scale; the recipe's own heights (volumes, paths,
               aircraft, anchors) are given already multiplied
@@ -255,6 +255,9 @@ def lay_plan(plan):
         flat_poly(f"plan island {i}", [p["ring"]], 0.45, island)
     for b in plan.get("buildings", []):
         build("plan " + b["name"], b["ring"], b["height"], walls, roof)
+    for i, mk in enumerate(plan.get("marks", [])):        # paint: flat shapes of one colour (chevrons, holding lines), a little above the pavement
+        mat = bpy.data.materials.get("paint_" + mk["colour"]) or flat_material("paint_" + mk["colour"], mk["colour"], emission=0.25)
+        flat_poly(f"plan mark {i}", [mk["ring"]], 0.55, mat)
     for i, rd in enumerate(plan.get("roads", [])):
         pts, w = rd["points"], rd.get("width", 8.0) / 2.0
         for j, (a, c) in enumerate(zip(pts, pts[1:])):

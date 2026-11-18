@@ -434,7 +434,66 @@ def route_17_09(k=5.0):
     }
 
 
+def _bar(t0, s0, t1, s1, w):
+    """A painted bar of width w (metres) from (t0, s0) to (t1, s1) of the runway frame, in the scene."""
+    L = math.hypot(t1 - t0, s1 - s0) or 1.0
+    nt, ns = -(s1 - s0) / L * w / 2, (t1 - t0) / L * w / 2
+    return [[round(c, 2) for c in xy(s, t)] for t, s in ((t0 + nt, s0 + ns), (t1 + nt, s1 + ns), (t1 - nt, s1 - ns), (t0 - nt, s0 - ns))]
+
+
+def aerodrome_18_01(scale=3.5):
+    """Figure 18-1, the 3D view: the northern part of Thumamah from the north-west, low (the north end near, the aprons and the runway going away): the AIP's runway and stopway with
+    their ICAO markings, the book's open ground plan (pavements, sand islands, roofs), the stopway's yellow chevrons and the runway-holding position of
+    the diagonal link as figs/f_18_01_aerodrome_plan.py draws them (the paint drawn wider than it is, so that it shows), and the parked aeroplanes of the
+    plan as the C172 model, `scale` times its size. Heights are not enlarged."""
+    from figs import f_18_01_aerodrome_plan as A
+    RW = 25.0
+    marks = []
+    for k in range(10):                                   # the chevrons of the stopway, pointing to the runway
+        s0 = -300 + 18 + k * 29.0
+        marks.append({"ring": _bar(-RW + 3, s0 - 11, 0, s0 + 5, 2.6), "colour": "#EDB92D"})
+        marks.append({"ring": _bar(0, s0 + 5, RW - 3, s0 - 11, 2.6), "colour": "#EDB92D"})
+    s_join, ax, ay = A.link_axis()                         # the runway-holding position: two solid and two dashed lines across the diagonal link
+    ptx, pty = 25 + 34 * ax, s_join + 34 * ay
+    for off, dashed in ((15.0, False), (9.4, False), (0.0, True), (-5.6, True)):
+        a = (ptx + ax * off - ay * 27, pty + ay * off + ax * 27)
+        b = (ptx + ax * off + ay * 27, pty + ay * off - ax * 27)
+        n = 9 if dashed else 1
+        for i in range(n):
+            if dashed and i % 2:
+                continue
+            f0, f1 = i / n, (i + 1) / n
+            marks.append({"ring": _bar(a[0] + (b[0] - a[0]) * f0, a[1] + (b[1] - a[1]) * f0, a[0] + (b[0] - a[0]) * f1, a[1] + (b[1] - a[1]) * f1, 1.8), "colour": "#EDB92D"})
+    plan = open_plan()
+    plan["marks"] = marks
+    aircraft = []
+    for t, s0, code in B.PLAN["parked_aeroplanes"]:
+        x, y = xy(s0, t)
+        aircraft.append({"at": [round(x, 1), round(y, 1), 0.3], "heading": 351.0 if code == 1 else 171.0, "scale": scale})
+    hang = next(b for b in B.PLAN["buildings"] if b["id"] == "HANGAR_MAIN")
+    hc = (sum(p[0] for p in hang["ring"][:-1]) / (len(hang["ring"]) - 1), sum(p[1] for p in hang["ring"][:-1]) / (len(hang["ring"]) - 1))
+
+    def a3(t, s, z=0.0):
+        x, y = xy(s, t)
+        return [round(x, 1), round(y, 1), z]
+    pts = {n: A.inside_point(n, *h) for n, h in (("PARALLEL TAXIWAY", (182, 600)), ("MAIN APRON", (150, 1150)), ("NORTH TURN LOOP", (76, 12)))}
+    north0 = xy(300.0, 120.0)
+    north1 = (north0[0], north0[1] + 300.0)
+    anchors = {
+        "rwy": a3(0, 1000), "des": a3(0, 78), "twy": a3(*pts["PARALLEL TAXIWAY"]), "hold": a3(ptx, pty), "apron": a3(*pts["MAIN APRON"]),
+        "stopway": a3(0, -70), "loop": a3(*pts["NORTH TURN LOOP"]), "hangar": a3(hc[0], hc[1], 7.0),
+        "n0": [*north0, 0.0], "n1": [*north1, 0.0],
+    }
+    cam, look = xy(-700.0, 640.0), xy(950.0, 130.0)       # from the north-west, low: the north end near, the aprons and the runway going away
+    return {
+        "id": "oeth-18-01-aerodrome", "camera": {"at": [round(cam[0], 1), round(cam[1], 1), 300.0], "look": [round(look[0], 1), round(look[1], 1), 0.0], "lens": 30},
+        "size": [2400, 1150], "samples": 128, "sun": {"elevation": 38, "azimuth": 130, "energy": 3.4}, "exposure": -0.25, "look": "AgX - Medium High Contrast",
+        "keep_sources": KEEP_SOURCES, "far_ground_size": 3000000, "clip_end": 2000000, "plan": plan, "aircraft": aircraft, "anchors": anchors,
+    }
+
+
 RECIPES = {
+    "oeth-18-01-aerodrome": aerodrome_18_01,
     "oeth-18-08-procedures": procedures_18_08,
     "oeth-17-09-route": route_17_09,
     "oeth-17-01-airspace": airspace_17_01,
