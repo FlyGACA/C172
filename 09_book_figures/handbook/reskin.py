@@ -4,6 +4,7 @@ size (a little larger, so the picture can be read), tinted where the symbol was 
 
     "reskin": {"svg": "fig-18-07-circuit.svg", "grow": 1.7, "grow_side": 1.4, "remove": [regex, ...],
                "drop": [[from text, up to text]], "sprites": [sprite overlays with "at"], "markup": "svg markup"}  (the last three: a stretch of the old drawing replaced)
+    plate "top3d": {"render", "height", "v_mid", "uid", "callouts"}           a 3D view (figs/panel3d.py) above the re-skinned drawing, which moves down
     "reskin": {"svg": ..., "blank": True, "layers": ["svg markup", {"name": "cloud-cb", "at": [x, y], "width": w}, ...]}   a new drawing on the old figure's canvas
                (figs/scene.py makes the skies, the land, the arrows), drawn in order from the back to the front
     "reskin": {"blank": True, "layers": [...]}                                 a figure the book never had (no old drawing): the same, on the plate's own canvas
@@ -174,9 +175,33 @@ def reskin(plate, sprite_markup, sprite_aspect):
     svg = svg.replace('font-family="sans-serif"', 'font-family="Inter, sans-serif"').replace('font-family="monospace"', 'font-family="JetBrains Mono, monospace"')
     if cfg.get("halo"):                                      # the drawing lies on a picture (a terrain): its lines and its words get a pale casing so that they can be read
         svg = add_halo(svg, **(cfg["halo"] if isinstance(cfg["halo"], dict) else {}))
+    if plate.get("top3d"):                                   # a 3D view above the drawing (after the halo: the view's callouts are the book's own)
+        svg = add_top3d(svg, plate, sprite_markup)
     root = re.search(r"<svg[^>]*>", svg).group(0)
     new_root = root.replace("<svg ", '<svg xmlns:xlink="http://www.w3.org/1999/xlink" data-px-per-unit="3" ', 1) if "data-px-per-unit" not in root else root
     return svg.replace(root, new_root, 1)
+
+
+def add_top3d(svg, plate, sprite_markup):
+    """A 3D view above the old drawing (figs/panel3d.py), as plate["top3d"] = {"render", "height", "v_mid", "uid", "callouts"}: the drawing is moved down by the
+    panel's height and the canvas grows by as much (the plate's "canvas" is the taller one)."""
+    from figs import panel3d as P3
+    t = plate["top3d"]
+    h = t["height"]
+    root = re.search(r"<svg[^>]*>", svg).group(0)
+    vb = [float(v) for v in re.search(r'viewBox="([^"]*)"', root).group(1).split()]
+    cw, ch = plate["canvas"]
+    if abs(vb[3] + h - ch) > 0.5 or abs(vb[2] - cw) > 0.5:
+        raise ValueError(f"{plate['id']}: the canvas {cw} x {ch} is not the drawing ({vb[2]:g} x {vb[3]:g}) with {h} above it")
+    new_root = re.sub(r'viewBox="[^"]*"', f'viewBox="0 0 {cw:g} {ch:g}"', root)
+    new_root = re.sub(r'\bheight="[^"]*"', f'height="{ch:g}"', new_root, count=1)
+    start = svg.index(root) + len(root)
+    inner = svg[start:svg.rindex("</svg>")]
+    heads = "".join(re.findall(r"<title>.*?</title>|<desc>.*?</desc>", inner, re.S))
+    inner = re.sub(r"<title>.*?</title>|<desc>.*?</desc>", "", inner, flags=re.S)
+    layers = P3.panel(t["render"], (8.0, 8.0, cw - 16.0, h - 16.0), t.get("v_mid", 0.5), t["uid"], t["callouts"])
+    panel = "".join(x if isinstance(x, str) else sprite_markup(x, x["at"][0], x["at"][1]) for x in layers)
+    return svg[:svg.index(root)] + new_root + heads + panel + f'<g transform="translate(0 {h})">' + inner + "</g></svg>"
 
 
 PALE_STROKES = {"#ffffff", "#fff", "#f3f4f6", "#e5e7eb", "#f8fafc", "#ffffffcc"}

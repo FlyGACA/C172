@@ -492,7 +492,150 @@ def aerodrome_18_01(scale=3.5):
     }
 
 
+# ---------------------------------------------------------------------------------- the manoeuvres of Chapter 27 over farmland (no aerodrome)
+GROUND_FT = 1000.0 * FT                                  # the height of the exercises above the ground: 1 000 ft
+ORANGE_WIND = "#C2410C"
+CROP, CROP_DARK, ROAD = "#5E9A4A", "#4C8239", "#4A505B"
+
+
+def _circle(cx, cy, r, n=72, a0=0.0, a1=360.0):
+    return [[round(cx + r * math.cos(math.radians(a0 + (a1 - a0) * i / n)), 1), round(cy + r * math.sin(math.radians(a0 + (a1 - a0) * i / n)), 1)] for i in range(n + (0 if a1 - a0 >= 360 else 1))]
+
+
+def _pivot(cx, cy, r, sector=55.0):
+    """A field under a centre pivot: a green disc, one sector darker (a fresh cut)."""
+    return [{"ring": _circle(cx, cy, r), "colour": CROP}, {"ring": [[cx, cy]] + _circle(cx, cy, r * 0.995, 16, 10.0, 10.0 + sector), "colour": CROP_DARK}]
+
+
+def _road(x0, y0, x1, y1, w=24.0):
+    L = math.hypot(x1 - x0, y1 - y0)
+    nx, ny = -(y1 - y0) / L * w / 2, (x1 - x0) / L * w / 2
+    out = [{"ring": [[x0 + nx, y0 + ny], [x1 + nx, y1 + ny], [x1 - nx, y1 - ny], [x0 - nx, y0 - ny]], "colour": ROAD}]
+    n = int(L // 40)
+    for i in range(n):                                    # the centre line, dashed
+        f0, f1 = i / n, (i + 0.45) / n
+        a, b = (x0 + (x1 - x0) * f0, y0 + (y1 - y0) * f0), (x0 + (x1 - x0) * f1, y0 + (y1 - y0) * f1)
+        ux, uy = (x1 - x0) / L * 0.0, (y1 - y0) / L * 0.0
+        out.append({"ring": [[a[0] + nx * 0.08, a[1] + ny * 0.08], [b[0] + nx * 0.08, b[1] + ny * 0.08], [b[0] - nx * 0.08, b[1] - ny * 0.08], [a[0] - nx * 0.08, a[1] - ny * 0.08]],
+                    "colour": "#F2EFE6"})
+    return out
+
+
+def _wind(x, y, z, length, heading, k=0):
+    """A wind arrow: the way the wind blows (true heading), pale orange, with its head at the end."""
+    a = math.radians(heading)
+    ux, uy = math.sin(a), math.cos(a)
+    return {"points": [[x - ux * length / 2, y - uy * length / 2, z], [x + ux * length / 2, y + uy * length / 2, z]], "colour": ORANGE_WIND, "radius": 9.0,
+            "end_arrow": True, "arrow_size": 45.0}
+
+
+def _farm_recipe(rid, camera, marks, aircraft, paths, anchors, blocks=None):
+    return {
+        "id": rid, "camera": camera, "size": [2400, 1150], "samples": 96, "exposure": -0.15,
+        "sun": {"elevation": 76, "azimuth": 160, "energy": 4.2, "sky": 0.45},          # high, and the sky's own sun dimmed: one shadow, almost under what casts it (the ground track)
+        "look": "AgX - Medium High Contrast", "keep_sources": [], "far_ground_z": 0.0, "far_ground_size": 3000000, "clip_end": 2000000,
+        "plan": {"marks": marks, "blocks": blocks or []}, "aircraft": aircraft, "paths": paths, "anchors": anchors,
+    }
+
+
+def _ac(x, y, heading, bank=0.0, z=None, scale=15.0):
+    return {"at": [round(x, 1), round(y, 1), round(GROUND_FT if z is None else z, 1)], "heading": round(heading % 360.0, 1), "bank": bank, "scale": scale}
+
+
+def drift_27_05():
+    """Figure 27-5, the 3D view: a road from south to north and a 15 kt wind from the west. Heading along the road, the aeroplane drifts east of it (red,
+    its track dashed); heading about 10 degrees into the wind, it tracks along the road (green). 1 000 ft above the ground, the aeroplanes enlarged."""
+    h = GROUND_FT
+    marks = _road(0, -1500, 0, 1500) + _pivot(-700, 650, 260) + _pivot(650, -550, 230) + _pivot(-650, -800, 220)
+    drift = [[0.0, -1100.0, h], [math.tan(math.radians(10)) * 2200.0, 1100.0, h]]
+    crab = [[0.0, -1100.0, h + 40.0], [0.0, 1100.0, h + 40.0]]
+    paths = [{"points": drift, "colour": "#B91C1C", "radius": 7.0, "dash": [60.0, 40.0], "end_arrow": True, "arrow_size": 40.0},
+             {"points": crab, "colour": "#0F766E", "radius": 7.0, "end_arrow": True, "arrow_size": 40.0},
+             _wind(-700, 200, h + 180, 420, 90), _wind(-700, -150, h + 180, 420, 90)]
+    aircraft = [_ac(math.tan(math.radians(10)) * 1300.0, 200.0, 0.0), _ac(0.0, -300.0, 350.0, z=h + 40.0)]
+    anchors = {"drift": [math.tan(math.radians(10)) * 1800.0, 700.0, h], "crab": [0.0, -300.0, h + 40.0], "wind": [-700, 200, h + 180], "n0": [0, 0, 0], "n1": [0, 200, 0]}
+    return _farm_recipe("farm-27-05-drift", {"at": [-2100.0, -1700.0, 1500.0], "look": [150.0, 150.0, 150.0], "lens": 34}, marks, aircraft, paths, anchors)
+
+
+def rectangle_27_06():
+    """Figure 27-6, the 3D view: the field, the course round it at an equal distance, flown anticlockwise, the wind from the west; the aeroplane on each
+    leg (on the base leg the nose towards the inside, on the crosswind leg towards the outside) and banked at the start of the turn onto base."""
+    h = GROUND_FT
+    D, R = 450.0, 350.0                                  # the course at an equal distance outside the field; the corners of 350 m radius (the chapter's)
+    A, Bh = 450.0 + D, 260.0 + D
+    field = [[-450, -260], [450, -260], [450, 260], [-450, 260]]
+    marks = [{"ring": field, "colour": CROP}] + [{"ring": [[-450 + i * 60, -260], [-420 + i * 60, -260], [-420 + i * 60, 260], [-450 + i * 60, 260]], "colour": CROP_DARK} for i in range(15)]
+    marks += _pivot(-1300, 900, 240) + _pivot(1350, -850, 220)
+    pts = []
+    corners = [(A - R, -Bh + R, 270.0), (A - R, Bh - R, 0.0), (-A + R, Bh - R, 90.0), (-A + R, -Bh + R, 180.0)]
+    for cx, cy, a0 in corners:                           # anticlockwise: each corner a quarter circle
+        pts += [[cx + R * math.cos(math.radians(a0 + 90 * i / 12)), cy + R * math.sin(math.radians(a0 + 90 * i / 12)), h] for i in range(13)]
+    pts.append(pts[0])
+    entry = [[-A - 500.0, -Bh - 500.0, h], [-A + 180.0, -Bh, h]]
+    paths = [{"points": pts, "colour": "#1D4ED8", "radius": 8.0, "arrows": 900.0, "arrow_size": 42.0},
+             {"points": entry, "colour": "#1D4ED8", "radius": 6.0, "dash": [50.0, 35.0], "end_arrow": True, "arrow_size": 36.0},
+             _wind(-1250, 150, h + 200, 420, 90), _wind(-1250, -150, h + 200, 420, 90)]
+    aircraft = [_ac(0.0, -Bh, 90.0), _ac(A, 0.0, 350.0), _ac(0.0, Bh, 270.0), _ac(-A, 0.0, 190.0),
+                _ac(A - R + R * math.cos(math.radians(290)), -Bh + R + R * math.sin(math.radians(290)), 110.0, bank=-40.0)]
+    anchors = {"wind": [-1250, 150, h + 200], "field": [0, 0, 0], "entry": [-A - 250.0, -Bh - 250.0, h], "down": [0.0, -Bh, h], "corner": [A - R * 0.3, -Bh + R * 0.05, h],
+               "base": [A, 0.0, h], "up": [0.0, Bh, h], "cross": [-A, 0.0, h], "n0": [0, 0, 0], "n1": [0, 200, 0]}
+    return _farm_recipe("farm-27-06-rectangle", {"at": [250.0, -3150.0, 2400.0], "look": [0.0, 0.0, 120.0], "lens": 34}, marks, aircraft, paths, anchors)
+
+
+def s_turns_27_07():
+    """Figure 27-7, the 3D view: S-turns across a road from west to east, the wind from the north: half circles south of the road (downwind, turning
+    left, the bank from 40 through 32 to 23 degrees) and north of it (upwind, turning right, 23 through 32 to 40), wings level over the road."""
+    h = GROUND_FT
+    r = 350.0                                            # the chapter's radius
+    x0 = -2 * r
+    marks = _road(-2200, 0, 2200, 0) + _pivot(-950, 900, 260) + _pivot(900, -880, 240)
+    pts = []
+    for k in range(3):                                   # three half circles: south, north, south
+        cx = x0 + r + 2 * r * k
+        south = k % 2 == 0
+        for i in range(25):
+            a = math.radians(180 + 180 * i / 24) if south else math.radians(180 - 180 * i / 24)
+            pts.append([round(cx + r * math.cos(a), 1), round(r * math.sin(a), 1), h])
+    paths = [{"points": pts, "colour": "#1D4ED8", "radius": 8.0, "arrows": 700.0, "arrow_size": 42.0},
+             _wind(1500, 700, h + 200, 380, 180), _wind(1750, 700, h + 200, 380, 180)]
+    c1 = x0 + r
+
+    def on1(deg):                                         # a point of the first half circle (south of the road), deg from east
+        a = math.radians(deg)
+        return c1 + r * math.cos(a), r * math.sin(a)
+    p3, p4, p5 = on1(215.0), on1(270.0), on1(325.0)
+    c2 = x0 + 3 * r
+    aircraft = [_ac(x0, 0.0, 180.0), _ac(*p3, 145.0, bank=-40.0), _ac(*p4, 80.0, bank=-32.0), _ac(*p5, 25.0, bank=-23.0), _ac(x0 + 2 * r, 0.0, 0.0),
+                _ac(c2, r, 80.0, bank=32.0)]
+    vehicle = [[c1 + 40.0, -4.0], [c1 + 52.0, -4.0], [c1 + 52.0, 4.0], [c1 + 40.0, 4.0]]
+    anchors = {"wind": [1625, 700, h + 200], "cross_dn": [x0, 0.0, h], "steep": [*p3, h], "xw": [*p4, h], "shallow": [*p5, h], "cross_up": [x0 + 2 * r, 0.0, h],
+               "up_half": [c2, r, h], "vehicle": [c1 + 46.0, 0.0, 3.0], "n0": [0, 0, 0], "n1": [0, 200, 0]}
+    return _farm_recipe("farm-27-07-s-turns", {"at": [-150.0, -2400.0, 1700.0], "look": [-150.0, 0.0, 120.0], "lens": 34}, marks, aircraft, paths, anchors,
+                        blocks=[{"ring": vehicle, "height": 2.5, "colour": "#DC2626"}])
+
+
+def point_27_08():
+    """Figure 27-8, the 3D view: turns around the centre of a circular field, anticlockwise, the wind from the west: the bank steepest downwind (40),
+    about 32 at the crosswind points (the nose inside the circle going north, outside going south) and shallowest upwind (23)."""
+    h = GROUND_FT
+    R = 350.0                                            # the chapter's radius
+    marks = _pivot(0, 0, 150) + _pivot(-1300, 800, 240) + _pivot(1250, -800, 230) + _road(-2200, -1200, 2200, -1200)
+    circle = [[round(R * math.cos(math.radians(270 + 360 * i / 72)), 1), round(R * math.sin(math.radians(270 + 360 * i / 72)), 1), h] for i in range(73)]
+    entry = [[-1300.0, -R, h], [0.0, -R, h]]
+    paths = [{"points": circle, "colour": "#1D4ED8", "radius": 8.0, "arrows": 700.0, "arrow_size": 42.0},
+             {"points": entry, "colour": "#1D4ED8", "radius": 6.0, "dash": [50.0, 35.0]},
+             _wind(-1250, 450, h + 200, 420, 90), _wind(-1250, 150, h + 200, 420, 90)]
+    aircraft = [_ac(0.0, -R, 90.0, bank=-40.0), _ac(R, 0.0, 350.0, bank=-32.0), _ac(0.0, R, 270.0, bank=-23.0), _ac(-R, 0.0, 190.0, bank=-32.0)]
+    anchors = {"point": [0, 0, 0], "wind": [-1250, 450, h + 200], "entry": [-800.0, -R, h], "down": [0.0, -R, h], "east": [R, 0.0, h], "up": [0.0, R, h], "west": [-R, 0.0, h],
+               "n0": [0, 0, 0], "n1": [0, 200, 0]}
+    return _farm_recipe("farm-27-08-point", {"at": [150.0, -2050.0, 1650.0], "look": [0.0, 0.0, 150.0], "lens": 34}, marks, aircraft, paths, anchors)
+
+
 RECIPES = {
+    "farm-27-05-drift": drift_27_05,
+    "farm-27-06-rectangle": rectangle_27_06,
+    "farm-27-07-s-turns": s_turns_27_07,
+    "farm-27-08-point": point_27_08,
     "oeth-18-01-aerodrome": aerodrome_18_01,
     "oeth-18-08-procedures": procedures_18_08,
     "oeth-17-09-route": route_17_09,

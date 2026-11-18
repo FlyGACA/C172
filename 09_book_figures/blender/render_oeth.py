@@ -255,6 +255,9 @@ def lay_plan(plan):
         flat_poly(f"plan island {i}", [p["ring"]], 0.45, island)
     for b in plan.get("buildings", []):
         build("plan " + b["name"], b["ring"], b["height"], walls, roof)
+    for i, bl in enumerate(plan.get("blocks", [])):       # a box of one colour on the ground (a vehicle on a road)
+        mat = bpy.data.materials.get("block_" + bl["colour"]) or flat_material("block_" + bl["colour"], bl["colour"], emission=0.15)
+        build(f"plan block {i}", bl["ring"], bl["height"], mat, mat)
     for i, mk in enumerate(plan.get("marks", [])):        # paint: flat shapes of one colour (chevrons, holding lines), a little above the pavement
         mat = bpy.data.materials.get("paint_" + mk["colour"]) or flat_material("paint_" + mk["colour"], mk["colour"], emission=0.25)
         flat_poly(f"plan mark {i}", [mk["ring"]], 0.55, mat)
