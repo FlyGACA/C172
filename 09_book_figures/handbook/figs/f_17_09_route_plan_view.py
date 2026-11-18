@@ -11,8 +11,10 @@ from figs import h_b2 as H
 from figs import scene as S
 from figs import terrain_real as TR
 
-W, HT = 640, 400
+W, HT = 640, 400                                                     # the plan (its ground is made at this size)
 U = "b27"
+TOPH = 260                                                           # the 3D view above it (the airspace round): the plate is W x (HT + TOPH)
+R3D = "oeth-17-09-route"
 SCALE = 40.0 / 3.0                                                   # canvas units to the NM
 
 OETH, OERK = H.DATA["oeth"], H.DATA["oerk"]
@@ -161,7 +163,19 @@ def callouts():
     return "".join(out)
 
 
+def top3d():
+    from figs import panel3d as P3
+    return P3.panel(R3D, (8.0, 8.0, 624.0, TOPH - 16.0), 0.50, U, [
+        (1, "atz", 170.0, 168.0), (2, "tma", 58.0, 150.0), (3, "fda", 140.0, 30.0), (4, "ctr", 330.0, 222.0), (5, "nv", 238.0, 52.0), (6, "ev", 392.0, 142.0),
+        (7, "o25", 118.0, 84.0), (8, "o212", 470.0, 40.0), (9, "o33", 58.0, 236.0), (10, "rwy", 300.0, 166.0), (11, "route", 342.0, 66.0)])
+
+
 def layers():
+    from figs import panel3d as P3
+    return [*top3d(), *P3.below(plan_layers(), TOPH)]
+
+
+def plan_layers():
     out = [H.defs(U, W, HT), f'<g filter="url(#{U}warm)">', {"name": "terrain-17-09-relief", "at": [W / 2, HT / 2], "width": W}, "</g>", H.vignette(U, W, HT), grid(), airspace(), special_use(), riyadh_runways()]
     out.append(H.route(U, ROUTE, 5.2, head_len=13.0, chevrons=0, mid_heads=head_marks()))
     out.append(thumamah_runway())                                  # the runway lies over the two ends of the ribbon: the route starts and ends at the aerodrome
@@ -179,8 +193,9 @@ def plate():
         "id": "fig-17-09-route-plan-view",
         "replaces": "fig-17-09-route-plan-view.svg",
         "book_file": "plate-17-09-route-plan-view.jpg",
-        "caption": "Figure 17-9. The worked example in plan view: a local flight from Thumamah",
-        "desc": "Figure 17-9. The worked example in plan view: a local flight from Thumamah. North up; limits from the AIP (AMDT 11/26); not for navigation.",
+        "caption": "Figure 17-9. The worked example in three dimensions and in plan view: a local flight from Thumamah",
+        "desc": ("Figure 17-9. The worked example in three dimensions and in plan view: a local flight from Thumamah. Above, the route among the blocks of airspace in 3D from the south, "
+                 "heights enlarged five times and the ground flat; below, the plan, north up. Limits from the AIP (AMDT 11/26); not for navigation."),
         "legend": [
             "The Thumamah ATZ, Class G: radius 5 NM, surface to 3 000 ft AMSL.",
             "The Riyadh terminal control areas (East and West), Class C, from 700 ft above the ground: all the ground in the frame except the ATZ and the control zone.",
@@ -195,7 +210,7 @@ def plate():
             "The route: Thumamah, North VRP, East VRP, Thumamah.",
             "Scale: 5 NM.",
         ],
-        "canvas": [W, HT],
+        "canvas": [W, HT + TOPH],
         "background": "pale",
         "reskin": {"svg": "fig-17-09-route-plan-view.svg", "blank": True, "layers": layers()},
     }

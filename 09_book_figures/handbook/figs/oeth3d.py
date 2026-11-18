@@ -244,7 +244,199 @@ def airspace_17_01(k=5.0):
     }
 
 
+def _from_canvas(F):
+    """A function from a canvas point of a figs/h_b2.Frame map to the scene (metres east and north of the Thumamah reference point)."""
+    dx, dy = local(F.lat0, F.lon0)                       # the frame's origin in the scene (the ARP for both figures: (0, 0))
+    return lambda p: (round(dx + (p[0] - F.ox) / F.s * NM, 1), round(dy - (p[1] - F.oy) / F.s * NM, 1))
+
+
+def _profile(points, knots):
+    """Heights along a polyline: knots are (index of a point, feet AMSL); between them the height runs linearly with the distance flown."""
+    cum = [0.0]
+    for a, b in zip(points, points[1:]):
+        cum.append(cum[-1] + math.hypot(b[0] - a[0], b[1] - a[1]))
+    kd = [(cum[i], ft) for i, ft in knots]
+    out = []
+    for c in cum:
+        for (d0, f0), (d1, f1) in zip(kd, kd[1:]):
+            if c <= d1 + 1e-6:
+                out.append(f0 + (f1 - f0) * (c - d0) / max(d1 - d0, 1e-6))
+                break
+        else:
+            out.append(kd[-1][1])
+    return out
+
+
+def _dense(points, step):
+    """The polyline with points added so that none of its pieces is longer than step."""
+    out = [points[0]]
+    for a, b in zip(points, points[1:]):
+        n = max(1, int(math.ceil(math.dist(a, b) / step)))
+        out += [(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n) for i in range(1, n + 1)]
+    return out
+
+
+def _nearest(points, q):
+    return min(range(len(points)), key=lambda i: (points[i][0] - q[0]) ** 2 + (points[i][1] - q[1]) ** 2)
+
+
+def procedures_18_08(k=4.0):
+    """Figure 18-8, the 3D view: the AIP's local procedures of Thumamah (AD 2.22) over the SRTM ground of the scene, heights (the ground's too) k times
+    their scale. The routes are figs/f_18_08_local_procedures.py's own, carried from its map into the scene; their heights are the AIP's: the circuits at
+    2 900 ft; the departure of 35 to 2 600 ft on runway heading, then 3 000 ft to the North VRP; that of 17 to 2 300 ft, round its circuit at 2 900 ft, then
+    3 000 ft; the arrival from the east at 3 500 ft from the East VRP until past the ridge, then down to 2 900 ft by mid-field; that from the west at 2 900 ft."""
+    from figs import f_18_08_local_procedures as L
+    to = _from_canvas(L.F)
+
+    def z(ft):
+        return round((ft - FIELD_FT) * FT * k, 1)
+
+    def path3(points, feet):
+        return [[*to(p), z(f)] for p, f in zip(points, feet)]
+
+    def circuit3(c):
+        h, _ = circuit_heights(c)
+        out, d = [], 0.0
+        while d < c.length:
+            (s, t), _u = c.at(d)
+            x, y = runway_point(s, t)
+            out.append([round(x, 1), round(y, 1), round(h(d) / FT * FT * k + 4.0 * k, 1)])
+            d += 40.0
+        return out
+    step = L.units(60.0)                                 # canvas units for 60 m: the routes are cut into pieces that short, so that a height can change anywhere along them
+    DEP35, DEP17, ARR_EAST, ARR_WEST = (_dense(p, step) for p in (L.DEP35, L.DEP17, L.ARR_EAST, L.ARR_WEST))
+    turn = _nearest(DEP35, L.P(L.TURN_35, 0.0))
+    dep35 = path3(DEP35, _profile(DEP35, [(0, 1870.0 + 150.0), (turn, 2600.0), (len(DEP35) - 1, 3000.0)]))
+    m17 = L._m17
+    dw = _nearest(DEP17, L.P(*L.C17.at(m17["downwind"])[0]))
+    upend = _nearest(DEP17, L.P(*L.C17.at(m17["up_end"])[0]))
+    dep17 = path3(DEP17, _profile(DEP17, [(0, 1870.0), (upend, 2300.0), (dw, 2900.0), (len(DEP17) - 1, 3000.0)]))
+    ridge = _nearest(ARR_EAST, L.RIDGE)
+    mid = _nearest(ARR_EAST, L.MIDFIELD)
+    arr_e = path3(ARR_EAST, _profile(ARR_EAST, [(0, 3500.0), (ridge, 3500.0), (mid, 2900.0), (len(ARR_EAST) - 1, 2900.0)]))
+    arr_w = path3(ARR_WEST, [2900.0] * len(ARR_WEST))
+    c35 = circuit3(L.C35)
+    c17 = circuit3(L.C17)
+    hw = [[*to(p), 0.0] for p in L.HIGHWAY]
+    atz = [[round(c, 1) for c in to(L.F.xy(lon, lat))] for lon, lat in _air_data()["areas"]["oeth_atz_ring"]]
+    rx, ry = to(L.RESERVE)
+    rr = 400.0
+    reserve = [[round(rx + rr * math.cos(i * math.pi / 18), 1), round(ry + rr * math.sin(i * math.pi / 18), 1)] for i in range(36)]
+
+    def on(points, frac):
+        cum = [0.0]
+        for a, b in zip(points, points[1:]):
+            cum.append(cum[-1] + math.dist(a, b))
+        target = cum[-1] * frac
+        i = next(j for j in range(1, len(cum)) if cum[j] >= target)
+        f = (target - cum[i - 1]) / max(cum[i] - cum[i - 1], 1e-6)
+        return [points[i - 1][q] + (points[i][q] - points[i - 1][q]) * f for q in range(3)], [points[i][q] - points[i - 1][q] for q in range(2)]
+
+    def plane(points, frac, scale=80.0):
+        p, (dx, dy) = on(points, frac)
+        return {"at": [round(c, 1) for c in p], "heading": round(math.degrees(math.atan2(dx, dy)) % 360.0, 1), "scale": scale}
+    nv, ev = to(L.NV), to(L.EV)
+    anchors = {
+        "rwy": [*to(L.P(3350.0, -40.0)), 0.0], "dep35": on(dep35, 0.30)[0], "dep17": on(dep17, 0.52)[0], "nv": [*nv, 0.0], "nv_top": [*nv, z(3000.0)], "ev": [*ev, 0.0],
+        "ev_top": [*ev, z(3500.0)], "ridge": arr_e[ridge], "mid": arr_e[mid], "hw": [*to(L.HIGHWAY[len(L.HIGHWAY) // 2]), 0.0], "entry": on(arr_w, 0.35)[0],
+        "reserve": [rx, ry, 0.0], "atz": [*to(L.F.bearing_point(L.ARP, 150.0, 5.0)), z(2400.0)], "c35": on(c35, 0.55)[0],
+        "n0": [6400.0, 0.0, 0.0], "n1": [6400.0, 1500.0, 0.0],             # north at the middle of the view (in perspective it leans elsewhere)
+    }
+    return {
+        "id": "oeth-18-08-procedures", "camera": {"at": [6300.0, -19000.0, 6400.0], "look": [6400.0, 2500.0, 700.0], "lens": 27}, "size": [2400, 1150], "samples": 96,
+        "sun": {"elevation": 40, "azimuth": 135, "energy": 3.2}, "exposure": -0.3, "look": "AgX - High Contrast", "zscale": k,
+        "far_ground_size": 3000000, "clip_end": 2000000,
+        "keep_sources": KEEP_SOURCES, "plan": open_plan(),
+        "volumes": [{"name": "ATZ", "ring": atz, "floor": -30.0, "ceiling": z(3000.0), "colour": "#16A34A", "alpha": 0.14, "edge": 40.0},
+                    {"name": "reserve", "ring": reserve, "floor": -30.0, "ceiling": 60.0 * k, "colour": "#DC2626", "alpha": 0.45, "edge": 18.0}],
+        "aircraft": [plane(dep35, 0.45), plane(arr_e, 0.55), plane(arr_w, 0.5)],
+        "paths": [{"points": c17, "colour": "#60A5FA", "radius": 58.0, "dash": [300.0, 200.0]},
+                  {"points": c35, "colour": "#1D4ED8", "radius": 80.0, "arrows": 2600.0, "arrow_size": 320.0},
+                  {"points": dep35, "colour": "#A21CAF", "radius": 80.0, "arrows": 2600.0, "arrow_size": 320.0},
+                  {"points": dep17, "colour": "#C026D3", "radius": 64.0, "dash": [340.0, 220.0], "end_arrow": True, "arrow_size": 300.0},
+                  {"points": arr_e, "colour": "#047857", "radius": 80.0, "arrows": 3000.0, "arrow_size": 320.0},
+                  {"points": arr_w, "colour": "#047857", "radius": 80.0, "arrows": 2600.0, "arrow_size": 320.0},
+                  {"points": hw, "colour": "#3A3F4A", "radius": 55.0, "drape": 8.0}],
+        "anchors": anchors,
+    }
+
+
+def route_17_09(k=5.0):
+    """Figure 17-9, the 3D view: the worked example (Thumamah, North VRP, East VRP, Thumamah) among the blocks of airspace of data/saudi_airspace.json, as in
+    Figure 17-1 (heights k times their scale, the ground flat): the ATZ, the final director area, the floor of the terminal area, the northern part of the Riyadh
+    CTR and the three special use areas (OED25 and OED33 to 4 200 and 4 500 ft AMSL, OER212 to 500 ft above the ground); the route at the heights of
+    Figure 17-10 (runway heading to 2 600 ft, 3 000 ft at the North VRP, 3 500 ft to past the ridge, then 2 900 ft)."""
+    from figs import f_17_10_route_profile as R
+    d = _air_data()
+    A = d["areas"]
+
+    def ring(lonlat):
+        return [[round(c, 1) for c in local(lat, lon)] for lon, lat in lonlat]
+
+    def z(ft):
+        return round((ft - FIELD_FT) * FT * k, 1)
+    agl = lambda ft: {"agl": round(ft * FT * k, 1)}
+    red = "#DC2626"
+    prd = A["prd"]
+    vols = [
+        {"name": "ATZ", "ring": ring(A["oeth_atz_ring"]), "floor": -30.0, "ceiling": z(3000.0), "colour": "#16A34A", "alpha": 0.40, "edge": 70.0},
+        {"name": "CTR", "ring": ring(A["oerk_ctr_ring"]), "floor": -30.0, "ceiling": z(4500.0), "colour": "#2563EB", "alpha": 0.30, "edge": 70.0},
+        {"name": "FDA", "ring": ring(A["riyadh_final_director_east_15l"]["ring"]), "floor": agl(700.0), "ceiling": z(11000.0), "colour": "#0EA5E9", "alpha": 0.08, "edge": 50.0,
+         "corner_edges": True, "subtract": ["CTR"]},
+        {"name": "TMA", "ring": ring(A["riyadh_east_tma_part1"]["ring"]), "floor": agl(700.0), "ceiling": z(2570.0 + 700.0), "colour": "#6366F1", "alpha": 0.07, "edge": 40.0,
+         "no_floor_edge": True, "subtract": ["ATZ", "CTR"]},
+        {"name": "OED25", "ring": ring(prd["OED25"]["ring"]), "floor": -30.0, "ceiling": z(4200.0), "colour": red, "alpha": 0.32, "edge": 55.0, "corner_edges": True},
+        {"name": "OER212", "ring": ring(prd["OER212"]["ring"]), "floor": -30.0, "ceiling": round(500.0 * FT * k, 1), "colour": red, "alpha": 0.40, "edge": 55.0, "corner_edges": True},
+        {"name": "OED33", "ring": ring(prd["OED33"]["ring"]), "floor": -30.0, "ceiling": z(4500.0), "colour": red, "alpha": 0.32, "edge": 55.0, "corner_edges": True},
+    ]
+    vr = {v["name"]: local(v["lat"], v["lon"]) for v in d["oeth"]["vrps"]}
+    names = list(vr)
+    nv, ev = vr[names[0]], vr[names[1]]
+    legs = [(0.0, 0.0), nv, ev, (0.0, 0.0)]
+    cum = [0.0]
+    for a, b in zip(legs, legs[1:]):
+        cum.append(cum[-1] + math.dist(a, b) / NM)
+    scale_nm = R.TOTAL / cum[-1]                          # the profile's distances (great circle) against this flat frame's: within a few tenths of a per cent
+    pts = []
+    for i in range(3):
+        n = 60
+        for j in range(n):
+            f = j / n
+            x, y = legs[i][0] + (legs[i + 1][0] - legs[i][0]) * f, legs[i][1] + (legs[i + 1][1] - legs[i][1]) * f
+            dnm = (cum[i] + (cum[i + 1] - cum[i]) * f) * scale_nm
+            pts.append((x, y, dnm))
+    pts.append((0.0, 0.0, R.TOTAL))
+
+    def ft_at(dnm):
+        for (d0, f0), (d1, f1) in zip(R.PATH, R.PATH[1:]):
+            if dnm <= d1:
+                return f0 + (f1 - f0) * (dnm - d0) / max(d1 - d0, 1e-6)
+        return R.PATH[-1][1]
+    route = [[round(x, 1), round(y, 1), z(ft_at(dn)) + 20.0] for x, y, dn in pts if dn <= R.PATH[-1][0]]
+    oerk = local(d["oerk"]["arp"]["lat"], d["oerk"]["arp"]["lon"])
+    cen = lambda r: [sum(p[0] for p in r[:-1]) / (len(r) - 1), sum(p[1] for p in r[:-1]) / (len(r) - 1)]
+    o25, o212, o33 = (cen(ring(prd[n]["ring"])) for n in ("OED25", "OER212", "OED33"))
+    mid = route[len(route) // 2]
+    anchors = {
+        "atz": [-5.0 * NM * 0.94, -5.0 * NM * 0.34, z(2600.0)], "tma": [-14.0 * NM, 6.0 * NM, agl(700.0)["agl"]], "fda": [-3.0 * NM, 10.0 * NM, z(11000.0)],
+        "ctr": [oerk[0] - 7.0 * NM, oerk[1] + 7.0 * NM, z(4000.0)], "nv": [*nv, 0.0], "ev": [*ev, 0.0], "o25": [*o25, z(4200.0)], "o212": [*o212, round(500.0 * FT * k, 1)],
+        "o33": [*o33, z(4500.0)], "rwy": [0.0, 0.0, 0.0], "route": mid, "n0": [0.0, 0.0, 0.0], "n1": [0.0, 4000.0, 0.0],
+    }
+    i_plane = len(route) // 3
+    p0, p1 = route[i_plane], route[i_plane + 1]
+    return {
+        "id": "oeth-17-09-route", "camera": {"at": [-26000.0, -86000.0, 56000.0], "look": [9000.0, -4000.0, 0.0], "lens": 34}, "size": [2400, 1150], "samples": 96,
+        "sun": {"elevation": 48, "azimuth": 150, "energy": 3.0}, "exposure": -0.2, "look": "AgX - Medium High Contrast",
+        "keep_sources": [x for x in KEEP_SOURCES if x != "srtm"], "far_ground_z": 0.0, "far_ground_size": 3000000, "clip_end": 2000000, "plan": open_plan(), "volumes": vols,
+        "aircraft": [{"at": p0, "heading": round(math.degrees(math.atan2(p1[0] - p0[0], p1[1] - p0[1])) % 360.0, 1), "scale": 280.0}],
+        "paths": [{"points": route, "colour": "#111827", "radius": 190.0, "arrows": 8000.0, "arrow_size": 800.0}],
+        "anchors": anchors,
+    }
+
+
 RECIPES = {
+    "oeth-18-08-procedures": procedures_18_08,
+    "oeth-17-09-route": route_17_09,
     "oeth-17-01-airspace": airspace_17_01,
     "oeth-26-02-circuit": circuit_26_02,
     "oeth-18-07-circuit": lambda: circuit_recipe("oeth-18-07-circuit", {"at": [4700.0, -2300.0, 3300.0], "look": [-560.0, -480.0, 60.0], "lens": 30}),
