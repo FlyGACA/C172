@@ -597,7 +597,7 @@ def s_turns_27_07():
             a = math.radians(180 + 180 * i / 24) if south else math.radians(180 - 180 * i / 24)
             pts.append([round(cx + r * math.cos(a), 1), round(r * math.sin(a), 1), h])
     paths = [{"points": pts, "colour": "#1D4ED8", "radius": 8.0, "arrows": 700.0, "arrow_size": 42.0},
-             _wind(1500, 700, h + 200, 380, 180), _wind(1750, 700, h + 200, 380, 180)]
+             _wind(-1250, 650, h + 200, 380, 180), _wind(-1000, 650, h + 200, 380, 180)]
     c1 = x0 + r
 
     def on1(deg):                                         # a point of the first half circle (south of the road), deg from east
@@ -608,9 +608,9 @@ def s_turns_27_07():
     aircraft = [_ac(x0, 0.0, 180.0), _ac(*p3, 145.0, bank=-40.0), _ac(*p4, 80.0, bank=-32.0), _ac(*p5, 25.0, bank=-23.0), _ac(x0 + 2 * r, 0.0, 0.0),
                 _ac(c2, r, 80.0, bank=32.0)]
     vehicle = [[c1 + 40.0, -4.0], [c1 + 52.0, -4.0], [c1 + 52.0, 4.0], [c1 + 40.0, 4.0]]
-    anchors = {"wind": [1625, 700, h + 200], "cross_dn": [x0, 0.0, h], "steep": [*p3, h], "xw": [*p4, h], "shallow": [*p5, h], "cross_up": [x0 + 2 * r, 0.0, h],
+    anchors = {"wind": [-1125, 650, h + 200], "cross_dn": [x0, 0.0, h], "steep": [*p3, h], "xw": [*p4, h], "shallow": [*p5, h], "cross_up": [x0 + 2 * r, 0.0, h],
                "up_half": [c2, r, h], "vehicle": [c1 + 46.0, 0.0, 3.0], "n0": [0, 0, 0], "n1": [0, 200, 0]}
-    return _farm_recipe("farm-27-07-s-turns", {"at": [-150.0, -2400.0, 1700.0], "look": [-150.0, 0.0, 120.0], "lens": 34}, marks, aircraft, paths, anchors,
+    return _farm_recipe("farm-27-07-s-turns", {"at": [250.0, -2500.0, 1800.0], "look": [250.0, 50.0, 120.0], "lens": 34}, marks, aircraft, paths, anchors,
                         blocks=[{"ring": vehicle, "height": 2.5, "colour": "#DC2626"}])
 
 

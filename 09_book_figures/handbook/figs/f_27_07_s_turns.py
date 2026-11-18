@@ -20,7 +20,11 @@ def plate():
             "Upwind half circle: the bank steepens from 23° through 32° to 40°, nose again into the wind.",
             "A vehicle on the road: keep your distance (§91.67).",
         ],
-        "canvas": [640, 420],
+        "canvas": [640, 420 + 260],
+        # above the drawing, the same in 3D (figs/oeth3d.s_turns_27_07): the half circles at 1 000 ft over the road, the shadow the ground track, the aeroplanes enlarged and banked
+        "top3d": {"render": "farm-27-07-s-turns", "height": 260, "v_mid": 0.42, "uid": "s277", "callouts": [
+            (1, "wind", 150.0, 32.0), (2, "cross_dn", 56.0, 96.0), (3, "steep", 48.0, 172.0), (4, "xw", 150.0, 232.0), (5, "shallow", 316.0, 222.0),
+            (6, "cross_up", 254.0, 52.0), (7, "up_half", 426.0, 40.0), (8, "vehicle", 228.0, 236.0)]},
         "background": "pale",
         "reskin": h_plan.layer({"svg": "fig-27-07-s-turns.svg"}, "terrain-27-07", seed=27, kind='farm', veil=0.26, fields=[(0.2, 0.2, 0.07), (0.82, 0.8, 0.07)]),
     }
