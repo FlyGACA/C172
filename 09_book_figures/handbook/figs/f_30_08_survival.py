@@ -1,4 +1,4 @@
-"""Figure 30-7. Survival after a desert landing: priorities around the aeroplane. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+"""Figure 30-8. Survival after a desert landing: priorities around the aeroplane. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
 
 
 from reskin import LOOK        # noqa: E402
@@ -6,11 +6,11 @@ from reskin import LOOK        # noqa: E402
 
 def plate():
     return {
-        "id": "fig-30-07-survival",
-        "replaces": "fig-30-07-survival.svg",
-        "book_file": "plate-30-07-survival.jpg",
-        "caption": "Figure 30-7. Survival after a desert landing: priorities around the aeroplane",
-        "desc": "Figure 30-7. Survival after a desert landing: priorities around the aeroplane",
+        "id": "fig-30-08-survival",
+        "replaces": "fig-30-08-survival.svg",
+        "book_file": "plate-30-08-survival.jpg",
+        "caption": "Figure 30-8. Survival after a desert landing: priorities around the aeroplane",
+        "desc": "Figure 30-8. Survival after a desert landing: priorities around the aeroplane",
         "legend": [
             "Safety and first aid: everyone clear until the fire risk has passed.",
             "Stay with the aeroplane: it is far easier to see than people, and the search follows your route.",
@@ -26,7 +26,7 @@ def plate():
         "canvas": [640, 430],
         "background": "pale",
         "reskin": {
-            "svg": "fig-30-07-survival.svg",
+            "svg": "fig-30-08-survival.svg",
             # the aeroplane, a line drawing in the old figure, is the model seen from the left, on the same ground line and as long as the old drawing was (the nose at the left);
             # the sheet that gives shade hangs from its wing behind it
             "drop": [['<g transform="translate(0 25.1)">', '<circle cx="88" cy="294.6" r="4.5"', {
