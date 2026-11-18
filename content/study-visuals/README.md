@@ -63,7 +63,7 @@ randomness, stable file order. `out/` is committed so the funnel can serve the f
   limits and arcs, both fuel tanks including the unusable markings, and the engine, propeller and
   tach-band rows;
 - English and Arabic string sets have identical keys, and every SVG opens with a disclosure band
-  above the plot (study-only and independence from GACA, in the edition's language) and carries the
+  above the plot (study-only and non-affiliation with GACA, in the edition's language) and carries the
   non-affiliation statement in both languages plus the "training and reference only" line;
 - a rebuild into a temporary directory equals the committed `out/` byte for byte.
 
