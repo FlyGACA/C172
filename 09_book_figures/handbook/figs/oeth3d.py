@@ -110,6 +110,7 @@ def circuit_recipe(rid, camera, size=(2400, 1220), scale=30.0, D=1000.0, R=300.0
         "5": a3(4500.0, 0.0, z=0.12 * top), "6": a3(sm - 900.0, D + 900.0), "7": a3(3300.0, D), "8": a3(B.S_S, D),
         "9": a3(B.S_S + D, D - R * 0.3, d=m["downwind_end"] + 120.0), "10": a3(-2100.0, 0.0, z=0.55 * top),
         "t35": a3(B.S_S, 0.0, z=0.0), "t17": a3(0.0, 0.0, z=0.0),
+        "n0": [0.0, 0.0, 0.0], "n1": [0.0, 800.0, 0.0],     # the aerodrome reference point and a point 800 m north of it: north in the picture
     }
     return {
         "id": rid, "camera": camera, "size": list(size), "samples": 96, "sun": {"elevation": 42, "azimuth": 120, "energy": 3.2}, "exposure": -0.3, "look": "AgX - High Contrast",

@@ -1,9 +1,9 @@
 """Figure 18-7 (the Saudi round). The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah (OETH).
 
 Top panel (redrawn in 3D in the airport round): Thumamah from the south-east, rendered from the 3D scene of the aerodrome in the saudi-airspace repository (runway from AD 2 OETH 2.12,
-pavements and buildings traced from imagery, SRTM terrain) by blender/render_oeth.py, with the left-hand circuit of runway 35 as a blue tube at its heights (its shadow lies on the ground),
-arrowheads along it, the 45 degree join in green, the two ways of leaving in orange and five aeroplanes of the C172 model, enlarged 20 times, on the legs (figs/oeth3d.py builds the recipe from
-the same circuit as before: 1 000 m out, turns of 300 m radius). The checks (a square) and the abeam point (a ring) are drawn on the picture. Bottom panel: the circuit unrolled, the
+SRTM terrain; its imagery-traced pavements and buildings replaced by the open plan of figs/h_b4.py) by blender/render_oeth.py, with the left-hand circuit of runway 35 as a blue tube at its heights (its shadow lies on the ground),
+arrowheads along it, the 45 degree join in green, the two ways of leaving in orange and five aeroplanes of the C172 model, enlarged 30 times, on the legs (figs/oeth3d.py builds the recipe from
+the same circuit as before: 1 000 m out, turns of 300 m radius). The checks (a square), the abeam point (a ring) and north (an arrow projected from the scene) are drawn on the picture. Bottom panel: the circuit unrolled, the
 ground at 1 870 ft and the downwind leg at 2 900 ft AMSL. The AIP (AD 2.22.2) gives the directions (35 left-hand, 17 right-hand, both on the west side) and the altitude (2 900 ft AMSL,
 1 030 ft above the aerodrome) and nothing about the size of the circuit: its rectangle is illustrative. Thumamah has no windsock in the AIP: none is drawn."""
 from figs import h_a1 as A1
@@ -49,7 +49,9 @@ def plan3d():
     clip = (f'<defs><clipPath id="c3dp"><rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9"/></clipPath></defs><g clip-path="url(#c3dp)">')
     img = {"name": R3D, "at": [PX + PW / 2, PY + PH / 2], "width": PW}
     marks = B.square_mark(*at("7")) + B.ring(*at("8"))
-    return [clip, img, marks + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
+    (x0, y0), (x1, y1) = at("n0"), at("n1")
+    north = B.north_arrow(PX + PW - 34, PY + 34, (x1 - x0, y1 - y0))
+    return [clip, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
 
 
 def plan_markup():
@@ -194,7 +196,7 @@ def plate():
         "replaces": "fig-18-07-circuit.svg",
         "book_file": "plate-18-07-circuit.jpg",
         "caption": "Figure 18-7. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah",
-        "desc": "Figure 18-7. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah. Above, the aerodrome in 3D from the south-east with the left-hand circuit at its heights and its shadow on the ground, the 45 degree join and the two ways of leaving; the aeroplanes are enlarged. The shape of the circuit is illustrative, its direction and altitude are the AIP's (AMDT 11/26); not for navigation.",
+        "desc": "Figure 18-7. The aerodrome traffic circuit from above and from the side: runway 35 at Thumamah. Above, the aerodrome in 3D from the south-east with the left-hand circuit at its heights and its shadow on the ground, the 45 degree join and the two ways of leaving; the aeroplanes are enlarged and north is to the right, as the arrow shows. The shape of the circuit is illustrative, its direction and altitude are the AIP's (AMDT 11/26); not for navigation.",
         "legend": [
             "Upwind leg: climb straight ahead after takeoff.",
             "Crosswind leg, at right angles to the runway beyond its end.",

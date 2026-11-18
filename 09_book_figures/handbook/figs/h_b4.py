@@ -349,10 +349,11 @@ def frame(x, y, w, h, r=9.0):
             f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="none" stroke="#6B6247" stroke-opacity="0.75" stroke-width="0.8"/>')
 
 
-def north_arrow(cx, cy):
-    """A disc with the arrow of north (in the runway frame north is (-0.9872, -0.1593) on the page: to the left, a little up), the N beside the head."""
+def north_arrow(cx, cy, v=None):
+    """A disc with the arrow of north (in the runway frame north is (-0.9872, -0.1593) on the page: to the left, a little up), the N beside the head.
+    v: the direction of north on the page where it is not the runway frame's (a 3D view: two ground points projected)."""
     nt, ns = PLAN["runway"]["north_in_ts_per_m"]
-    vx, vy = ns, nt
+    vx, vy = v if v is not None else (ns, nt)
     m = math.hypot(vx, vy)
     vx, vy = vx / m, vy / m
     ox, oy = cx - vx * 3.0, cy - vy * 3.0              # the arrow sits a little towards its tail, the N takes the head's side
