@@ -200,8 +200,10 @@ def circuit_26_02():
         anchors_wind = (x, y + 700.0, z + 250.0 * k)
     pts.pop("wind0"); pts.pop("wind1")
     pts_xyz = {"wind": list(anchors_wind)}
-    r = circuit_recipe("oeth-26-02-circuit", {"at": [4700.0, -2300.0, 3300.0], "look": [-560.0, -480.0, 60.0], "lens": 30}, join_leave=False, extra_anchors=pts, extra_paths=wind)
+    r = circuit_recipe("oeth-26-02-circuit", {"at": [4300.0, -2700.0, 4300.0], "look": [-560.0, -380.0, 60.0], "lens": 32}, join_leave=False, extra_anchors=pts, extra_paths=wind)
     r["anchors"].update(pts_xyz)
+    r = style_c(r, track=r["paths"][0]["points"])          # style C, with the camera of 18-7 (figure 26-2 lays the render whole over a drawn sky)
+    r["transparent"] = True
     return r
 
 
@@ -668,17 +670,18 @@ def point_27_08():
     return _farm_recipe("farm-27-08-point", {"at": [150.0, -2050.0, 1650.0], "look": [0.0, 0.0, 150.0], "lens": 34}, marks, aircraft, paths, anchors)
 
 
-def style_c(r, track=None, ink_px=1.5):
+def style_c(r, track=None, ink_px=1.5, ground=True):
     """The house style of the second design pass (style C): the open picture of the ground, softened, on the real terrain; crisp illustrated overlays on
     it (outlines on the aircraft and the paths, thicker paths that cast no shadow); the ground track as a dashed line on the ground; aerial haze."""
     r = json.loads(json.dumps(r))
-    r["ground_image"] = ground_texture()
+    if ground:                                               # (a scene wider than the picture keeps its plain ground: the picture's edge would show)
+        r["ground_image"] = ground_texture()
     r["ink"] = {"thickness": ink_px, "colour": "#1F2937"}
     r["haze"] = {"start": 2500.0, "depth": 22000.0, "colour": "#E8E4DC", "strength": 0.6}
     r["sun"] = {**r.get("sun", {}), "sky": 0.8}
     r["look"] = "AgX - Medium High Contrast"
     r["exposure"] = -0.1
-    for p in r["paths"]:
+    for p in r.setdefault("paths", []):
         p["shadow"] = False
         p["radius"] = round(p.get("radius", 6.0) * 1.35, 1)
     if track:
@@ -717,7 +720,7 @@ RECIPES = {
     "farm-27-06-rectangle": rectangle_27_06,
     "farm-27-07-s-turns": s_turns_27_07,
     "farm-27-08-point": point_27_08,
-    "oeth-18-01-aerodrome": aerodrome_18_01,
+    "oeth-18-01-aerodrome": aerodrome_18_01,           # (not in style C: 10 m pixels are a blur from 300 m up)
     "oeth-18-08-procedures": procedures_18_08,
     "oeth-17-09-route": route_17_09,
     "oeth-17-01-airspace": airspace_17_01,

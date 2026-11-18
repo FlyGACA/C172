@@ -53,15 +53,17 @@ CARDS = (("b4t2", "climb", 548.0, 150.0, "VY 75", 0, None), ("b4t3", "rotate", 3
 
 def plan3d():
     clip = (f'<defs><clipPath id="c3dq"><rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9"/></clipPath></defs><g clip-path="url(#c3dq)">')
-    img = {"name": R3D, "at": [PX + PW / 2, PY + PH / 2], "width": PW}
+    img = {"name": R3D, "at": [PX + PW / 2, PY + PH / 2], "width": PW, "whole": True}
+    sky = (f'<defs><linearGradient id="c3dl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5D93D4"/><stop offset="0.6" stop-color="#A9CBEE"/>'
+           f'<stop offset="1" stop-color="#E4EEF6"/></linearGradient></defs><rect x="{PX}" y="{PY}" width="{PW}" height="{PH * 0.25:.1f}" fill="url(#c3dl)"/>')
     marks = B.ring(*AT("lineup"), r=4.2) + B.dot_mark(*AT("rotate")) + B.ring(*AT("abeam"), r=4.4)
     ax, ay = AT("aim")
     marks += f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="4.1" fill="#FFFFFF" fill-opacity="0.6"/><circle cx="{ax:.1f}" cy="{ay:.1f}" r="3.1" fill="#FFFFFF" stroke="{B.ORANGE}" stroke-width="1.5"/>'
     for k in ("climb", "cross", "down", "base", "final"):
         marks += B.small_ring(*AT(k))
     (x0, y0), (x1, y1) = AT("n0"), AT("n1")
-    north = B.north_arrow(PX + PW - 34, PY + 34, (x1 - x0, y1 - y0))
-    return [clip, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
+    north = B.north_arrow(PX + PW - 34, PY + PH - 34, (x1 - x0, y1 - y0))
+    return [clip + sky, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
 
 
 def tags3d():
