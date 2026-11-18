@@ -13,6 +13,10 @@ INK, BLUE, GREEN, AMBER, RED, SLATE = "#1E293B", "#1D4ED8", "#15803D", "#B45309"
 X0, PXM = 56.0, 0.32                                        # metres to pixels
 
 
+RWYS = []
+SPRITE_LOOK = {"outline": {"width": 0.4, "colour": "#2B3648", "opacity": 0.85}, "shadow": {"dx": 1.0, "dy": 1.8, "blur": 1.4, "opacity": 0.35}}
+
+
 def gwidth(s, height, spacing=0.4):
     g = H._GLYPHS
     k = height / g["cap_height"]
@@ -35,9 +39,19 @@ def card(uid, x, y, w, h):
 
 
 def runway(y, m, label, span=100):
+    """A runway seen from above, to the scale of the bars: asphalt, edge lines, threshold stripes at both ends and a dashed centre line; the aeroplane
+    of the model stands lined up on the threshold (a sprite, see layers)."""
     w = m * PXM
-    return (f'<rect x="{n(X0)}" y="{n(y)}" width="{n(w)}" height="20" rx="2" fill="#5B6577"/><line x1="{n(X0 + 6)}" y1="{n(y + 10)}" x2="{n(X0 + w - 6)}" y2="{n(y + 10)}" stroke="#F1F5F9" stroke-width="1.6" stroke-dasharray="8 6"/>'
-            f'<line x1="{n(X0 + w)}" y1="{n(y - 6)}" x2="{n(X0 + w)}" y2="{n(y + span)}" stroke="#5B6577" stroke-width="1.6" stroke-dasharray="4 4"/>' + pill(X0 + w + 6, y + 10, label, SLATE, anchor="start"))
+    h = 22.0
+    RWYS.append((X0, y, w, h))
+    out = (f'<defs><linearGradient id="{U}rw{len(RWYS)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#596273"/><stop offset="1" stop-color="#454D5B"/></linearGradient></defs>'
+           f'<rect x="{n(X0)}" y="{n(y - 1)}" width="{n(w)}" height="{n(h)}" rx="1.5" fill="url(#{U}rw{len(RWYS)})"/>'
+           f'<line x1="{n(X0)}" y1="{n(y + 1.2)}" x2="{n(X0 + w)}" y2="{n(y + 1.2)}" stroke="#E5E7EB" stroke-width="0.9"/><line x1="{n(X0)}" y1="{n(y + h - 3.2)}" x2="{n(X0 + w)}" y2="{n(y + h - 3.2)}" stroke="#E5E7EB" stroke-width="0.9"/>')
+    for x in (X0 + 2.5, X0 + w - 9.5):                       # threshold stripes
+        out += "".join(f'<rect x="{n(x)}" y="{n(y + 3 + k * 2.6)}" width="7" height="1.5" fill="#F8FAFC"/>' for k in range(6))
+    out += f'<line x1="{n(X0 + 16)}" y1="{n(y + h / 2 - 1)}" x2="{n(X0 + w - 16)}" y2="{n(y + h / 2 - 1)}" stroke="#F1F5F9" stroke-width="1.4" stroke-dasharray="7 6"/>'
+    out += f'<line x1="{n(X0 + w)}" y1="{n(y - 6)}" x2="{n(X0 + w)}" y2="{n(y + span)}" stroke="#5B6577" stroke-width="1.6" stroke-dasharray="4 4"/>' + pill(X0 + w + 6, y + 10, label, SLATE, anchor="start")
+    return out
 
 
 def bar(y, m, col, label, outline=False, mark=None):
@@ -85,7 +99,10 @@ def callouts():
 
 
 def layers():
-    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', leg_a(), leg_b(), leg_back(), callouts()]
+    RWYS.clear()
+    out = [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', leg_a(), leg_b(), leg_back(), callouts()]
+    planes = [{"name": "sprite-top", "at": [x + 24, y + h / 2 - 1], "width": 19, "angle": 90.0, **SPRITE_LOOK} for x, y, w, h in RWYS]
+    return out[:-1] + planes + out[-1:]
 
 
 def plate():
