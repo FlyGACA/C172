@@ -1,4 +1,4 @@
-"""Figure 16-9 (new). When the weather turns in flight, from the last section of Chapter 16: four scenes.
+"""Figure 16-10 (new). When the weather turns in flight, from the last section of Chapter 16: four scenes.
 
 Drawn in the style of the other illustrated figures (figs/scene.py: sky, plain, fog, ribbons; the aeroplane sprites laid by reskin.py): 1 turn back while the visibility is still good (a dust wall ahead, clear air behind, the turn),
 2 a dust storm can cover several aerodromes at once (three runways in plan under one band of dust; the chapter's "about 500 km wide" of April 2018), 3 a controlled VFR flight that cannot stay in VMC (a control zone in plan and the three
@@ -108,11 +108,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-16-09-weather-turns",
-        "replaces": "fig-16-09-weather-turns.svg",           # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-16-09-weather-turns.jpg",
-        "caption": "Figure 16-9. When the weather turns in flight: turn back early, expect dust over several aerodromes, use the controlled VFR options, and report",
-        "desc": ("Figure 16-9. When the weather turns in flight, in four scenes: turn back while the visibility is still good; a dust storm can cover several aerodromes at once, as in April 2018 when a wall of dust about 500 km wide crossed the peninsula; "
+        "id": "fig-16-10-weather-turns",
+        "replaces": "fig-16-10-weather-turns.svg",           # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-16-10-weather-turns.jpg",
+        "caption": "Figure 16-10. When the weather turns in flight: turn back early, expect dust over several aerodromes, use the controlled VFR options, and report",
+        "desc": ("Figure 16-10. When the weather turns in flight, in four scenes: turn back while the visibility is still good; a dust storm can cover several aerodromes at once, as in April 2018 when a wall of dust about 500 km wide crossed the peninsula; "
                  "a controlled VFR flight that cannot stay in VMC asks for an amended clearance, leaves the airspace or lands at the nearest suitable aerodrome; and a heavy dust storm or sandstorm is reported."),
         "legend": [
             "The weather may differ from the forecast, so have an alternative and be ready to divert. Turn back while the visibility is still good.",

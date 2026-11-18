@@ -1,4 +1,4 @@
-"""Figure 26-3. The stabilized-approach gate and the go-around sequence. Two scenes in cards: a runway of the Peninsula seen almost edge-on (markings, edge lights), pale hills, the
+"""Figure 26-4. The stabilized-approach gate and the go-around sequence. Two scenes in cards: a runway of the Peninsula seen almost edge-on (markings, edge lights), pale hills, the
 approach path with the gate as a pane of glass in a steel frame on it, the heights as dotted lines with their numbers, the model seen from the right at the places of the old figure
 (the stable one in green), the high-and-fast path in red, the go-around as a line with a casing and an arrowhead, the flap and speed boxes as small cards; the nine numbered callouts of
 the old figure kept (figs/h_a1.py and figs/scene.py make the pieces)."""
@@ -99,11 +99,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-03-gate-go-around",
-        "replaces": "fig-26-03-gate-go-around.svg",
-        "book_file": "plate-26-03-gate-go-around.jpg",
-        "caption": "Figure 26-3. The stabilized-approach gate and the go-around sequence",
-        "desc": "Figure 26-3. The stabilized-approach gate and the go-around sequence",
+        "id": "fig-26-04-gate-go-around",
+        "replaces": "fig-26-04-gate-go-around.svg",
+        "book_file": "plate-26-04-gate-go-around.jpg",
+        "caption": "Figure 26-4. The stabilized-approach gate and the go-around sequence",
+        "desc": "Figure 26-4. The stabilized-approach gate and the go-around sequence",
         "legend": [
             "The gate, at 500 ft above the aerodrome in the FAA's guidance.",
             "The 300 ft line.",
@@ -117,5 +117,5 @@ def plate():
         ],
         "canvas": [640, 450],
         "background": "pale",
-        "reskin": {"svg": "fig-26-03-gate-go-around.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-26-04-gate-go-around.svg", "blank": True, "layers": layers()},
     }

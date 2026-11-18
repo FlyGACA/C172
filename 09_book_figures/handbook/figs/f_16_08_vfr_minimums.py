@@ -1,4 +1,4 @@
-"""Figure 16-7. VFR minimums in Classes C, D and E below 10 000 ft and at a controlled aerodrome. Two scenes in cards: on the left a cumulus of the model of the sky (figs/clouds.py) with
+"""Figure 16-8. VFR minimums in Classes C, D and E below 10 000 ft and at a controlled aerodrome. Two scenes in cards: on the left a cumulus of the model of the sky (figs/clouds.py) with
 the aeroplane 500 ft below it, 1 000 ft above it and 2 000 ft to the side of it, the 5 km flight visibility as a dashed arrow; on the right a controlled aerodrome of the Peninsula (runway,
 control tower, desert hills) under two clouds whose base is the ceiling, 1 000 ft above the ground, with the surface area of the controlled airspace as a pane of air with a dashed edge and
 the 5 km ground visibility along the ground. Every distance and its dimension line is kept, with the eight numbered callouts of the old figure (figs/h_a1.py and figs/scene.py make
@@ -65,11 +65,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-16-07-vfr-minimums",
-        "replaces": "fig-16-07-vfr-minimums.svg",
-        "book_file": "plate-16-07-vfr-minimums.jpg",
-        "caption": "Figure 16-7. VFR minimums in Classes C, D and E below 10 000 ft and at a controlled aerodrome",
-        "desc": "Figure 16-7. VFR minimums in Classes C, D and E below 10 000 ft and at a controlled aerodrome",
+        "id": "fig-16-08-vfr-minimums",
+        "replaces": "fig-16-08-vfr-minimums.svg",
+        "book_file": "plate-16-08-vfr-minimums.jpg",
+        "caption": "Figure 16-8. VFR minimums in Classes C, D and E below 10 000 ft and at a controlled aerodrome",
+        "desc": "Figure 16-8. VFR minimums in Classes C, D and E below 10 000 ft and at a controlled aerodrome",
         "legend": [
             "500 ft below cloud.",
             "1 000 ft above cloud.",
@@ -82,5 +82,5 @@ def plate():
         ],
         "canvas": [640, 380],
         "background": "pale",
-        "reskin": {"svg": "fig-16-07-vfr-minimums.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-16-08-vfr-minimums.svg", "blank": True, "layers": layers()},
     }

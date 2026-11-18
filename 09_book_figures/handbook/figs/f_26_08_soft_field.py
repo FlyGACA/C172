@@ -1,4 +1,4 @@
-"""Figure 26-7. Soft-field takeoff and soft-field landing. Two scenes in cards: a strip of grass and loose sand in the desert seen almost edge-on (two faint wheel tracks, tufts), pale hills
+"""Figure 26-8. Soft-field takeoff and soft-field landing. Two scenes in cards: a strip of grass and loose sand in the desert seen almost edge-on (two faint wheel tracks, tufts), pale hills
 on the horizon, the ground effect zone as a veil of air with a dashed top, the model seen from the right at the places of the old figure, the paths as lines with a casing, the speed
 boxes as small cards; the ten numbered callouts of the old figure kept (figs/h_a1.py and figs/scene.py make the pieces)."""
 from figs import h_a1 as H
@@ -77,11 +77,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-07-soft-field",
-        "replaces": "fig-26-07-soft-field.svg",
-        "book_file": "plate-26-07-soft-field.jpg",
-        "caption": "Figure 26-7. Soft-field takeoff and soft-field landing",
-        "desc": "Figure 26-7. Soft-field takeoff and soft-field landing",
+        "id": "fig-26-08-soft-field",
+        "replaces": "fig-26-08-soft-field.svg",
+        "book_file": "plate-26-08-soft-field.jpg",
+        "caption": "Figure 26-8. Soft-field takeoff and soft-field landing",
+        "desc": "Figure 26-8. Soft-field takeoff and soft-field landing",
         "legend": [
             "Rolling onto the runway without stopping, control wheel fully back, flaps as the AFM recommends.",
             "Full power; once the nosewheel lifts, a nose-high attitude held.",
@@ -96,5 +96,5 @@ def plate():
         ],
         "canvas": [640, 440],
         "background": "pale",
-        "reskin": {"svg": "fig-26-07-soft-field.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-26-08-soft-field.svg", "blank": True, "layers": layers()},
     }

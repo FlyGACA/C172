@@ -1,4 +1,4 @@
-"""Figure 26-1 (the Saudi round). The circuit in the example aeroplane, with speed and flap setting at each point: runway 35 at Thumamah (OETH), left-hand, wind from the north.
+"""Figure 26-2 (the Saudi round). The circuit in the example aeroplane, with speed and flap setting at each point: runway 35 at Thumamah (OETH), left-hand, wind from the north.
 
 The same ground and the same circuit as figure 18-7 (figs/h_b4.py): the aerodrome to scale from data/oeth_plan.json, north to the left (the arrow says so), the left-hand circuit for runway 35 on
 the west side as a ribbon with arrowheads, five aeroplanes of the model on it, the abeam line and the 45 degree line, the old figure's five tags (speed and flap setting, with the small
@@ -160,11 +160,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-01-circuit",
-        "replaces": "fig-26-01-circuit.svg",
-        "book_file": "plate-26-01-circuit.jpg",
-        "caption": "Figure 26-1. The circuit in the example aeroplane, with speed and flap setting at each point",
-        "desc": "Figure 26-1. The circuit in the example aeroplane, with speed and flap setting at each point. Runway 35 at Thumamah, left-hand; not for navigation.",
+        "id": "fig-26-02-circuit",
+        "replaces": "fig-26-02-circuit.svg",
+        "book_file": "plate-26-02-circuit.jpg",
+        "caption": "Figure 26-2. The circuit in the example aeroplane, with speed and flap setting at each point",
+        "desc": "Figure 26-2. The circuit in the example aeroplane, with speed and flap setting at each point. Runway 35 at Thumamah, left-hand; not for navigation.",
         "legend": [
             "Line up on runway 35, checks complete (Chapter 25), flaps up in this example.",
             "Full power; rotate at `VR` 55 kt.",
@@ -173,11 +173,11 @@ def plate():
             "Downwind at the circuit altitude, 2 900 ft AMSL: circuit power, before-landing checks.",
             "Abeam the threshold: power back, descent begins; below `VFE` 90 kt, flaps 10°.",
             "Base, with the threshold about 45° behind: flaps 20°. Look along final first.",
-            "Final: flaps 30°, 65 kt, stable by the gate (Figure 26-3).",
+            "Final: flaps 30°, 65 kt, stable by the gate (Figure 26-4).",
             "The aiming point.",
             "Wind from the north.",
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-26-01-circuit.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-26-02-circuit.svg", "blank": True, "layers": layers()},
     }

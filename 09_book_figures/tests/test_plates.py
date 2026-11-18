@@ -87,7 +87,7 @@ class PlateSpec(unittest.TestCase):
                 used = {name for name in sprites_used(p) if not name.startswith("terrain-")}          # (the ground of figs/terrain.py is made when the plate's module is read)
                 self.assertLessEqual(used, made, f"{p['id']}: lays a sprite that figs/sprites.py and figs/clouds.py do not make")
         self.assertIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-06-04-spin-phases")))
-        self.assertNotIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-26-02-normal-takeoff-landing")))
+        self.assertNotIn("sprite-spin", sprites_used(next(p for p in SPEC["plates"] if p["id"] == "fig-26-03-normal-takeoff-landing")))
 
     def test_each_plate_names_the_file_the_book_takes(self):
         """A render becomes plate-NN-NN-name.jpg (the book takes no SVG with a picture in it); a drawing stays fig-NN-NN-name.svg."""

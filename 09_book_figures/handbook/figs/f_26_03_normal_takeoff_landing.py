@@ -1,4 +1,4 @@
-"""Figure 26-2. Normal takeoff and normal landing seen from the side. Two scenes in cards: a runway of the Peninsula seen almost edge-on (dark asphalt, white markings, edge lights), pale
+"""Figure 26-3. Normal takeoff and normal landing seen from the side. Two scenes in cards: a runway of the Peninsula seen almost edge-on (dark asphalt, white markings, edge lights), pale
 hills on the horizon, a desert plain with scrub, a windsock; the model seen from the right at each of the nine places of the old figure (the same points, the same attitudes), the
 paths as lines with a casing, the speed boxes as small cards, the ten numbered callouts of the old figure kept in their places (figs/h_a1.py and figs/scene.py make the pieces)."""
 import math
@@ -131,11 +131,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-02-normal-takeoff-landing",
-        "replaces": "fig-26-02-normal-takeoff-landing.svg",
-        "book_file": "plate-26-02-normal-takeoff-landing.jpg",
-        "caption": "Figure 26-2. Normal takeoff and normal landing seen from the side",
-        "desc": "Figure 26-2. Normal takeoff and normal landing seen from the side",
+        "id": "fig-26-03-normal-takeoff-landing",
+        "replaces": "fig-26-03-normal-takeoff-landing.svg",
+        "book_file": "plate-26-03-normal-takeoff-landing.jpg",
+        "caption": "Figure 26-3. Normal takeoff and normal landing seen from the side",
+        "desc": "Figure 26-3. Normal takeoff and normal landing seen from the side",
         "legend": [
             "Takeoff roll at full power, rudder keeping the nose on the centreline.",
             "Rotation at `VR` 55 kt to the takeoff attitude.",
@@ -150,5 +150,5 @@ def plate():
         ],
         "canvas": [640, 430],
         "background": "pale",
-        "reskin": {"svg": "fig-26-02-normal-takeoff-landing.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-26-03-normal-takeoff-landing.svg", "blank": True, "layers": layers()},
     }

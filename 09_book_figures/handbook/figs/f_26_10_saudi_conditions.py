@@ -1,4 +1,4 @@
-"""Figure 26-9 (new). Saudi conditions at takeoff and landing, from the last section of Chapter 26: four scenes.
+"""Figure 26-10 (new). Saudi conditions at takeoff and landing, from the last section of Chapter 26: four scenes.
 
 1 density altitude (Thumamah, elevation 1 870 ft, reference temperature 42 degrees, a density altitude of about 5 300 ft), 2 the shamal and its gusts (the runway 35 of Thumamah along 348 degrees from above, the wind from 318 degrees at 16 kt gusting 26 kt,
 a crosswind of 8 kt and 13 kt in the gusts), 3 thermal turbulence and haze (the thermals over a hot plain; the runway looks further away in haze, so the aeroplane flies low: a dashed correct path and the lower one), 4 glare and sand (a low sun on final that
@@ -91,11 +91,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-09-saudi-conditions",
-        "replaces": "fig-26-09-saudi-conditions.svg",         # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-26-09-saudi-conditions.jpg",
-        "caption": "Figure 26-9. Saudi conditions at takeoff and landing: density altitude, shamal and gusts, thermals and haze, glare and sand",
-        "desc": ("Figure 26-9. Saudi conditions at takeoff and landing in four scenes: the density altitude of Thumamah (elevation 1 870 ft, reference temperature 42 degrees, about 5 300 ft); the shamal and its gusts on runway 35 (wind 318 degrees at 16 kt gusting 26 kt, "
+        "id": "fig-26-10-saudi-conditions",
+        "replaces": "fig-26-10-saudi-conditions.svg",         # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-26-10-saudi-conditions.jpg",
+        "caption": "Figure 26-10. Saudi conditions at takeoff and landing: density altitude, shamal and gusts, thermals and haze, glare and sand",
+        "desc": ("Figure 26-10. Saudi conditions at takeoff and landing in four scenes: the density altitude of Thumamah (elevation 1 870 ft, reference temperature 42 degrees, about 5 300 ft); the shamal and its gusts on runway 35 (wind 318 degrees at 16 kt gusting 26 kt, "
                  "a crosswind of 8 kt and 13 kt in the gusts); thermal turbulence and haze, which makes the runway look further away so that you tend to fly low; and glare and sand."),
         "legend": [
             "Density altitude: at a high or hot aerodrome the roll is longer, the climb weaker and the groundspeed on final higher at the same indicated speeds. Thumamah prints an elevation of 1 870 ft and a reference temperature of 42 °C: the exact density altitude is about 5 300 ft (Figure 11-5).",

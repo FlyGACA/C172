@@ -1,4 +1,4 @@
-"""Figure 26-6. Short-field takeoff over an obstacle, and short-field approach and landing. Two scenes in cards: a runway of the Peninsula seen almost edge-on with a lattice mast
+"""Figure 26-7. Short-field takeoff over an obstacle, and short-field approach and landing. Two scenes in cards: a runway of the Peninsula seen almost edge-on with a lattice mast
 at the obstacle's place (a red light on its top), pale hills on the horizon, the model seen from the right at the places of the old figure, the VX climb and the VY climb as lines
 with a casing, the speed boxes as small cards, the eleven numbered callouts of the old figure kept (figs/h_a1.py and figs/scene.py make the pieces)."""
 from figs import h_a1 as H
@@ -90,11 +90,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-06-short-field",
-        "replaces": "fig-26-06-short-field.svg",
-        "book_file": "plate-26-06-short-field.jpg",
-        "caption": "Figure 26-6. Short-field takeoff over an obstacle, and short-field approach and landing",
-        "desc": "Figure 26-6. Short-field takeoff over an obstacle, and short-field approach and landing",
+        "id": "fig-26-07-short-field",
+        "replaces": "fig-26-07-short-field.svg",
+        "book_file": "plate-26-07-short-field.jpg",
+        "caption": "Figure 26-7. Short-field takeoff over an obstacle, and short-field approach and landing",
+        "desc": "Figure 26-7. Short-field takeoff over an obstacle, and short-field approach and landing",
         "legend": [
             "Line up at the very start of the runway, flaps as the AFM gives (drawn partly extended); full power.",
             "As `VX` approaches, rotate to the `VX` attitude.",
@@ -110,5 +110,5 @@ def plate():
         ],
         "canvas": [640, 440],
         "background": "pale",
-        "reskin": {"svg": "fig-26-06-short-field.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-26-07-short-field.svg", "blank": True, "layers": layers()},
     }

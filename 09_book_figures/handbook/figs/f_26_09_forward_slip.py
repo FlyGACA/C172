@@ -1,4 +1,4 @@
-"""Figure 26-8. A forward slip from behind and from above, and its steeper approach path. Three scenes in cards: the model from behind, banked into the wind over the desert (the aileron
+"""Figure 26-9. A forward slip from behind and from above, and its steeper approach path. Three scenes in cards: the model from behind, banked into the wind over the desert (the aileron
 and rudder marks, the lift tilted towards the low wing, the wind as ribbon arrows); the same slip from above on an aerial view of the country (figs/terrain.py) with the runway and its extended
 centreline, the track, the airflow on the side of the aeroplane; and the approach in profile, the steeper path of the slip against the shallower path without it. The ten numbered callouts
 of the old figure are kept in their places (figs/h_a1.py and figs/scene.py make the pieces)."""
@@ -91,11 +91,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-26-08-forward-slip",
-        "replaces": "fig-26-08-forward-slip.svg",
-        "book_file": "plate-26-08-forward-slip.jpg",
-        "caption": "Figure 26-8. A forward slip from behind and from above, and its steeper approach path",
-        "desc": "Figure 26-8. A forward slip from behind and from above, and its steeper approach path",
+        "id": "fig-26-09-forward-slip",
+        "replaces": "fig-26-09-forward-slip.svg",
+        "book_file": "plate-26-09-forward-slip.jpg",
+        "caption": "Figure 26-9. A forward slip from behind and from above, and its steeper approach path",
+        "desc": "Figure 26-9. A forward slip from behind and from above, and its steeper approach path",
         "legend": [
             "Upwind wing lowered with aileron: the bank is into the wind.",
             "Opposite rudder, here right, stops the turn.",
@@ -110,5 +110,5 @@ def plate():
         ],
         "canvas": [640, 440],
         "background": "pale",
-        "reskin": {"svg": "fig-26-08-forward-slip.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-26-09-forward-slip.svg", "blank": True, "layers": layers()},
     }

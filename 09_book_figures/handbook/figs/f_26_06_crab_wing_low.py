@@ -1,4 +1,4 @@
-"""Figure 26-5. Crab and wing-low crosswind landings, from above and from behind at touchdown. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
+"""Figure 26-6. Crab and wing-low crosswind landings, from above and from behind at touchdown. The diagram of the book's figure with the aeroplane of the model (reskin.py)."""
 
 
 from reskin import LOOK        # noqa: E402
@@ -11,11 +11,11 @@ PANELS = (h_plan.panel("hp265a", 12, 304, 296, 126, ground_y=410, ground=("#5A61
 
 def plate():
     return {
-        "id": "fig-26-05-crab-wing-low",
-        "replaces": "fig-26-05-crab-wing-low.svg",
-        "book_file": "plate-26-05-crab-wing-low.jpg",
-        "caption": "Figure 26-5. Crab and wing-low crosswind landings, from above and from behind at touchdown",
-        "desc": "Figure 26-5. Crab and wing-low crosswind landings, from above and from behind at touchdown",
+        "id": "fig-26-06-crab-wing-low",
+        "replaces": "fig-26-06-crab-wing-low.svg",
+        "book_file": "plate-26-06-crab-wing-low.jpg",
+        "caption": "Figure 26-6. Crab and wing-low crosswind landings, from above and from behind at touchdown",
+        "desc": "Figure 26-6. Crab and wing-low crosswind landings, from above and from behind at touchdown",
         "legend": [
             "Wind from the left in both panels.",
             "Crab: nose into the wind, track on the centreline.",
@@ -30,7 +30,7 @@ def plate():
         "canvas": [640, 440],
         "background": "pale",
         "reskin": h_plan.layer({
-            "svg": "fig-26-05-crab-wing-low.svg",
+            "svg": "fig-26-06-crab-wing-low.svg",
             # the old ground strips under the two rear views: the cards below bring their own runway
             "remove": [r'<rect x="12" y="410" width="296" height="18" fill="#fdf0e1"/>', r'<rect x="332" y="410" width="296" height="18" fill="#fdf0e1"/>'],
             # the two aeroplanes seen from behind at the bottom (level, and with the wing low) are the model; the blue marks of the controls stay on them

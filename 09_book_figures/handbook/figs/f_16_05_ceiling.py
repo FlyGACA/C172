@@ -1,4 +1,4 @@
-"""Figure 16-4. Cloud base and ceiling with three layers of cloud. A card with the height scale of the old figure on its left: a graded sky over a desert aerodrome (hills on the horizon,
+"""Figure 16-5. Cloud base and ceiling with three layers of cloud. A card with the height scale of the old figure on its left: a graded sky over a desert aerodrome (hills on the horizon,
 a plain with scrub, a runway seen edge-on, a control tower), the clouds of the model of the sky (figs/clouds.py) each standing on the height of its base: two few, four scattered
 (cumulus), and the broken layer, three stretches of stratocumulus whose base is the ceiling; the 1 000 ft line, the 4 500 ft dimension and the METAR groups of the old figure, with its five
 numbered callouts (figs/h_a1.py and figs/scene.py make the pieces)."""
@@ -58,11 +58,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-16-04-ceiling",
-        "replaces": "fig-16-04-ceiling.svg",
-        "book_file": "plate-16-04-ceiling.jpg",
-        "caption": "Figure 16-4. Cloud base and ceiling with three layers of cloud",
-        "desc": "Figure 16-4. Cloud base and ceiling with three layers of cloud",
+        "id": "fig-16-05-ceiling",
+        "replaces": "fig-16-05-ceiling.svg",
+        "book_file": "plate-16-05-ceiling.jpg",
+        "caption": "Figure 16-5. Cloud base and ceiling with three layers of cloud",
+        "desc": "Figure 16-5. Cloud base and ceiling with three layers of cloud",
         "legend": [
             "`FEW020`: the lowest cloud base, 2 000 ft, but not a ceiling.",
             "`SCT030`: scattered, not a ceiling.",
@@ -72,5 +72,5 @@ def plate():
         ],
         "canvas": [640, 380],
         "background": "pale",
-        "reskin": {"svg": "fig-16-04-ceiling.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-16-05-ceiling.svg", "blank": True, "layers": layers()},
     }
