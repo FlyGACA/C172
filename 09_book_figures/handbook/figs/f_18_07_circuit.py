@@ -52,7 +52,7 @@ def plan3d():
            f'<stop offset="1" stop-color="#E4EEF6"/></linearGradient></defs><rect x="{PX}" y="{PY}" width="{PW}" height="{PH * 0.25:.1f}" fill="url(#c3dk)"/>')
     marks = B.square_mark(*at("7")) + B.ring(*at("8"))
     (x0, y0), (x1, y1) = at("n0"), at("n1")
-    north = B.north_arrow(PX + PW - 34, PY + 34, (x1 - x0, y1 - y0))
+    north = B.north_arrow(PX + PW - 34, PY + PH - 34, (x1 - x0, y1 - y0))
     return [clip + sky, img, marks + north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>']
 
 
