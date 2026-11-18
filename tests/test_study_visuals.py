@@ -232,6 +232,39 @@ class DisclosureAndBindingTests(unittest.TestCase):
             build.verify_poh(dict(sim, asiYellow=[sim["asiYellow"][0], sim["asiYellow"][1] - 2]))
         with self.assertRaises(SystemExit):
             build.verify_poh(dict(sim, fuelPerTankUsable=sim["fuelPerTankUsable"] + 1))
+        with self.assertRaises(SystemExit):
+            build.verify_poh(dict(sim, fuelUnusablePerTank=sim["fuelUnusablePerTank"] + 0.5))
+
+    def test_fuel_and_engine_figures_bind_to_the_poh(self):
+        poh = build.load_poh()
+        for figure in MANIFEST["visuals"]:
+            if figure["id"] in ("fuel-capacity", "engine-propeller"):
+                build.verify_figure_poh(figure["id"], figure_data(figure), poh)
+
+    def test_builder_refuses_fuel_and_engine_drift(self):
+        import copy
+
+        poh = build.load_poh()
+        figures = {figure["id"]: figure_data(figure) for figure in MANIFEST["visuals"]}
+        fuel = copy.deepcopy(figures["fuel-capacity"])
+        next(tank for tank in fuel["tanks"] if tank["id"] == "long_range")["total_per_tank_gal"] = 28
+        with self.assertRaises(SystemExit):
+            build.verify_figure_poh("fuel-capacity", fuel, poh)
+
+        unusable = copy.deepcopy(figures["fuel-capacity"])
+        next(tank for tank in unusable["tanks"] if tank["id"] == "standard")["unusable_per_tank_gal"] = 2.0
+        with self.assertRaises(SystemExit):
+            build.verify_figure_poh("fuel-capacity", unusable, poh)
+
+        engine = copy.deepcopy(figures["engine-propeller"])
+        next(row for row in engine["rows"] if row["label"] == "row_rating")["value"] = "180 BHP at 2700 RPM"
+        with self.assertRaises(SystemExit):
+            build.verify_figure_poh("engine-propeller", engine, poh)
+
+        tach = copy.deepcopy(figures["engine-propeller"])
+        next(band for band in tach["tach_bands"] if band["label"] == "band_5000")["to"] = 2600
+        with self.assertRaises(SystemExit):
+            build.verify_figure_poh("engine-propeller", tach, poh)
 
 
 class HelperTests(unittest.TestCase):

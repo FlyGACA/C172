@@ -19,7 +19,7 @@
       "tier_free": "Free sample",
       "tier_premium": "Premium study content",
       "status": "DRAFT · values cited to the POH; layout is illustrative",
-      "band": "Study and reference only. Not for navigation or operational use. Independent of GACA.",
+      "band": "Study and reference only. Not for navigation or operational use. Not affiliated with GACA.",
       "disclaimer": "Training and reference only. Not for flight, navigation or maintenance."
     },
     "ar": {
@@ -28,7 +28,7 @@
       "tier_free": "ضمن العينة المجانية",
       "tier_premium": "ضمن المحتوى الدراسي المميّز",
       "status": "مسودة · القيم موثّقة بدليل الطيران والتخطيط توضيحي",
-      "band": "للدراسة والمرجع فقط. ليست للملاحة أو الاستخدام التشغيلي. مستقلة عن هيئة الطيران المدني.",
+      "band": "للدراسة والمرجع فقط. ليست للملاحة أو الاستخدام التشغيلي. غير تابعة لهيئة الطيران المدني (GACA).",
       "disclaimer": "للتدريب والمرجع فقط. غير مخصصة للطيران أو الملاحة أو الصيانة."
     }
   },

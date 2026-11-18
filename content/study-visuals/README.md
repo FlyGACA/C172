@@ -58,8 +58,10 @@ randomness, stable file order. `out/` is committed so the funnel can serve the f
 - every figure cites a POH page and every cited key exists in `poh_references.json` on that page;
 - every fact string appears in the cited POH value;
 - arcs, V-speeds, tank figures and the alternate-static table agree with `sim.js`, and the airspeed
-  arcs also agree with `instruments.json`; `verify_poh()` re-reads the POH table during the build
-  and aborts if any drawn value drifts from the printed text;
+  arcs also agree with `instruments.json`; `verify_poh()` and `verify_figure_poh()` re-read the POH
+  table during the build and abort if any drawn value drifts from the printed text — airspeed
+  limits and arcs, both fuel tanks including the unusable markings, and the engine, propeller and
+  tach-band rows;
 - English and Arabic string sets have identical keys, and every SVG opens with a disclosure band
   above the plot (study-only and independence from GACA, in the edition's language) and carries the
   non-affiliation statement in both languages plus the "training and reference only" line;

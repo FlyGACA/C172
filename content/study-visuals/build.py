@@ -87,7 +87,8 @@ def verify_poh(sim):
     markings = re.search(r"white (\d+)-(\d+), green (\d+)-(\d+), yellow (\d+)-(\d+), red line (\d+)", poh["airspeed.markings_KIAS"])
     fuel = re.search(r"([\d.]+) gal each, (\d+) total, (\d+) usable", poh["fuel.standard_tanks"])
     rpm = re.search(r"(\d+)", poh["engine.max_rpm"])
-    if not (limits and markings and fuel and rpm):
+    unusable = re.search(r"([\d.]+) gal unusable each standard tank \(([\d.]+) long range\)", poh["fuel.unusable_marking"])
+    if not (limits and markings and fuel and rpm and unusable):
         raise SystemExit("poh_references.json: the airspeed, fuel or rpm wording changed; update verify_poh()")
     checks = [
         ("VNE", sim["vne"], limits.group(1), "airspeed.limits_KIAS"),
@@ -103,11 +104,64 @@ def verify_poh(sim):
         ("red line", sim["vne"], markings.group(7), "airspeed.markings_KIAS"),
         ("fuel per tank total", sim["fuelPerTankTotal"], fuel.group(1), "fuel.standard_tanks"),
         ("fuel per tank usable", sim["fuelPerTankUsable"], float(fuel.group(3)) / 2, "fuel.standard_tanks"),
+        ("unusable fuel per tank", sim["fuelUnusablePerTank"], unusable.group(1), "fuel.unusable_marking"),
         ("maximum rpm", sim["maxRpm"], rpm.group(1), "engine.max_rpm"),
     ]
     for name, drawn, printed, key in checks:
         if float(drawn) != float(printed):
             raise SystemExit("POH binding: %s is %s in sim.js but %s in %s" % (name, drawn, printed, key))
+
+
+# Drawn engine rows are tied to the POH entry that prints the same numbers; wording (dash style,
+# word order) may differ, the numbers may not.
+ENGINE_ROWS = {
+    "row_engine": "engine.model",
+    "row_type": "engine.type",
+    "row_rating": "engine.rating",
+    "row_max_rpm": "engine.max_rpm",
+    "row_static_rpm": "engine.static_rpm_full_throttle",
+    "row_propeller": "propeller",
+    "row_fuel": "fuel.grade",
+}
+TANK_ROWS = {"standard": "fuel.standard_tanks", "long_range": "fuel.long_range_tanks"}
+
+
+def _numbers(value):
+    return [float(token.replace(",", "")) for token in re.findall(r"\d+(?:,\d{3})*(?:\.\d+)?", str(value))]
+
+
+def verify_figure_poh(figure_id, data, poh=None):
+    """Bind the numbers drawn from a visual's JSON to the POH text, not only to sim.js.
+
+    Covers what verify_poh() cannot see: the long-range tank, the unusable markings and the
+    engine/propeller rows and tach bands, which the figures draw straight from their JSON.
+    """
+    poh = poh or load_poh()
+    if figure_id == "fuel-capacity":
+        unusable = re.search(r"([\d.]+) gal unusable each standard tank \(([\d.]+) long range\)", poh["fuel.unusable_marking"])
+        if not unusable:
+            raise SystemExit("poh_references.json: fuel.unusable_marking wording changed; update verify_figure_poh()")
+        printed_unusable = {"standard": float(unusable.group(1)), "long_range": float(unusable.group(2))}
+        for tank in data["tanks"]:
+            printed = _numbers(poh[TANK_ROWS[tank["id"]]])
+            for field in ("total_per_tank_gal", "total_gal", "usable_gal"):
+                if float(tank[field]) not in printed:
+                    raise SystemExit("POH binding: %s %s is %s but %s prints %s" % (tank["id"], field, tank[field], TANK_ROWS[tank["id"]], printed))
+            if float(tank["unusable_per_tank_gal"]) != printed_unusable[tank["id"]]:
+                raise SystemExit("POH binding: %s unusable is %s but fuel.unusable_marking prints %s" % (tank["id"], tank["unusable_per_tank_gal"], printed_unusable[tank["id"]]))
+            if tank["total_gal"] != 2 * tank["total_per_tank_gal"] or tank["usable_gal"] != 2 * tank["usable_per_tank_gal"]:
+                raise SystemExit("POH binding: %s tank totals are not twice the per-tank figures" % tank["id"])
+    if figure_id == "engine-propeller":
+        for row in data["rows"]:
+            key = ENGINE_ROWS.get(row["label"])
+            if key is None:
+                raise SystemExit("POH binding: engine row %s has no POH key" % row["label"])
+            if sorted(_numbers(row["value"])) != sorted(_numbers(poh[key])):
+                raise SystemExit("POH binding: %s draws %r but %s prints %r" % (row["label"], row["value"], key, poh[key]))
+        bands = [(int(low), int(high)) for low, high in re.findall(r"(\d+)-(\d+)", poh["tach.green"])]
+        drawn = [(band["from"], band["to"]) for band in data["tach_bands"]]
+        if drawn != bands:
+            raise SystemExit("POH binding: tach bands %s do not match tach.green %s" % (drawn, bands))
 
 
 def v_speeds(data, t, direction, sim):
@@ -399,9 +453,11 @@ def build(out_root):
     manifest = json.loads((HERE / "manifest.json").read_text(encoding="utf-8"))
     sim = load_sim()
     verify_poh(sim)
+    poh = load_poh()
     written = []
     for figure in manifest["visuals"]:
         data = json.loads((HERE / "visuals" / figure["data"]).read_text(encoding="utf-8"))
+        verify_figure_poh(figure["id"], data, poh)
         draw = DRAW[figure["id"]]
         for lang in manifest["languages"]:
             direction = "rtl" if lang == "ar" else "ltr"
