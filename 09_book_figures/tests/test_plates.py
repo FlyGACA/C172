@@ -80,8 +80,10 @@ class PlateSpec(unittest.TestCase):
 
     def test_a_reskin_lays_only_sprites_the_catalogue_makes(self):
         """build_plates.py waits for the renders of the sprites a re-skinned plate uses, and for no others (so one picture not rendered yet holds up only the plates that
-        lay it); every one of them must be a sprite that figs/sprites.py or a cloud that figs/clouds.py makes, or the plate could never be built."""
+        lay it); every one of them must be a sprite that figs/sprites.py, a cloud that figs/clouds.py or a 3D view that figs/oeth3d.py makes, or the plate could never be built."""
         made = {s["id"] for s in SPEC["sprites"]} | {c["id"] for c in SPEC["clouds"]}
+        import importlib
+        made |= set(importlib.import_module("figs.oeth3d").RECIPES)                     # the 3D views of Thumamah (blender/render_oeth.py)
         for p in SPEC["plates"]:
             if "reskin" in p:
                 used = {name for name in sprites_used(p) if not name.startswith("terrain-")}          # (the ground of figs/terrain.py is made when the plate's module is read)
