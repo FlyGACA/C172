@@ -1,77 +1,79 @@
-"""Figure 15-1. The three stages of a thunderstorm cell. Three scenes in cards over a plain of the Peninsula: a towering cumulus with its updrafts (cumulus stage), a mature
-cumulonimbus with updrafts and downdrafts side by side, rain, hail, a bolt and the gust front (mature stage), and a spent anvil over a fading tower with light rain
-(dissipating stage); one dashed line across all three marks the freezing level. The clouds are the sprites of figs/clouds.py, the ribbon arrows, the rain and the land come
-from figs/scene.py; the nine numbered callouts of the old figure and their places are kept."""
+"""Figure 15-1. The three stages of a thunderstorm cell (redrawn in the second design pass as one 3D view).
+
+One render (figs/oeth3d.storm_15_01; blender/render_oeth.py): the open picture of the desert east of Thumamah, seen from the south at about 11 000 ft, with three
+clouds of the cloud library side by side, their bases near 5 000 ft above the ground: a towering cumulus (cumulus stage), a cumulonimbus with its anvil
+(mature stage), and a spent anvil over a crumbling tower (dissipating stage). Drawn on the plate: the sky, the updrafts and downdrafts, the rain, the hail
+falling from under the anvil, the gust front and the freezing level. The nine callouts of the old figure are kept."""
+import json
+import os
+
+from figs import h_b2 as H
 from figs import scene as S
 
-CARDS = {1: (6, 6, 200, 330), 2: (220, 6, 200, 330), 3: (434, 6, 200, 330)}
-HZ = 270                                         # the horizon of every card
+n = S.n
+W = 640
+U = "f1501"
+R3D = "storm-15-01"
+PX, PY, PW = 8.0, 8.0, 624.0
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORANGE = ("#E8782E", "#F8BE73")
 BLUE = ("#2F63C8", "#8DB3F2")
-DAY = [(0.0, "#3A74C0"), (0.55, "#7FB0E4"), (0.92, "#D6E7F7"), (1.0, "#F4F1DF")]
-STORM = [(0.0, "#2F3F66"), (0.45, "#5D7099"), (0.9, "#A9B6CC"), (1.0, "#C9D0DA")]
-FADE = [(0.0, "#5E86BE"), (0.5, "#9DBFE6"), (0.92, "#E3EDF7"), (1.0, "#F6EEDA")]
 
 
-def backs():
-    out = []
-    for k, stops in ((1, DAY), (2, STORM), (3, FADE)):
-        x, y, w, h = CARDS[k]
-        extra = ""
-        if k == 1:
-            extra = S.sun("f1501s1", x + 168, y + 36, 8)
-        if k == 3:
-            extra = S.sun("f1501s3", x + 36, y + 40, 8)
-        out.append(S.card(f"f1501b{k}", x, y, w, h, stops, extra))
-    return "".join(out)
+def info():
+    with open(os.path.join(HERE, "renders", R3D + ".anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    w, h = d["size"]
+    ph = PW * h / w
+    return (lambda k: (PX + d["anchors"][k][0] * PW, PY + d["anchors"][k][1] * ph)), ph
 
 
-def fronts():
-    out = []
-    for k, tone, houses, palms, acacias in ((1, "day", [(30, 306, 1.0), (150, 300, 0.8)], [(56, 316, 1.1), (176, 314, 1.0)], [(112, 322, 1.0)]),
-                                           (2, "storm", [(236, 304, 0.9)], [(250, 318, 1.0), (404, 314, 1.0)], [(300, 322, 1.1), (352, 328, 1.0)]),
-                                           (3, "dusk", [(450, 302, 0.9), (572, 310, 1.0)], [(470, 316, 1.0), (606, 318, 0.9)], [(530, 324, 1.1)])):
-        x, y, w, h = CARDS[k]
-        body = S.plain(f"f1501g{k}", x, x + w, HZ, y + h, seed=2 + k, tone=tone, houses=houses, palms=palms, acacias=acacias, photo=True)
-        body += S.altitude_line(x, x + w, 196, "#FFFFFF", 0.85, dash="6 5", width=1.4) + S.snowflake(x + 12, 196)
-        if k == 2:
-            body += (S.rain("f1501r2", 334, 392, 232, 300, slant=-6, count=44, seed=4, colour="#3A63B4", veil=0.26) + S.lightning("f1501l", 266, 238, 292, seed=3)
-                     + S.hailstones([(397, 142), (405, 158), (395, 173), (404, 189), (398, 204), (406, 219)]))
-        if k == 3:
-            body += S.rain("f1501r3", 492, 576, 214, 296, slant=-4, count=24, seed=6, colour="#4F73B8", veil=0.10)
-        out.append(S.card_front(f"f1501f{k}", x, y, w, h, body))
-    return "".join(out)
+PH = PW * 1125 / 2000
+HT = int(PY + PH + 8)
 
 
-def arrows():
+def layers():
+    at, ph = info()
+    hx, hy = at("hz")
+    sky = (f'<defs>{S.gradient(U + "sk", [(0, "#3A70BC"), (0.6, "#86B4E6"), (1, "#D8E5F1")])}</defs>'
+           f'<rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(hy - PY + 20)}" fill="url(#{U}sk)"/>')
+    (b0, by), (b1, _), (b2, _) = at("base0"), at("base1"), at("base2")
+    (g0, gy), (g1, _), (g2, _) = at("ground0"), at("ground1"), at("ground2")
+    (t0x, t0y), (t1x, t1y) = at("top0"), at("top1")
+    (fa, fy), (fb, fby) = at("fz_a"), at("fz_b")
+    (ax, ay) = at("anvil1")
+    rain = (S.rain(U + "r1", b1 + 6, b1 + 46, by - 2, gy, slant=-6, count=44, seed=4, colour="#3A63B4", veil=0.30, bottom=0.4)
+            + S.rain(U + "r2", b2 - 34, b2 + 14, by - 2, gy, slant=-4, count=20, seed=6, colour="#4F73B8", veil=0.10, bottom=0.3))
+    clip = f'<defs><clipPath id="{U}c"><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10"/></clipPath></defs><g clip-path="url(#{U}c)">'
+    img = {"name": R3D, "at": [PX + PW / 2, PY + ph / 2], "width": PW, "whole": True}
     r = S.ribbon
-    a = []
-    # cumulus stage: updrafts only
-    a += [r("f1501u1", [(88, 318), (88, 270), (88, 214)], 6.0, *ORANGE), r("f1501u2", [(106, 322), (106, 250), (106, 156)], 6.5, *ORANGE), r("f1501u3", [(124, 318), (124, 270), (124, 214)], 6.0, *ORANGE)]
-    # mature stage: updrafts on the left of the tower, downdrafts and rain on the right, the gust front on the ground
-    a += [r("f1501u4", [(287, 322), (286, 240), (286, 140)], 6.0, *ORANGE), r("f1501u5", [(303, 322), (303, 240), (302, 166)], 6.0, *ORANGE),
-          r("f1501d1", [(335, 128), (335, 200), (335, 292)], 6.0, *BLUE), r("f1501d2", [(351, 152), (351, 214), (352, 292)], 6.0, *BLUE),
-          r("f1501g", [(352, 316), (380, 318), (416, 316)], 5.5, *BLUE)]
-    # dissipating stage: downdrafts only
-    a += [r("f1501d3", [(506, 150), (506, 230), (506, 308)], 5.5, *BLUE), r("f1501d4", [(530, 142), (530, 226), (530, 316)], 5.5, *BLUE), r("f1501d5", [(554, 150), (554, 230), (554, 308)], 5.5, *BLUE)]
-    return "".join(a)
-
-
-def callouts():
+    arrows = "".join([
+        r(U + "u1", [(b0 - 14, gy - 4), (b0 - 14, by - 30), (b0 - 12, t0y + 50)], 6.0, *ORANGE),
+        r(U + "u2", [(b0 + 10, gy - 4), (b0 + 10, by - 40), (b0 + 12, t0y + 30)], 6.5, *ORANGE),
+        r(U + "u3", [(b1 - 30, gy - 4), (b1 - 30, by - 50), (b1 - 26, t1y + 60)], 6.0, *ORANGE),
+        r(U + "u4", [(b1 - 12, gy - 4), (b1 - 12, by - 60), (b1 - 8, t1y + 40)], 6.0, *ORANGE),
+        r(U + "d1", [(b1 + 18, t1y + 70), (b1 + 18, by - 30), (b1 + 18, gy - 6)], 6.0, *BLUE),
+        r(U + "d2", [(b1 + 36, t1y + 90), (b1 + 36, by - 20), (b1 + 36, gy - 6)], 6.0, *BLUE),
+        r(U + "gf", [(b1 + 40, gy + 2), (b1 + 66, gy + 4), (b1 + 98, gy + 2)], 5.5, *BLUE),
+        r(U + "d3", [(b2 - 24, by - 60), (b2 - 24, by - 20), (b2 - 24, gy - 6)], 5.5, *BLUE),
+        r(U + "d4", [(b2 + 4, by - 70), (b2 + 4, by - 24), (b2 + 4, gy - 6)], 5.5, *BLUE),
+    ])
+    hail = S.hailstones([(ax + 14, ay + 26), (ax + 22, ay + 44), (ax + 12, ay + 60), (ax + 22, ay + 78), (ax + 14, ay + 96), (ax + 24, ay + 114)])
+    freeze = S.altitude_line(PX, PX + PW, fy, "#FFFFFF", 0.9, dash="6 5", width=1.4) + S.snowflake(PX + 14, fy)
     c = S.callout
-    strip = ('<defs><linearGradient id="f1501strip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDF2F9"/><stop offset="1" stop-color="#DCE5F1"/></linearGradient></defs>'
-             '<rect x="0" y="344" width="640" height="40" fill="url(#f1501strip)"/><line x1="0" y1="344" x2="640" y2="344" stroke="#B7C3D6" stroke-width="1"/>')
-    return strip + "".join([c(1, 107, 364), c(2, 320, 364), c(3, 533, 364),
-                            c(4, 166, 296, 128, 296), c(4, 250, 296, 284, 296), c(6, 236, 30, 258, 122), c(5, 402, 214, 356, 214), c(8, 372, 196, 395, 176), c(7, 404, 292, 392, 314),
-                            c(5, 596, 268, 560, 268), c(9, 190, 196)])
-
-
-CLOUDS = [
-    {"name": "cloud-congestus", "at": [106, 186], "width": 140},
-    {"name": "cloud-cb", "at": [320, 172], "width": 200, "height": 190},
-    {"name": "cloud-anvil", "at": [534, 84], "width": 196},
-    {"name": "cloud-congestus", "at": [534, 178], "width": 96, "opacity": 0.5},
-]
+    calls = "".join([
+        c(1, b0 - 50, t0y - 6, b0 - 20, t0y + 20, r=10.5),
+        c(2, b1 - 100, t1y + 4, b1 - 60, t1y + 30, r=10.5),
+        c(3, b2 + 70, at("top2")[1] - 20, b2 + 40, at("top2")[1] + 4, r=10.5),
+        c(4, b0 - 52, by - 20, b0 - 22, by - 20, r=10.5),
+        c(5, b1 + 70, by - 40, b1 + 42, by - 40, r=10.5),
+        c(6, ax + 30, ay - 34, ax + 4, ay - 6, r=10.5),
+        c(7, b1 + 108, gy + 22, b1 + 90, gy + 6, r=10.5),
+        c(8, ax + 60, ay + 70, ax + 28, ay + 70, r=10.5),
+        c(9, PX + PW - 30, fy - 20, PX + PW - 30, fy - 2, r=10.5),
+    ])
+    frame = f'</g><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>'
+    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', clip + sky, img, rain + arrows + hail + freeze + frame + calls]
 
 
 def plate():
@@ -80,7 +82,9 @@ def plate():
         "replaces": "fig-15-01-thunderstorm-life-cycle.svg",
         "book_file": "plate-15-01-thunderstorm-life-cycle.jpg",
         "caption": "Figure 15-1. The three stages of a thunderstorm cell",
-        "desc": "Figure 15-1. The three stages of a thunderstorm cell",
+        "desc": ("Figure 15-1. The three stages of a thunderstorm cell, in one 3D view over the desert: a towering cumulus with updrafts only, a mature cumulonimbus with "
+                 "updrafts and downdrafts side by side, heavy rain, hail falling from under its anvil and a gust front on the ground, and a dissipating cell with "
+                 "downdrafts only under a spent anvil; one dashed line marks the freezing level."),
         "legend": [
             "Cumulus stage: updrafts only.",
             "Mature stage: updrafts and downdrafts side by side, heavy rain and hail.",
@@ -92,8 +96,7 @@ def plate():
             "Hail falling from under the anvil into clear air.",
             "Freezing level (0 °C).",
         ],
-        "canvas": [640, 384],
+        "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-15-01-thunderstorm-life-cycle.svg", "blank": True,
-                   "layers": ['<rect x="0" y="0" width="640" height="384" fill="#ffffff"/>', backs(), *CLOUDS, fronts(), arrows(), callouts()]},
+        "reskin": {"blank": True, "layers": layers()},
     }

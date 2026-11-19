@@ -953,6 +953,91 @@ def ceiling_16_05():
                                 "hz": [rx0, ry0 - 400000.0, 0.0]}})
 
 
+def storm_15_01():
+    """Figure 15-1: the three stages of a thunderstorm cell side by side over the desert, seen from the south at about 11 000 ft, from left to right: a
+    towering cumulus (cumulus stage), a cumulonimbus with its anvil (mature stage), a spent anvil over a crumbling tower (dissipating stage); all three of the
+    cloud library, their bases near 5 000 ft above the ground. The arrows, the rain, the hail, the gust front and the freezing level are drawn on the plate."""
+    cx, cy, base = 12500.0, 9000.0, 1500.0
+    st = [cx - 10500.0, cx - 800.0, cx + 10200.0]
+    clouds = [{"kind": "congestus", "seed": 5, "width": 6.0, "height": 9.0, "girth": 1.3, "voxel": 0.005, "band": 0.012, "at": [st[0], cy, base], "scale": 640.0, "density": 2400.0},
+              {"kind": "cb", "seed": 4, "width": 9.0, "height": 11.0, "anvil": 12.0, "girth": 1.6, "lean": 0.25, "voxel": 0.0045, "band": 0.012, "at": [st[1], cy, base],
+               "scale": 700.0, "density": 2600.0, "absorb": 0.15},
+              {"kind": "anvil", "seed": 7, "width": 11.0, "height": 9.0, "voxel": 0.005, "band": 0.012, "at": [st[2], cy, base], "scale": 640.0, "density": 1200.0},
+              {"kind": "congestus", "seed": 8, "width": 5.0, "height": 6.0, "girth": 1.1, "voxel": 0.006, "band": 0.02, "at": [st[2] - 900.0, cy, base], "scale": 520.0,
+               "density": 600.0, "erode": [0.45, 0.8]}]
+    cam = [cx, cy - 17000.0, 3000.0]
+    return _day_3d("storm-15-01", {"at": cam, "look": [cx, cy, 4300.0], "lens": 21}, [2000, 1125],
+                   {"transparent": True, "samples": 32, "ink": None, "exposure": 0.0,
+                    "ground_image": dict(ground_texture(), detail={"scale": 0.004, "strength": 0.2, "bump": 0.0}),
+                    "sun": {"elevation": 45, "azimuth": 160, "energy": 3.2, "sky": 0.9},
+                    "haze": {"start": 9000.0, "depth": 40000.0, "colour": "#DDD5C8", "strength": 0.45},
+                    "clouds": clouds,
+                    "anchors": {**{f"base{k}": [x, cy, base] for k, x in enumerate(st)}, **{f"ground{k}": [x, cy, 0.0] for k, x in enumerate(st)},
+                                **{f"top{k}": {"object": f"cloud{k}p0", "at": [0.5, 0.5, 1.0]} for k in range(3)},
+                                **{f"left{k}": [x - 2600.0, cy, base] for k, x in enumerate(st)}, **{f"right{k}": [x + 2600.0, cy, base] for k, x in enumerate(st)},
+                                "fz_a": [cx - 16000.0, cy, base + 3000.0], "fz_b": [cx + 16000.0, cy, base + 3000.0],
+                                "anvil1": [st[1] + 3500.0, cy, base + 7300.0], "anvil2": [st[2], cy, base + 6700.0], "hz": [cx, cy + 400000.0, 0.0]}})
+
+
+def dust_15_05():
+    """Figure 15-5: looking down and looking ahead through a layer of dust, seen from the side: the generic aerodrome of 2-4's lower view under a layer of
+    dust about 3 000 ft deep (a scattering volume the colour of the sand, densest at the ground), the aeroplane above it on the approach some 7 km out, and
+    again lower and closer, 2.5 km out. The lines of sight are drawn on the plate. The aeroplanes are enlarged."""
+    base = vfr_2_04_ceiling()
+    rx0, ry0, hd = 12500.0, -2500.0, 80.0
+    ux, uy = math.sin(math.radians(hd)), math.cos(math.radians(hd))
+    thr = (rx0 - ux * 900.0, ry0 - uy * 900.0)
+    P = lambda d, h: [round(thr[0] - ux * d, 1), round(thr[1] - uy * d, 1), round(h, 1)]
+    ac1, ac2 = P(7000.0, 1250.0), P(2500.0, 330.0)
+    cam = [round(thr[0] - 8600.0, 1), round(ry0 - 5200.0, 1), 1800.0]
+    r = _day_3d("dust-15-05", {"at": cam, "look": [round(thr[0] - 3600.0, 1), round(thr[1], 1), 300.0], "lens": 28}, [2000, 1125],
+                {"plan": base["plan"], "transparent": True, "samples": 32, "ink": None, "exposure": 0.05,
+                 "ground_image": dict(ground_texture(), detail={"scale": 0.03, "strength": 0.2, "bump": 0.0}),
+                 "sun": {"elevation": 50, "azimuth": 160, "energy": 3.0, "sky": 0.8},
+                 "haze": {"start": 9000.0, "depth": 30000.0, "colour": "#D9C9AE", "strength": 0.5},
+                 "fogs": [{"center": [thr[0] - 3000.0, thr[1]], "size": [26000.0, 26000.0, 920.0], "density": 0.0009, "colour": "#C8A47C", "noise": 1.5}],
+                 "anchors": {"ac1": ac1, "ac2": ac2, "below1": P(7000.0, 0.0), "thr": [round(thr[0], 1), round(thr[1], 1), 0.0], "rwy_mid": [rx0, ry0, 0.0],
+                             "top_a": [thr[0] - 9500.0, thr[1], 920.0], "top_b": [thr[0] + 3000.0, thr[1], 920.0], "ac1_top": P(7000.0, 920.0),
+                             "vis_a": P(1800.0, 30.0), "vis_b": P(-1500.0, 30.0), "hz": [round(thr[0], 1), round(thr[1] + 400000.0, 1), 0.0]}},
+                ac=tuple(ac1), ac_scale=30.0, ac_heading=hd, flash=9000.0)
+    r["aircraft"].append({"at": ac2, "heading": hd, "scale": 30.0, "pitch": 0.0})
+    r["aircraft"][0]["pitch"] = -2.0
+    return r
+
+
+def wave_15_06():
+    """Figure 15-6: mechanical turbulence, mountain wave and rotor, seen from the south: a ridge (made, as the scene has no mountain: 900 m high and 6 km wide
+    at its foot, running north across the desert east of Thumamah) with the wind from the west across it, two lens-shaped clouds of the cloud library over the
+    crests of the standing wave downwind of it, and roll clouds under the crests where the rotors are; the generic aerodrome of 2-4's lower view with its
+    buildings on the lee side. The wind, the wave and the eddies are drawn on the plate. The heights are true."""
+    base = vfr_2_04_ceiling()
+    rx0, ry0 = 12500.0, -2500.0
+    rxr = rx0 - 9000.0                                   # the ridge's crest line, west of the aerodrome
+    y0, y1 = ry0 + 2500.0, ry0 + 21000.0
+    lam = 6500.0                                         # the wavelength of the standing wave
+    lens = [{"kind": "lenticular", "seed": 30 + k, "width": 8.0, "layers": 3, "voxel": 0.008, "band": 0.02, "at": [rxr + lam * (k + 1), ry0 + 7000.0, 4200.0 - 300.0 * k],
+             "scale": 420.0, "density": 900.0, "heading": 55.0} for k in range(2)]
+    rolls = [{"kind": "roll", "seed": 40 + k, "width": 9.0, "height": 1.5, "voxel": 0.008, "band": 0.02, "at": [rxr + lam * (k + 1), ry0 + 7000.0, 1250.0],
+              "scale": 300.0, "density": 900.0, "absorb": 0.1, "heading": 55.0} for k in range(2)]
+    cam = [rx0 - 2500.0, ry0 - 4300.0, 700.0]
+    return _day_3d("wave-15-06", {"at": cam, "look": [rx0 - 2600.0, ry0 + 8000.0, 2000.0], "lens": 19}, [2000, 1125],
+                   {"plan": base["plan"], "transparent": True, "samples": 32, "ink": None, "exposure": 0.0,
+                    "ground_image": dict(ground_texture(), detail={"scale": 0.004, "strength": 0.2, "bump": 0.0}),
+                    "ridges": [{"a": [rxr, y0], "b": [rxr, y1], "height": 1500.0, "width": 7000.0, "seed": 3}],
+                    "sun": {"elevation": 40, "azimuth": 150, "energy": 3.2, "sky": 0.9},
+                    "haze": {"start": 8000.0, "depth": 36000.0, "colour": "#DDD5C8", "strength": 0.45},
+                    "clouds": lens + rolls,
+                    "anchors": {"crest": [rxr, ry0 + 4500.0, 1500.0], "foot_w": [rxr - 3500.0, ry0 + 4500.0, 0.0], "foot_e": [rxr + 3500.0, ry0 + 4500.0, 0.0],
+                                "wind_a": [rxr - 9000.0, ry0 + 4500.0, 1500.0], "wind_b": [rxr - 4000.0, ry0 + 4500.0, 1500.0],
+                                "up_a": [rxr - 3200.0, ry0 + 4500.0, 500.0], "up_b": [rxr - 700.0, ry0 + 4500.0, 1800.0],
+                                "down_a": [rxr + 700.0, ry0 + 4500.0, 1800.0], "down_b": [rxr + 3200.0, ry0 + 4500.0, 450.0],
+                                **{f"wave{j}": [rxr + lam * 0.25 * j - 3000.0, ry0 + 7000.0, 3000.0 + 700.0 * math.cos(2 * math.pi * (lam * 0.25 * j - 3000.0) / lam)]
+                                   for j in range(14)},
+                                "lens0": [rxr + lam, ry0 + 7000.0, 4300.0], "lens1": [rxr + 2 * lam, ry0 + 7000.0, 4000.0],
+                                "roll0": [rxr + lam, ry0 + 7000.0, 1350.0], "roll1": [rxr + 2 * lam, ry0 + 7000.0, 1350.0],
+                                "rwy": [rx0, ry0], "tower": [rx0 - 50.0, ry0 + 280.0, 20.0], "hz": [rx0, ry0 + 400000.0, 0.0]}})
+
+
 def backdrop_side():
     """A backdrop for the side-view tiles of the illustrated figures (style C): the plateau east of Thumamah from a little above it, looking north-east over
     the open picture of the ground on the real terrain to a hazy horizon; the sky is left clear (transparent) for the figure to draw. Nothing of the aerodrome is in it."""
@@ -1009,6 +1094,9 @@ RECIPES = {
     "haboob-15-04": haboob_15_04,
     "microburst-15-02": microburst_15_02,
     "ceiling-16-05": ceiling_16_05,
+    "storm-15-01": storm_15_01,
+    "dust-15-05": dust_15_05,
+    "wave-15-06": wave_15_06,
     "vfr-16-08-ceiling": lambda: vfr_2_04_ceiling("vfr-16-08-ceiling", deck=340.0, back=3000.0, cam_z=310.0, lens=40, look_s=200.0, look_z=-60.0, ctr=1400.0, ac_scale=9.0, ac_ahead=1500.0),
     "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,

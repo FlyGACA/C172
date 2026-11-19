@@ -872,6 +872,40 @@ def windsock(w, i):
         p = q
 
 
+def ridges(items, mat):
+    """Ridges the scene lacks (the high ground of the south-west, for a mountain wave): a grid laid along a line from a to b, its height a smooth hump across the
+    line (width the foot to foot distance) with a noise of 15 percent along and across it, tapering at the two ends; the ground picture as its material."""
+    import random as _r
+    for i, rg in enumerate(items):
+        ax, ay = rg["a"]
+        bx, by = rg["b"]
+        L = math.hypot(bx - ax, by - ay)
+        ux, uy = (bx - ax) / L, (by - ay) / L
+        nx, ny = uy, -ux
+        H, Wd = rg["height"], rg["width"]
+        nu, nv = int(rg.get("rows", 120)), int(rg.get("cols", 60))
+        rnd = _r.Random(rg.get("seed", 1))
+        ph = [rnd.uniform(0, 6.28) for _ in range(6)]
+        verts, faces = [], []
+        for j in range(nu + 1):
+            t = j / nu
+            end = min(1.0, min(t, 1 - t) / 0.12)
+            end = end * end * (3 - 2 * end)
+            for k in range(nv + 1):
+                v = (k / nv - 0.5) * Wd
+                prof = math.exp(-((v / (0.32 * Wd)) ** 2)) - math.exp(-(0.5 / 0.32) ** 2)
+                prof = max(0.0, prof) / (1 - math.exp(-(0.5 / 0.32) ** 2))
+                wob = 1.0 + 0.15 * (math.sin(t * 9.0 + ph[0]) * math.cos(v / Wd * 7.0 + ph[1]) + 0.6 * math.sin(t * 23.0 + ph[2] + v / Wd * 11.0))
+                x, y = ax + ux * t * L + nx * v, ay + uy * t * L + ny * v
+                verts.append((x, y, ground_z(x, y) - 2.0 + H * prof * end * wob))
+        for j in range(nu):
+            for k in range(nv):
+                a0 = j * (nv + 1) + k
+                faces.append((a0, a0 + 1, a0 + nv + 2, a0 + nv + 1))
+        ob = _mesh(f"Ridge {i}", verts, faces, mat)
+        ob.data.polygons.foreach_set("use_smooth", [True] * len(faces))
+
+
 def frame_camera(f, sc):
     """A camera that frames the named objects (prefixes) from an azimuth (clockwise from north, from the objects to the camera) and an elevation, the
     whole of their bounding sphere in view with a margin."""
@@ -924,6 +958,9 @@ def main():
             if o.type == "MESH" and (o.name.startswith("Terrain") or o.name == "far ground"):
                 o.data.materials.clear()
                 o.data.materials.append(gm)
+    if "ridges" in r:
+        bpy.context.view_layer.update()
+        ridges(r["ridges"], bpy.data.materials.get("ground_img") or bpy.data.materials.get("sand"))
     inked = []
     keep_air = r.get("airspace", [])
     air_obs = import_glb(os.path.join(SCENE, "OETH_airspace.glb"))
