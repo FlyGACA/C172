@@ -818,7 +818,7 @@ def vfr_2_04_cloud():
                    ac=ac, ac_scale=34.0, ac_heading=75.0)
 
 
-def vfr_2_04_ceiling():
+def vfr_2_04_ceiling(rid="vfr-2-04-ceiling", deck=230.0, back=None, cam_z=125.0, lens=32, look_s=250.0, look_z=40.0, ctr=None, ac_scale=5.0, ac_ahead=420.0):
     """Figure 2-4, lower view: a generic aerodrome (a runway, an apron, a tower; not any real one) on the desert east of Thumamah under a layer of
     stratus whose base is below 1 000 ft above the ground, and, away from it, the aeroplane (enlarged 6 times) low over the desert, clear of the cloud."""
     rx0, ry0, hd = 12500.0, -2500.0, 80.0
@@ -834,17 +834,96 @@ def vfr_2_04_ceiling():
                      + [{"ring": rect(-L / 2 + 6.0, L / 2 - 6.0, side - 0.6, side + 0.6), "colour": "#FFFFFF", "lift": 0.55} for side in (-Wd / 2 + 1.5, Wd / 2 - 1.5)],
             "grade": True, "flatten": {"inner": 70.0, "outer": 500.0},
             "blocks": [{"ring": rect(-110.0, -96.0, 270.0, 284.0), "height": 22.0, "colour": "#CBD5E1"}, {"ring": rect(-60.0, 40.0, 275.0, 305.0), "height": 9.0, "colour": "#E2E8F0"}]}
-    back = L / 2 + 380.0                                  # the camera on the extended centreline, short of the threshold, under the ceiling
-    cam = [round(rx0 - ux * back + nx * 50.0, 1), round(ry0 - uy * back + ny * 50.0, 1), 125.0]
-    ac = (round(rx0 - ux * (back - 420.0) - nx * 50.0, 1), round(ry0 - uy * (back - 420.0) - ny * 50.0, 1), 150.0)
-    return _day_3d("vfr-2-04-ceiling", {"at": cam, "look": [rx0 + ux * 250.0, ry0 + uy * 250.0, 40.0], "lens": 32}, [2400, 1000],
+    back = back or L / 2 + 380.0                          # the camera on the extended centreline, short of the threshold, under the ceiling
+    cam = [round(rx0 - ux * back + nx * 50.0, 1), round(ry0 - uy * back + ny * 50.0, 1), cam_z]
+    ac = (round(rx0 - ux * (back - ac_ahead) - nx * 50.0, 1), round(ry0 - uy * (back - ac_ahead) - ny * 50.0, 1), cam_z + 25.0)
+    extra_vols = {}
+    if ctr:                                               # the surface area of controlled airspace round the aerodrome, as a see-through drum up to just under the deck
+        ring = [[round(rx0 + ctr * math.cos(math.radians(a)), 1), round(ry0 + ctr * math.sin(math.radians(a)), 1)] for a in range(0, 360, 6)]
+        extra_vols = {"volumes": [{"name": "ctr", "ring": ring, "floor": {"agl": -8.0}, "ceiling": deck - 150.0, "colour": "#2563EB", "alpha": 0.12, "edge": 3.0}]}
+    return _day_3d(rid, {"at": cam, "look": [rx0 + ux * look_s, ry0 + uy * look_s, look_z], "lens": lens}, [2400, 1000],
                    {"plan": plan, "sun": {"elevation": 55, "azimuth": 140, "energy": 1.6, "sky": 0.8}, "exposure": 0.15, "ink": None,
                     "ground_image": dict(ground_texture(), detail={"scale": 0.06, "strength": 0.22, "bump": 0.3}),
                     "haze": {"start": 2500.0, "depth": 14000.0, "colour": "#D6D9DE", "strength": 0.6},
                     "clouds": [{"kind": "stratus", "seed": 6, "width": 18.0, "height": 0.6, "depth": 6.0, "density": 40.0, "erode": [0.30, 0.6], "ragged": 0.6, "gaps": [0.35, 0.6],
-                                "gap_floor": 0.40, "taper": 8.0, "end_fade": 0.25, "absorb": 0.0, "absorb_white": 1.0, "at": [rx0 - 200.0, ry0 + 1500.0, 230.0], "scale": 900.0, "heading": 70.0}],
-                    "anchors": {"deck": [rx0 + ux * 600.0, ry0 + uy * 600.0, 235.0], "rwy": [rx0, ry0], "thr": [round(rx0 - ux * L / 2, 1), round(ry0 - uy * L / 2, 1)], "tower": [round(c, 1) for c in rect(-110.0, -96.0, 270.0, 284.0)[0]]}},
-                   ac=ac, ac_scale=5.0, ac_heading=hd + 25.0)
+                                "gap_floor": 0.40, "taper": 8.0, "end_fade": 0.25, "absorb": 0.0, "absorb_white": 1.0, "at": [rx0 - 200.0, ry0 + 1500.0, deck], "scale": 900.0, "heading": 70.0}], **extra_vols,
+                    "anchors": {"deck": [rx0 + ux * 600.0, ry0 + uy * 600.0, deck + 5.0], "deck_ground": [rx0 + ux * 600.0, ry0 + uy * 600.0, 0.0],
+                                "ctr_left": [round(rx0 - (ctr or 0) * nx, 1), round(ry0 - (ctr or 0) * ny, 1)], "ctr_right": [round(rx0 + (ctr or 0) * nx, 1), round(ry0 + (ctr or 0) * ny, 1)], "rwy": [rx0, ry0], "thr": [round(rx0 - ux * L / 2, 1), round(ry0 - uy * L / 2, 1)], "tower": [round(c, 1) for c in rect(-110.0, -96.0, 270.0, 284.0)[0]]}},
+                   ac=ac, ac_scale=ac_scale, ac_heading=hd + 25.0)
+
+
+def haboob_15_04():
+    """Figure 15-4: a haboob seen from a generic aerodrome (the plan of 2-4's lower view) in its path, looking east: a cumulonimbus of the cloud library over
+    the desert with a shaft of rain under it, and, nearer, a wall of dust (billowing towers of the library tinted to the colour of the sand) rolling west
+    towards the aerodrome along the outflow; the arrows (downdraft, outflow, gust front, air forced up, movement) are drawn on the plate."""
+    base = vfr_2_04_ceiling()
+    rx0, ry0 = 12500.0, -2500.0
+    cbx, cby = rx0 + 11500.0, ry0 + 5500.0
+    wall_x = rx0 + 3200.0
+    tint = [0.93, 0.75, 0.56]
+    dust = [{"kind": "congestus", "seed": 20 + k, "width": 14.0, "height": 6.0 + (k % 3) * 0.8, "girth": 1.6, "voxel": 0.008, "at": [wall_x + (k % 3) * 220.0, ry0 - 3400.0 + k * 700.0, -20.0],
+             "scale": 150.0 + (k % 4) * 20.0, "density": 2200.0, "tint": tint, "absorb": 0.0, "heading": 90.0} for k in range(11)]
+    cb = {"kind": "cb", "seed": 4, "width": 12.0, "height": 10.0, "anvil": 17.0, "girth": 2.2, "lean": 0.3, "voxel": 0.0045, "band": 0.012, "at": [cbx, cby, 2300.0], "scale": 700.0,
+          "density": 2600.0, "absorb": 0.15, "heading": 180.0}
+    cam = [rx0 - 3800.0, ry0 - 4300.0, 600.0]
+    r = _day_3d("haboob-15-04", {"at": cam, "look": [rx0 + 6000.0, ry0 + 3500.0, 1700.0], "lens": 20}, [2000, 1125],
+                {"plan": base["plan"], "transparent": True, "samples": 32, "ink": None, "exposure": 0.05,
+                 "ground_image": dict(ground_texture(), detail={"scale": 0.06, "strength": 0.22, "bump": 0.3}),
+                 "sun": {"elevation": 32, "azimuth": 235, "energy": 3.0, "sky": 0.7},
+                 "haze": {"start": 4000.0, "depth": 26000.0, "colour": "#CDB79A", "strength": 0.6},
+                 "clouds": [cb] + dust,
+                 "fogs": [{"center": [wall_x - 700.0, ry0 + 300.0], "size": [1600.0, 9000.0, 260.0], "density": 0.0016, "colour": "#C9A27A", "noise": 4.0}],
+                 "anchors": {"cb": {"object": "cloud0p0", "at": [0.5, 0.5, 0.7]}, "cb_base": [cbx, cby, 2300.0], "rain": [cbx, cby, 1100.0],
+                             "rain_ground": [cbx - 1500.0, cby, 0.0], "wall_top": [wall_x, ry0 + 400.0, 1050.0], "wall_foot": [wall_x - 300.0, ry0 + 400.0, 30.0],
+                             "wall_mid": [wall_x, ry0 + 400.0, 500.0], "front_left": [wall_x - 400.0, ry0 - 2600.0, 20.0], "front_right": [wall_x - 400.0, ry0 + 3200.0, 20.0],
+                             "outflow_a": [cbx - 2000.0, cby - 600.0, 40.0], "outflow_b": [wall_x + 900.0, ry0 + 600.0, 40.0],
+                             "rwy": [rx0, ry0], "tower": [round(rx0 - 0.9848 * 103.0 + 0.1736 * 277.0, 1), round(ry0 - 0.1736 * 103.0 - 0.9848 * 277.0, 1)],
+                             "ahead": [rx0 + 1200.0, ry0 + 400.0, 30.0], "hz": [rx0 + 400000.0, ry0 + 60000.0, 0.0]}})
+    return r
+
+
+def microburst_15_02():
+    """Figure 15-2: an approach through a microburst, seen from the side: the generic aerodrome of 2-4's lower view, the intended 3 degree glide path
+    (green, dashed), the path flown (red): above the glide path in the increasing headwind, pushed down in the downdraft, sinking fast in the increasing
+    tailwind and touching the ground short of the runway; the base of a cumulonimbus over the approach and a ring of dust raised by the outflow.
+    The rain and the wind arrows are drawn on the plate; the heights of the paths and of the cloud base are drawn K times their size, and the aeroplane is enlarged."""
+    K = 2.5
+    base = vfr_2_04_ceiling()
+    rx0, ry0, hd = 12500.0, -2500.0, 80.0
+    ux, uy = math.sin(math.radians(hd)), math.cos(math.radians(hd))
+    nx, ny = uy, -ux                                     # to the right of the approach (south)
+    thr = (rx0 - ux * 900.0, ry0 - uy * 900.0)
+    P = lambda d, h: [round(thr[0] - ux * d, 1), round(thr[1] - uy * d, 1), round(h * K, 1)]
+    gp = [P(d, d * math.tan(math.radians(3.0)) + 3.0) for d in range(6400, -1, -400)]
+    flown = [P(6400, 339), P(5600, 297), P(4800, 262), P(4200, 240), P(3700, 236), P(3200, 222), P(2700, 180), P(2200, 118), P(1700, 58), P(1300, 18), P(1050, 3)]
+    mb = P(2700, 0.0)
+    dust = [{"kind": "cumulus", "seed": 40 + k, "width": 9.0, "height": 2.4, "voxel": 0.01, "at": [round(mb[0] + 900.0 * math.cos(math.radians(a)), 1),
+             round(mb[1] + 900.0 * math.sin(math.radians(a)), 1), -5.0], "scale": 55.0, "density": 2000.0, "tint": [0.93, 0.75, 0.56], "absorb": 0.0}
+            for k, a in enumerate(range(0, 360, 30))]
+    cb = {"kind": "cb", "seed": 9, "width": 10.0, "height": 9.0, "anvil": 14.0, "girth": 2.0, "voxel": 0.0045, "band": 0.012, "at": [mb[0], mb[1], 1700.0],
+          "scale": 600.0, "density": 2600.0, "absorb": 0.35, "heading": 0.0}
+    mid = P(3000, 0.0)
+    back = P(7600, 0.0)
+    cam = [round(back[0] + nx * 2600.0, 1), round(back[1] + ny * 2200.0, 1), 330.0]
+    ac = tuple(P(3700, 236))
+    r = _day_3d("microburst-15-02", {"at": cam, "look": [mid[0], mid[1], 470.0], "lens": 30}, [2000, 1125],
+                {"plan": base["plan"], "transparent": True, "samples": 32, "ink": None, "exposure": 0.0,
+                 "ground_image": dict(ground_texture(), detail={"scale": 0.02, "strength": 0.2, "bump": 0.0}),
+                 "sun": {"elevation": 40, "azimuth": 200, "energy": 3.0, "sky": 0.7},
+                 "haze": {"start": 6000.0, "depth": 30000.0, "colour": "#D9CDB8", "strength": 0.5},
+                 "clouds": [cb] + dust,
+                 "paths": [{"points": gp, "colour": "#16A34A", "radius": 7.0, "dash": [160.0, 110.0]},
+                           {"points": flown, "colour": "#DC2626", "radius": 8.0}],
+                 "anchors": {"cb_base": [mb[0], mb[1], 1700.0], "mb_ground": [mb[0], mb[1], 0.0], "gp_mid": P(4600, 4600 * 0.0524 + 3.0),
+                             "float": P(3700, 236.0), "down": P(2700, 180.0), "sink": P(1900, 85.0), "contact": P(1050, 0.0),
+                             "thr": [round(thr[0], 1), round(thr[1], 1), 0.0], "rwy_mid": [rx0, ry0, 0.0], "rwy_end": P(-1700, 0.0),
+                             "dust_left": [round(mb[0] - ux * 1100.0, 1), round(mb[1] - uy * 1100.0, 1), 40.0],
+                             "dust_right": [round(mb[0] + ux * 1100.0, 1), round(mb[1] + uy * 1100.0, 1), 40.0],
+                             "head_a": P(5400, 380.0), "head_b": P(4200, 380.0), "tail_a": P(2200, 330.0), "tail_b": P(1000, 330.0),
+                             "hz": [round(mid[0] - nx * 400000.0, 1), round(mid[1] - ny * 400000.0, 1), 0.0]}},
+                ac=ac, ac_scale=26.0, ac_heading=hd, flash=9000.0)
+    r["aircraft"][0]["pitch"] = 3.0
+    return r
 
 
 def backdrop_side():
@@ -900,6 +979,9 @@ RECIPES = {
     **SPOTS,
     "vfr-2-04-cloud": vfr_2_04_cloud,
     "vfr-2-04-ceiling": vfr_2_04_ceiling,
+    "haboob-15-04": haboob_15_04,
+    "microburst-15-02": microburst_15_02,
+    "vfr-16-08-ceiling": lambda: vfr_2_04_ceiling("vfr-16-08-ceiling", deck=340.0, back=3000.0, cam_z=310.0, lens=40, look_s=200.0, look_z=-60.0, ctr=1400.0, ac_scale=9.0, ac_ahead=1500.0),
     "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,
     "backdrop-plan-desert": backdrop_plan,
