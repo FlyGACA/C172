@@ -177,3 +177,12 @@ A plate can also take a picture made elsewhere (`"source"` in `plates.json`, for
 - The dials carry the instruments' own English legends (AIRSPEED, KNOTS, ...), as the real instruments do. The book's artwork carries no
   words so that both editions share a file; a picture of an instrument is the one place a word is part of the thing. Whether to keep them
   is for the book's editorial review (its docs say that raster lettering needs one).
+
+## Cover and opening pictures (proposals)
+
+Not figures of the book: proposals for its cover and for pictures that open its parts, made from the C172 model and the 3D scene of Thumamah, for the owner to choose from. Nothing here is in the book.
+
+- `figs/covers.py` writes recipes for `blender/render_oeth.py` (upright, 1792 x 2400): a remake of the present cover with the model and the aerodrome, the cockpit lined up on runway 35, short final at the blue hour, the field at sunrise, and the threshold of 17 from straight above. `covers_post.py` finishes them (a drawn sky, stars, a compass rose, the dashed track, the painted look) and lays a picture under the book's own cover page (`mock`); `covers_blueprint.py` draws the model as gold lines over the plan of Thumamah; `covers_sheet.py` puts the proposals on one sheet. Results are in `out/covers/`.
+- `figs/openers.py`, `openers_post.py` and `openers_blueprint.py` are the earlier, wide drafts for the parts (`out/openers/`).
+- For these pictures `blender/render_oeth.py` takes more for an aeroplane: the detailed model, an attitude about its own axes, the propeller turning, its lamps lit, materials that glow, and a camera or points given in the model's coordinates (see the top of the file). `blender/render_lineart.py` renders the model as a line drawing.
+- What is real in them: the model and its paint; the runway, its stopways, markings and lights (AD 2 OETH 2.12 and 2.14); the book's open ground plan. What is drawn for the look: the hour, the sky, the compass rose and the track. The remake keeps the painted sky and mesas of the present cover.

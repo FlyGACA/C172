@@ -25,6 +25,16 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
               outside it (or where its alpha is 0) the sand
     ink       {"thickness": px, "colour"}: outlines (Freestyle) on the aircraft and the paths only, for the crisp look of an illustration
     haze      {"start": m, "depth": m, "colour", "strength"}: aerial perspective (the mist pass mixed toward the colour in the compositor)
+    aircraft  ... each may also give (for the cover and opening pictures; model coordinates are metres, x to the pilot's side, the nose along -y, z up):
+              "model": "high" | "medium" | "low" (medium by default); "hide": name prefixes of its parts to leave out;
+              "attitude": "body" turns it by heading, then pitch, then bank about its own axes (the plain form turns about the scene's axes: right near north and south only);
+              "prop": {"alpha", "colour"}: the blades left out and a faint disc in their place (the propeller turning);
+              "lights": {"nav": strength, "strobe": strength, "beacon": strength, "landing": {"power": W, "angle": deg, "down": deg}}: its lamps lit;
+              "emit": {material name: strength}: those materials glow in their own colours (instrument faces at night);
+              "lamps": [{"at": [x, y, z], "power", "colour", "size"}]: small lights that go with it (the cabin lit);
+              "anchors": {name: [x, y, z]}: points of the model projected into the picture with the recipe's own anchors
+    camera    ... {"aircraft": index, "at": [x, y, z], "look": [x, y, z]} gives both points in that aeroplane's model coordinates (a view from its cabin,
+              a view that follows it); "shift_y", "clip_start" and "dof": {"focus": m, "fstop"} are passed to the camera
 """
 import argparse
 import json
@@ -758,7 +768,9 @@ def world(sun):
     nt.links.new(env.outputs["Color"], bg.inputs["Color"])
     sun_data = bpy.data.lights.new("sun", "SUN")
     sun_data.energy = sun.get("energy", 4.0)
-    sun_data.angle = math.radians(1.5)
+    sun_data.angle = math.radians(sun.get("angle", 1.5))
+    if "colour" in sun:
+        sun_data.color = hexcol(sun["colour"])[:3]
     sun_ob = bpy.data.objects.new("sun", sun_data)
     bpy.context.scene.collection.objects.link(sun_ob)
     el, az = math.radians(sun.get("elevation", 42)), math.radians(sun.get("azimuth", 135))
@@ -977,6 +989,145 @@ def frame_camera(f, sc):
     return {"at": list(at), "look": list(mid), "lens": lens}
 
 
+AC_ROOTS = []
+EXTRA_ANCHORS = {}
+
+
+def _base(name):
+    """A datablock's name without the .001 that a second import gives it."""
+    return name[:-4] if len(name) > 4 and name[-4] == "." and name[-3:].isdigit() else name
+
+
+def aircraft_extras(ac, obs, root, i):
+    """What a cover or an opening picture asks of the model beyond its place and attitude: parts left out, the propeller turning, its lamps lit,
+    materials that glow, lights that go with it, and points of it to project."""
+    sc = bpy.context.scene
+    for o in obs:
+        if any(_base(o.name).startswith(k) for k in ac.get("hide", [])):
+            o.hide_render = True
+    mats = {}
+    for o in obs:
+        if o.type == "MESH":
+            for m in o.data.materials:
+                if m is not None:
+                    mats.setdefault(_base(m.name), set()).add(m)
+
+    def child(ob, at):
+        ob.parent = root
+        ob.location = Vector(at)
+        sc.collection.objects.link(ob)
+        return ob
+
+    if "prop" in ac:
+        import bmesh
+        cfg = ac["prop"]
+        for o in obs:
+            if _base(o.name) == "POWERPLANT.propeller":
+                o.hide_render = True
+        hub, rad = Vector((0.0, -1.93, 1.385)), 0.95
+        for k, (r0, r1, alpha, colour) in enumerate(((0.10, 0.84, cfg.get("alpha", 0.10), cfg.get("colour", "#C9D2E4")), (0.84, rad, cfg.get("alpha", 0.10) * 1.5, cfg.get("tip", "#EAD9A2")))):
+            bm = bmesh.new()
+            n = 96
+            for j in range(n):
+                a0, a1 = 2 * math.pi * j / n, 2 * math.pi * (j + 1) / n
+                vs = [bm.verts.new((rr * math.cos(aa), 0.0, rr * math.sin(aa))) for rr, aa in ((r0, a0), (r1, a0), (r1, a1), (r0, a1))]
+                bm.faces.new(vs)
+            me = bpy.data.meshes.new(f"prop disc {i}.{k}")
+            bm.to_mesh(me)
+            bm.free()
+            m = bpy.data.materials.new(f"prop disc {i}.{k}")
+            m.use_nodes = True
+            nt = m.node_tree
+            nt.nodes.clear()
+            tr, em, mix = nt.nodes.new("ShaderNodeBsdfTransparent"), nt.nodes.new("ShaderNodeBsdfDiffuse"), nt.nodes.new("ShaderNodeMixShader")
+            em.inputs["Color"].default_value = hexcol(colour)
+            mix.inputs[0].default_value = alpha
+            out = nt.nodes.new("ShaderNodeOutputMaterial")
+            nt.links.new(tr.outputs[0], mix.inputs[1])
+            nt.links.new(em.outputs[0], mix.inputs[2])
+            nt.links.new(mix.outputs[0], out.inputs["Surface"])
+            me.materials.append(m)
+            d = child(bpy.data.objects.new(f"prop disc {i}.{k}", me), hub)
+            d.visible_shadow = False
+    lights = ac.get("lights", {})
+
+    def glow(names, strength, colour=None):
+        for nm in names:
+            for m in mats.get(nm, ()):
+                b = m.node_tree.nodes.get("Principled BSDF") if m.use_nodes else None
+                if b is not None:
+                    b.inputs["Emission Color"].default_value = hexcol(colour) if colour else b.inputs["Base Color"].default_value
+                    b.inputs["Emission Strength"].default_value = strength
+
+    def lamp(name, at, colour, strength, radius=0.045, power=0.0):
+        """A lamp of the model lit: a small bright ball at its lens, which the glare of the compositor turns into its glow, and a little light round it."""
+        import bmesh
+        bm = bmesh.new()
+        bmesh.ops.create_icosphere(bm, subdivisions=2, radius=radius)
+        me = bpy.data.meshes.new(name)
+        bm.to_mesh(me)
+        bm.free()
+        m = bpy.data.materials.new(name)
+        m.use_nodes = True
+        nt = m.node_tree
+        nt.nodes.clear()
+        em = nt.nodes.new("ShaderNodeEmission")
+        em.inputs["Color"].default_value = hexcol(colour)
+        em.inputs["Strength"].default_value = strength
+        out = nt.nodes.new("ShaderNodeOutputMaterial")
+        nt.links.new(em.outputs[0], out.inputs["Surface"])
+        me.materials.append(m)
+        o = child(bpy.data.objects.new(name, me), at)
+        o.visible_shadow = False
+        o.visible_diffuse = o.visible_glossy = o.visible_transmission = False      # seen by the camera only: it is the point light below that lights what is round it
+        if power:
+            ld = bpy.data.lights.new(name, "POINT")
+            ld.energy, ld.color, ld.shadow_soft_size = power, hexcol(colour)[:3], 0.05
+            child(bpy.data.objects.new(name + " light", ld), at)
+
+    if lights.get("nav"):
+        lamp(f"nav L {i}", (5.40, 0.05, 1.985), "#FF2A1F", lights["nav"], power=lights.get("nav_power", 6.0))
+        lamp(f"nav R {i}", (-5.40, 0.05, 1.985), "#22FF66", lights["nav"], power=lights.get("nav_power", 6.0))
+        lamp(f"nav tail {i}", (0.0, 6.08, 2.2), "#FFFFFF", lights["nav"] * 0.7)
+    if lights.get("strobe"):
+        lamp(f"strobe L {i}", (5.47, 0.32, 1.97), "#FFFFFF", lights["strobe"])
+        lamp(f"strobe R {i}", (-5.47, 0.32, 1.97), "#FFFFFF", lights["strobe"])
+    if lights.get("beacon"):
+        lamp(f"beacon {i}", (0.0, 5.485, 2.43), "#FF2413", lights["beacon"], radius=0.05, power=lights.get("beacon_power", 4.0))
+    if lights.get("landing"):
+        cfg = lights["landing"]
+        lamp(f"landing {i}", (0.0, -1.735, 1.105), "#FFF4DA", cfg.get("strength", 400.0), radius=0.05)
+        ld = bpy.data.lights.new(f"landing beam {i}", "SPOT")
+        ld.energy = cfg.get("power", 40000.0)
+        ld.spot_size = math.radians(cfg.get("angle", 34.0))
+        ld.spot_blend = cfg.get("blend", 0.75)
+        ld.color = hexcol(cfg.get("colour", "#FFF1D2"))[:3]
+        ld.shadow_soft_size = 0.06
+        lo = child(bpy.data.objects.new(f"landing beam {i}", ld), (0.0, -2.30, 1.105))      # ahead of the propeller's disc, which it would light up from 10 cm
+        down = math.radians(cfg.get("down", 5.0))
+        lo.rotation_euler = Vector((0.0, -math.cos(down), -math.sin(down))).to_track_quat("-Z", "Y").to_euler()
+    for nm, strength in ac.get("emit", {}).items():
+        for m in mats.get(nm, ()):
+            b = m.node_tree.nodes.get("Principled BSDF") if m.use_nodes else None
+            if b is None:
+                continue
+            src = b.inputs["Base Color"]
+            if src.is_linked:
+                m.node_tree.links.new(src.links[0].from_socket, b.inputs["Emission Color"])
+            else:
+                b.inputs["Emission Color"].default_value = src.default_value
+            b.inputs["Emission Strength"].default_value = strength
+    for k, lp in enumerate(ac.get("lamps", [])):
+        ld = bpy.data.lights.new(f"cabin {i}.{k}", "POINT")
+        ld.energy = lp.get("power", 5.0)
+        ld.color = hexcol(lp.get("colour", "#FFD9A8"))[:3]
+        ld.shadow_soft_size = lp.get("size", 0.08)
+        child(bpy.data.objects.new(f"cabin {i}.{k}", ld), lp["at"])
+    bpy.context.view_layer.update()
+    for k, v in ac.get("anchors", {}).items():
+        EXTRA_ANCHORS[k] = root.matrix_world @ Vector(v)
+
+
 def main():
     a = args()
     r = json.load(open(a.recipe))
@@ -1043,7 +1194,7 @@ def main():
                 o.data.materials.clear()
                 o.data.materials.append(mat)
     for i, ac in enumerate(r.get("aircraft", [])):
-        obs = import_glb(os.path.join(C172, "08_realistic_digital_twin", "models", "C172N_realistic_medium.glb"))
+        obs = import_glb(os.path.join(C172, "08_realistic_digital_twin", "models", f"C172N_realistic_{ac.get('model', 'medium')}.glb"))
         inked += [o for o in obs if o.type == "MESH"]
         root = bpy.data.objects.new(f"ac{i}", None)
         sc.collection.objects.link(root)
@@ -1058,6 +1209,14 @@ def main():
         root.scale = (s, s, s)
         # the model's nose points along -y of its build frame after import (glTF: forward is +z, which becomes -y); heading is true, clockwise from north
         root.rotation_euler = Euler((math.radians(ac.get("pitch", 0.0)), math.radians(-ac.get("bank", 0.0)), math.radians(-ac.get("heading", 0.0) + 180.0)), "ZXY")
+        if ac.get("attitude") == "body":                 # heading, then pitch about the wings, then bank about the nose: right for any heading (nose up and right wing down positive)
+            rot = (Matrix.Rotation(math.radians(180.0 - ac.get("heading", 0.0)), 3, "Z") @ Matrix.Rotation(math.radians(-ac.get("pitch", 0.0)), 3, "X")
+                   @ Matrix.Rotation(math.radians(-ac.get("bank", 0.0)), 3, "Y"))
+            root.rotation_mode = "QUATERNION"
+            root.rotation_quaternion = rot.to_quaternion()
+        AC_ROOTS.append(root)
+        if any(k in ac for k in ("hide", "prop", "lights", "emit", "lamps", "anchors")):
+            aircraft_extras(ac, obs, root, i)
     for i, p in enumerate(r.get("paths", [])):
         before = set(bpy.data.objects)
         _path(i, p)
@@ -1102,8 +1261,21 @@ def main():
     if c.get("above_ground"):                             # the heights of "at" and "look" are above the ground under each of them
         c = dict(c, at=[c["at"][0], c["at"][1], c["at"][2] + ground_z(c["at"][0], c["at"][1])],
                  look=[c["look"][0], c["look"][1], c["look"][2] + ground_z(c["look"][0], c["look"][1])])
+    if c.get("aircraft") is not None:                     # both points in the model coordinates of that aeroplane
+        bpy.context.view_layer.update()
+        mw = AC_ROOTS[c["aircraft"]].matrix_world
+        c = dict(c, at=list(mw @ Vector(c["at"])), look=list(mw @ Vector(c["look"])))
     cam.location = Vector(c["at"])
     cam.rotation_euler = (Vector(c["look"]) - Vector(c["at"])).to_track_quat("-Z", "Y").to_euler()
+    if c.get("roll"):
+        cam.rotation_euler.rotate_axis("Z", math.radians(c["roll"]))
+    cam_d.shift_y = c.get("shift_y", 0.0)
+    cam_d.shift_x = c.get("shift_x", 0.0)
+    cam_d.clip_start = c.get("clip_start", 0.1)
+    if "dof" in c:
+        cam_d.dof.use_dof = True
+        cam_d.dof.focus_distance = c["dof"]["focus"]
+        cam_d.dof.aperture_fstop = c["dof"].get("fstop", 2.8)
     if "ortho" in c:
         cam_d.type = "ORTHO"
         cam_d.ortho_scale = c["ortho"]
@@ -1137,6 +1309,9 @@ def main():
             p = Vector(v)
         q = world_to_camera_view(sc, cam, p)
         anchors[k] = [round(q.x, 5), round(1.0 - q.y, 5)]
+    for k, p in EXTRA_ANCHORS.items():
+        q = world_to_camera_view(sc, cam, p)
+        anchors[k] = [round(q.x, 5), round(1.0 - q.y, 5)]
     if not a.anchors_only:
         bpy.ops.render.render(write_still=True)
         if r.get("despeckle"):
@@ -1146,4 +1321,5 @@ def main():
     print("rendered", r["id"])
 
 
-main()
+if __name__ == "__main__":
+    main()

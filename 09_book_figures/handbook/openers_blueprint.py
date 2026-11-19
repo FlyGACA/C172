@@ -35,7 +35,7 @@ def ground(w, h):
     return im
 
 
-def rose(w, h, cx, cy, r, north=0.0, colour=PALE, alpha=70):
+def rose(w, h, cx, cy, r, north=0.0, colour=PALE, alpha=70, marker=True):
     """Rings, ticks and a 16-point star; `north` turns it (degrees clockwise from up)."""
     k = 3
     u = max(1, round(w / 1100.0))
@@ -57,7 +57,7 @@ def rose(w, h, cx, cy, r, north=0.0, colour=PALE, alpha=70):
             d.line([(X + R * 0.14 * math.sin(t + sgn * 0.42), Y - R * 0.14 * math.cos(t + sgn * 0.42)), tip], fill=c, width=2 * u)
     t = math.radians(north)                                # the north point, a small gold arrowhead outside the outer ring
     tip = (X + R * 1.3 * math.sin(t), Y - R * 1.3 * math.cos(t))
-    for sgn in (-1, 1):
+    for sgn in ((-1, 1) if marker else ()):
         d.line([tip, (X + R * 1.2 * math.sin(t + sgn * 0.03), Y - R * 1.2 * math.cos(t + sgn * 0.03))], fill=GOLD + (220,), width=4)
     return im.resize((w, h), Image.LANCZOS)
 

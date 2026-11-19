@@ -191,4 +191,5 @@ def main():
     print(out, (w, h))
 
 
-main()
+if __name__ == "__main__":
+    main()
