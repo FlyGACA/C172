@@ -7,6 +7,7 @@ import math
 
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 300
@@ -37,8 +38,7 @@ def scene():
 
 
 def pill(cx, cy, w, text, fill="#1F2937", height=13.0):
-    return (f'<rect x="{n(cx - w / 2)}" y="{n(cy - height / 2 - 3)}" width="{n(w)}" height="{n(height + 6)}" rx="{n((height + 6) / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.4"/>'
-            + H.glyph_text(text, cx, cy, height, fill="#FFFFFF"))
+    return M.chip(cx, cy, text, fill, size=height * 0.8, min_w=w)
 
 
 def bar():

@@ -8,6 +8,7 @@ import math
 from figs import h_b2 as H
 from figs import photo_ground as PG
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 404
@@ -36,7 +37,7 @@ def side(i, seed, hz=100.0, stops=DAY, extra=""):
 
 
 def pill(cx, cy, w, text, fill="#1F2937", h=11.0):
-    return (f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2 - 3.5)}" width="{n(w)}" height="{n(h + 7)}" rx="{n((h + 7) / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.5"/>' + H.glyph_text(text, cx, cy, h, fill="#FFFFFF"))
+    return M.chip(cx, cy, text, fill, size=h * 0.8, min_w=w)
 
 
 def runway_side(x, y, y0=140.0):

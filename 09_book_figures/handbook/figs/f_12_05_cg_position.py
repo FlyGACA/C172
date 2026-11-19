@@ -9,6 +9,7 @@ import math
 from figs import h_a4 as A
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 292
@@ -41,15 +42,7 @@ def background():
 
 
 def arrow(x0, y0, x1, y1, col, width=3.4, head=8.0, shadow=True):
-    ang = math.atan2(y1 - y0, x1 - x0)
-    hx, hy = x1 - head * math.cos(ang), y1 - head * math.sin(ang)
-    nx, ny = -math.sin(ang), math.cos(ang)
-    out = ''
-    if shadow:
-        out += f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(hx)}" y2="{n(hy)}" stroke="#FFFFFF" stroke-width="{n(width + 3)}" stroke-linecap="round" opacity="0.85"/>'
-    out += (f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(hx)}" y2="{n(hy)}" stroke="{col}" stroke-width="{n(width)}" stroke-linecap="round"/>'
-            f'<path d="M{n(x1)} {n(y1)} L{n(hx + nx * head * 0.62)} {n(hy + ny * head * 0.62)} L{n(hx - nx * head * 0.62)} {n(hy - ny * head * 0.62)} Z" fill="{col}" stroke="#FFFFFF" stroke-width="0.8" stroke-linejoin="round"/>')
-    return out
+    return M.arrow(x0, y0, x1, y1, col, width=width * 0.8, head=head, halo=shadow)
 
 
 def cg_mark(x, y, r=7.5):

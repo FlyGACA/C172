@@ -4,6 +4,7 @@ Lanes: 1 METAR and SPECI at now, at one aerodrome; 2 the trend, a short arrow af
 5 area forecasts and significant weather charts, and winds and temperatures aloft (a chart and a wind arrow), hours ahead; 6 ATIS and air reports, now (radio arcs and the aeroplane). The product names are the codes the chapter uses; the time axis has no scale."""
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 300
@@ -22,9 +23,7 @@ def gwidth(s, height, spacing=0.4):
 
 
 def pill(cx, cy, text, fill, size=8.4):
-    w = gwidth(text, size) + 14.0
-    h = size + 8.0
-    return f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.5"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4)
+    return M.chip(cx, cy, text, fill, size=size, light=True)
 
 
 def bar(xa, xb, y, col, dash=False, h=14.0):

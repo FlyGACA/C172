@@ -5,6 +5,7 @@ B (4 000 ft, 35 °C, runway 1 100 m): landing 533 m, with the margin 800 m (insi
 All numbers are the chapter's own; the bars are to one scale in metres."""
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 410
@@ -24,13 +25,7 @@ def gwidth(s, height, spacing=0.4):
 
 
 def pill(cx, cy, text, fill, size=8.0, anchor="middle"):
-    w = gwidth(text, size) + 12.0
-    h = size + 7.0
-    if anchor == "start":
-        cx = cx + w / 2
-    elif anchor == "end":
-        cx = cx - w / 2
-    return f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.3"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4)
+    return M.chip(cx, cy, text, fill, size=size, anchor=anchor, light=True)
 
 
 def card(uid, x, y, w, h):

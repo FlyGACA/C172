@@ -5,6 +5,7 @@
 from figs import h_b2 as H
 from figs import h_rich as R
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 344
@@ -16,10 +17,7 @@ CELLS = ((10.0, 10.0, 305.0, 157.0, "blue"), (325.0, 10.0, 305.0, 157.0, "slate"
 
 
 def pill(cx, cy, text, fill, size=10.0):
-    g = H._GLYPHS
-    w = sum((size * 0.38 if c == " " else g["glyphs"][c]["advance"] * size / g["cap_height"]) + 0.4 for c in text) + 14.0
-    h = size + 7.0
-    return f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.5"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4)
+    return M.chip(cx, cy, text, fill, size=size, anchor="middle")
 
 
 def office(cx, base, col):
@@ -29,11 +27,7 @@ def office(cx, base, col):
 
 
 def arrow(x1, y1, x2, y2, col=BLUE):
-    import math
-    a = math.atan2(y2 - y1, x2 - x1)
-    hx, hy = x2 - 9 * math.cos(a), y2 - 9 * math.sin(a)
-    px, py = -math.sin(a) * 5, math.cos(a) * 5
-    return f'<line x1="{n(x1)}" y1="{n(y1)}" x2="{n(hx)}" y2="{n(hy)}" stroke="{col}" stroke-width="3.2" stroke-linecap="round"/><path d="M{n(x2)} {n(y2)} L{n(hx + px)} {n(hy + py)} L{n(hx - px)} {n(hy - py)} Z" fill="{col}"/>'
+    return M.arrow(x1, y1, x2, y2, col)
 
 
 def tile1():

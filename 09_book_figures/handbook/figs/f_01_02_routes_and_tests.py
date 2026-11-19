@@ -6,6 +6,7 @@ The only text is the numbers of hours and areas (from the chapter). The tiles ar
 from figs import h_b2 as H
 from figs import h_rich as R
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 372
@@ -24,9 +25,7 @@ def gwidth(s, height, spacing=0.4):
 
 
 def pill(cx, cy, text, fill, size=8.5):
-    w = gwidth(text, size) + 14.0
-    h = size + 7.0
-    return f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.4"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4)
+    return M.chip(cx, cy, text, fill, size=size, anchor="middle")
 
 
 def card(uid, x, y, w, h):

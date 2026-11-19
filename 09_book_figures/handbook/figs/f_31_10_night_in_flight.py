@@ -11,6 +11,7 @@ import random
 
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 406
@@ -80,8 +81,7 @@ def autokinesis(cx, cy):
 
 
 def pill(cx, cy, w, text):
-    return (f'<rect x="{n(cx - w / 2)}" y="{n(cy - 9)}" width="{n(w)}" height="18" rx="9" fill="#0F172A" fill-opacity="0.82" stroke="#FFFFFF" stroke-width="1.4"/>'
-            + H.glyph_text(text, cx, cy, 9.0, "#FFFFFF", spacing=0.4))
+    return M.chip(cx, cy, text, "#1F2937", size=8.0, min_w=w)
 
 
 def layers():

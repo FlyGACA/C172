@@ -21,13 +21,7 @@ def gwidth(s, height, spacing=0.4):
 
 
 def pill(cx, cy, text, fill, size=8.4, anchor="middle"):
-    w = gwidth(text, size) + 14.0
-    h = size + 8.0
-    if anchor == "start":
-        cx += w / 2
-    elif anchor == "end":
-        cx -= w / 2
-    return f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.5"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4)
+    return M.chip(cx, cy, text, fill, size=size, anchor=anchor)
 
 
 def ky(kt):
@@ -44,6 +38,7 @@ def background():
 
 import json
 import os
+from figs import marks as M  # noqa: E402
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

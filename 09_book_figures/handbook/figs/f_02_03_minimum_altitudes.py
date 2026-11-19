@@ -9,6 +9,7 @@ from figs import h_a1 as A1
 from figs import h_b1 as B
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 262
@@ -34,9 +35,7 @@ def gwidth(s, height, spacing=0.3):
 
 
 def pill(s, x, y, colour, size=5.6, height=10.5):
-    w = gwidth(s, size) + 10.0
-    return (f'<rect x="{n(x - w / 2)}" y="{n(y - height / 2)}" width="{n(w)}" height="{n(height)}" rx="{n(height / 2)}" fill="{colour}" stroke="#FFFFFF" stroke-width="1.1" filter="url(#{U}ds)"/>'
-            + H.glyph_text(s, x, y, size, "#FFFFFF", spacing=0.3))
+    return M.chip(x, y, s, colour, size=size * 1.05, anchor="middle", light=True, height=height)
 
 
 def background():

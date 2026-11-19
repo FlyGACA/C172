@@ -7,6 +7,7 @@ import math
 
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 330
@@ -29,10 +30,7 @@ def panel(i, sky_stops, body):
 
 
 def pill(cx, cy, text, fill="#1F2937", size=9.0):
-    g = H._GLYPHS
-    w = sum((size * 0.38 if c == " " else g["glyphs"][c]["advance"] * size / g["cap_height"]) + 0.4 for c in text) + 14.0
-    h = size + 7.0
-    return (f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.5"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4))
+    return M.chip(cx, cy, text, fill, size=size, anchor="middle")
 
 
 def strip_runway(x0, x1, y, h=10.0):

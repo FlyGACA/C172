@@ -13,6 +13,7 @@ hour the report is due (48 and 96, in a pill), a dashed paper where the text pri
 sections, the hours, the units. The occurrence in the chapter's example, a rejected takeoff because a runway was occupied, is a serious incident: lane 1."""
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 292
@@ -44,13 +45,7 @@ def gwidth(s, height, spacing=0.3):
 
 
 def pill(s, x, y, colour, size=5.4, height=10.0, anchor="middle", solid=True):
-    w = gwidth(s, size) + 10.0
-    x0 = x - w / 2 if anchor == "middle" else x if anchor == "start" else x - w
-    if solid:
-        return (f'<rect x="{n(x0)}" y="{n(y - height / 2)}" width="{n(w)}" height="{n(height)}" rx="{n(height / 2)}" fill="{colour}" stroke="#FFFFFF" stroke-width="1.1" filter="url(#{U}ds)"/>'
-                + H.glyph_text(s, x0 + w / 2, y, size, "#FFFFFF", spacing=0.3))
-    return (f'<rect x="{n(x0)}" y="{n(y - height / 2)}" width="{n(w)}" height="{n(height)}" rx="{n(height / 2)}" fill="#FFFFFF" fill-opacity="0.95" stroke="{colour}" stroke-width="0.9"/>'
-            + H.glyph_text(s, x0 + w / 2, y, size, colour, spacing=0.3))
+    return M.chip(x, y, s, colour, size=size * 1.05, anchor=anchor, light=True, height=height)
 
 
 def background():

@@ -10,6 +10,7 @@ import os
 from figs import h_b2 as H
 from figs import h_rich as R
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 356
@@ -47,16 +48,7 @@ def icon(kind, x, y, col):
 
 
 def chip(cx, cy, text, accent, kind=None, size=7.8):
-    """A label of the figure: dark glass, a bar of the colour on its left, a small sign, white figures."""
-    tw = gwidth(text, size)
-    iw = 11.0 if kind else 0.0
-    w, h = tw + 15.0 + iw, size + 9.0
-    x0, y0 = cx - w / 2, cy - h / 2
-    tint = {"#1D4ED8": "#93B4FF", "#15803D": "#6EE7A0", "#B91C1C": "#FCA5A5", "#B45309": "#FCD48A", "#7C3AED": "#C4B5FD"}.get(accent, accent)
-    return (f'<rect x="{n(x0)}" y="{n(y0)}" width="{n(w)}" height="{n(h)}" rx="5" fill="#0B1224" fill-opacity="0.80" stroke="{tint}" stroke-opacity="0.55" stroke-width="0.9"{ds()}/>'
-            f'<rect x="{n(x0 + 2.2)}" y="{n(y0 + 3.0)}" width="2.6" height="{n(h - 6.0)}" rx="1.3" fill="{tint}"/>'
-            + (icon(kind, x0 + 12.0, cy, tint) if kind else "")
-            + H.glyph_text(text, x0 + 8.5 + iw + tw / 2, cy, size, "#FFFFFF", spacing=0.4))
+    return M.chip(cx, cy, text, accent, size=size, kind=kind)
 
 
 def flight(p0, c, p1, col, dash=False, width=2.2):
