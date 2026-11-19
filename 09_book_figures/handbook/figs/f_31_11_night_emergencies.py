@@ -7,6 +7,7 @@ import math
 import random
 
 from figs import h_b2 as H
+from figs import photo_ground as PG
 from figs import scene as S
 
 n = S.n
@@ -50,6 +51,8 @@ def pill(cx, cy, text, fill="#1F2937", size=10.0):
 
 def ground(i, hz, col="#2A2F3F"):
     x, y = PX[i], PY[i]
+    if col == "#2A2F3F":                                    # style C: the desert at night, the open picture darkened (figs/photo_ground.py)
+        return PG.side(x, x + PW, y + hz, y + PH, tone="night", offset=0.15 * i)
     return f'<rect x="{n(x)}" y="{n(y + hz)}" width="{n(PW)}" height="{n(PH - hz)}" fill="{col}"/>'
 
 

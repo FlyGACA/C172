@@ -689,6 +689,18 @@ def style_c(r, track=None, ink_px=1.5, ground=True):
     return r
 
 
+def ink_haze(r, ink_px=1.5, haze_strength=0.5):
+    """The lighter touch of style C for a scene that keeps its own ground and its shadows (the farms of Chapter 27, whose notes read the shadow as the
+    ground track; the airspace and the routes, wider than the open picture): outlines on the aircraft and the paths, and aerial haze from a little
+    nearer than the place looked at to well beyond it."""
+    r = json.loads(json.dumps(r))
+    c, l = r["camera"]["at"], r["camera"]["look"]
+    d = math.dist(c, l)
+    r["ink"] = {"thickness": ink_px, "colour": "#1F2937"}
+    r["haze"] = {"start": round(0.7 * d, 1), "depth": round(2.5 * d, 1), "colour": "#E8E4DC", "strength": haze_strength}
+    return r
+
+
 def circuit_v2():
     r = circuit_recipe("oeth-18-07-circuit-v2", {"at": [4300.0, -2700.0, 4300.0], "look": [-560.0, -380.0, 60.0], "lens": 32})
     r = style_c(r, track=r["paths"][0]["points"])
@@ -716,14 +728,14 @@ RECIPES = {
     "backdrop-side-desert": backdrop_side,
     "backdrop-plan-desert": backdrop_plan,
     "oeth-18-07-circuit-v2": circuit_v2,
-    "farm-27-05-drift": drift_27_05,
-    "farm-27-06-rectangle": rectangle_27_06,
-    "farm-27-07-s-turns": s_turns_27_07,
-    "farm-27-08-point": point_27_08,
+    "farm-27-05-drift": lambda: ink_haze(drift_27_05()),
+    "farm-27-06-rectangle": lambda: ink_haze(rectangle_27_06()),
+    "farm-27-07-s-turns": lambda: ink_haze(s_turns_27_07()),
+    "farm-27-08-point": lambda: ink_haze(point_27_08()),
     "oeth-18-01-aerodrome": aerodrome_18_01,           # (not in style C: 10 m pixels are a blur from 300 m up)
-    "oeth-18-08-procedures": procedures_18_08,
-    "oeth-17-09-route": route_17_09,
-    "oeth-17-01-airspace": airspace_17_01,
+    "oeth-18-08-procedures": lambda: ink_haze(procedures_18_08()),
+    "oeth-17-09-route": lambda: ink_haze(route_17_09()),
+    "oeth-17-01-airspace": lambda: ink_haze(airspace_17_01()),
     "oeth-26-02-circuit": circuit_26_02,
     "oeth-18-07-circuit": lambda: circuit_recipe("oeth-18-07-circuit", {"at": [4700.0, -2300.0, 3300.0], "look": [-560.0, -480.0, 60.0], "lens": 30}),
 }

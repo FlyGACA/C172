@@ -7,6 +7,7 @@ import math
 import random
 
 from figs import h_b2 as H
+from figs import photo_ground as PG
 from figs import scene as S
 
 n = S.n
@@ -38,7 +39,7 @@ def stars(i, seed, ymax=0.6):
 
 def night(i, seed, hz=100.0, extra="", ground="#2A2F3F"):
     x, y = PX[i], PY[i]
-    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, NIGHT) + stars(i, seed) + f'<rect x="{n(x)}" y="{n(y + hz)}" width="{n(PW)}" height="{n(PH - hz)}" fill="{ground}"/>' + extra)
+    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, NIGHT) + stars(i, seed) + (PG.side(x, x + PW, y + hz, y + PH, tone="night", offset=seed * 0.13 % 1.0) if ground == "#2A2F3F" else f'<rect x="{n(x)}" y="{n(y + hz)}" width="{n(PW)}" height="{n(PH - hz)}" fill="{ground}"/>') + extra)
 
 
 def lamp(cx, cy, r=1.8, col="#FFE9A8", glow=9.0):

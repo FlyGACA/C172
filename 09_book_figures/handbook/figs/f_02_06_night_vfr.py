@@ -6,6 +6,7 @@ under it; 2 the exception (a local flight round an aerodrome, under conditions p
 import math
 
 from figs import h_b2 as H
+from figs import photo_ground as PG
 from figs import scene as S
 
 n = S.n
@@ -70,12 +71,12 @@ def panel_exception():                                       # a local flight ro
     loop = S.ribbon(f"{U}lp", [(x + 40, y + 110), (x + 100, y + 84), (x + 162, y + 104), (x + 150, y + 150), (x + 70, y + 152), (x + 36, y + 124)], 5.0, "#2FA35A", "#9BE0B2", opacity=0.9, head=2.0, tail=0.5, per=8)
     tick = (f'<circle cx="{n(x + 168)}" cy="{n(y + 36)}" r="17" fill="{GREEN}" stroke="#FFFFFF" stroke-width="2"/>'
             f'<path d="M{n(x + 160)} {n(y + 37)} L{n(x + 166)} {n(y + 43)} L{n(x + 177)} {n(y + 30)}" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>')
-    return frame(f"{U}e", BOT[0], S.sky(f"{U}ek", x, y, w, h, NIGHT) + stars(BOT[0], 8) + f'<rect x="{n(x)}" y="{n(y + 168)}" width="{n(w)}" height="{n(h - 168)}" fill="#3A3A40"/>' + rw + loop + tick)
+    return frame(f"{U}e", BOT[0], S.sky(f"{U}ek", x, y, w, h, NIGHT) + stars(BOT[0], 8) + PG.side(x, x + w, y + 168, y + h, tone="night", offset=0.2) + rw + loop + tick)
 
 
 def panel_lights():
     x, y, w, h = BOT[1]
-    return frame(f"{U}g", BOT[1], S.sky(f"{U}gk", x, y, w, h, NIGHT) + stars(BOT[1], 11) + f'<rect x="{n(x)}" y="{n(y + 168)}" width="{n(w)}" height="{n(h - 168)}" fill="#3A3A40"/>')
+    return frame(f"{U}g", BOT[1], S.sky(f"{U}gk", x, y, w, h, NIGHT) + stars(BOT[1], 11) + PG.side(x, x + w, y + 168, y + h, tone="night", offset=0.2))
 
 
 def panel_lights_over():

@@ -14,7 +14,7 @@ from PIL import Image
 
 RENDERS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "renders")
 K = 4.0                                                     # pixels to a canvas unit
-TONES = {"day": ("#E9D6AE", 0.22, 1.0), "storm": ("#5E6A86", 0.38, 0.82), "dusk": ("#E7B58E", 0.26, 0.95), "night": ("#1C2436", 0.78, 0.9)}
+TONES = {"day": ("#E9D6AE", 0.22, 1.0), "storm": ("#5E6A86", 0.38, 0.82), "dusk": ("#E7B58E", 0.26, 0.95), "night": ("#121826", 0.8, 0.8)}
 _CACHE = {}
 
 
