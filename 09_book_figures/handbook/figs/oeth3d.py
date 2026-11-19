@@ -1062,6 +1062,40 @@ def fog_14_08(when):
     return r
 
 
+def night_aerodrome_31_01(view):
+    """Figure 31-1, two of its tiles: the generic aerodrome of 2-4's lower view (a runway, an apron, a tower; not any real one) on the desert east of
+    Thumamah at night, lit as an aerodrome with permanent runway lights: white edge lights along the runway, green across its threshold and red across
+    its far end, blue along the taxiway, the apron under floodlights, the tower cab lit; a town as a glow of points far off; the faint moon and the dark
+    ground of 31-10. view "runway": from across the runway, low (tile 2, the course's takeoffs and landings); view "tower": the tower and the runway
+    from further off and higher (tile 3, the AIP's training exercises). The sky is drawn on the plate."""
+    base = vfr_2_04_ceiling()
+    rx0, ry0, hd = 12500.0, -2500.0, 80.0
+    ux, uy = math.sin(math.radians(hd)), math.cos(math.radians(hd))
+    nx, ny = uy, -ux
+    P = lambda s_, t: [round(rx0 + ux * s_ + nx * t, 1), round(ry0 + uy * s_ + ny * t, 1)]
+    L, Wd = 1800.0, 45.0
+    gz = 0.0                                              # the levelled ground of the aerodrome (2-4's plan flattens it to about the height at its middle)
+    edges = [P(s_, t) for s_ in [-L / 2 + 60.0 * k for k in range(31)] for t in (-Wd / 2 - 2.0, Wd / 2 + 2.0)]
+    lights = [{"points": edges, "colour": "#FFF1C9", "size": 1.6, "strength": 140.0, "power": 600.0, "light_every": 4, "lift": 0.8},
+              {"points": [P(-L / 2 - 3.0, -Wd / 2 + 3.0 + 4.0 * k) for k in range(11)], "colour": "#3DFF7A", "size": 1.6, "strength": 160.0, "lift": 0.8},
+              {"points": [P(L / 2 + 3.0, -Wd / 2 + 3.0 + 4.0 * k) for k in range(11)], "colour": "#FF2A2A", "size": 1.6, "strength": 160.0, "lift": 0.8},
+              {"points": [P(-61.0, t) for t in range(30, 140, 18)] + [P(-39.0, t) for t in range(30, 140, 18)], "colour": "#3B6BFF", "size": 1.3, "strength": 140.0, "lift": 0.8},
+              {"points": [P(-150.0, 262.0), P(-50.0, 262.0), P(50.0, 262.0)], "colour": "#FFD9A0", "size": 2.0, "strength": 160.0, "power": 120000.0, "lift": 14.0},
+              {"points": [P(-103.0, 277.0)], "colour": "#FFD48A", "size": 5.5, "strength": 40.0, "power": 6000.0, "lift": 21.0},
+              {"points": _town(*P(5200.0, 7800.0), 1400.0, 420, 11, 95.0), "colour": "#FFD08A", "size": 7.0, "strength": 45.0, "power": 6000.0, "light_every": 4}]
+    if view == "runway":
+        cam = {"at": P(-L / 2 - 2400.0, 0.0) + [gz + 210.0], "look": P(-L / 2 + 600.0, 0.0) + [gz], "lens": 125}    # on a steep approach, about 5 degrees above the threshold (a long lens)
+    else:
+        cam = {"at": P(-1350.0, -950.0) + [gz + 260.0], "look": P(-80.0, 200.0) + [gz], "lens": 32}
+    return {"id": f"night-31-01-{view}", "camera": cam, "size": [1000, 850], "samples": 96, "exposure": 0.7, "look": "AgX - Medium High Contrast", "transparent": True,
+            "plan": base["plan"], "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000,
+            "night": {"horizon": "#2E3B66", "low": "#131C3A", "zenith": "#050916", "strength": 1.0, "moon": 0.28, "moon_elevation": 32, "moon_azimuth": 150, "star_bright": 0.0},
+            "lights": lights,
+            "haze": {"start": 1500.0, "depth": 12000.0, "colour": "#1E2846", "strength": 1.0, "glare": {"threshold": 0.8, "strength": 1.0, "size": 0.6, "size_steps": 8}},
+            "anchors": {"thr": P(-L / 2, 0.0), "end": P(L / 2, 0.0), "mid": P(0.0, 0.0), "tower": P(-103.0, 277.0) + [22.0], "apron": P(-50.0, 200.0),
+                        "hz": [round(rx0 + nx * 400000.0, 1), round(ry0 + ny * 400000.0, 1), 0.0]}}
+
+
 def backdrop_side():
     """A backdrop for the side-view tiles of the illustrated figures (style C): the plateau east of Thumamah from a little above it, looking north-east over
     the open picture of the ground on the real terrain to a hazy horizon; the sky is left clear (transparent) for the figure to draw. Nothing of the aerodrome is in it."""
@@ -1124,6 +1158,8 @@ RECIPES = {
     "fog-14-08-evening": lambda: fog_14_08("evening"),
     "fog-14-08-dawn": lambda: fog_14_08("dawn"),
     "fog-14-08-morning": lambda: fog_14_08("morning"),
+    "night-31-01-runway": lambda: night_aerodrome_31_01("runway"),
+    "night-31-01-tower": lambda: night_aerodrome_31_01("tower"),
     "vfr-16-08-ceiling": lambda: vfr_2_04_ceiling("vfr-16-08-ceiling", deck=340.0, back=3000.0, cam_z=310.0, lens=40, look_s=200.0, look_z=-60.0, ctr=1400.0, ac_scale=9.0, ac_ahead=1500.0),
     "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,

@@ -1,9 +1,11 @@
 """Figure 31-1 (new). Night flying in the Kingdom, from the first section of Chapter 31: the time of the rule, the course's night training, the AIP's night training exercises and the passenger rule.
 
 Above, 1: a day-to-night-to-day sky from sunset to sunrise, the period of section 91.171 as a red band from sunset (no VFR without an authorization or local ATC conditions) and the GACAR's night (end of evening civil twilight to beginning of morning civil twilight) as a darker band inside it: the dusk already counts.
-Below, three tiles: 2 the course (3 H, a cross-country of more than 100 NM, 10 takeoffs and 10 full-stop landings); 3 some of the AIP's conditions for a night training exercise (the tower operating, 8 KM, a ceiling 1 000 FT above the procedure turn altitude, the same aerodrome at both ends);
+Below, three tiles (2 and 3 on night renders of a generic aerodrome lit with permanent runway lights, figs/oeth3d.night_aerodrome_31_01: from the approach, and the tower and the runway from further off): 2 the course (3 H, a cross-country of more than 100 NM, 10 takeoffs and 10 full-stop landings); 3 some of the AIP's conditions for a night training exercise (the tower operating, 8 KM, a ceiling 1 000 FT above the procedure turn altitude, the same aerodrome at both ends);
 4 carrying passengers (3 takeoffs and 3 full-stop landings within 90 days, between 1 H after sunset and 1 H before sunrise). The time line has no scale."""
+import json
 import math
+import os
 
 from figs import h_b2 as H
 from figs import h_rich as R
@@ -66,32 +68,61 @@ TX = (12.0, 220.0, 428.0)
 TY, TW, TH = 174.0, 200.0, 170.0
 
 
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+NIGHT = [(0.0, "#050916"), (0.6, "#131C3A"), (1.0, "#2E3B66")]          # the sky of the night renders (figs/oeth3d.night_aerodrome_31_01), drawn under them
+
+
+def at(rid, x):
+    """The anchors of a night render laid over the tile at x (canvas units)."""
+    with open(os.path.join(HERE, "renders", rid + ".anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    return lambda k: (x + d["anchors"][k][0] * TW, TY + d["anchors"][k][1] * TH)
+
+
+def render_tile(uid, x, rid):
+    """A tile whose picture is a night render of the generic aerodrome, with the sky drawn under it: [the card and the sky, the render, the frame]."""
+    under = (f'<defs><clipPath id="{uid}c"><rect x="{n(x)}" y="{n(TY)}" width="{n(TW)}" height="{n(TH)}" rx="9"/></clipPath>'
+             f'<filter id="{uid}s" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.8" flood-color="#10233F" flood-opacity="0.26"/></filter></defs>'
+             f'<rect x="{n(x)}" y="{n(TY)}" width="{n(TW)}" height="{n(TH)}" rx="9" fill="#FFFFFF" filter="url(#{uid}s)"/>'
+             f'<g clip-path="url(#{uid}c)">' + S.sky(uid + "k", x, TY, TW, TH * 0.5, NIGHT) + '</g>')
+    img = {"name": rid, "at": [x + TW / 2, TY + TH / 2], "width": TW, "whole": True}
+    k = 0.5523 * 9.0                                       # white over the square corners of the render outside the card's round ones
+    x1, y0, y1, r = x + TW, TY, TY + TH, 9.0
+    corners = "".join(f'<path d="{d}" fill="#ffffff"/>' for d in (
+        f"M{n(x)} {n(y0)} L{n(x + r)} {n(y0)} C{n(x + r - k)} {n(y0)} {n(x)} {n(y0 + r - k)} {n(x)} {n(y0 + r)} Z",
+        f"M{n(x1)} {n(y0)} L{n(x1)} {n(y0 + r)} C{n(x1)} {n(y0 + r - k)} {n(x1 - r + k)} {n(y0)} {n(x1 - r)} {n(y0)} Z",
+        f"M{n(x)} {n(y1)} L{n(x)} {n(y1 - r)} C{n(x)} {n(y1 - r + k)} {n(x + r - k)} {n(y1)} {n(x + r)} {n(y1)} Z",
+        f"M{n(x1)} {n(y1)} L{n(x1 - r)} {n(y1)} C{n(x1 - r + k)} {n(y1)} {n(x1)} {n(y1 - r + k)} {n(x1)} {n(y1 - r)} Z"))
+    frame = corners + f'<rect x="{n(x)}" y="{n(TY)}" width="{n(TW)}" height="{n(TH)}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>'
+    return under, img, frame
+
+
 def course():
+    """Tile 2: the runway lit at night from the approach (render night-31-01-runway); 3 H above, 10 takeoffs and 10 full-stop landings at the runway, >100 NM below."""
     x = TX[0]
-    o = R.tile(f"{U}t2", x, TY, TW, TH, "night")
-    cx = x + TW / 2
-    o += pill(cx, TY + 34, "3 H", BLUE, size=10)
-    ry = TY + 112                                          # a runway with 10 up and 10 down
-    o += f'<path d="M{n(cx - 70)} {n(ry)} L{n(cx + 70)} {n(ry)} L{n(cx + 80)} {n(ry + 18)} L{n(cx - 80)} {n(ry + 18)} Z" fill="#475569" stroke="#E2E8F0" stroke-width="1"/>'
-    o += "".join(f'<circle cx="{n(cx - 74 + k * 18.5)}" cy="{n(ry + 20)}" r="1.8" fill="#FDE68A"/>' for k in range(9))
-    o += f'<path d="M{n(cx - 60)} {n(ry - 6)} q20 -2 34 -30" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/><path d="M{n(cx - 26)} {n(ry - 36)} l-1 9 l-7 -4 Z" fill="#86EFAC"/>' + pill(cx - 46, ry - 46, "10", GREEN)
-    o += f'<path d="M{n(cx + 26)} {n(ry - 36)} q14 26 34 30" fill="none" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/><path d="M{n(cx + 60)} {n(ry - 6)} l-9 -1 l4 -7 Z" fill="#FCA5A5"/>' + pill(cx + 46, ry - 46, "10", RED)
-    o += pill(cx, TY + 150, ">100 NM", VIOLET)
-    return o
+    under, img, frame = render_tile(f"{U}t2", x, "night-31-01-runway")
+    a = at("night-31-01-runway", x)
+    (tx, ty), (ex, ey) = a("thr"), a("end")
+    o = pill(x + TW / 2, TY + 30, "3 H", BLUE, size=10)
+    o += (f'<path d="M{n(ex + 8)} {n(ey - 2)} q22 -6 34 -34" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/>'
+          f'<path d="M{n(ex + 42)} {n(ey - 36)} l-1 9 l-7 -4 Z" fill="#86EFAC"/>' + pill(ex + 52, ey - 50, "10", GREEN))
+    o += (f'<path d="M{n(tx - 56)} {n(ty - 40)} q16 26 44 36" fill="none" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/>'
+          f'<path d="M{n(tx - 10)} {n(ty - 4)} l-9 -1 l4 -7 Z" fill="#FCA5A5"/>' + pill(tx - 60, ty - 52, "10", RED))
+    o += pill(x + TW / 2, TY + 150, ">100 NM", VIOLET)
+    return [under, img, o + frame]
 
 
 def exercise():
+    """Tile 3: the tower and the runway lit at night (render night-31-01-tower); the ceiling 1 000 FT above, 8 KM, and a loop back to the same aerodrome."""
     x = TX[1]
-    o = R.tile(f"{U}t3", x, TY, TW, TH, "night")
-    cx = x + TW / 2
-    ty = TY + 80                                           # the tower
-    o += (f'<rect x="{n(x + 34)}" y="{n(ty)}" width="10" height="56" rx="2" fill="#CBD5E1" stroke="#475569"/><path d="M{n(x + 22)} {n(ty - 14)} H{n(x + 56)} L{n(x + 52)} {n(ty)} H{n(x + 26)} Z" fill="#FDE68A" stroke="#475569" stroke-width="1.2"/>'
-          f'<rect x="{n(x + 20)}" y="{n(ty - 18)}" width="38" height="5" rx="2" fill="#475569"/>')
+    under, img, frame = render_tile(f"{U}t3", x, "night-31-01-tower")
+    a = at("night-31-01-tower", x)
+    mx, my = a("mid")
     cl = TY + 44                                           # the ceiling
-    o += f'<line x1="{n(x + 8)}" y1="{n(cl)}" x2="{n(x + TW - 8)}" y2="{n(cl)}" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6 4"/>' + pill(x + TW - 54, cl - 14, "1 000 FT", AMBER, size=7.6)
-    o += pill(x + TW - 50, TY + 104, "8 KM", BLUE)
-    o += S.ribbon(f"{U}lp", [(cx - 6, TY + 140), (cx + 40, TY + 128), (cx + 50, TY + 152), (cx + 6, TY + 156)], 3.4, "#86EFAC", "#BBF7D0", opacity=0.9, head=2.0, tail=0.3, per=6)
-    return o
+    o = f'<line x1="{n(x + 8)}" y1="{n(cl)}" x2="{n(x + TW - 8)}" y2="{n(cl)}" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6 4"/>' + pill(x + TW - 54, cl - 14, "1 000 FT", AMBER, size=7.6)
+    o += pill(x + TW - 50, TY + 132, "8 KM", BLUE)
+    o += S.ribbon(f"{U}lp", [(mx - 30, my + 26), (mx + 26, my + 34), (mx + 40, my + 8), (mx + 4, my - 4)], 3.4, "#86EFAC", "#BBF7D0", opacity=0.9, head=2.0, tail=0.3, per=6)
+    return [under, img, o + frame]
 
 
 def passengers():
@@ -115,7 +146,7 @@ def callouts():
 
 
 def layers():
-    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', timeline(), course(), exercise(), passengers(), callouts()]
+    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', timeline(), *course(), *exercise(), passengers(), callouts()]
 
 
 def plate():

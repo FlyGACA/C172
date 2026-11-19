@@ -22,7 +22,8 @@ attitude on the ground first, so a side view is a view of level flight and the p
     panel_window  [x0, x1, z0, z1]: only the openings of the panel inside this window are cut (the other instruments
                   are not drawn, and their holes would show the cabin behind); panel_extend [up, down] metres: the
                   panel plate is made taller, so that a picture of a few instruments is all panel
-    pose     what the instruments show: {"ASI": kt, "ALT": ft, "VSI": ft/min, "TACH": rpm, "heading": deg, ...}
+    pose     what the instruments show: {"ASI": kt, "ALT": ft, "VSI": ft/min, "TACH": rpm, "heading": deg, ...}; "surfaces": {part: deg} deflects hinged parts
+             ({"WING_R.aileron": 15, "EMPENNAGE.elevator": -20, "EMPENNAGE.rudder": 15}: the sign as in the web viewer)
     propeller "disc": the blades give way to a faint disc, as the eye sees a turning propeller; "none": no propeller
     smooth   [{"parts": [globs], "angle": 35}]: these parts are shaded smooth except across edges sharper than the angle, where a
              close-up would show the facets of a coarse round part in its highlights (the bezels of the instruments)
@@ -398,6 +399,12 @@ def pose(readings):
     card = bpy.data.objects.get("PANEL.DG.card")
     if card is not None and "heading" in readings:
         card.rotation_euler = (0.0, math.radians(readings["heading"]), 0.0)
+    for name, degrees in readings.get("surfaces", {}).items():      # hinged parts (ailerons, elevator, rudder, flaps), in degrees as render_figure.py and the web viewer take them
+        ob = bpy.data.objects.get(name)
+        if ob is None or "hinge_axis" not in ob:
+            raise SystemExit(f"render_plate: {name!r} is not a hinged part of the model")
+        axis, flip = {"x": ("X", 1), "y": ("Z", 1), "z": ("Y", -1)}[ob["hinge_axis"]]
+        ob.matrix_basis = ob.matrix_basis @ Matrix.Rotation(math.radians(degrees) * ob.get("hinge_sign", 1) * flip, 4, axis)
     ball = bpy.data.objects.get("PANEL.AI.ball")
     if ball is not None and ("pitch" in readings or "bank" in readings):
         ball.rotation_euler = (0.0, math.radians(readings.get("bank", 0.0)), 0.0)
