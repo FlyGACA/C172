@@ -3,7 +3,9 @@
 A gradient given in bounding-box units (the SVG default) reaches the book's PDF (WeasyPrint) as a shading in a unit square under a large matrix. PDFium (Chrome) draws it;
 Poppler (Evince, Okular, the CUPS filters) leaves many of those shapes unfilled: in Figure 19-8 the coloured lights went missing, in Figure 24-6 some of the numbered callouts.
 A gradient given in the drawing's own coordinates is drawn by both. This tool gives every shape that uses a bounding-box gradient a gradient of its own in user space:
-the same stops (by href to the original), the same vector worked out from the shape's bounding box, so the drawing looks the same on the web page.
+the same stops, the same vector worked out from the shape's bounding box, so the drawing looks the same on the web page. A new gradient used by one shape
+takes its stops by href from the original (short); one shared by several shapes carries its own stops, because WeasyPrint 70 can paint a gradient that inherits by
+href only once (its inherit_element hands over the parent's stops as a one-shot iterator), and the second shape would print unfilled.
 
     PLAYWRIGHT_MODULE=/opt/node-tools/node_modules/playwright/index.js python3 print_safe_gradients.py <book>/handbook/ppl/figures [name.svg ...]
 
@@ -66,7 +68,7 @@ def convert(svg, uses):
         gid = attr(a, "id")
         if gid and "userSpaceOnUse" not in a:
             grads[gid] = (m.group(1), a)
-    made, order, skipped, changed = {}, {}, [], 0
+    made, order, count, skipped, changed = {}, {}, {}, [], 0
     it = iter(uses)
 
     def one(m):
@@ -108,6 +110,7 @@ def convert(svg, uses):
             if key not in made:
                 order[gid] = order.get(gid, 0) + 1
                 made[key] = f"{gid}-u{order[gid]}"
+            count[key] = count.get(key, 0) + 1
             tag = tag.replace(f'{which}="url(#{gid})"', f'{which}="url(#{made[key]})"')
             changed += 1
         return tag
@@ -117,12 +120,20 @@ def convert(svg, uses):
     if not changed:
         return svg, 0, skipped
     for gid, (kind, _) in grads.items():
-        new = "".join(f'<{kind} id="{nid}" href="#{gid}" gradientUnits="userSpaceOnUse" {geo}/>' for (g, geo), nid in made.items() if g == gid)
-        if new:
-            close = f"</{kind}>"
-            start = re.search(rf'<{kind}\b[^>]*\sid="{re.escape(gid)}"[^>]*>', body)
-            end = body.index(close, start.end()) + len(close)
-            body = body[:end] + new + body[end:]
+        keys = [(k, nid) for k, nid in made.items() if k[0] == gid]
+        if not keys:
+            continue
+        close = f"</{kind}>"
+        start = re.search(rf'<{kind}\b[^>]*\sid="{re.escape(gid)}"[^>]*>', body)
+        end = body.index(close, start.end()) + len(close)
+        stops = body[start.end():end - len(close)]
+        new = ""
+        for k, nid in keys:
+            if count[k] > 1:                                    # shared by several shapes: its own stops (see the note on href above)
+                new += f'<{kind} id="{nid}" gradientUnits="userSpaceOnUse" {k[1]}>{stops}</{kind}>'
+            else:
+                new += f'<{kind} id="{nid}" href="#{gid}" gradientUnits="userSpaceOnUse" {k[1]}/>'
+        body = body[:end] + new + body[end:]
     return body, changed, skipped
 
 
