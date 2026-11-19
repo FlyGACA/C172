@@ -85,10 +85,10 @@ def final():
     hd35 = O.heading(O.T35, O.T17)
     fx, fy = unit(hd35)
     lx, ly = -fy, fx                                       # to the left of the track
-    d, zh = 330.0, 18.5                                    # 330 m short of the threshold, on a 3 degree path
+    d, zh = 450.0, 25.0                                    # 450 m short of the threshold (beyond the approach lights), on a 3 degree path
     ac = rp(L + d, 0.0, zh)
-    cam = [round(ac[0] - fx * 11.5 + lx * 1.6, 2), round(ac[1] - fy * 11.5 + ly * 1.6, 2), zh + 4.3]
-    aim = [round(ac[0] + fx * 150.0, 2), round(ac[1] + fy * 150.0, 2), zh - 25.0]
+    cam = [round(ac[0] - fx * 16.0 + lx * 2.2, 2), round(ac[1] - fy * 16.0 + ly * 2.2, 2), zh + 6.2]
+    aim = [round(ac[0] + fx * 150.0, 2), round(ac[1] + fy * 150.0, 2), zh - 20.0]
     r = base("opener-final", {"at": cam, "look": aim, "lens": 24})
     r["aircraft"] = [{"at": ac, "heading": hd35, "pitch": -1.5, "bank": 0.0}]
     r["spots"] = [{"at": [cam[0], cam[1], cam[2] + 2.0], "look": ac, "power": 3200.0, "size": 5.0, "colour": "#FFE2B8"}]
