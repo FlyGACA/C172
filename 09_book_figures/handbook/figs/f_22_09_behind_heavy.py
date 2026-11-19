@@ -1,4 +1,4 @@
-"""Figure 22-8. Landing and taking off behind a heavy aeroplane. Two scenes in cards: a runway of the Peninsula seen almost edge-on, pale hills, cumulus; the heavy aeroplane, which the
+"""Figure 22-9. Landing and taking off behind a heavy aeroplane. Two scenes in cards: a runway of the Peninsula seen almost edge-on, pale hills, cumulus; the heavy aeroplane, which the
 model does not have, drawn as a vector aeroplane (white, a fin in colour) on the runway after landing and climbing out; its path as a line, its wake as a band of air below and behind
 the path with a few swirls; the model seen from the right on the paths of the old figure (green on the right path, red in the wake), the touchdown and rotation points as posts across
 the runway; the nine numbered callouts of the old figure kept (figs/h_a1.py and figs/scene.py make the pieces)."""
@@ -88,11 +88,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-22-08-behind-heavy",
-        "replaces": "fig-22-08-behind-heavy.svg",
-        "book_file": "plate-22-08-behind-heavy.jpg",
-        "caption": "Figure 22-8. Landing and taking off behind a heavy aeroplane",
-        "desc": "Figure 22-8. Landing and taking off behind a heavy aeroplane",
+        "id": "fig-22-09-behind-heavy",
+        "replaces": "fig-22-09-behind-heavy.svg",
+        "book_file": "plate-22-09-behind-heavy.jpg",
+        "caption": "Figure 22-9. Landing and taking off behind a heavy aeroplane",
+        "desc": "Figure 22-9. Landing and taking off behind a heavy aeroplane",
         "legend": [
             "The heavy aeroplane's approach path.",
             "Its touchdown point: the wake ends there.",
@@ -106,5 +106,5 @@ def plate():
         ],
         "canvas": [640, 410],
         "background": "pale",
-        "reskin": {"svg": "fig-22-08-behind-heavy.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-22-09-behind-heavy.svg", "blank": True, "layers": layers()},
     }

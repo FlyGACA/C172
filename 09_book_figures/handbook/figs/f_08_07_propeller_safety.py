@@ -1,4 +1,4 @@
-"""Figure 8-6 (new). Propeller safety on the ground, from the last section of Chapter 8: four scenes, one for each of its first four points.
+"""Figure 8-7 (new). Propeller safety on the ground, from the last section of Chapter 8: four scenes, one for each of its first four points.
 
 Drawn in the style of the other illustrated figures (figs/scene.py: sky, plain, ribbons; the aeroplane sprites laid by reskin.py): 1 a stopped propeller may be live (the aeroplane's nose, the propeller, an ignition key and a red spark),
 2 before start the area around and behind is clear (the aeroplane seen from above on the apron, a green clear zone round it and a hand on the throttle), 3 never approach a running propeller from the front or the side (the red zones
@@ -108,11 +108,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-08-06-propeller-safety",
-        "replaces": "fig-08-06-propeller-safety.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-08-06-propeller-safety.jpg",
-        "caption": "Figure 8-6. Propeller safety on the ground: treat a stopped propeller as live, clear the area, never approach from the front or side, mind the blast",
-        "desc": ("Figure 8-6. Propeller safety on the ground, four scenes: a stopped propeller may be live with the ignition key off; the area around and behind the aeroplane is cleared and CLEAR is called before start; "
+        "id": "fig-08-07-propeller-safety",
+        "replaces": "fig-08-07-propeller-safety.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-08-07-propeller-safety.jpg",
+        "caption": "Figure 8-7. Propeller safety on the ground: treat a stopped propeller as live, clear the area, never approach from the front or side, mind the blast",
+        "desc": ("Figure 8-7. Propeller safety on the ground, four scenes: a stopped propeller may be live with the ignition key off; the area around and behind the aeroplane is cleared and CLEAR is called before start; "
                  "a running propeller is never approached from the front or the side; the propeller blast throws sand and stones backward."),
         "legend": [
             "A turning propeller is almost invisible. Whenever you touch a stopped one, assume the ignition is on: a magneto can be live with the switch OFF if its ground wire is broken, and moving the propeller can then start the engine.",

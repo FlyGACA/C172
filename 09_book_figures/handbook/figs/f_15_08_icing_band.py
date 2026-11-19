@@ -1,4 +1,4 @@
-"""Figure 15-7. Where structural ice forms: temperature, height and visible moisture. The diagram of the book's figure (the temperature line, the icing band, the aerodrome, the
+"""Figure 15-8. Where structural ice forms: temperature, height and visible moisture. The diagram of the book's figure (the temperature line, the icing band, the aerodrome, the
 numbered callouts) with the cloud of the model of the sky in place of the outlined tower, on a sky, and with the model for the three aeroplanes, painted dark where they
 fly in the cloud (reskin.py, figs/clouds.py, figs/kit.py)."""
 from reskin import LOOK                    # noqa: E402
@@ -22,11 +22,11 @@ REMOVE = [
 
 def plate():
     return {
-        "id": "fig-15-07-icing-band",
-        "replaces": "fig-15-07-icing-band.svg",
-        "book_file": "plate-15-07-icing-band.jpg",
-        "caption": "Figure 15-7. Where structural ice forms: temperature, height and visible moisture",
-        "desc": "Figure 15-7. Where structural ice forms: temperature, height and visible moisture",
+        "id": "fig-15-08-icing-band",
+        "replaces": "fig-15-08-icing-band.svg",
+        "book_file": "plate-15-08-icing-band.jpg",
+        "caption": "Figure 15-8. Where structural ice forms: temperature, height and visible moisture",
+        "desc": "Figure 15-8. Where structural ice forms: temperature, height and visible moisture",
         "legend": [
             "Temperature falling about 2 °C per 1 000 ft.",
             "Freezing level (0 °C), here about 9 000 ft.",
@@ -39,7 +39,7 @@ def plate():
         "canvas": [640, 360],
         "background": "pale",
         "reskin": {
-            "svg": "fig-15-07-icing-band.svg",
+            "svg": "fig-15-08-icing-band.svg",
             "remove": REMOVE,
             "replace": [[BACKGROUND, BACKGROUND + SKY], [BAND, '<rect x="74" y="91" width="556" height="105" fill="#1d4ed8" fill-opacity="0.12"/>']],
             "drop": [

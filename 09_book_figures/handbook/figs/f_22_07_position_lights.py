@@ -1,4 +1,4 @@
-"""Figure 22-6 of the handbook: position lights and what they tell you at night.
+"""Figure 22-7 of the handbook: position lights and what they tell you at night.
 The model from above at night with its lights on and the three sectors in which each can be seen, and four views of what
 another pilot sees: the same aeroplane from the front left, the front right, head on and from behind, with only the lights
 that can be seen from there."""
@@ -89,10 +89,10 @@ def plate():
         {"type": "marker", "n": 7, "pos": [338, 206]}, {"type": "marker", "n": 8, "pos": [490, 206]},
     ]
     return {
-        "id": "fig-22-06-position-lights",
-        "replaces": "fig-22-06-position-lights.svg",
-        "book_file": "plate-22-06-position-lights.jpg",
-        "caption": "Figure 22-6. Position lights and what they tell you at night",
+        "id": "fig-22-07-position-lights",
+        "replaces": "fig-22-07-position-lights.svg",
+        "book_file": "plate-22-07-position-lights.jpg",
+        "caption": "Figure 22-7. Position lights and what they tell you at night",
         "desc": "The aeroplane seen from above at night with its red, green and white lights and the sectors where each shows, and four views of what another pilot sees.",
         "legend": [
             "Red light, left wingtip: seen from ahead and from the left.",

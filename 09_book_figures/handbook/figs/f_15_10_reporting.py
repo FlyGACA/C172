@@ -1,4 +1,4 @@
-"""Figure 15-9 (new). Reporting what you meet, from the last section of Chapter 15 (section 91.251): five panels.
+"""Figure 15-10 (new). Reporting what you meet, from the last section of Chapter 15 (section 91.251): five panels.
 
 1 moderate or severe turbulence and icing (a tossed aeroplane with jagged arrows and snowflakes), 2 severe mountain wave and thunderstorms (waves over a ridge, a storm cloud with lightning), 3 a heavy dust storm or sandstorm and a volcanic ash cloud
 (a tan wall, a cone with a plume), 4 how the report goes: from the aeroplane by data link or by voice to the nearest air traffic services unit, without delay (a tower, a clock), 5 what the report says: what, where, at what level, when,
@@ -115,11 +115,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-15-09-reporting",
-        "replaces": "fig-15-09-reporting.svg",              # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-15-09-reporting.jpg",
-        "caption": "Figure 15-9. Reporting what you meet: which conditions, how the report goes and what it says",
-        "desc": ("Figure 15-9. Reporting what you meet, five panels: moderate or severe turbulence and icing; severe mountain wave and thunderstorms; a heavy dust storm or sandstorm and a volcanic ash cloud; "
+        "id": "fig-15-10-reporting",
+        "replaces": "fig-15-10-reporting.svg",              # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-15-10-reporting.jpg",
+        "caption": "Figure 15-10. Reporting what you meet: which conditions, how the report goes and what it says",
+        "desc": ("Figure 15-10. Reporting what you meet, five panels: moderate or severe turbulence and icing; severe mountain wave and thunderstorms; a heavy dust storm or sandstorm and a volcanic ash cloud; "
                  "the report goes by data link or by voice to the nearest air traffic services unit without delay; and what it says, five cards: what, where, at what level, when and in what type of aircraft."),
         "legend": [
             "Report moderate or severe turbulence and moderate or severe icing when you encounter or observe them.",

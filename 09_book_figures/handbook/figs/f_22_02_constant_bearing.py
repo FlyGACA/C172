@@ -1,4 +1,4 @@
-"""Figure 22-1. A collision course: constant bearing, no relative motion. At the left, an aerial view of the desert (figs/terrain.py) with the two tracks and the aeroplanes of the model at
+"""Figure 22-2. A collision course: constant bearing, no relative motion. At the left, an aerial view of the desert (figs/terrain.py) with the two tracks and the aeroplanes of the model at
 the three moments (the earlier two ghosted, the third solid), the lines of sight as soft cones with dotted centres, the angle to the nose at each moment as an orange sector, the collision
 point; at the right, the same three moments through the windscreen (sky, hills, plain, the dark hump of the glareshield, a rubber-edged frame with the sheen of glass): the other aircraft
 stays at one spot on the horizon and only grows, and the traffic that is not on a collision course moves across. The seven numbered callouts of the old figure are kept, in the same order
@@ -151,11 +151,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-22-01-constant-bearing",
-        "replaces": "fig-22-01-constant-bearing.svg",
-        "book_file": "plate-22-01-constant-bearing.jpg",
-        "caption": "Figure 22-1. A collision course: constant bearing, no relative motion",
-        "desc": "Figure 22-1. A collision course: constant bearing, no relative motion",
+        "id": "fig-22-02-constant-bearing",
+        "replaces": "fig-22-02-constant-bearing.svg",
+        "book_file": "plate-22-02-constant-bearing.jpg",
+        "caption": "Figure 22-2. A collision course: constant bearing, no relative motion",
+        "desc": "Figure 22-2. A collision course: constant bearing, no relative motion",
         "legend": [
             "First moment.",
             "Second moment, 20 seconds later.",
@@ -167,5 +167,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-22-01-constant-bearing.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-22-02-constant-bearing.svg", "blank": True, "layers": layers()},
     }

@@ -1,4 +1,4 @@
-"""Figure 8-5 (new). The order of power changes, from the educational rule of thumb of Chapter 8 ("RPM up first, manifold pressure down first"), as two rows of three steps.
+"""Figure 8-6 (new). The order of power changes, from the educational rule of thumb of Chapter 8 ("RPM up first, manifold pressure down first"), as two rows of three steps.
 
 To increase power (green arrow at the left): 1 enrich as required (the red mixture knob, up arrow, dashed because it is "as required"), 2 raise the RPM (the blue propeller knob, up arrow), 3 raise the manifold pressure (the black throttle knob, up arrow).
 To decrease power (amber arrow): 1 reduce the manifold pressure (throttle, down arrow), 2 reduce the RPM (propeller, down arrow), 3 lean as required (mixture, down arrow, dashed). The knobs are generic, not the quadrant of any aeroplane; the chapter says
@@ -95,11 +95,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-08-05-power-changes",
-        "replaces": "fig-08-05-power-changes.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-08-05-power-changes.jpg",
-        "caption": "Figure 8-5. The order of power changes: RPM up first, manifold pressure down first (an educational rule of thumb)",
-        "desc": ("Figure 8-5. The order of power changes, an educational rule of thumb. To increase power: enrich as required, raise the RPM, then raise the manifold pressure. "
+        "id": "fig-08-06-power-changes",
+        "replaces": "fig-08-06-power-changes.svg",        # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-08-06-power-changes.jpg",
+        "caption": "Figure 8-6. The order of power changes: RPM up first, manifold pressure down first (an educational rule of thumb)",
+        "desc": ("Figure 8-6. The order of power changes, an educational rule of thumb. To increase power: enrich as required, raise the RPM, then raise the manifold pressure. "
                  "To decrease power: reduce the manifold pressure, then the RPM, then lean as required."),
         "legend": [
             "To increase power, first enrich as required (the red mixture control).",

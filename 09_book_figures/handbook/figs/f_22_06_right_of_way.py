@@ -1,4 +1,4 @@
-"""Figure 22-5. Right-of-way geometry: converging, head-on, overtaking and landing. Four cards. The first three are aerial views of the desert (figs/terrain.py) with the aeroplanes of the
+"""Figure 22-6. Right-of-way geometry: converging, head-on, overtaking and landing. Four cards. The first three are aerial views of the desert (figs/terrain.py) with the aeroplanes of the
 model from above: the one that has the right of way in green, the one that gives way in orange, its path as an orange ribbon, the tracks dashed; the fourth is a side view at dusk-free
 daylight (sky, hills, the plain, a runway) with the aeroplane on final approach (green), the higher one that gives way (orange, with its dashed way out) and the one waiting on the surface
 (orange). The eight numbered callouts of the old figure (3 twice, as it had it) are kept, in the same order and meaning (figs/scene.py makes the cards, the ribbons and the callouts;
@@ -115,11 +115,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-22-05-right-of-way",
-        "replaces": "fig-22-05-right-of-way.svg",
-        "book_file": "plate-22-05-right-of-way.jpg",
-        "caption": "Figure 22-5. Right-of-way geometry: converging, head-on, overtaking and landing",
-        "desc": "Figure 22-5. Right-of-way geometry: converging, head-on, overtaking and landing",
+        "id": "fig-22-06-right-of-way",
+        "replaces": "fig-22-06-right-of-way.svg",
+        "book_file": "plate-22-06-right-of-way.jpg",
+        "caption": "Figure 22-6. Right-of-way geometry: converging, head-on, overtaking and landing",
+        "desc": "Figure 22-6. Right-of-way geometry: converging, head-on, overtaking and landing",
         "legend": [
             "Converging, same category, about the same altitude: the aircraft on the other's right has the right of way [[§91.61(d)]].",
             "The other gives way, here by turning right to pass behind, not over, under or ahead.",
@@ -132,5 +132,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-22-05-right-of-way.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-22-06-right-of-way.svg", "blank": True, "layers": layers()},
     }

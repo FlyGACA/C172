@@ -1,4 +1,4 @@
-"""Figure 22-3. A block scan through the windscreen and side windows. The view from the cockpit: a rubber-edged frame with its two window posts, the glass showing the sky, far hills and the
+"""Figure 22-4. A block scan through the windscreen and side windows. The view from the cockpit: a rubber-edged frame with its two window posts, the glass showing the sky, far hills and the
 plain, the eighteen blocks of the scan as soft translucent cells in two rows (each with its dwell point as a glowing dot; the first row scanned one way, the second the other, as ribbons
 of small arrows), the horizon, a bracket of 10 degrees, the red aircraft that one post hides, the hump of the glareshield and the instrument panel below with the model's own instruments
 (figs/sprites.py) and engine gauges, and the two arrows that take the eye in and back out. The seven numbered callouts of the old figure are kept, in the same order and meaning
@@ -134,11 +134,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-22-03-scan-sectors",
-        "replaces": "fig-22-03-scan-sectors.svg",
-        "book_file": "plate-22-03-scan-sectors.jpg",
-        "caption": "Figure 22-3. A block scan through the windscreen and side windows",
-        "desc": "Figure 22-3. A block scan through the windscreen and side windows",
+        "id": "fig-22-04-scan-sectors",
+        "replaces": "fig-22-04-scan-sectors.svg",
+        "book_file": "plate-22-04-scan-sectors.jpg",
+        "caption": "Figure 22-4. A block scan through the windscreen and side windows",
+        "desc": "Figure 22-4. A block scan through the windscreen and side windows",
         "legend": [
             "Start at one side.",
             "One block, about 10° wide.",
@@ -150,5 +150,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-22-03-scan-sectors.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-22-04-scan-sectors.svg", "blank": True, "layers": layers()},
     }

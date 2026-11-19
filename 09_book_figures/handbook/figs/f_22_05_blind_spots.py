@@ -1,4 +1,4 @@
-"""Figure 22-4. Blind spots of a high-wing and a low-wing aeroplane, seen from behind. Three cards of sky and desert. In the first the high-wing trainer of the model from behind (figs/sprites.py),
+"""Figure 22-5. Blind spots of a high-wing and a low-wing aeroplane, seen from behind. Three cards of sky and desert. In the first the high-wing trainer of the model from behind (figs/sprites.py),
 its pilot's eye marked, and the sky that its wing hides (above the sight lines from the eye over the wing tips) as a dark translucent cone with soft edges; in the second a low-wing
 aeroplane drawn to match it (a white fuselage with its canopy and pilot, a wing low on the fuselage with a dihedral, the tailplane, the fin, the gear) with the ground that its wing hides
 below the sight lines; in the third both together, the low-wing one descending onto the high-wing one climbing, each inside the other's cone, with the two red arrows. The four numbered
@@ -167,11 +167,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-22-04-blind-spots",
-        "replaces": "fig-22-04-blind-spots.svg",
-        "book_file": "plate-22-04-blind-spots.jpg",
-        "caption": "Figure 22-4. Blind spots of a high-wing and a low-wing aeroplane, seen from behind",
-        "desc": "Figure 22-4. Blind spots of a high-wing and a low-wing aeroplane, seen from behind",
+        "id": "fig-22-05-blind-spots",
+        "replaces": "fig-22-05-blind-spots.svg",
+        "book_file": "plate-22-05-blind-spots.jpg",
+        "caption": "Figure 22-5. Blind spots of a high-wing and a low-wing aeroplane, seen from behind",
+        "desc": "Figure 22-5. Blind spots of a high-wing and a low-wing aeroplane, seen from behind",
         "legend": [
             "The pilot's eye.",
             "High wing: the wing hides the sky above and to the sides.",
@@ -180,5 +180,5 @@ def plate():
         ],
         "canvas": [W, HT],
         "background": "pale",
-        "reskin": {"svg": "fig-22-04-blind-spots.svg", "blank": True, "layers": layers()},
+        "reskin": {"svg": "fig-22-05-blind-spots.svg", "blank": True, "layers": layers()},
     }

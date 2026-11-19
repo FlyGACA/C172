@@ -1,4 +1,4 @@
-"""Figure 15-6. Mechanical turbulence, mountain wave and rotor (redrawn in the second design pass as one 3D view).
+"""Figure 15-7. Mechanical turbulence, mountain wave and rotor (redrawn in the second design pass as one 3D view).
 
 One render (figs/oeth3d.wave_15_06; blender/render_oeth.py): the open picture of the desert east of Thumamah on its relief, seen from the south-east, with a
 ridge laid on it (the scene has no mountain; 1 500 m high and 7 km wide at its foot), two piles of lens-shaped clouds of the cloud library over the crests of
@@ -77,11 +77,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-15-06-mountain-wave",
-        "replaces": "fig-15-06-mountain-wave.svg",
-        "book_file": "plate-15-06-mountain-wave.jpg",
-        "caption": "Figure 15-6. Mechanical turbulence, mountain wave and rotor",
-        "desc": ("Figure 15-6. Mechanical turbulence, mountain wave and rotor, in one 3D view over the desert: the wind across a ridge, smooth rising air on the windward "
+        "id": "fig-15-07-mountain-wave",
+        "replaces": "fig-15-07-mountain-wave.svg",
+        "book_file": "plate-15-07-mountain-wave.jpg",
+        "caption": "Figure 15-7. Mechanical turbulence, mountain wave and rotor",
+        "desc": ("Figure 15-7. Mechanical turbulence, mountain wave and rotor, in one 3D view over the desert: the wind across a ridge, smooth rising air on the windward "
                  "slope and strong sinking air on the lee slope, the standing wave downwind with lens-shaped clouds on its crests and roll clouds below them where the "
                  "rotors are, and eddies by the buildings of an aerodrome."),
         "legend": [

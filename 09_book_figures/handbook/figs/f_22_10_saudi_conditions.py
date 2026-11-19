@@ -1,4 +1,4 @@
-"""Figure 22-9 (new). Collision avoidance in Saudi conditions, from the last section of Chapter 22: five scenes, one for each point of its list.
+"""Figure 22-10 (new). Collision avoidance in Saudi conditions, from the last section of Chapter 22: five scenes, one for each point of its list.
 
 Drawn in the style of the weather figures (figs/scene.py: sky, plain, fog, ribbons; the aeroplane and the cloud sprites laid by reskin.py): 1 busy training aerodromes (a circuit with three trainers round a runway),
 2 mixed traffic (a large jet and a trainer behind it, with the wake of the jet as two spirals), 3 haze and dust (a distant aeroplane faint in a hazy layer), 4 sun (a bright sun low ahead, with its glare, and an aeroplane
@@ -105,11 +105,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-22-09-saudi-conditions",
-        "replaces": "fig-22-09-saudi-conditions.svg",      # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-22-09-saudi-conditions.jpg",
-        "caption": "Figure 22-9. Collision avoidance in Saudi conditions: five things to allow for",
-        "desc": ("Figure 22-9. Collision avoidance in Saudi conditions, five tiles: busy training aerodromes, mixed traffic with large jets and their wake, haze and dust, the sun, and night."),
+        "id": "fig-22-10-saudi-conditions",
+        "replaces": "fig-22-10-saudi-conditions.svg",      # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-22-10-saudi-conditions.jpg",
+        "caption": "Figure 22-10. Collision avoidance in Saudi conditions: five things to allow for",
+        "desc": ("Figure 22-10. Collision avoidance in Saudi conditions, five tiles: busy training aerodromes, mixed traffic with large jets and their wake, haze and dust, the sun, and night."),
         "legend": [
             "Busy training aerodromes: several trainers can share one circuit and the nearby training areas. Expect traffic at your height, listen to every call and clear before every manoeuvre.",
             "Mixed traffic: at major aerodromes a trainer may share the circuit, runway or nearby airspace with large jets, with higher closing speeds and wake behind every movement. Joining and leaving procedures are in the aerodrome's AIP entry and your school's local orders.",

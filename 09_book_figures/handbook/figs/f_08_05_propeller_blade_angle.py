@@ -1,4 +1,4 @@
-"""Figure 8-4. A propeller blade section: blade angle, relative wind and angle of attack (angles exaggerated). The old figure's geometry kept exactly (the section turned 35 degrees to the
+"""Figure 8-5. A propeller blade section: blade angle, relative wind and angle of attack (angles exaggerated). The old figure's geometry kept exactly (the section turned 35 degrees to the
 plane of rotation, the relative wind 22 degrees, so that the angle of attack is 13 degrees; every point and arc of it) and drawn as an illustration on a soft card: the blade section as a lit
 solid (light upper surface, darker lower, a bright rim, a soft shadow), the plane of rotation, the chord line and the relative wind as light ribbons under it, the arcs of the blade angle
 (grey) and the angle of attack (amber) with their ticks and Greek letters, the thrust as a green ribbon, and the triangle of rotational velocity, forward velocity and path as ribbons.
@@ -21,7 +21,7 @@ INKB = "#4B5B7C"
 
 
 def blade_points():
-    with open(os.path.join(HERE, "old", "fig-08-04-propeller-blade-angle.svg"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "old", "fig-08-05-propeller-blade-angle.svg"), encoding="utf-8") as f:
         svg = f.read()
     m = re.search(r'<polygon points="([^"]+)" fill="url\(#bladeGrad\)"', svg)
     return [tuple(float(v) for v in p.split(",")) for p in m.group(1).split()]
@@ -81,11 +81,11 @@ def callouts():
 def plate():
     layers = ['<rect x="0" y="0" width="640" height="360" fill="#ffffff"/>', H.common_defs(U), card(), lines(), blade(), arcs(), vectors(), callouts()]
     return {
-        "id": "fig-08-04-propeller-blade-angle",
-        "replaces": "fig-08-04-propeller-blade-angle.svg",
-        "book_file": "plate-08-04-propeller-blade-angle.jpg",
-        "caption": "Figure 8-4. A propeller blade section: blade angle, relative wind and angle of attack (angles exaggerated)",
-        "desc": "Figure 8-4. A propeller blade section: blade angle, relative wind and angle of attack (angles exaggerated)",
+        "id": "fig-08-05-propeller-blade-angle",
+        "replaces": "fig-08-05-propeller-blade-angle.svg",
+        "book_file": "plate-08-05-propeller-blade-angle.jpg",
+        "caption": "Figure 8-5. A propeller blade section: blade angle, relative wind and angle of attack (angles exaggerated)",
+        "desc": "Figure 8-5. A propeller blade section: blade angle, relative wind and angle of attack (angles exaggerated)",
         "legend": [
             "Plane of rotation.",
             "Chord line of the blade section.",
@@ -99,5 +99,5 @@ def plate():
         ],
         "canvas": [640, 360],
         "background": "pale",
-        "reskin": {"svg": "fig-08-04-propeller-blade-angle.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-08-05-propeller-blade-angle.svg", "blank": True, "layers": layers},
     }
