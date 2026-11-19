@@ -531,16 +531,68 @@ def fogs(items):
         mul = nt.nodes.new("ShaderNodeMath")
         mul.operation = "MULTIPLY"
         nt.links.new(rng.outputs[0], mul.inputs[0])
-        nt.links.new(nz.outputs["Fac"], mul.inputs[1])
+        if f.get("noise", 3.0):
+            nt.links.new(nz.outputs["Fac"], mul.inputs[1])
+        else:                                             # noise 0: an even layer (the noise of a thin, wide box is stretched across its thickness)
+            mul.inputs[1].default_value = 0.5
         mul2 = nt.nodes.new("ShaderNodeMath")
         mul2.operation = "MULTIPLY"
         mul2.inputs[1].default_value = 2.0
         nt.links.new(mul.outputs[0], mul2.inputs[0])
-        nt.links.new(mul2.outputs[0], vol.inputs["Density"])
+        dens = mul2.outputs[0]
+        if "soft" in f:                                   # a round patch fading out from `soft` (a fraction of the half-width) to the edge of the box, with no straight sides
+            sub = nt.nodes.new("ShaderNodeVectorMath")
+            sub.operation = "SUBTRACT"
+            sub.inputs[1].default_value = (0.5, 0.5, 0.0)
+            nt.links.new(tc.outputs["Generated"], sub.inputs[0])
+            flat = nt.nodes.new("ShaderNodeVectorMath")
+            flat.operation = "MULTIPLY"
+            flat.inputs[1].default_value = (2.0, 2.0, 0.0)
+            nt.links.new(sub.outputs[0], flat.inputs[0])
+            ln = nt.nodes.new("ShaderNodeVectorMath")
+            ln.operation = "LENGTH"
+            nt.links.new(flat.outputs[0], ln.inputs[0])
+            edge = nt.nodes.new("ShaderNodeMapRange")
+            edge.interpolation_type = "SMOOTHSTEP"
+            edge.inputs[1].default_value = f["soft"]
+            edge.inputs[2].default_value = 1.0
+            edge.inputs[3].default_value = 1.0
+            edge.inputs[4].default_value = 0.0
+            nt.links.new(ln.outputs["Value"], edge.inputs[0])
+            m3 = nt.nodes.new("ShaderNodeMath")
+            m3.operation = "MULTIPLY"
+            nt.links.new(dens, m3.inputs[0])
+            nt.links.new(edge.outputs[0], m3.inputs[1])
+            dens = m3.outputs[0]
+        nt.links.new(dens, vol.inputs["Density"])
         out = nt.nodes.new("ShaderNodeOutputMaterial")
         nt.links.new(vol.outputs[0], out.inputs["Volume"])
         ob.data.materials.append(mat)
         ob.visible_shadow = False
+
+
+def despeckle(path, threshold):
+    """Single bright or dark pixels taken out of a saved picture: a pixel that differs from the median of its neighbourhood (3 x 3 twice, then 5 x 5) by more than `threshold`
+    (0..1, summed over red, green and blue) takes that median. A thin, wide layer of fog seen at a grazing angle leaves such points, whatever the samples."""
+    import numpy as np
+    img = bpy.data.images.load(path)
+    w, h = img.size
+    px = np.empty(w * h * 4, dtype=np.float32)
+    img.pixels.foreach_get(px)
+    px = px.reshape(h, w, 4)
+    total = 0
+    for k in (1, 1, 2):                                   # twice over 3 x 3, then over 5 x 5 (the points come in small clumps too)
+        pad = np.pad(px, ((k, k), (k, k), (0, 0)), mode="edge")
+        med = np.median(np.stack([pad[k + dy:k + dy + h, k + dx:k + dx + w] for dy in range(-k, k + 1) for dx in range(-k, k + 1)]), axis=0)
+        off = np.abs(px[..., :3] - med[..., :3]).sum(axis=2) > threshold
+        px[off] = med[off]
+        total += int(off.sum())
+    off = total
+    img.pixels.foreach_set(px.ravel())
+    img.filepath_raw = path
+    img.file_format = "PNG"
+    img.save()
+    print("despeckled", off, "pixels")
 
 
 def scene_clouds(items):
@@ -1081,6 +1133,8 @@ def main():
         anchors[k] = [round(q.x, 5), round(1.0 - q.y, 5)]
     if not a.anchors_only:
         bpy.ops.render.render(write_still=True)
+        if r.get("despeckle"):
+            despeckle(out, r["despeckle"])
     with open(os.path.join(PLATES, "renders", r["id"] + ".anchors.json"), "w") as f:
         json.dump({"id": r["id"], "size": [w, h], "anchors": anchors, "curves": {}}, f, indent=1)
     print("rendered", r["id"])

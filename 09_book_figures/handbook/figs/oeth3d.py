@@ -1038,6 +1038,30 @@ def wave_15_06():
                                 "rwy": [rx0, ry0], "tower": [rx0 - 50.0, ry0 + 280.0, 20.0], "hz": [rx0, ry0 + 400000.0, 0.0]}})
 
 
+def fog_14_08(when):
+    """Figure 14-8: the same low ground east of Thumamah at three times, seen from a little above it: the evening (a low sun from the west, clear and calm),
+    the dawn (radiation fog lying in the low ground, a scattering volume densest at the ground, under a sun just risen in the east), and mid-morning (the sun
+    higher, the fog lifted into broken low stratus). The sky is drawn on the plate."""
+    cx, cy = 600.0, -1800.0                              # the low plain west of the escarpment (near 0 m); the plateau north-east of it stands about 200 m higher
+    cam = {"at": [8600.0, 3800.0, 1300.0], "look": [1400.0, -1400.0, 0.0], "lens": 30}
+    sun = {"evening": {"elevation": 5, "azimuth": 265, "energy": 2.6, "sky": 0.6}, "dawn": {"elevation": 3, "azimuth": 95, "energy": 1.8, "sky": 0.55},
+           "morning": {"elevation": 32, "azimuth": 115, "energy": 3.2, "sky": 0.9}}[when]
+    r = {"id": f"fog-14-08-{when}", "camera": cam, "size": [1000, 908], "samples": 32, "exposure": {"evening": 0.1, "dawn": 0.25, "morning": 0.0}[when],
+         "look": "AgX - Medium High Contrast", "sun": sun, "keep_sources": ["srtm"], "ground_image": dict(ground_texture(), detail={"scale": 0.02, "strength": 0.2, "bump": 0.0}),
+         "far_ground_size": 3000000, "clip_end": 2000000, "transparent": True,
+         "haze": {"start": 3000.0, "depth": 20000.0, "colour": {"evening": "#E6C9A2", "dawn": "#C9CFD9", "morning": "#E3DED4"}[when], "strength": 0.6},
+         "anchors": {"hollow": [cx, cy, 10.0], "hz": [cx - 400000.0, cy - 250000.0, 0.0], "plateau": [6500.0, 3000.0, 200.0]}}
+    if when == "dawn":
+        r["fogs"] = [{"center": [cx, cy], "size": [12000.0, 12000.0, 70.0], "base": -10.0, "density": 0.02, "colour": "#E9EDF2", "noise": 2.5, "soft": 0.8}]
+        r["despeckle"] = 0.08                             # (a thin, wide layer seen at a grazing angle is left speckled with bright points, whatever the samples)
+    if when == "morning":
+        r["fogs"] = [{"center": [cx, cy], "size": [12000.0, 12000.0, 25.0], "base": -10.0, "density": 0.002, "colour": "#EEF1F5", "noise": 2.5, "soft": 0.8}]
+        r["clouds"] = [{"kind": "stratus", "seed": 6, "width": 18.0, "height": 0.5, "depth": 6.0, "density": 70.0, "erode": [0.35, 0.65], "ragged": 0.7, "gaps": [0.3, 0.6],
+                        "gap_floor": 0.35, "taper": 8.0, "end_fade": 0.25, "absorb": 0.0, "absorb_white": 1.0, "at": [cx + 1200.0, cy + 600.0, 130.0], "scale": 520.0, "heading": 60.0}]
+        r["volume_bounces"] = 8
+    return r
+
+
 def backdrop_side():
     """A backdrop for the side-view tiles of the illustrated figures (style C): the plateau east of Thumamah from a little above it, looking north-east over
     the open picture of the ground on the real terrain to a hazy horizon; the sky is left clear (transparent) for the figure to draw. Nothing of the aerodrome is in it."""
@@ -1097,6 +1121,9 @@ RECIPES = {
     "storm-15-01": storm_15_01,
     "dust-15-05": dust_15_05,
     "wave-15-06": wave_15_06,
+    "fog-14-08-evening": lambda: fog_14_08("evening"),
+    "fog-14-08-dawn": lambda: fog_14_08("dawn"),
+    "fog-14-08-morning": lambda: fog_14_08("morning"),
     "vfr-16-08-ceiling": lambda: vfr_2_04_ceiling("vfr-16-08-ceiling", deck=340.0, back=3000.0, cam_z=310.0, lens=40, look_s=200.0, look_z=-60.0, ctr=1400.0, ac_scale=9.0, ac_ahead=1500.0),
     "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,
