@@ -153,7 +153,7 @@ def ground_z(x, y):
         hit, loc, _n, _i, ob, _m = bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(), origin, Vector((0, 0, -1)))
         if not hit:
             return 0.0
-        if not ob.name.startswith(("air ", "edge ", "path", "cloud", "fog", "lamps", "spot")):
+        if not ob.hide_render and not ob.name.startswith(("air ", "edge ", "path", "cloud", "fog", "lamps", "spot")):
             return loc.z
         origin = loc - Vector((0, 0, 0.01))
     return 0.0

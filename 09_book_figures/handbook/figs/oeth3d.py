@@ -802,7 +802,7 @@ def vfr_2_04_cloud():
     cx, cy, base = 9000.0, 1500.0, 1500.0
     ac = (cx - 2700.0, cy - 3600.0, base + 380.0)
     return _day_3d("vfr-2-04-cloud", {"at": [cx - 2300.0, cy - 7600.0, base + 450.0], "look": [cx + 200.0, cy, base + 420.0], "lens": 30}, [2400, 1000],
-                   {"transparent": True, "haze": {"start": 9000.0, "depth": 30000.0, "colour": "#E8E4DC", "strength": 0.5},
+                   {"transparent": True, "haze": {"start": 6000.0, "depth": 16000.0, "colour": "#D8E5F1", "strength": 0.9},
                     "sun": {"elevation": 50, "azimuth": 200, "energy": 3.6, "sky": 0.9},
                     "clouds": [{"kind": "cumulus", "seed": 3, "width": 9.0, "height": 4.0, "floor": True, "voxel": 0.0065, "at": [cx, cy, base], "scale": 230.0, "density": 600.0,
                                 "clearance": {"side": 610.0, "above": 305.0, "below": 152.0, "colour": "#2563EB", "alpha": 0.10, "edge": 5.0}}],
