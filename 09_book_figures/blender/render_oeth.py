@@ -34,7 +34,7 @@ import sys
 
 import bpy
 from bpy_extras.object_utils import world_to_camera_view
-from mathutils import Euler, Vector
+from mathutils import Matrix, Euler, Vector
 from mathutils.geometry import tessellate_polygon
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -340,8 +340,178 @@ def haze(cfg):
     mix.inputs[2].default_value = hexcol(cfg.get("colour", "#DCE6EE"))
     nt.links.new(fac.outputs[0], mix.inputs[0])
     nt.links.new(rl.outputs["Image"], mix.inputs[1])
+    last = mix.outputs[0]
+    if cfg.get("glare"):                                  # night: a soft glow round the bright lights
+        g = nt.nodes.new("CompositorNodeGlare")
+        gl = cfg["glare"]
+        try:
+            g.glare_type = "FOG_GLOW"
+        except Exception:
+            pass
+        for key, val in (("Threshold", gl.get("threshold", 1.0)), ("Strength", gl.get("strength", 1.0)), ("Size", gl.get("size", 0.5))):
+            if key in g.inputs:
+                g.inputs[key].default_value = val
+        for attr, val in (("threshold", gl.get("threshold", 1.0)), ("size", gl.get("size_steps", 8)), ("quality", "HIGH")):
+            try:
+                setattr(g, attr, val)
+            except Exception:
+                pass
+        nt.links.new(last, g.inputs[0])
+        last = g.outputs[0]
     out = nt.nodes.new("CompositorNodeComposite")
-    nt.links.new(mix.outputs[0], out.inputs["Image"])
+    nt.links.new(last, out.inputs["Image"])
+
+
+def night_world(cfg):
+    """A night sky instead of the day HDRI: a gradient from a glow at the horizon to a deep zenith, stars (points of a Voronoi field on the sphere of
+    directions, above the horizon only), and the moon as a faint bluish sun that gives the ground its relief."""
+    w = bpy.data.worlds.new("night")
+    bpy.context.scene.world = w
+    w.use_nodes = True
+    nt = w.node_tree
+    bg = nt.nodes["Background"]
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Generated"], sep.inputs[0])
+    rng = nt.nodes.new("ShaderNodeMapRange")
+    rng.inputs[1].default_value = -0.02
+    rng.inputs[2].default_value = 0.45
+    nt.links.new(sep.outputs["Z"], rng.inputs[0])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    els = ramp.color_ramp.elements
+    els[0].position, els[0].color = 0.0, hexcol(cfg.get("horizon", "#3A4A78"))
+    els[1].position, els[1].color = 1.0, hexcol(cfg.get("zenith", "#060B1C"))
+    mid = els.new(0.18)
+    mid.color = hexcol(cfg.get("low", "#16224A"))
+    nt.links.new(rng.outputs[0], ramp.inputs[0])
+    vor = nt.nodes.new("ShaderNodeTexVoronoi")
+    vor.inputs["Scale"].default_value = cfg.get("star_scale", 260.0)
+    nt.links.new(tc.outputs["Generated"], vor.inputs["Vector"])
+    st = nt.nodes.new("ShaderNodeMapRange")              # a star where the point of its cell is very near: 1 at the point, 0 a little away
+    st.inputs[1].default_value = 0.0
+    st.inputs[2].default_value = cfg.get("star_size", 0.035)
+    st.inputs[3].default_value = 1.0
+    st.inputs[4].default_value = 0.0
+    nt.links.new(vor.outputs["Distance"], st.inputs[0])
+    keep = nt.nodes.new("ShaderNodeMath")                # only some cells hold a visible star, and only above the horizon
+    keep.operation = "GREATER_THAN"
+    keep.inputs[1].default_value = 1.0 - cfg.get("star_fraction", 0.35)
+    nt.links.new(vor.outputs["Color"], keep.inputs[0])
+    up = nt.nodes.new("ShaderNodeMath")
+    up.operation = "GREATER_THAN"
+    up.inputs[1].default_value = 0.03
+    nt.links.new(sep.outputs["Z"], up.inputs[0])
+    m1 = nt.nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    nt.links.new(st.outputs[0], m1.inputs[0])
+    nt.links.new(keep.outputs[0], m1.inputs[1])
+    m2 = nt.nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY"
+    m2.inputs[1].default_value = cfg.get("star_bright", 6.0)
+    nt.links.new(m1.outputs[0], m2.inputs[0])
+    m3 = nt.nodes.new("ShaderNodeMath")
+    m3.operation = "MULTIPLY"
+    nt.links.new(m2.outputs[0], m3.inputs[0])
+    nt.links.new(up.outputs[0], m3.inputs[1])
+    add = nt.nodes.new("ShaderNodeMix")
+    add.data_type = "RGBA"
+    add.blend_type = "ADD"
+    add.inputs["Factor"].default_value = 1.0
+    nt.links.new(ramp.outputs["Color"], add.inputs[6])
+    nt.links.new(m3.outputs[0], add.inputs[7])
+    nt.links.new(add.outputs[2], bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = cfg.get("strength", 1.0)
+    moon = bpy.data.lights.new("moon", "SUN")
+    moon.energy = cfg.get("moon", 0.12)
+    moon.color = hexcol(cfg.get("moon_colour", "#AFC4FF"))[:3]
+    moon.angle = math.radians(1.0)
+    mo = bpy.data.objects.new("moon", moon)
+    bpy.context.scene.collection.objects.link(mo)
+    el, az = math.radians(cfg.get("moon_elevation", 30)), math.radians(cfg.get("moon_azimuth", 120))
+    d = Vector((math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el)))
+    mo.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
+
+
+def night_lights(groups):
+    """Lights on the ground at night: for each group a set of points (x, y; set on the ground, lifted a little), each a small emitting sphere that the
+    camera sees and, every `light_every` points, a point light that lights the ground round it. groups: [{points, colour, size, strength, power,
+    lift, light_every}]."""
+    import bmesh
+    for gi, g in enumerate(groups):
+        col = hexcol(g.get("colour", "#FFD27A"))
+        mat = bpy.data.materials.new(f"lamp{gi}")
+        mat.use_nodes = True
+        nt = mat.node_tree
+        nt.nodes.clear()
+        em = nt.nodes.new("ShaderNodeEmission")
+        em.inputs["Color"].default_value = col
+        em.inputs["Strength"].default_value = g.get("strength", 60.0)
+        out = nt.nodes.new("ShaderNodeOutputMaterial")
+        nt.links.new(em.outputs[0], out.inputs["Surface"])
+        bm = bmesh.new()
+        size = g.get("size", 6.0)
+        every = g.get("light_every", 1)
+        for k, pt in enumerate(g["points"]):
+            z = (pt[2] if len(pt) > 2 else ground_z(pt[0], pt[1]) + g.get("lift", 4.0))
+            bmesh.ops.create_icosphere(bm, subdivisions=1, radius=size, matrix=Matrix.Translation((pt[0], pt[1], z)))
+            if every and k % every == 0 and g.get("power", 0.0) > 0:
+                ld = bpy.data.lights.new(f"l{gi}_{k}", "POINT")
+                ld.energy = g["power"]
+                ld.color = col[:3]
+                ld.shadow_soft_size = size
+                lo = bpy.data.objects.new(f"l{gi}_{k}", ld)
+                lo.location = (pt[0], pt[1], z + g.get("light_lift", 12.0))
+                bpy.context.scene.collection.objects.link(lo)
+        me = bpy.data.meshes.new(f"lamps{gi}")
+        bm.to_mesh(me)
+        bm.free()
+        ob = bpy.data.objects.new(f"lamps{gi}", me)
+        ob.visible_shadow = False
+        me.materials.append(mat)
+        bpy.context.scene.collection.objects.link(ob)
+
+
+def fogs(items):
+    """Patches of fog or haze: boxes of a scattering volume, thickest at the bottom (a vertical gradient of density). items: [{center: [x, y], size: [sx, sy, sz],
+    density, colour}]."""
+    for i, f in enumerate(items):
+        cx, cy = f["center"]
+        sx, sy, sz = f["size"]
+        z0 = ground_z(cx, cy) + f.get("base", 0.0)
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=(cx, cy, z0 + sz / 2))
+        ob = bpy.context.active_object
+        ob.name = f"fog{i}"
+        ob.scale = (sx, sy, sz)
+        mat = bpy.data.materials.new(f"fog{i}")
+        mat.use_nodes = True
+        nt = mat.node_tree
+        nt.nodes.clear()
+        vol = nt.nodes.new("ShaderNodeVolumePrincipled")
+        vol.inputs["Color"].default_value = hexcol(f.get("colour", "#8D9AB8"))
+        tc = nt.nodes.new("ShaderNodeTexCoord")
+        sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+        nt.links.new(tc.outputs["Generated"], sep.inputs[0])
+        rng = nt.nodes.new("ShaderNodeMapRange")          # densest at the floor of the box, none at its top; soft at the sides through a noise
+        rng.inputs[1].default_value = 0.0
+        rng.inputs[2].default_value = 1.0
+        rng.inputs[3].default_value = f.get("density", 0.0008)
+        rng.inputs[4].default_value = 0.0
+        nt.links.new(sep.outputs["Z"], rng.inputs[0])
+        nz = nt.nodes.new("ShaderNodeTexNoise")
+        nz.inputs["Scale"].default_value = f.get("noise", 3.0)
+        mul = nt.nodes.new("ShaderNodeMath")
+        mul.operation = "MULTIPLY"
+        nt.links.new(rng.outputs[0], mul.inputs[0])
+        nt.links.new(nz.outputs["Fac"], mul.inputs[1])
+        mul2 = nt.nodes.new("ShaderNodeMath")
+        mul2.operation = "MULTIPLY"
+        mul2.inputs[1].default_value = 2.0
+        nt.links.new(mul.outputs[0], mul2.inputs[0])
+        nt.links.new(mul2.outputs[0], vol.inputs["Density"])
+        out = nt.nodes.new("ShaderNodeOutputMaterial")
+        nt.links.new(vol.outputs[0], out.inputs["Volume"])
+        ob.data.materials.append(mat)
+        ob.visible_shadow = False
 
 
 def lay_plan(plan):
@@ -578,7 +748,16 @@ def main():
                 o.visible_shadow = False
         if p.get("ink", True):
             inked += made
-    world(r.get("sun", {}))
+    if "night" in r:
+        night_world(r["night"])
+    else:
+        world(r.get("sun", {}))
+    if "lights" in r:
+        bpy.context.view_layer.update()
+        night_lights(r["lights"])
+    if "fogs" in r:
+        bpy.context.view_layer.update()
+        fogs(r["fogs"])
     if "haze" in r:
         haze(r["haze"])
     if "ink" in r:
@@ -616,6 +795,8 @@ def main():
             if not obs:
                 continue
             p = bbox_point(obs[0], v.get("at", [0.5, 0.5, 0.5]))
+        elif len(v) == 2:                              # (x, y): on the ground
+            p = Vector((v[0], v[1], ground_z(v[0], v[1]) + 5.0))
         else:
             p = Vector(v)
         q = world_to_camera_view(sc, cam, p)

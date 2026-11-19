@@ -709,6 +709,62 @@ def circuit_v2():
     return r
 
 
+def _town(cx, cy, radius, n, seed, block=110.0):
+    """The lights of a town: points along a grid of streets (every `block` metres) inside a rough circle, a little jittered."""
+    import random
+    rnd = random.Random(seed)
+    pts = []
+    k = int(radius / block) + 1
+    for i in range(-k, k + 1):
+        for j in range(-k, k + 1):
+            for t in (0.0, 0.33, 0.66):
+                x, y = i * block + t * block * (j % 2), j * block + t * block * ((i + 1) % 2)
+                if math.hypot(x, y) < radius * (0.75 + 0.25 * rnd.random()):
+                    pts.append([round(cx + x + rnd.uniform(-12, 12), 1), round(cy + y + rnd.uniform(-12, 12), 1)])
+    rnd.shuffle(pts)
+    return pts[:n]
+
+
+def night_31_10():
+    """Figure 31-10 as one view (the second design pass): at night, about 2 000 ft above the desert east of Thumamah, looking north-east. The open
+    picture of the ground on its relief under a faint moon; a near town whose lights are separate points (callout 1) and a far town that is one mass
+    of light; a straight road of sodium lights that slopes across the view under the stars, a false horizon (2); a small town under a patch of
+    ground fog, its lights haloed and fading (3); and, to the right, desert with no lights at all (4). The 3D model ahead, with its navigation lights.
+    The sky is left clear: the figure draws it (a gradient down to the render's own colour at the horizon, and stars), so that the two meet without an edge."""
+    hd = 40.0
+    fx, fy = math.sin(math.radians(hd)), math.cos(math.radians(hd))
+    rx, ry = fy, -fx
+    ac = (3300.0, -4000.0, 600.0)
+    s = 2.5
+    pt = lambda f, r: (ac[0] + fx * f + rx * r, ac[1] + fy * f + ry * r)
+    (ax, ay), (bx, by) = pt(2200.0, -2600.0), pt(15000.0, 5200.0)     # a straight road from near on the left to far on the right: it rises across the view
+    road = [[round(ax + (bx - ax) * t, 1), round(ay + (by - ay) * t, 1)] for t in [i / 140.0 for i in range(141)]]
+    fog_c = pt(9000.0, 2600.0)
+    near, far, fogged = _town(*pt(4200.0, -900.0), 600.0, 140, 3), _town(*pt(11500.0, -2600.0), 1500.0, 520, 5, 85.0), _town(*fog_c, 500.0, 90, 9)
+    lights = [
+        {"points": near, "colour": "#FFC46B", "size": 5.0, "strength": 70.0, "power": 4000.0, "light_every": 2},
+        {"points": far, "colour": "#FFD08A", "size": 7.0, "strength": 45.0, "power": 6000.0, "light_every": 4},
+        {"points": fogged, "colour": "#FFC46B", "size": 5.0, "strength": 70.0, "power": 4000.0, "light_every": 2},
+        {"points": road, "colour": "#FFA640", "size": 4.0, "strength": 80.0, "power": 2500.0, "light_every": 3},
+        {"points": [[round(ac[0] - rx * 5.5 * s, 1), round(ac[1] - ry * 5.5 * s, 1), ac[2] + 1.0]], "colour": "#FF3030", "size": 0.18, "strength": 25.0},
+        {"points": [[round(ac[0] + rx * 5.5 * s, 1), round(ac[1] + ry * 5.5 * s, 1), ac[2] + 1.0]], "colour": "#30FF70", "size": 0.18, "strength": 25.0},
+    ]
+    return {
+        "id": "night-31-10", "camera": {"at": [ac[0] - fx * 70.0 - rx * 18.0, ac[1] - fy * 70.0 - ry * 18.0, ac[2] + 22.0], "look": [ac[0] + fx * 9000.0, ac[1] + fy * 9000.0, -350.0], "lens": 26},
+        "size": [2400, 1500], "samples": 160, "exposure": 0.6, "look": "AgX - Medium High Contrast", "transparent": True,
+        "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000,
+        "night": {"horizon": "#2E3B66", "low": "#131C3A", "zenith": "#050916", "strength": 1.0, "moon": 0.28, "moon_elevation": 32, "moon_azimuth": 150,
+                  "star_bright": 0.0},
+        "lights": lights,
+        "fogs": [{"center": [round(fog_c[0], 1), round(fog_c[1], 1)], "size": [2200.0, 2200.0, 220.0], "density": 0.0016, "colour": "#AEB8D4", "noise": 2.5}],
+        "haze": {"start": 2000.0, "depth": 14000.0, "colour": "#1E2846", "strength": 0.95, "glare": {"threshold": 0.8, "strength": 1.0, "size": 0.6, "size_steps": 8}},
+        "aircraft": [{"at": list(ac), "heading": hd, "scale": s}],
+        "anchors": {"town_near": [round(c, 1) for c in pt(4200.0, -900.0)], "town_far": [round(c, 1) for c in pt(11500.0, -2600.0)], "road": [round(c, 1) for c in pt(6000.0, -300.0)],
+                    "fog": [round(c, 1) for c in fog_c], "dark": [round(c, 1) for c in pt(5000.0, 3200.0)],
+                    "ac": list(ac), "hz": [round(ac[0] + fx * 400000.0, 1), round(ac[1] + fy * 400000.0, 1), 0.0], "n0": [0.0, 0.0, 0.0], "n1": [0.0, 4000.0, 0.0]},
+    }
+
+
 def backdrop_side():
     """A backdrop for the side-view tiles of the illustrated figures (style C): the plateau east of Thumamah from a little above it, looking north-east over
     the open picture of the ground on the real terrain to a hazy horizon; the sky is left clear (transparent) for the figure to draw. Nothing of the aerodrome is in it."""
@@ -726,6 +782,7 @@ def backdrop_plan():
 
 
 RECIPES = {
+    "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,
     "backdrop-plan-desert": backdrop_plan,
     "oeth-18-07-circuit-v2": circuit_v2,
