@@ -140,7 +140,7 @@ def points():
 # ----------------------------------------------------------------------------------------------------- the card: the instruments over the East VRP
 CX, CY, CW, CH = 458.0, 142.0, 170.0, 240.0
 VOR = (CX + CW / 2, CY + 86.0)                       # the middle of the VOR indicator
-VK = 0.92                                            # its size against the one of Figure 21-9
+VK = 0.92                                            # its size against the one of Figure 21-10
 
 
 def vor_indicator():

@@ -1,4 +1,4 @@
-"""Figure 20-10 (new). Navigating in the Kingdom, from the last section of Chapter 20: four scenes, one for each of its points.
+"""Figure 20-11 (new). Navigating in the Kingdom, from the last section of Chapter 20: four scenes, one for each of its points.
 
 1 few features (seen from above: dunes that look alike, a route with a checkpoint ring, a road across the route just beyond it as a catching feature, a pipeline and a town as lasting features), 2 haze and dust (a faint town and a low sun, the small features lost
 in the haze), 3 high ground in the south-west (mountains with cloud on the tops and an aeroplane well clear above them, a dashed double arrow for the margin), 4 lost late in the day (a low sun, a question mark above an aeroplane, an aerodrome in sight
@@ -86,11 +86,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-20-10-saudi-navigation",
-        "replaces": "fig-20-10-saudi-navigation.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-20-10-saudi-navigation.jpg",
-        "caption": "Figure 20-10. Navigating in the Kingdom: few features, haze and dust, high ground in the south-west, lost late in the day",
-        "desc": ("Figure 20-10. Navigating in the Kingdom, four scenes: few features, with dunes that look alike, lasting features such as a road, a pipeline and a town, and a catching feature across the route just beyond a checkpoint; "
+        "id": "fig-20-11-saudi-navigation",
+        "replaces": "fig-20-11-saudi-navigation.svg",       # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-20-11-saudi-navigation.jpg",
+        "caption": "Figure 20-11. Navigating in the Kingdom: few features, haze and dust, high ground in the south-west, lost late in the day",
+        "desc": ("Figure 20-11. Navigating in the Kingdom, four scenes: few features, with dunes that look alike, lasting features such as a road, a pipeline and a town, and a catching feature across the route just beyond a checkpoint; "
                  "haze and dust, which hide checkpoints and the horizon, worst towards a low sun; high ground in the south-west, with cloud on the tops, so plan an altitude well clear of the charted elevations; "
                  "and being uncertain of position late in the day, so decide early while there is daylight to land."),
         "legend": [
