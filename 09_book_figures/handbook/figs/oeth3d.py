@@ -914,7 +914,8 @@ def microburst_15_02():
                  "clouds": [cb] + dust,
                  "paths": [{"points": gp, "colour": "#16A34A", "radius": 7.0, "dash": [160.0, 110.0]},
                            {"points": flown, "colour": "#DC2626", "radius": 8.0}],
-                 "anchors": {"cb_base": [mb[0], mb[1], 1700.0], "mb_ground": [mb[0], mb[1], 0.0], "gp_mid": P(4600, 4600 * 0.0524 + 3.0),
+                 "anchors": {"cb_base": [mb[0], mb[1], 1700.0], "cb_bottom": {"object": "cloud0p0", "at": [0.5, 0.5, 0.0]}, "cb_bottom_l": {"object": "cloud0p0", "at": [0.2, 0.5, 0.0]},
+                             "cb_bottom_r": {"object": "cloud0p0", "at": [0.8, 0.5, 0.0]}, "mb_ground": [mb[0], mb[1], 0.0], "gp_mid": P(4600, 4600 * 0.0524 + 3.0),
                              "float": P(3700, 236.0), "down": P(2700, 180.0), "sink": P(1900, 85.0), "contact": P(1050, 0.0),
                              "thr": [round(thr[0], 1), round(thr[1], 1), 0.0], "rwy_mid": [rx0, ry0, 0.0], "rwy_end": P(-1700, 0.0),
                              "dust_left": [round(mb[0] - ux * 1100.0, 1), round(mb[1] - uy * 1100.0, 1), 40.0],
@@ -924,6 +925,32 @@ def microburst_15_02():
                 ac=ac, ac_scale=26.0, ac_heading=hd, flash=9000.0)
     r["aircraft"][0]["pitch"] = 3.0
     return r
+
+
+def ceiling_16_05():
+    """Figure 16-5: cloud base and ceiling with three layers over the generic aerodrome of 2-4's lower view, seen from the side at a distance: a few cumuli
+    with their bases at 2 000 ft (FEW020), scattered cumuli at 3 000 ft (SCT030), a broken layer of stratocumulus at 4 500 ft (BKN045), heights above the
+    aerodrome to scale; the 1 000 ft line and the height marks are drawn on the plate."""
+    base = vfr_2_04_ceiling()
+    rx0, ry0 = 12500.0, -2500.0
+    ft = 0.3048
+    few = [{"kind": "cumulus", "seed": 61 + k, "width": 6.0, "height": 3.6, "voxel": 0.008, "at": [rx0 + dx, ry0 + dy, 2000 * ft], "scale": 115.0, "density": 700.0}
+           for k, (dx, dy) in enumerate([(-2100.0, -150.0), (1500.0, 150.0)])]
+    sct = [{"kind": "cumulus", "seed": 71 + k, "width": 6.0, "height": 3.2, "voxel": 0.008, "at": [rx0 + dx, ry0 + dy, 3000 * ft], "scale": 170.0, "density": 700.0}
+           for k, (dx, dy) in enumerate([(-2900.0, 200.0), (-700.0, -100.0), (900.0, -200.0), (2700.0, 150.0)])]
+    bkn = [{"kind": "stratocumulus", "seed": 81 + k, "width": 16.0, "height": 1.8, "depth": 2.5, "rows": 2, "per_row": 6, "voxel": 0.006, "at": [rx0 + dx, ry0 - 250.0, 4500 * ft],
+            "scale": 520.0, "density": 1300.0} for k, dx in enumerate([-2200.0, 2300.0])]
+    cam = [rx0, ry0 + 8000.0, round(1250.0 + 8000.0 * math.tan(math.radians(1.0)), 1)]                # orthographic, from the north, 1 degree down (a strip of ground below)
+    return _day_3d("ceiling-16-05", {"at": cam, "look": [rx0, ry0, 1250.0], "ortho": 6400.0}, [2000, 1125],
+                   {"plan": base["plan"], "transparent": True, "samples": 32, "ink": None, "exposure": 0.05,
+                    "ground_image": dict(ground_texture(), detail={"scale": 0.03, "strength": 0.2, "bump": 0.0}),
+                    "sun": {"elevation": 50, "azimuth": 20, "energy": 3.2, "sky": 0.9},
+                    "haze": {"start": 6000.0, "depth": 26000.0, "colour": "#DDD5C8", "strength": 0.6},
+                    "clouds": few + sct + bkn,
+                    "anchors": {"few": {"object": "cloud0p0", "at": [0.5, 0.5, 0.0]}, "sct": {"object": "cloud3p0", "at": [0.5, 0.5, 0.0]}, "bkn": {"object": "cloud6p0", "at": [0.5, 0.5, 0.0]},
+                                "ground": [rx0 + 100.0, ry0, 0.0], "line_a": [rx0 - 9000.0, ry0, 1000 * ft], "line_b": [rx0 + 9000.0, ry0, 1000 * ft],
+                                "rwy": [rx0, ry0], "few_g": [rx0 - 2100.0, ry0, 0.0], "sct_g": [rx0 - 700.0, ry0, 0.0], "left": [rx0 - 3300.0, ry0, 0.0],
+                                "hz": [rx0, ry0 - 400000.0, 0.0]}})
 
 
 def backdrop_side():
@@ -981,6 +1008,7 @@ RECIPES = {
     "vfr-2-04-ceiling": vfr_2_04_ceiling,
     "haboob-15-04": haboob_15_04,
     "microburst-15-02": microburst_15_02,
+    "ceiling-16-05": ceiling_16_05,
     "vfr-16-08-ceiling": lambda: vfr_2_04_ceiling("vfr-16-08-ceiling", deck=340.0, back=3000.0, cam_z=310.0, lens=40, look_s=200.0, look_z=-60.0, ctr=1400.0, ac_scale=9.0, ac_ahead=1500.0),
     "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,

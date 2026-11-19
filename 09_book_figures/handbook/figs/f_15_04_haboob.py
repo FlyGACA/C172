@@ -44,31 +44,30 @@ def layers():
     rain = S.rain(U + "rn", bx - 70, bx + 50, by + 4, gy, slant=-7, count=60, seed=3, colour="#33508F", veil=0.32, bottom=0.2)
     clip = f'<defs><clipPath id="{U}c"><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10"/></clipPath></defs><g clip-path="url(#{U}c)">'
     img = {"name": R3D, "at": [PX + PW / 2, PY + ph / 2], "width": PW, "whole": True}
-    (tx, ty), (fx, fy), (mx, my) = at("wall_top"), at("wall_foot"), at("wall_mid")
-    (oax, oay), (obx, oby) = at("outflow_a"), at("outflow_b")
-    (rx, ry), (cx, cy) = at("rwy"), at("cb")
-    (flx, fly), (frx, fry) = at("front_left"), at("front_right")
+    # The arrows and callouts sit on the parts of the render they name; the positions are read from the render (anchors in the plate's units, checked on
+    # the built plate): the storm's base at about y 175 over x 215-450, the wall of dust from x 235 to 600 with its top near y 185 and its foot near y 240.
+    (rx, ry) = at("rwy")
     arrows = "".join([
-        S.ribbon(U + "d1", [(bx - 30, by + 6), (bx - 34, (by + ty) / 2 + 10), (bx - 40, ty - 6)], 6.5, *BLUE),
-        S.ribbon(U + "d2", [(bx + 14, by + 6), (bx + 12, (by + ty) / 2 + 10), (bx + 8, ty - 6)], 6.5, *BLUE),
-        S.ribbon(U + "o1", [(oax, oay - 4), ((oax + obx) / 2, (oay + oby) / 2 - 2), (obx, oby)], 7.0, *BLUE),
-        S.ribbon(U + "u1", [(fx - 18, fy - 6), (fx - 22, (fy + ty) / 2), (tx - 10, ty - 22)], 7.0, *ORANGE),
-        S.ribbon(U + "u2", [(fx + 30, fy - 8), (fx + 28, (fy + ty) / 2 - 4), (tx + 34, ty - 26)], 6.0, *ORANGE),
-        S.ribbon(U + "mv", [(tx + 60, ty - 70), (tx, ty - 70), (tx - 70, ty - 70)], 6.0, *INK),
+        S.ribbon(U + "d1", [(392, 132), (394, 160), (396, 196)], 6.0, *BLUE),
+        S.ribbon(U + "d2", [(424, 132), (426, 160), (428, 196)], 6.0, *BLUE),
+        S.ribbon(U + "o1", [(592, 238), (470, 241), (350, 243), (262, 244)], 6.5, *BLUE),
+        S.ribbon(U + "u1", [(268, 240), (272, 214), (284, 186)], 6.0, *ORANGE),
+        S.ribbon(U + "u2", [(298, 241), (304, 214), (318, 184)], 6.0, *ORANGE),
+        S.ribbon(U + "mv", [(300, 206), (250, 206), (204, 206)], 6.0, *INK),
     ])
     c = S.callout
     calls = "".join([
-        c(1, cx + 90, cy - 20, cx + 30, cy, r=10.5),
-        c(2, bx + 54, (by + ty) / 2, bx + 16, (by + ty) / 2, r=10.5),
-        c(3, (oax + obx) / 2 + 10, max(oay, oby) + 36, (oax + obx) / 2, (oay + oby) / 2, r=10.5),
-        c(4, flx - 34, fly + 30, flx, fly, r=10.5),
-        c(5, mx - 70, my - 6, mx - 20, my, r=10.5),
-        c(6, tx - 96, ty - 70, tx - 78, ty - 70, r=10.5),
-        c(7, rx - 30, ry + 34, rx, ry, r=10.5),
-        c(8, fx - 70, (fy + ty) / 2 - 20, fx - 24, (fy + ty) / 2, r=10.5),
+        c(1, 480, 56, 410, 80, r=10.5),
+        c(2, 470, 150, 432, 160, r=10.5),
+        c(3, 470, 272, 450, 242, r=10.5),
+        c(4, 300, 286, 262, 238, r=10.5),
+        c(5, 572, 150, 540, 200, r=10.5),
+        c(6, 186, 206, 200, 206, r=10.5),
+        c(7, 170, 290, 238, 253, r=10.5),
+        c(8, 252, 166, 278, 196, r=10.5),
     ])
     frame = f'</g><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>'
-    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', clip + sky + rain, img, arrows + frame + calls]
+    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', clip + sky, img, arrows + frame + calls]
 
 
 def plate():
