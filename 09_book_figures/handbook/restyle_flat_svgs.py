@@ -41,11 +41,13 @@ def restyle(svg):
         return svg, 0
     grads, changed = {}, 0
 
-    def grad_id(colour):
-        colour = colour.lower()
-        if colour not in grads:
-            grads[colour] = f"rs-g{len(grads)}"
-        return grads[colour]
+    def grad_id(colour, y0, y1):
+        """One gradient for each colour and each band of height, in the drawing's own coordinates: WeasyPrint 70 (the book's PDF) drops the fill of every second shape
+        that shares a gradient given in bounding-box units, and keeps a gradient given in user space."""
+        key = (colour.lower(), round(y0, 2), round(y1, 2))
+        if key not in grads:
+            grads[key] = f"rs-g{len(grads)}"
+        return grads[key]
 
     def callout(m):
         nonlocal changed
@@ -66,11 +68,12 @@ def restyle(svg):
         hls = light(fill) if fill.startswith("#") else None
         if not rx or float(rx) < 2 or hls is None or hls[1] < 0.86 or w < 36 or h < 16 or attr(tag, "fill-opacity") or attr(tag, "opacity") or attr(tag, "filter") or attr(tag, "stroke-dasharray"):
             return tag
+        y = float(attr(tag, "y") or 0)
         if w > 420 and h > 220:                             # a page-sized panel: a gradient, no shadow
             changed += 1
-            return tag.replace(f'fill="{attr(tag, "fill")}"', f'fill="url(#{grad_id(fill)})"')
+            return tag.replace(f'fill="{attr(tag, "fill")}"', f'fill="url(#{grad_id(fill, y, y + h)})"')
         changed += 1
-        return tag.replace(f'fill="{attr(tag, "fill")}"', f'fill="url(#{grad_id(fill)})" filter="url(#rs-sh)"')
+        return tag.replace(f'fill="{attr(tag, "fill")}"', f'fill="url(#{grad_id(fill, y, y + h)})" filter="url(#rs-sh)"')
 
     def diamond(m):
         nonlocal changed
@@ -84,7 +87,7 @@ def restyle(svg):
         if max(xs) - min(xs) < 30 or max(ys) - min(ys) < 20:
             return tag
         changed += 1
-        return tag.replace(f'fill="{attr(tag, "fill")}"', f'fill="url(#{grad_id(fill)})" filter="url(#rs-sh)"')
+        return tag.replace(f'fill="{attr(tag, "fill")}"', f'fill="url(#{grad_id(fill, min(ys), max(ys))})" filter="url(#rs-sh)"')
 
     out = re.sub(r"<circle\b[^>]*/>", callout, svg)
     out = re.sub(r"<rect\b[^>]*/>", box, out)
@@ -93,10 +96,10 @@ def restyle(svg):
         return svg, 0
     defs = ('<defs><filter id="rs-csh" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="1" stdDeviation="1.6" flood-color="#10233f" flood-opacity="0.28"/></filter>'
             '<filter id="rs-sh" x="-6%" y="-10%" width="112%" height="130%"><feDropShadow dx="0" dy="1.6" stdDeviation="2" flood-color="#10233f" flood-opacity="0.16"/></filter>')
-    for colour, gid in grads.items():
+    for (colour, y0, y1), gid in grads.items():
         top = shade(colour, 0.45) if colour != "#ffffff" else "#ffffff"
         bottom = shade(colour, -0.045) if colour != "#ffffff" else "#f1f5f9"
-        defs += f'<linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{top}"/><stop offset="1" stop-color="{bottom}"/></linearGradient>'
+        defs += f'<linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="0" y1="{y0:g}" x2="0" y2="{y1:g}"><stop offset="0" stop-color="{top}"/><stop offset="1" stop-color="{bottom}"/></linearGradient>'
     defs += "</defs>"
     out = re.sub(r"(<svg\b[^>]*>)", lambda m: m.group(1) + defs, out, count=1)
     return out, changed
