@@ -104,8 +104,8 @@ def course():
     a = at("night-31-01-runway", x)
     (tx, ty), (ex, ey) = a("thr"), a("end")
     o = pill(x + TW / 2 + 6, TY + 34, "3 H", BLUE, size=10)
-    o += (f'<path d="M{n(ex - 4)} {n(ey - 4)} q-14 -8 -22 -36" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/>'      # the takeoffs: off the far end, climbing away
-          f'<path d="M{n(ex - 26)} {n(ey - 40)} l-3 9 l7 -2 Z" fill="#86EFAC"/>' + pill(ex - 20, ey - 56, "10", GREEN))
+    o += (f'<path d="M{n(ex - 2)} {n(ey - 4)} q-4 -14 0 -32" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/>'      # the takeoffs: off the far end, climbing away
+          f'<path d="M{n(ex - 2)} {n(ey - 40)} l-4.5 8 l9 0 Z" fill="#86EFAC"/>' + pill(ex - 1, ey - 52, "10", GREEN))
     o += (f'<path d="M{n(tx + 46)} {n(ty - 46)} q4 30 -40 42" fill="none" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/>'        # the landings: down to the threshold
           f'<path d="M{n(tx + 2)} {n(ty - 4)} l8 -5 l1 8 Z" fill="#FCA5A5"/>' + pill(tx + 50, ty - 60, "10", RED))
     o += pill(x + TW / 2, TY + 150, ">100 NM", VIOLET)
@@ -116,8 +116,7 @@ def exercise():
     """Tile 3: the tower and the runway lit at night (render night-31-01-tower); the ceiling 1 000 FT above, 8 KM, and a loop back to the same aerodrome."""
     x = TX[1]
     under, img, frame = render_tile(f"{U}t3", x, "night-31-01-tower")
-    a = at("night-31-01-tower", x)
-    mx, my = a("mid")
+    mx, my = x + TW * 0.36, TY + TH * 0.72                  # on the runway in the front of the view
     cl = TY + 44                                           # the ceiling
     o = f'<line x1="{n(x + 8)}" y1="{n(cl)}" x2="{n(x + TW - 8)}" y2="{n(cl)}" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6 4"/>' + pill(x + TW - 54, cl - 14, "1 000 FT", AMBER, size=7.6)
     o += pill(x + TW - 50, TY + 132, "8 KM", BLUE)
