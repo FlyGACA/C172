@@ -103,11 +103,11 @@ def course():
     under, img, frame = render_tile(f"{U}t2", x, "night-31-01-runway")
     a = at("night-31-01-runway", x)
     (tx, ty), (ex, ey) = a("thr"), a("end")
-    o = pill(x + TW / 2, TY + 30, "3 H", BLUE, size=10)
-    o += (f'<path d="M{n(ex + 8)} {n(ey - 2)} q22 -6 34 -34" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/>'
-          f'<path d="M{n(ex + 42)} {n(ey - 36)} l-1 9 l-7 -4 Z" fill="#86EFAC"/>' + pill(ex + 52, ey - 50, "10", GREEN))
-    o += (f'<path d="M{n(tx - 56)} {n(ty - 40)} q16 26 44 36" fill="none" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/>'
-          f'<path d="M{n(tx - 10)} {n(ty - 4)} l-9 -1 l4 -7 Z" fill="#FCA5A5"/>' + pill(tx - 60, ty - 52, "10", RED))
+    o = pill(x + TW / 2 + 6, TY + 34, "3 H", BLUE, size=10)
+    o += (f'<path d="M{n(ex - 4)} {n(ey - 4)} q-14 -8 -22 -36" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/>'      # the takeoffs: off the far end, climbing away
+          f'<path d="M{n(ex - 26)} {n(ey - 40)} l-3 9 l7 -2 Z" fill="#86EFAC"/>' + pill(ex - 20, ey - 56, "10", GREEN))
+    o += (f'<path d="M{n(tx + 46)} {n(ty - 46)} q4 30 -40 42" fill="none" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/>'        # the landings: down to the threshold
+          f'<path d="M{n(tx + 2)} {n(ty - 4)} l8 -5 l1 8 Z" fill="#FCA5A5"/>' + pill(tx + 50, ty - 60, "10", RED))
     o += pill(x + TW / 2, TY + 150, ">100 NM", VIOLET)
     return [under, img, o + frame]
 
