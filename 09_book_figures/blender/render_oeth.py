@@ -801,6 +801,15 @@ def main():
         fogs(r["fogs"])
     if "clouds" in r:
         scene_clouds(r["clouds"])
+    for i, sp in enumerate(r.get("spots", [])):         # area lights aimed at a point (a soft key on the aeroplane at night)
+        ld = bpy.data.lights.new(f"spot{i}", "AREA")
+        ld.energy = sp.get("power", 2000.0)
+        ld.size = sp.get("size", 10.0)
+        ld.color = hexcol(sp.get("colour", "#C9D6FF"))[:3]
+        lo = bpy.data.objects.new(f"spot{i}", ld)
+        lo.location = Vector(sp["at"])
+        lo.rotation_euler = (Vector(sp["look"]) - Vector(sp["at"])).to_track_quat("-Z", "Y").to_euler()
+        sc.collection.objects.link(lo)
     if "haze" in r:
         haze(r["haze"])
     if "ink" in r:
