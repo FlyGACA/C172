@@ -26,9 +26,52 @@ def gwidth(s, height, spacing=0.4):
 
 
 def pill(cx, cy, text, fill, size=8.4):
-    w = gwidth(text, size) + 14.0
-    h = size + 8.0
-    return f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="{n(h / 2)}" fill="{fill}" stroke="#FFFFFF" stroke-width="1.5"/>' + H.glyph_text(text, cx, cy, size, "#FFFFFF", spacing=0.4)
+    return chip(cx, cy, text, fill, size=size)
+
+
+def icon(kind, x, y, col):
+    """A small sign drawn in a chip, left of its text: up (a takeoff), down (a landing), clock, route."""
+    if kind == "up":
+        return (f'<path d="M{n(x - 3.6)} {n(y + 3.2)} L{n(x + 3.0)} {n(y - 3.2)}" stroke="{col}" stroke-width="1.7" stroke-linecap="round"/>'
+                f'<path d="M{n(x + 3.8)} {n(y - 4.0)} l-4.4 0.6 l3.8 3.8 Z" fill="{col}"/>')
+    if kind == "down":
+        return (f'<path d="M{n(x - 3.6)} {n(y - 3.2)} L{n(x + 3.0)} {n(y + 3.2)}" stroke="{col}" stroke-width="1.7" stroke-linecap="round"/>'
+                f'<path d="M{n(x + 3.8)} {n(y + 4.0)} l-4.4 -0.6 l3.8 -3.8 Z" fill="{col}"/><path d="M{n(x - 4.2)} {n(y + 4.6)} H{n(x + 4.6)}" stroke="{col}" stroke-width="1.2" stroke-linecap="round"/>')
+    if kind == "clock":
+        return (f'<circle cx="{n(x)}" cy="{n(y)}" r="3.9" fill="none" stroke="{col}" stroke-width="1.4"/>'
+                f'<path d="M{n(x)} {n(y - 2.3)} V{n(y)} L{n(x + 1.8)} {n(y + 1.1)}" fill="none" stroke="{col}" stroke-width="1.2" stroke-linecap="round"/>')
+    if kind == "route":
+        return (f'<circle cx="{n(x - 3.4)}" cy="{n(y + 2.4)}" r="1.5" fill="{col}"/><circle cx="{n(x + 3.4)}" cy="{n(y - 2.4)}" r="1.5" fill="{col}"/>'
+                f'<path d="M{n(x - 3.4)} {n(y + 2.4)} Q{n(x)} {n(y + 2.4)} {n(x + 3.4)} {n(y - 2.4)}" fill="none" stroke="{col}" stroke-width="1.1" stroke-dasharray="1.6 1.4"/>')
+    return ""
+
+
+def chip(cx, cy, text, accent, kind=None, size=7.8):
+    """A label of the figure: dark glass, a bar of the colour on its left, a small sign, white figures."""
+    tw = gwidth(text, size)
+    iw = 11.0 if kind else 0.0
+    w, h = tw + 15.0 + iw, size + 9.0
+    x0, y0 = cx - w / 2, cy - h / 2
+    tint = {"#1D4ED8": "#93B4FF", "#15803D": "#6EE7A0", "#B91C1C": "#FCA5A5", "#B45309": "#FCD48A", "#7C3AED": "#C4B5FD"}.get(accent, accent)
+    return (f'<rect x="{n(x0)}" y="{n(y0)}" width="{n(w)}" height="{n(h)}" rx="5" fill="#0B1224" fill-opacity="0.80" stroke="{tint}" stroke-opacity="0.55" stroke-width="0.9"{ds()}/>'
+            f'<rect x="{n(x0 + 2.2)}" y="{n(y0 + 3.0)}" width="2.6" height="{n(h - 6.0)}" rx="1.3" fill="{tint}"/>'
+            + (icon(kind, x0 + 12.0, cy, tint) if kind else "")
+            + H.glyph_text(text, x0 + 8.5 + iw + tw / 2, cy, size, "#FFFFFF", spacing=0.4))
+
+
+def flight(p0, c, p1, col, dash=False, width=2.2):
+    """A path in the air: a smooth curve from p0 to p1 bent towards c, a dark halo under it and an arrowhead along its end."""
+    d = f"M{n(p0[0])} {n(p0[1])} Q{n(c[0])} {n(c[1])} {n(p1[0])} {n(p1[1])}"
+    tx, ty = p1[0] - c[0], p1[1] - c[1]
+    L = math.hypot(tx, ty) or 1.0
+    ux, uy = tx / L, ty / L
+    s = 6.5
+    bx, by = p1[0] - ux * s, p1[1] - uy * s
+    head = f'M{n(p1[0] + ux * 1.5)} {n(p1[1] + uy * 1.5)} L{n(bx - uy * s * 0.55)} {n(by + ux * s * 0.55)} L{n(bx + uy * s * 0.55)} {n(by - ux * s * 0.55)} Z'
+    da = ' stroke-dasharray="5 4"' if dash else ""
+    return (f'<path d="{d}" fill="none" stroke="#0B1224" stroke-opacity="0.45" stroke-width="{n(width + 2.6)}" stroke-linecap="round"/>'
+            f'<path d="{d}" fill="none" stroke="{col}" stroke-width="{n(width)}" stroke-linecap="round"{da}/>'
+            f'<path d="{head}" fill="{col}" stroke="#0B1224" stroke-opacity="0.45" stroke-width="0.8"/>')
 
 
 def ds():
@@ -36,32 +79,55 @@ def ds():
 
 
 def timeline():
+    """Tile 1: from day through the night to day, as a horizon: the sun sets into the dunes and rises out of them, a crescent moon and stars between; under the
+    horizon the time bars (the period of section 91.171 in red, the GACAR's night in slate inside it); above it the hour after sunset and the hour before
+    sunrise as dimension lines."""
     x, y, w, h = 12.0, 12.0, 616.0, 150.0
     uid = f"{U}tl"
     ss, ct, mt, sr = x + 110, x + 190, x + w - 190, x + w - 110   # sunset, end of civil twilight, start of morning twilight, sunrise
-    sky = (f'<defs><linearGradient id="{uid}g" x1="0" y1="0" x2="1" y2="0">'
-           f'<stop offset="0" stop-color="#7FB2E6"/><stop offset="{n((ss - x) / w)}" stop-color="#E9A86B"/><stop offset="{n((ct - x) / w)}" stop-color="#3B4D86"/>'
-           f'<stop offset="0.5" stop-color="#121B3A"/><stop offset="{n((mt - x) / w)}" stop-color="#3B4D86"/><stop offset="{n((sr - x) / w)}" stop-color="#F0B47A"/><stop offset="1" stop-color="#8DBDEB"/></linearGradient>'
-           f'<clipPath id="{uid}c"><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="9"/></clipPath>'
-           f'<filter id="{U}ds" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="1.2" stdDeviation="1.3" flood-color="#1B2638" flood-opacity="0.3"/></filter></defs>')
-    gy = y + 96
-    body = f'<rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" fill="url(#{uid}g)"/>'
-    body += f'<rect x="{n(x)}" y="{n(gy)}" width="{n(w)}" height="{n(y + h - gy)}" fill="#3A3428" fill-opacity="0.82"/>'
-    for k in range(18):                                   # stars in the dark middle
-        sx = ct + 10 + (k * 37.3) % (mt - ct - 20)
-        sy = y + 10 + (k * 23.7) % 60
-        body += f'<circle cx="{n(sx)}" cy="{n(sy)}" r="{n(1.0 + (k % 3) * 0.5)}" fill="#FFFFFF" fill-opacity="0.85"/>'
-    for cx in (ss, sr):                                   # the sun on the horizon
-        body += f'<circle cx="{n(cx)}" cy="{n(gy)}" r="16" fill="#FFD27A" stroke="#FFFFFF" stroke-width="1.6"/>'
-    body += f'<rect x="{n(x)}" y="{n(gy)}" width="{n(w)}" height="{n(y + h - gy)}" fill="#3A3428"/>'
-    # the bands
-    band = (f'<rect x="{n(ss)}" y="{n(gy + 10)}" width="{n(sr - ss)}" height="14" rx="4" fill="{RED}" stroke="#FFFFFF" stroke-width="1.2"/>'
-            f'<rect x="{n(ct)}" y="{n(gy + 30)}" width="{n(mt - ct)}" height="10" rx="3" fill="#94A3B8" stroke="#FFFFFF" stroke-width="1"/>'
-            + "".join(f'<line x1="{n(xx)}" y1="{n(y + 4)}" x2="{n(xx)}" y2="{n(gy + 44)}" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="4 4" stroke-opacity="0.85"/>' for xx in (ss, ct, mt, sr)))
-    # the passenger window, 1 H after sunset to 1 H before sunrise
-    p0, p1 = ss + 64, sr - 64
-    band += f'<path d="M{n(ss)} {n(y + 14)} H{n(p0)} M{n(sr)} {n(y + 14)} H{n(p1)}" stroke="#FDE68A" stroke-width="2.4"/>' + pill((ss + p0) / 2, y + 26, "1 H", AMBER, size=7.4) + pill((sr + p1) / 2, y + 26, "1 H", AMBER, size=7.4)
-    return sky + f'<g clip-path="url(#{uid}c)">' + body + band + f'</g><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>'
+    f = lambda xx: n((xx - x) / w)
+    defs = (f'<defs><linearGradient id="{uid}g" x1="0" y1="0" x2="1" y2="0">'
+            f'<stop offset="0" stop-color="#8CBDEB"/><stop offset="{f(ss - 40)}" stop-color="#C9B79A"/><stop offset="{f(ss)}" stop-color="#F2A766"/>'
+            f'<stop offset="{f(ct)}" stop-color="#4A4F86"/><stop offset="{f(ct + 60)}" stop-color="#1B2550"/><stop offset="0.5" stop-color="#0E1532"/>'
+            f'<stop offset="{f(mt - 60)}" stop-color="#1B2550"/><stop offset="{f(mt)}" stop-color="#4A4F86"/><stop offset="{f(sr)}" stop-color="#F5B676"/>'
+            f'<stop offset="{f(sr + 40)}" stop-color="#C9C2AC"/><stop offset="1" stop-color="#93C3EE"/></linearGradient>'
+            f'<linearGradient id="{uid}v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000814" stop-opacity="0.35"/><stop offset="0.75" stop-color="#000814" stop-opacity="0"/></linearGradient>'
+            f'<linearGradient id="{uid}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B3226"/><stop offset="1" stop-color="#1A1610"/></linearGradient>'
+            f'<radialGradient id="{uid}s"><stop offset="0" stop-color="#FFE7A8" stop-opacity="0.95"/><stop offset="0.35" stop-color="#FFC56B" stop-opacity="0.55"/><stop offset="1" stop-color="#FF9E4A" stop-opacity="0"/></radialGradient>'
+            f'<clipPath id="{uid}c"><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="9"/></clipPath>'
+            f'<filter id="{U}ds" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="1.0" stdDeviation="1.1" flood-color="#000814" flood-opacity="0.45"/></filter>'
+            f'<filter id="{uid}gl" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>')
+    gy = y + 92
+    body = f'<rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" fill="url(#{uid}g)"/><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(gy - y)}" fill="url(#{uid}v)"/>'
+    for k in range(26):                                   # stars: small, of several sizes, only where the sky is dark
+        sx = ct + 30 + (k * 47.9) % (mt - ct - 60)
+        sy = y + 8 + (k * 29.3) % 64
+        r = (0.55, 0.8, 1.1)[k % 3]
+        body += f'<circle cx="{n(sx)}" cy="{n(sy)}" r="{n(r)}" fill="#FFFFFF" fill-opacity="{n(0.45 + 0.18 * (k % 3))}"/>'
+    mx, my = x + w / 2 + 44, y + 30                       # a crescent moon
+    body += (f'<circle cx="{n(mx)}" cy="{n(my)}" r="9" fill="#F4ECCB"/><circle cx="{n(mx + 4.2)}" cy="{n(my - 2.6)}" r="8.2" fill="#0F1736"/>')
+    for cx_ in (ss, sr):                                  # the sun on the horizon, in its glow
+        body += f'<circle cx="{n(cx_)}" cy="{n(gy)}" r="40" fill="url(#{uid}s)"/><circle cx="{n(cx_)}" cy="{n(gy + 3)}" r="11.5" fill="#FFD98A"/>'
+    dune = (f'M{n(x)} {n(gy + 2)} C{n(x + 80)} {n(gy - 5)} {n(x + 150)} {n(gy + 4)} {n(x + 230)} {n(gy)} S{n(x + 380)} {n(gy - 6)} {n(x + 460)} {n(gy + 1)} '
+            f'S{n(x + 560)} {n(gy - 4)} {n(x + w)} {n(gy + 1)} V{n(y + h)} H{n(x)} Z')
+    body += f'<path d="{dune}" fill="url(#{uid}d)"/>'
+    for cx_, up in ((ss, False), (sr, True)):             # a chevron over each sun: setting, rising
+        a, b = (gy - 22, gy - 16) if up else (gy - 16, gy - 22)
+        body += f'<path d="M{n(cx_ - 5)} {n(b)} L{n(cx_)} {n(a)} L{n(cx_ + 5)} {n(b)}" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+    guides = "".join(f'<line x1="{n(xx)}" y1="{n(y + 6)}" x2="{n(xx)}" y2="{n(y + h - 8)}" stroke="#FFFFFF" stroke-opacity="0.38" stroke-width="1" stroke-dasharray="2 3"/>' for xx in (ss, ct, mt, sr))
+    ty1, ty2 = gy + 20, gy + 38                           # the time bars, under the horizon
+    bars = (f'<line x1="{n(x + 14)}" y1="{n(ty1)}" x2="{n(x + w - 14)}" y2="{n(ty1)}" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.2"/>'
+            f'<rect x="{n(ss)}" y="{n(ty1 - 4)}" width="{n(sr - ss)}" height="8" rx="4" fill="#EF4444" filter="url(#{uid}gl)" opacity="0.55"/>'
+            f'<rect x="{n(ss)}" y="{n(ty1 - 4)}" width="{n(sr - ss)}" height="8" rx="4" fill="#DC2626"/>'
+            f'<rect x="{n(ct)}" y="{n(ty2 - 3.5)}" width="{n(mt - ct)}" height="7" rx="3.5" fill="#94A3B8"/>'
+            + "".join(f'<circle cx="{n(xx)}" cy="{n(yy)}" r="2.4" fill="#FFFFFF"/>' for xx, yy in ((ss, ty1), (sr, ty1), (ct, ty2), (mt, ty2))))
+    p0, p1 = ss + 64, sr - 64                             # the passenger window, 1 H after sunset to 1 H before sunrise
+    dy = y + 18
+    def dimline(a, b):
+        return (f'<line x1="{n(a)}" y1="{n(dy)}" x2="{n(b)}" y2="{n(dy)}" stroke="#FDE68A" stroke-width="1.5"/>'
+                + "".join(f'<line x1="{n(xx)}" y1="{n(dy - 4)}" x2="{n(xx)}" y2="{n(dy + 4)}" stroke="#FDE68A" stroke-width="1.5"/>' for xx in (a, b)))
+    dims = dimline(ss, p0) + dimline(p1, sr) + chip((ss + p0) / 2, dy + 14, "1 H", AMBER, "clock", size=7.0) + chip((sr + p1) / 2, dy + 14, "1 H", AMBER, "clock", size=7.0)
+    return defs + f'<g clip-path="url(#{uid}c)">' + body + guides + bars + dims + f'</g><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="9" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>'
 
 
 TX = (12.0, 220.0, 428.0)
@@ -103,12 +169,10 @@ def course():
     under, img, frame = render_tile(f"{U}t2", x, "night-31-01-runway")
     a = at("night-31-01-runway", x)
     (tx, ty), (ex, ey) = a("thr"), a("end")
-    o = pill(x + TW / 2 + 6, TY + 34, "3 H", BLUE, size=10)
-    o += (f'<path d="M{n(ex - 2)} {n(ey - 4)} q-4 -14 0 -32" fill="none" stroke="#86EFAC" stroke-width="3" stroke-linecap="round"/>'      # the takeoffs: off the far end, climbing away
-          f'<path d="M{n(ex - 2)} {n(ey - 40)} l-4.5 8 l9 0 Z" fill="#86EFAC"/>' + pill(ex - 1, ey - 52, "10", GREEN))
-    o += (f'<path d="M{n(tx + 46)} {n(ty - 46)} q4 30 -40 42" fill="none" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/>'        # the landings: down to the threshold
-          f'<path d="M{n(tx + 2)} {n(ty - 4)} l8 -5 l1 8 Z" fill="#FCA5A5"/>' + pill(tx + 50, ty - 60, "10", RED))
-    o += pill(x + TW / 2, TY + 150, ">100 NM", VIOLET)
+    o = chip(x + 46, TY + 150, "3 H", BLUE, "clock", size=8.4)
+    o += flight((ex, ey - 3), (ex - 8, ey - 24), (ex + 2, ey - 42), "#6EE7A0") + chip(ex + 4, ey - 56, "10", GREEN, "up", size=8.4)     # the takeoffs: off the far end, climbing away
+    o += flight((tx + 40, ty - 52), (tx + 34, ty - 8), (tx + 6, ty - 3), "#FCA5A5") + chip(tx + 40, ty - 66, "10", RED, "down", size=8.4)  # the landings: down to the threshold
+    o += chip(x + TW - 54, TY + 150, ">100 NM", VIOLET, "route", size=8.4)
     return [under, img, o + frame]
 
 
@@ -117,10 +181,16 @@ def exercise():
     x = TX[1]
     under, img, frame = render_tile(f"{U}t3", x, "night-31-01-tower")
     mx, my = x + TW * 0.36, TY + TH * 0.72                  # on the runway in the front of the view
-    cl = TY + 44                                           # the ceiling
-    o = f'<line x1="{n(x + 8)}" y1="{n(cl)}" x2="{n(x + TW - 8)}" y2="{n(cl)}" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6 4"/>' + pill(x + TW - 54, cl - 14, "1 000 FT", AMBER, size=7.6)
-    o += pill(x + TW - 50, TY + 132, "8 KM", BLUE)
-    o += S.ribbon(f"{U}lp", [(mx - 30, my + 26), (mx + 26, my + 34), (mx + 40, my + 8), (mx + 4, my - 4)], 3.4, "#86EFAC", "#BBF7D0", opacity=0.9, head=2.0, tail=0.3, per=6)
+    cl = TY + 46                                           # the ceiling: a layer of cloud above, its base dashed
+    o = (f'<defs><linearGradient id="{U}cl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CBD5E1" stop-opacity="0.0"/><stop offset="1" stop-color="#CBD5E1" stop-opacity="0.30"/></linearGradient></defs>'
+         f'<rect x="{n(x)}" y="{n(TY)}" width="{n(TW)}" height="{n(cl - TY)}" fill="url(#{U}cl)"/>'
+         f'<line x1="{n(x + 8)}" y1="{n(cl)}" x2="{n(x + TW - 8)}" y2="{n(cl)}" stroke="#E2E8F0" stroke-opacity="0.85" stroke-width="1.4" stroke-dasharray="6 4"/>')
+    o += chip(x + TW - 50, cl - 13, "1 000 FT", AMBER, size=7.8)
+    cx_, cy_ = x + TW * 0.47, TY + TH * 0.64              # a local flight: round the aerodrome and back to it, dashed
+    o += (f'<ellipse cx="{n(cx_)}" cy="{n(cy_)}" rx="74" ry="21" fill="none" stroke="#0B1224" stroke-opacity="0.45" stroke-width="4.6"/>'
+          f'<ellipse cx="{n(cx_)}" cy="{n(cy_)}" rx="74" ry="21" fill="none" stroke="#6EE7A0" stroke-width="2" stroke-dasharray="6 4"/>')
+    o += flight((cx_ + 40, cy_ + 17.6), (cx_ + 22, cy_ + 20.6), (cx_ + 4, cy_ + 21), "#6EE7A0")
+    o += chip(x + TW - 46, TY + 150, "8 KM", BLUE, size=8.4)
     return [under, img, o + frame]
 
 
@@ -129,14 +199,18 @@ def passengers():
     under, img, frame = render_tile(f"{U}t4", x, "night-31-01-runway")
     o = f'<rect x="{n(x)}" y="{n(TY)}" width="{n(TW)}" height="{n(TH)}" fill="#0B1226" fill-opacity="0.35"/>'      # the picture dimmed, under the calendar and the passengers
     cx = x + TW / 2
-    cal_x, cal_y = cx - 28, TY + 36                        # a calendar of 90 days
-    o += (f'<rect x="{n(cal_x)}" y="{n(cal_y)}" width="56" height="52" rx="5" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6"{ds()}/><rect x="{n(cal_x)}" y="{n(cal_y)}" width="56" height="13" rx="4" fill="{RED}"/>'
-          + H.glyph_text("90", cx, cal_y + 33, 13, INK, spacing=0.4))
-    o += pill(cx - 40, TY + 118, "3", GREEN, size=10) + pill(cx + 40, TY + 118, "3", RED, size=10)
-    o += f'<path d="M{n(cx - 58)} {n(TY + 140)} q18 -4 26 -14" fill="none" stroke="#86EFAC" stroke-width="2.6" stroke-linecap="round"/><path d="M{n(cx + 32)} {n(TY + 126)} q8 10 26 14" fill="none" stroke="#FCA5A5" stroke-width="2.6" stroke-linecap="round"/>'
-    for k in range(3):                                     # three passengers' heads
-        hx = cx - 18 + k * 18
-        o += f'<circle cx="{n(hx)}" cy="{n(TY + 146)}" r="6" fill="#E2E8F0"/><path d="M{n(hx - 9)} {n(TY + 162)} q9 -12 18 0 Z" fill="#E2E8F0"/>'
+    cw, chh = 60.0, 56.0                                    # a calendar of 90 days: a card with its binding rings, a red head, the number
+    cal_x, cal_y = cx - cw / 2, TY + 34
+    o += (f'<rect x="{n(cal_x)}" y="{n(cal_y)}" width="{n(cw)}" height="{n(chh)}" rx="6" fill="#F8FAFC"{ds()}/>'
+          f'<path d="M{n(cal_x)} {n(cal_y + 6)} a6 6 0 0 1 6 -6 H{n(cal_x + cw - 6)} a6 6 0 0 1 6 6 V{n(cal_y + 15)} H{n(cal_x)} Z" fill="#DC2626"/>'
+          + "".join(f'<rect x="{n(cal_x + cw * t - 2)}" y="{n(cal_y - 4)}" width="4" height="9" rx="2" fill="#475569"/>' for t in (0.3, 0.7))
+          + H.glyph_text("90", cx, cal_y + 36, 15, "#1E293B", spacing=0.4))
+    o += chip(cx - 42, TY + 112, "3", GREEN, "up", size=9.0) + chip(cx + 42, TY + 112, "3", RED, "down", size=9.0)
+    for k in range(3):                                     # three passengers: a head and shoulders each, the middle one a little nearer
+        hx, s_ = cx - 22 + k * 22, (1.0, 1.12, 1.0)[k]
+        top = TY + 136
+        o += (f'<circle cx="{n(hx)}" cy="{n(top)}" r="{n(5.4 * s_)}" fill="#E2E8F0"/>'
+              f'<path d="M{n(hx - 9.5 * s_)} {n(top + 19 * s_)} C{n(hx - 9.5 * s_)} {n(top + 8 * s_)} {n(hx + 9.5 * s_)} {n(top + 8 * s_)} {n(hx + 9.5 * s_)} {n(top + 19 * s_)} Z" fill="#E2E8F0"/>')
     return [under, img, o + frame]
 
 
