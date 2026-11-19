@@ -27,7 +27,7 @@ def panel(i, body, seed):
     return (f'<defs><clipPath id="{uid}c"><rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9"/></clipPath>'
             f'<filter id="{uid}s" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#10233F" flood-opacity="0.28"/></filter></defs>'
             f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="#ffffff" filter="url(#{uid}s)"/>'
-            f'<g clip-path="url(#{uid}c)">' + S.sky(uid + "k", x, y, PW, PH, DAY) + S.plain(f"{U}g{i}", x, x + PW, y + 128, y + PH, seed=seed, tone="day", acacias=((x + 30, y + 160, 0.9), (x + 270, y + 152, 0.8)))
+            f'<g clip-path="url(#{uid}c)">' + S.sky(uid + "k", x, y, PW, PH, DAY) + S.plain(f"{U}g{i}", x, x + PW, y + 128, y + PH, seed=seed, tone="day", acacias=((x + 30, y + 160, 0.9), (x + 270, y + 152, 0.8)), photo=True)
             + body + f'</g><rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="none" stroke="#ffffff" stroke-width="1.6"/>')
 
 

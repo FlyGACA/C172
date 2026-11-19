@@ -53,7 +53,7 @@ def scene1():
     cx, cy = x + 172, y + 84
     b = box(cx, cy - 6, 196, 120)
     d = dim(cx, cy - 66, cx, cy - 34) + pill(cx + 32, cy - 52, "1 000 FT") + dim(cx, cy + 22, cx, cy + 54) + pill(cx + 30, cy + 38, "500 FT") + dim(cx + 52, cy - 6, cx + 98, cy - 6) + pill(cx + 75, cy + 10, "2 000 FT")
-    return frame(0, DAY, S.plain(f"{U}l1", x, x + PW, y + 150, y + PH, seed=3, tone="day") + b + d + pill(x + 46, y + 166, "5 KM", BLUE))
+    return frame(0, DAY, S.plain(f"{U}l1", x, x + PW, y + 150, y + PH, seed=3, tone="day", photo=True) + b + d + pill(x + 46, y + 166, "5 KM", BLUE))
 
 
 def scene2():
@@ -67,12 +67,12 @@ def scene2():
 def scene3():
     x, y = PX[2], PY[2]
     line = S.altitude_line(x, x + PW, y + 70, colour="#FFFFFF", opacity=0.9, dash="6 5", width=1.8) + pill(x + 262, y + 70, "1 200 FT", AMBER)
-    return frame(2, DAY, S.plain(f"{U}l3", x, x + PW, y + 150, y + PH, seed=7, tone="day") + line + pill(x + 46, y + 166, "3 KM", BLUE))
+    return frame(2, DAY, S.plain(f"{U}l3", x, x + PW, y + 150, y + PH, seed=7, tone="day", photo=True) + line + pill(x + 46, y + 166, "3 KM", BLUE))
 
 
 def scene4():
     x, y = PX[3], PY[3]
-    ground = S.plain(f"{U}l4", x, x + PW, y + 140, y + PH, seed=11, tone="storm")
+    ground = S.plain(f"{U}l4", x, x + PW, y + 140, y + PH, seed=11, tone="storm", photo=True)
     runway = f'<path d="M{n(x + 120)} {n(y + 150)} L{n(x + 250)} {n(y + 150)} L{n(x + 270)} {n(y + 168)} L{n(x + 100)} {n(y + 168)} Z" fill="#5B6577"/><line x1="{n(x + 118)}" y1="{n(y + 159)}" x2="{n(x + 252)}" y2="{n(y + 159)}" stroke="#F1F5F9" stroke-width="1.4" stroke-dasharray="8 6"/>'
     tower = f'<rect x="{n(x + 62)}" y="{n(y + 112)}" width="8" height="38" fill="#D4DAE4" stroke="#6B7A93"/><path d="M{n(x + 52)} {n(y + 102)} H{n(x + 80)} L{n(x + 76)} {n(y + 112)} H{n(x + 56)} Z" fill="#8FB4E0" stroke="#4B6A97"/>'
     ceil = S.altitude_line(x, x + PW, y + 70, colour="#FFFFFF", opacity=0.95, dash="6 5", width=2) + dim(x + 210, y + 74, x + 210, y + 146) + pill(x + 244, y + 110, "1 000 FT", RED)

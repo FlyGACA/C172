@@ -36,7 +36,7 @@ def eye(cx, cy, s=1.0, col=GREEN):
 
 def scene_1():                                               # sand on the pavement
     x, y, w, h = CELLS[0]
-    land = S.plain(f"{U}l1", x, x + w, y + 80, y + h, seed=4, tone="day")
+    land = S.plain(f"{U}l1", x, x + w, y + 80, y + h, seed=4, tone="day", photo=True)
     pave = f'<path d="M{n(x)} {n(y + 96)} L{n(x + w)} {n(y + 90)} L{n(x + w)} {n(y + 152)} L{n(x)} {n(y + 160)} Z" fill="#6B7385"/>'
     marks = "".join(f'<rect x="{n(x + 18 + k * 36)}" y="{n(y + 118 - k * 1.2)}" width="22" height="3.6" rx="1.5" fill="#F1F5F9" fill-opacity="{n(0.95 - k * 0.15)}"/>' for k in range(5))
     drift = "".join(f'<ellipse cx="{n(x + cx)}" cy="{n(y + cy)}" rx="{n(rx)}" ry="{n(ry)}" fill="#E4CE9A" fill-opacity="0.9"/>' for cx, cy, rx, ry in ((48, 124, 34, 7), (104, 130, 30, 6), (152, 120, 38, 8), (182, 142, 24, 6)))
@@ -47,7 +47,7 @@ def scene_1():                                               # sand on the pavem
 
 def scene_2():                                               # heat shimmer: the far end of a runway
     x, y, w, h = CELLS[1]
-    land = S.plain(f"{U}l2", x, x + w, y + 84, y + h, seed=9, tone="dusk")
+    land = S.plain(f"{U}l2", x, x + w, y + 84, y + h, seed=9, tone="dusk", photo=True)
     run = f'<path d="M{n(x + 80)} {n(y + 90)} L{n(x + 120)} {n(y + 90)} L{n(x + 188)} {n(y + h)} L{n(x + 12)} {n(y + h)} Z" fill="#5B6577"/><line x1="{n(x + 100)}" y1="{n(y + 92)}" x2="{n(x + 100)}" y2="{n(y + h)}" stroke="#F1F5F9" stroke-width="2" stroke-dasharray="8 8"/>'
     waves = "".join(f'<path d="M{n(x + 52 + k * 5)} {n(y + 96 + k * 9)} q 12 -7 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#FFFFFF" stroke-opacity="{n(0.7 - k * 0.12)}" stroke-width="2.4" stroke-linecap="round"/>' for k in range(5))
     return panel(1, HAZE, land + run + waves + eye(x + 160, y + 40, 0.9))
@@ -55,7 +55,7 @@ def scene_2():                                               # heat shimmer: the
 
 def scene_3():                                               # dust and stones
     x, y, w, h = CELLS[2]
-    land = S.plain(f"{U}l3", x, x + w, y + 96, y + h, seed=3, tone="day")
+    land = S.plain(f"{U}l3", x, x + w, y + 96, y + h, seed=3, tone="day", photo=True)
     dust = S.fog(f"{U}d3", x - 20, x + 130, y + 150, 80, seed=4, opacity=0.95, colour="#D8B672", wisp=1.0, foot=0.5, side_fade=0.3)
     rnd = random.Random(8)
     stones = "".join(f'<circle cx="{n(x + 70 + rnd.uniform(-14, 40))}" cy="{n(y + 136 + rnd.uniform(-20, 12))}" r="{n(rnd.uniform(1.6, 2.8))}" fill="#6B5B45" stroke="#FFFFFF" stroke-width="0.6"/>' for _ in range(14))

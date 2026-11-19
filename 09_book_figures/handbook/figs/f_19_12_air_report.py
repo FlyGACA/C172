@@ -35,7 +35,7 @@ def pill(cx, cy, text, colour, size=8.0):
 def scene():
     x, y, w, h = SC
     uid = f"{U}s"
-    body = S.sky(uid + "k", x, y, w, h, DAY) + S.plain(f"{U}l", x, x + w, y + 104, y + h, seed=5, tone="day")
+    body = S.sky(uid + "k", x, y, w, h, DAY) + S.plain(f"{U}l", x, x + w, y + 104, y + h, seed=5, tone="day", photo=True)
     # the tower (1)
     tower = (f'<rect x="{n(x + 34)}" y="{n(y + 84)}" width="9" height="40" rx="2" fill="#D4DAE4" stroke="{COL[1]}" stroke-width="1.4"/><path d="M{n(x + 24)} {n(y + 72)} H{n(x + 54)} L{n(x + 50)} {n(y + 84)} H{n(x + 28)} Z" fill="#8FB4E0" stroke="{COL[1]}" stroke-width="1.4"/>'
              f'<rect x="{n(x + 22)}" y="{n(y + 68)}" width="34" height="5" rx="2" fill="{COL[1]}"/>')

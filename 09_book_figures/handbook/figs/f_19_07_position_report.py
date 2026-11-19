@@ -45,7 +45,7 @@ def clock(cx, cy, col, h=7.5):
 def scene():
     x, y, w, h = SC
     uid = f"{U}s"
-    body = S.sky(uid + "k", x, y, w, h, DAY) + S.plain(f"{U}l", x, x + w, y + 86, y + h, seed=8, tone="day")
+    body = S.sky(uid + "k", x, y, w, h, DAY) + S.plain(f"{U}l", x, x + w, y + 86, y + h, seed=8, tone="day", photo=True)
     route = f'<line x1="{n(x + 40)}" y1="{n(RY)}" x2="{n(WX[2])}" y2="{n(RY)}" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="9 6" stroke-opacity="0.95"/>'
     pts = point(WX[0], RY, COL[2]) + point(WX[1], RY, COL[4])
     rwy = f'<path d="M{n(WX[2] - 4)} {n(RY - 6)} L{n(WX[2] + 44)} {n(RY - 6)} L{n(WX[2] + 50)} {n(RY + 6)} L{n(WX[2] - 10)} {n(RY + 6)} Z" fill="#5B6577" stroke="#FFFFFF" stroke-width="1.2"/>'

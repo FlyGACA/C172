@@ -46,7 +46,7 @@ def scene1():                                                # from above: a rou
 
 def scene2():                                                # haze and dust: a faint big feature, a low sun, the small ones lost
     x, y = PX[1], PY[1]
-    plain = S.plain(f"{U}l2", x, x + PW, y + 98, y + PH, seed=9, tone="dusk")
+    plain = S.plain(f"{U}l2", x, x + PW, y + 98, y + PH, seed=9, tone="dusk", photo=True)
     town = "".join(f'<rect x="{n(x + 40 + dx)}" y="{n(y + 82 + dy)}" width="{n(w)}" height="{n(h)}" fill="#8F8470"/>' for dx, dy, w, h in ((0, 0, 20, 16), (24, -6, 14, 22), (42, 4, 18, 12), (66, 0, 12, 14)))
     haze = S.fog(f"{U}h2", x, x + PW, y + 150, 100, seed=5, opacity=0.95, colour="#E0C890", wisp=1.0, foot=0.4)
     sun = S.glow(f"{U}s2", x + 258, y + 88, 70, "#FFF4D2", 0.95) + S.glow(f"{U}s2b", x + 258, y + 88, 30, "#FFFFFF", 0.95) + f'<circle cx="{n(x + 258)}" cy="{n(y + 88)}" r="9" fill="#FFFFFF"/>'
@@ -63,7 +63,7 @@ def scene3():                                                # high ground: moun
 
 def scene4():                                                # lost late in the day: a low sun, a question mark, an aerodrome in sight
     x, y = PX[3], PY[3]
-    plain = S.plain(f"{U}l4", x, x + PW, y + 112, y + PH, seed=3, tone="dusk")
+    plain = S.plain(f"{U}l4", x, x + PW, y + 112, y + PH, seed=3, tone="dusk", photo=True)
     sun = S.glow(f"{U}s4", x + 252, y + 112, 80, "#FFB347", 0.95) + f'<circle cx="{n(x + 252)}" cy="{n(y + 112)}" r="12" fill="#F28C28"/>'
     strip = f'<rect x="{n(x + 28)}" y="{n(y + 150)}" width="90" height="10" rx="2" fill="#5B6577"/><line x1="{n(x + 34)}" y1="{n(y + 155)}" x2="{n(x + 112)}" y2="{n(y + 155)}" stroke="#F1F5F9" stroke-width="1.3" stroke-dasharray="7 5"/>'
     q = (f'<circle cx="{n(x + 150)}" cy="{n(y + 40)}" r="17" fill="#FFFFFF" stroke="{RED}" stroke-width="3"/><path d="M{n(x + 144)} {n(y + 36)} a6 6 0 1 1 9 5 q-3 2 -3 6" fill="none" stroke="{RED}" stroke-width="3.6" stroke-linecap="round"/><circle cx="{n(x + 150)}" cy="{n(y + 52)}" r="2.2" fill="{RED}"/>')

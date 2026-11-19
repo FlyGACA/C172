@@ -31,7 +31,7 @@ def panel(i, sky_stops, body):
 
 def ground(i, tone="day", seed=3, **kw):
     x, y = PX[i], PY[i]
-    return S.plain(f"{U}g{i}", x, x + PW, y + HZ, y + PH, seed=seed, tone=tone, **kw)
+    return S.plain(f"{U}g{i}", x, x + PW, y + HZ, y + PH, seed=seed, tone=tone, **kw, photo=True)
 
 
 def dusk_sun(i, cx, cy, r=9.0):

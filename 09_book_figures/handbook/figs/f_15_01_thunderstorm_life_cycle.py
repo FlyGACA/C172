@@ -32,7 +32,7 @@ def fronts():
                                            (2, "storm", [(236, 304, 0.9)], [(250, 318, 1.0), (404, 314, 1.0)], [(300, 322, 1.1), (352, 328, 1.0)]),
                                            (3, "dusk", [(450, 302, 0.9), (572, 310, 1.0)], [(470, 316, 1.0), (606, 318, 0.9)], [(530, 324, 1.1)])):
         x, y, w, h = CARDS[k]
-        body = S.plain(f"f1501g{k}", x, x + w, HZ, y + h, seed=2 + k, tone=tone, houses=houses, palms=palms, acacias=acacias)
+        body = S.plain(f"f1501g{k}", x, x + w, HZ, y + h, seed=2 + k, tone=tone, houses=houses, palms=palms, acacias=acacias, photo=True)
         body += S.altitude_line(x, x + w, 196, "#FFFFFF", 0.85, dash="6 5", width=1.4) + S.snowflake(x + 12, 196)
         if k == 2:
             body += (S.rain("f1501r2", 334, 392, 232, 300, slant=-6, count=44, seed=4, colour="#3A63B4", veil=0.26) + S.lightning("f1501l", 266, 238, 292, seed=3)

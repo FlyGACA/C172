@@ -32,7 +32,7 @@ def scene():
     return (f'<defs><clipPath id="{uid}c"><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(PH)}" rx="9"/></clipPath>'
             f'<filter id="{uid}s" x="-5%" y="-10%" width="110%" height="125%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#10233F" flood-opacity="0.28"/></filter></defs>'
             f'<rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="#ffffff" filter="url(#{uid}s)"/>'
-            f'<g clip-path="url(#{uid}c)">' + S.sky(uid + "k", PX, PY, PW, PH, DAY) + S.plain(f"{U}g", PX, PX + PW, hz, PY + PH, seed=5, tone="day", acacias=((PX + 150, hz + 34, 0.8), (PX + 470, hz + 36, 0.8)))
+            f'<g clip-path="url(#{uid}c)">' + S.sky(uid + "k", PX, PY, PW, PH, DAY) + S.plain(f"{U}g", PX, PX + PW, hz, PY + PH, seed=5, tone="day", acacias=((PX + 150, hz + 34, 0.8), (PX + 470, hz + 36, 0.8)), photo=True)
             + strips + flag + route + '</g>' + f'<rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="none" stroke="#ffffff" stroke-width="1.6"/>')
 
 

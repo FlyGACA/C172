@@ -72,7 +72,7 @@ def dashed_line(x0, y0, x1, y1, colour, width=1.6, dash="5 4", halo=True):
 def top_card():
     x, y, w, h = 8, 8, 624, 190
     hz = 168
-    body = (S.plain(U + "t", x, x + w, hz, y + h, seed=4, hills=16, palms=[(36, 184, 0.6), (612, 186, 0.55)], houses=[(588, 176, 0.5)], acacias=[(300, 184, 0.45)])
+    body = (S.plain(U + "t", x, x + w, hz, y + h, seed=4, hills=16, palms=[(36, 184, 0.6), (612, 186, 0.55)], houses=[(588, 176, 0.5)], acacias=[(300, 184, 0.45)], photo=True)
             + S.land_layer(U + "tl", S.ridge(9, x, x + w, hz + 1, 7, peaks=0.3), hz + 3, ("#8E9DC2", "#C3CDE2"), rim=False, haze=0.2))
     return S.card(U + "T", x, y, w, h, SKY, body)
 
@@ -139,7 +139,7 @@ def smooth_curve(points, per=4):
 def spiral_card():
     x, y, w, h = 8, 208, 304, 324
     hz = 506
-    body = (S.plain(U + "s", x, x + w, hz, y + h, seed=7, hills=18, palms=[(34, 524, 0.5)], houses=[(250, 516, 0.5)])
+    body = (S.plain(U + "s", x, x + w, hz, y + h, seed=7, hills=18, palms=[(34, 524, 0.5)], houses=[(250, 516, 0.5)], photo=True)
             + S.land_layer(U + "sl", S.ridge(12, x, x + w, hz + 1, 8, peaks=0.35), hz + 3, ("#8E9DC2", "#C3CDE2"), rim=False, haze=0.2))
     return S.card(U + "S", x, y, w, h, SKY, body)
 
@@ -182,7 +182,7 @@ def spiral():
 def somato_card():
     x, y, w, h = 322, 208, 310, 324
     hz = 470
-    body = (S.plain(U + "g", x, x + w, hz, y + h, seed=9, hills=20, palms=[(600, 504, 0.55), (352, 508, 0.5)], houses=[(560, 496, 0.55)], acacias=[(420, 516, 0.5)])
+    body = (S.plain(U + "g", x, x + w, hz, y + h, seed=9, hills=20, palms=[(600, 504, 0.55), (352, 508, 0.5)], houses=[(560, 496, 0.55)], acacias=[(420, 516, 0.5)], photo=True)
             + S.land_layer(U + "gl2", S.ridge(15, x, x + w, hz + 1, 9, peaks=0.35), hz + 3, ("#8E9DC2", "#C3CDE2"), rim=False, haze=0.2))
     return S.card(U + "G", x, y, w, h, SKY, body)
 

@@ -6,6 +6,7 @@ time). Shapes, colours and the numbers of the callouts. The drawings are generic
 import math
 
 from figs import h_b2 as H
+from figs import photo_ground as PG
 from figs import scene as S
 
 n = S.n
@@ -31,7 +32,7 @@ def frame(i, body):
 
 def side(i, seed, hz=100.0, tone="day", stops=DAY, extra=""):
     x, y = PX[i], PY[i]
-    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, stops) + S.plain(f"{U}g{i}", x, x + PW, y + hz, y + PH, seed=seed, tone=tone, acacias=((x + 30, y + 150, 0.9),)) + extra)
+    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, stops) + S.plain(f"{U}g{i}", x, x + PW, y + hz, y + PH, seed=seed, tone=tone, acacias=((x + 30, y + 150, 0.9),), photo=True) + extra)
 
 
 def tick(cx, cy, r=15.0):
@@ -49,7 +50,7 @@ def scene_1():                                               # go-around: the ap
 
 def scene_2():                                               # diversion: A, B with dust, C, in plan
     x, y = PX[1], PY[1]
-    ground = f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#E8D7AC"/>'
+    ground = PG.plan(x, y, PW, PH, zoom=1.3, cx=0.35, cy=0.55) + f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#FFF8EC" fill-opacity="0.3"/>'
     for sx, sy, w in ((x + 24, y + 128, 40), (x + 244, y + 54, 40), (x + 200, y + 142, 40)):
         ground += f'<rect x="{n(sx)}" y="{n(sy)}" width="{n(w)}" height="10" rx="2" fill="#5B6577"/><line x1="{n(sx + 4)}" y1="{n(sy + 5)}" x2="{n(sx + w - 4)}" y2="{n(sy + 5)}" stroke="#F1F5F9" stroke-width="1.2" stroke-dasharray="6 4"/>'
     dust = S.fog(f"{U}d2", x + 190, x + PW, y + 100, 80, seed=5, opacity=0.95, colour="#C99F5E", wisp=1.0, foot=0.4, side_fade=0.3)

@@ -77,7 +77,7 @@ def scene_4():                                               # look both ways, a
 
 def scene_5():                                               # eyes outside while moving, checklists when stopped
     x, y, w, h = CELLS[4]
-    apron = S.plain(f"{U}l5", x, x + w, y + 96, y + h, seed=5, tone="day")
+    apron = S.plain(f"{U}l5", x, x + w, y + 96, y + h, seed=5, tone="day", photo=True)
     strip = f'<rect x="{n(x)}" y="{n(y + 118)}" width="{n(w)}" height="22" fill="#6B7385"/><line x1="{n(x + 6)}" y1="{n(y + 129)}" x2="{n(x + w - 6)}" y2="{n(y + 129)}" stroke="#F1F5F9" stroke-width="1.6" stroke-dasharray="9 7"/>'
     clip = f'<rect x="{n(x + 144)}" y="{n(y + 30)}" width="40" height="52" rx="5" fill="#F8FAFC" stroke="{INK}" stroke-width="2.4"/><rect x="{n(x + 155)}" y="{n(y + 26)}" width="18" height="8" rx="3" fill="{INK}"/>' + "".join(f'<line x1="{n(x + 150)}" y1="{n(y + 46 + k * 10)}" x2="{n(x + 178)}" y2="{n(y + 46 + k * 10)}" stroke="#94A3B8" stroke-width="2"/>' for k in range(3)) + cross(x + 164, y + 56, 16)
     return panel(4, DAY, apron + strip + clip + eye(x + 60, y + 38, 1.0))

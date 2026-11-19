@@ -125,7 +125,7 @@ def class_d():
     """Class D: a cylinder of airspace about the aerodrome, the aeroplane outside it calling before it enters (two-way arrows)."""
     x, y, w, h = TX, TY[1], TW, TH
     uid = f"{U}d"
-    o = card(uid, x, y, w, h) + S.sky(uid + "k", x, y, w, h, [(0.0, "#4F86C9"), (0.6, "#9CC2EA"), (1.0, "#E9EEF0")]) + S.plain(uid + "l", x, x + w, y + 86, y + h, seed=4, tone="day")
+    o = card(uid, x, y, w, h) + S.sky(uid + "k", x, y, w, h, [(0.0, "#4F86C9"), (0.6, "#9CC2EA"), (1.0, "#E9EEF0")]) + S.plain(uid + "l", x, x + w, y + 86, y + h, seed=4, tone="day", photo=True)
     cx, top, bot = x + 196, y + 30, y + 92
     o += (f'<path d="M{n(cx - 78)} {n(top)} V{n(bot)} A78 12 0 0 0 {n(cx + 78)} {n(bot)} V{n(top)}" fill="{BLUE}" fill-opacity="0.16" stroke="{BLUE}" stroke-width="2" stroke-dasharray="7 4"/>'
           f'<ellipse cx="{n(cx)}" cy="{n(top)}" rx="78" ry="12" fill="{BLUE}" fill-opacity="0.12" stroke="{BLUE}" stroke-width="2" stroke-dasharray="7 4"/>')

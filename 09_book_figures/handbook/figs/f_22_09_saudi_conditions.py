@@ -45,26 +45,26 @@ def scene_1():                                               # a busy aerodrome:
     x, y, w, h = CELLS[0]
     strip = f'<path d="M{n(x + 20)} {n(y + 124)} L{n(x + w - 20)} {n(y + 124)} L{n(x + w - 6)} {n(y + 142)} L{n(x + 6)} {n(y + 142)} Z" fill="#5B6577"/><line x1="{n(x + 34)}" y1="{n(y + 133)}" x2="{n(x + w - 34)}" y2="{n(y + 133)}" stroke="#F1F5F9" stroke-width="1.6" stroke-dasharray="9 7"/>'
     circuit = S.ribbon(f"{U}c1", [(x + 150, y + 118), (x + 188, y + 96), (x + 176, y + 60), (x + 100, y + 52), (x + 30, y + 70)], 4.0, "#E8782E", "#F6B36B", opacity=0.55, head=2.0, tail=0.4, per=8)
-    return panel(0, DAY, S.plain(f"{U}l0", x, x + w, y + 80, y + h, seed=4, tone="day", houses=((x + 170, y + 90, 0.8),), acacias=((x + 20, y + 112, 0.8),)) + strip + circuit)
+    return panel(0, DAY, S.plain(f"{U}l0", x, x + w, y + 80, y + h, seed=4, tone="day", houses=((x + 170, y + 90, 0.8),), acacias=((x + 20, y + 112, 0.8),), photo=True) + strip + circuit)
 
 
 def scene_2():                                               # a large aeroplane, the wake behind it, a trainer behind and below
     x, y, w, h = CELLS[1]
     wake = "".join(S.ribbon(f"{U}k{k}", [(x + 100, y + 56 + dy), (x + 74, y + 54 + dy), (x + 50, y + 62 + dy), (x + 26, y + 58 + dy)], 5.0, "#7C8FB5", "#C7D2E8", opacity=0.55, head=0.5, tail=1.0, per=8) for k, dy in enumerate((8, 22)))
-    return panel(1, DAY, S.plain(f"{U}l1", x, x + w, y + 98, y + h, seed=7, tone="day", acacias=((x + 30, y + 130, 0.8),)) + wake)
+    return panel(1, DAY, S.plain(f"{U}l1", x, x + w, y + 98, y + h, seed=7, tone="day", acacias=((x + 30, y + 130, 0.8),), photo=True) + wake)
 
 
 def scene_3():                                               # haze and dust: a distant aeroplane faint in a tan layer
     x, y, w, h = CELLS[2]
     return panel(2, [(0.0, "#9FB4D4"), (0.5, "#D9D2C0"), (0.8, "#E6CFA0"), (1.0, "#E9D3A4")],
-                 S.plain(f"{U}l2", x, x + w, y + 74, y + h, seed=9, tone="dusk", acacias=((x + 40, y + 124, 1.0),))
+                 S.plain(f"{U}l2", x, x + w, y + 74, y + h, seed=9, tone="dusk", acacias=((x + 40, y + 124, 1.0),), photo=True)
                  + S.fog(f"{U}h2", x, x + w, y + 110, 80, seed=5, opacity=0.95, colour="#E0C890", wisp=1.0, foot=0.4))
 
 
 def scene_4():                                               # the sun: low and bright ahead, an aeroplane lost in its glare
     x, y, w, h = CELLS[3]
     sun = S.glow(f"{U}g3", x + 210, y + 78, 96, "#FFF4D2", 0.98) + S.glow(f"{U}g3b", x + 210, y + 78, 44, "#FFFFFF", 0.95) + f'<circle cx="{n(x + 210)}" cy="{n(y + 78)}" r="11" fill="#FFFFFF"/>'
-    return panel(3, [(0.0, "#4A7FC4"), (0.5, "#9DC1EC"), (0.85, "#F6E8C0"), (1.0, "#F6E8C0")], S.plain(f"{U}l3", x, x + w, y + 92, y + h, seed=3, tone="day") + sun)
+    return panel(3, [(0.0, "#4A7FC4"), (0.5, "#9DC1EC"), (0.85, "#F6E8C0"), (1.0, "#F6E8C0")], S.plain(f"{U}l3", x, x + w, y + 92, y + h, seed=3, tone="day", photo=True) + sun)
 
 
 def scene_5():                                               # night: a moon, stars, and an aeroplane with its lights
@@ -73,7 +73,7 @@ def scene_5():                                               # night: a moon, st
                     [(30, 28, 1.0, 0.9), (70, 54, 0.8, 0.7), (110, 20, 1.2, 0.95), (160, 62, 0.8, 0.7), (205, 30, 1.0, 0.9), (250, 54, 0.8, 0.8), (285, 24, 1.0, 0.9), (60, 96, 0.8, 0.6), (240, 98, 0.8, 0.6), (140, 100, 0.7, 0.5)])
     moon = (S.glow(f"{U}mg", x + 252, y + 40, 34, "#FFF1C8", 0.55) + f'<circle cx="{n(x + 252)}" cy="{n(y + 40)}" r="10" fill="#F7EBC2"/>'
 )
-    return panel(4, [(0.0, "#0F1E3E"), (0.55, "#2B3A6B"), (0.9, "#4C5F95"), (1.0, "#5E6F9F")], S.plain(f"{U}l4", x, x + w, y + 108, y + h, seed=12, tone="storm") + stars + moon)
+    return panel(4, [(0.0, "#0F1E3E"), (0.55, "#2B3A6B"), (0.9, "#4C5F95"), (1.0, "#5E6F9F")], S.plain(f"{U}l4", x, x + w, y + 108, y + h, seed=12, tone="storm", photo=True) + stars + moon)
 
 
 def sprites():

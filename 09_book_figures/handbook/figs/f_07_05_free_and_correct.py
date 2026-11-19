@@ -60,7 +60,7 @@ def scene(i, body, seed, top=False):
     x, y = PX[i], PY[i]
     uid = f"{U}s{i}"
     bg = (f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#E3C27F"/><rect x="{n(x + 18)}" y="{n(y + 14)}" width="{n(PW - 36)}" height="{n(PH - 28)}" rx="6" fill="#9AA3B2"/>' if top
-          else S.sky(uid + "k", x, y, PW, PH, DAY) + S.plain(uid + "g", x, x + PW, y + 112, y + PH, seed=seed, tone="day"))
+          else S.sky(uid + "k", x, y, PW, PH, DAY) + S.plain(uid + "g", x, x + PW, y + 112, y + PH, seed=seed, tone="day", photo=True))
     return (f'<defs><clipPath id="{uid}c"><rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9"/></clipPath>'
             f'<filter id="{uid}s" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#10233F" flood-opacity="0.28"/></filter></defs>'
             f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="#ffffff" filter="url(#{uid}s)"/><g clip-path="url(#{uid}c)">' + bg + body

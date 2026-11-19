@@ -38,7 +38,7 @@ def scene_1():                                               # turbulence (jagge
     x, y, w, h = CELLS[0]
     zig = S.ribbon(f"{U}z1", [(x + 14, y + 118), (x + 40, y + 96), (x + 52, y + 124), (x + 84, y + 90), (x + 100, y + 120), (x + 132, y + 92)], 4.0, "#B91C1C", "#E57373", opacity=0.9, head=2.0, tail=0.4, per=4)
     snow = "".join(S.snowflake(x + sx, y + sy, r) for sx, sy, r in ((150, 60, 9.0), (172, 100, 7.0), (140, 132, 8.0), (176, 150, 6.0), (30, 52, 6.0)))
-    return panel(0, DAY, S.plain(f"{U}l0", x, x + w, y + 150, y + h, seed=3, tone="day") + zig + snow)
+    return panel(0, DAY, S.plain(f"{U}l0", x, x + w, y + 150, y + h, seed=3, tone="day", photo=True) + zig + snow)
 
 
 def scene_2():                                               # waves over a ridge, a storm cloud with lightning
@@ -46,19 +46,19 @@ def scene_2():                                               # waves over a ridg
     ridge = (f'<defs><linearGradient id="{U}rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A8768"/><stop offset="1" stop-color="#5E503F"/></linearGradient></defs>'
              f'<path d="M{n(x - 4)} {n(y + h)} L{n(x - 4)} {n(y + 128)} C{n(x + 24)} {n(y + 112)} {n(x + 44)} {n(y + 96)} {n(x + 66)} {n(y + 98)} C{n(x + 92)} {n(y + 100)} {n(x + 104)} {n(y + 140)} {n(x + 146)} {n(y + 158)} L{n(x + w + 4)} {n(y + 160)} L{n(x + w + 4)} {n(y + h)} Z" fill="url(#{U}rg)"/>')
     waves = "".join(f'<path d="M{n(x + 50)} {n(y + 64 + k * 12)} q 14 -14 28 0 t 28 0 t 28 0" fill="none" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="2.2" stroke-linecap="round"/>' for k in range(3))
-    return panel(1, STORM, S.plain(f"{U}l2", x, x + w, y + 158, y + h, seed=9, tone="storm") + ridge + waves + S.lightning(f"{U}t2", x + 156, y + 96, y + 156, seed=3))
+    return panel(1, STORM, S.plain(f"{U}l2", x, x + w, y + 158, y + h, seed=9, tone="storm", photo=True) + ridge + waves + S.lightning(f"{U}t2", x + 156, y + 96, y + 156, seed=3))
 
 
 def scene_3():                                               # a dust wall, a volcano and its plume
     x, y, w, h = CELLS[2]
     cone = f'<path d="M{n(x + 124)} {n(y + 168)} L{n(x + 148)} {n(y + 114)} L{n(x + 160)} {n(y + 114)} L{n(x + 188)} {n(y + 168)} Z" fill="#5B4B40"/><path d="M{n(x + 146)} {n(y + 114)} L{n(x + 162)} {n(y + 114)} L{n(x + 158)} {n(y + 120)} L{n(x + 150)} {n(y + 120)} Z" fill="#D9552B"/>'
     plume = "".join(f'<circle cx="{n(x + 154 + dx)}" cy="{n(y + 108 - dy)}" r="{n(r)}" fill="#4A4A55" fill-opacity="{n(o)}"/>' for dx, dy, r, o in ((0, 0, 11, 0.9), (-4, 18, 14, 0.85), (8, 38, 17, 0.8), (-6, 58, 20, 0.7), (6, 76, 22, 0.55)))
-    return panel(2, DUST, S.plain(f"{U}l3", x, x + w, y + 120, y + h, seed=9, tone="dusk") + S.fog(f"{U}h3", x - 20, x + 130, y + 176, 118, seed=4, opacity=0.95, colour="#D8B672", wisp=1.0, foot=0.5, side_fade=0.35) + cone + plume)
+    return panel(2, DUST, S.plain(f"{U}l3", x, x + w, y + 120, y + h, seed=9, tone="dusk", photo=True) + S.fog(f"{U}h3", x - 20, x + 130, y + 176, 118, seed=4, opacity=0.95, colour="#D8B672", wisp=1.0, foot=0.5, side_fade=0.35) + cone + plume)
 
 
 def scene_4():                                               # aeroplane, voice arcs and a data-link zigzag, a tower, a clock
     x, y, w, h = CELLS[3]
-    plain = S.plain(f"{U}l4", x, x + w, y + 126, y + h, seed=12, tone="day")
+    plain = S.plain(f"{U}l4", x, x + w, y + 126, y + h, seed=12, tone="day", photo=True)
     tower = (f'<rect x="{n(x + 246)}" y="{n(y + 108)}" width="9" height="36" rx="2" fill="#D4DAE4" stroke="#6B7A93" stroke-width="1"/><path d="M{n(x + 236)} {n(y + 96)} H{n(x + 266)} L{n(x + 262)} {n(y + 108)} H{n(x + 240)} Z" fill="#8FB4E0" stroke="#4B6A97" stroke-width="1.2"/>'
              f'<rect x="{n(x + 234)}" y="{n(y + 92)}" width="34" height="5" rx="2" fill="#6B7A93"/><line x1="{n(x + 251)}" y1="{n(y + 92)}" x2="{n(x + 251)}" y2="{n(y + 78)}" stroke="#6B7A93" stroke-width="2"/>')
     arcs = "".join(f'<path d="M{n(x + 118 + k * 22)} {n(y + 56 - 12 - k * 6)} A {n(16 + k * 9)} {n(16 + k * 9)} 0 0 1 {n(x + 118 + k * 22)} {n(y + 56 + 12 + k * 6)}" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-opacity="0.9"/>' for k in range(3))
@@ -93,7 +93,7 @@ def scene_5():                                               # five cards: what,
             cards.append(f'<circle cx="{n(cx)}" cy="{n(my)}" r="24" fill="#FFFFFF" stroke="{INK}" stroke-width="3"/><line x1="{n(cx)}" y1="{n(my)}" x2="{n(cx)}" y2="{n(my - 15)}" stroke="{INK}" stroke-width="3.2" stroke-linecap="round"/><line x1="{n(cx)}" y1="{n(my)}" x2="{n(cx + 11)}" y2="{n(my + 7)}" stroke="{RED}" stroke-width="3.2" stroke-linecap="round"/>'
                          + "".join(f'<line x1="{n(cx + 20 * math.sin(a))}" y1="{n(my - 20 * math.cos(a))}" x2="{n(cx + 23 * math.sin(a))}" y2="{n(my - 23 * math.cos(a))}" stroke="{INK}" stroke-width="2"/>' for a in (0, math.pi / 2, math.pi, 3 * math.pi / 2)))
     sprite = {"name": "sprite-top", "at": [x0 + 4 * (cw + gap) + cw / 2, cy0 + ch / 2], "width": 44, "outline": OUT, "shadow": SHADOW}
-    return panel(4, DAY, S.plain(f"{U}l5", x, x + w, y + 168, y + h, seed=2, tone="day") + "".join(cards)), sprite
+    return panel(4, DAY, S.plain(f"{U}l5", x, x + w, y + 168, y + h, seed=2, tone="day", photo=True) + "".join(cards)), sprite
 
 
 def sprites(extra):

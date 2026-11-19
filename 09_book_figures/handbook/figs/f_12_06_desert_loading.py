@@ -31,7 +31,7 @@ def frame(i, body):
 
 def side(i, seed, hz=100.0, extra=""):
     x, y = PX[i], PY[i]
-    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, DAY) + S.plain(f"{U}g{i}", x, x + PW, y + hz, y + PH, seed=seed, tone="day", acacias=((x + 30, y + 156, 0.9),)) + extra)
+    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, DAY) + S.plain(f"{U}g{i}", x, x + PW, y + hz, y + PH, seed=seed, tone="day", acacias=((x + 30, y + 156, 0.9),), photo=True) + extra)
 
 
 def pill(cx, cy, w, text, fill="#1F2937", h=12.0):

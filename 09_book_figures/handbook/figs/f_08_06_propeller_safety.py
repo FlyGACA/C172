@@ -31,7 +31,7 @@ def frame(i, body):
 
 def side_panel(i, seed, extra=""):
     x, y = PX[i], PY[i]
-    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, DAY) + S.plain(f"{U}g{i}", x, x + PW, y + 100, y + PH, seed=seed, tone="day", acacias=((x + 30, y + 150, 0.9),)) + extra)
+    return frame(i, S.sky(f"{U}k{i}", x, y, PW, PH, DAY) + S.plain(f"{U}g{i}", x, x + PW, y + 100, y + PH, seed=seed, tone="day", acacias=((x + 30, y + 150, 0.9),), photo=True) + extra)
 
 
 def apron_panel(i, extra=""):

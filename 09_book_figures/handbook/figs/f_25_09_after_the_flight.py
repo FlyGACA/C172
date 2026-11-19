@@ -38,7 +38,7 @@ def scene1():
     body = (f'<defs><clipPath id="{uid}c"><rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9"/></clipPath>'
             f'<filter id="{uid}s" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#10233F" flood-opacity="0.28"/></filter></defs>'
             f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="#ffffff" filter="url(#{uid}s)"/><g clip-path="url(#{uid}c)">'
-            + S.sky(uid + "k", x, y, PW, PH, DAY) + S.plain(uid + "g", x, x + PW, y + 100, y + PH, seed=4, tone="day", acacias=((x + 28, y + 150, 0.9),))
+            + S.sky(uid + "k", x, y, PW, PH, DAY) + S.plain(uid + "g", x, x + PW, y + 100, y + PH, seed=4, tone="day", acacias=((x + 28, y + 150, 0.9),), photo=True)
             + f'<rect x="{n(x)}" y="{n(y + 132)}" width="{n(PW)}" height="52" fill="#9AA3B2" fill-opacity="0.9"/></g><rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" rx="9" fill="none" stroke="#ffffff" stroke-width="1.6"/>')
     return body
 

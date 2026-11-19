@@ -32,13 +32,13 @@ def scene_1():                                               # heat: a high sun,
     x, y, w, h = CELLS[0]
     return panel(0, [(0.0, "#3F78C2"), (0.5, "#86B4E6"), (0.9, "#DCEBF8"), (1.0, "#F4F1DF")],
                  S.glow(f"{U}g0", x + 150, y + 28, 40, "#FFF2C4", 0.9) + f'<circle cx="{n(x + 150)}" cy="{n(y + 28)}" r="9" fill="#FFF7DC"/>'
-                 + S.plain(f"{U}l0", x, x + w, y + 70, y + h, seed=4, tone="day", acacias=((x + 22, y + 110, 0.9),)) + thermals(x, y + 134))
+                 + S.plain(f"{U}l0", x, x + w, y + 70, y + h, seed=4, tone="day", acacias=((x + 22, y + 110, 0.9),), photo=True) + thermals(x, y + 134))
 
 
 def scene_2():                                               # dust and haze: the hills and the ground ahead lost in a tan layer
     x, y, w, h = CELLS[1]
     return panel(1, [(0.0, "#9FB4D4"), (0.5, "#D9D2C0"), (0.8, "#E6CFA0"), (1.0, "#E9D3A4")],
-                 S.plain(f"{U}l1", x, x + w, y + 70, y + h, seed=7, tone="dusk", acacias=((x + 40, y + 124, 1.0),), houses=((x + 150, y + 82, 0.7),))
+                 S.plain(f"{U}l1", x, x + w, y + 70, y + h, seed=7, tone="dusk", acacias=((x + 40, y + 124, 1.0),), houses=((x + 150, y + 82, 0.7),), photo=True)
                  + S.fog(f"{U}d1", x, x + w, y + 112, 84, seed=5, opacity=0.95, colour="#E0C890", wisp=1.0, foot=0.4)
                  + S.fog(f"{U}d2", x, x + w, y + 92, 60, seed=12, opacity=0.9, colour="#EAD8A8", wisp=1.1, foot=0.3))
 
@@ -47,7 +47,7 @@ def scene_3():                                               # the shamal: wind 
     x, y, w, h = CELLS[2]
     wind = "".join(S.ribbon(f"{U}w{k}", [(x + 8, y + yy), (x + 60, y + yy - 4), (x + 110, y + yy + 2), (x + 152, y + yy - 2)], 6.4, "#4B6FB5", "#A9C0E6", opacity=0.9, head=2.2, tail=0.4, per=8) for k, yy in enumerate((54, 84, 114)))
     return panel(2, [(0.0, "#6F8CB8"), (0.5, "#B5BFC8"), (0.85, "#DDC89A"), (1.0, "#E6D1A2")],
-                 S.plain(f"{U}l2", x, x + w, y + 66, y + h, seed=9, tone="dusk", palms=((x + 30, y + 118, 0.9),))
+                 S.plain(f"{U}l2", x, x + w, y + 66, y + h, seed=9, tone="dusk", palms=((x + 30, y + 118, 0.9),), photo=True)
                  + S.fog(f"{U}d3", x + 40, x + w + 30, y + 130, 104, seed=3, opacity=1.0, colour="#C99F5E", wisp=1.1, foot=0.3, side_fade=0.45)
                  + S.fog(f"{U}d4", x + 60, x + w + 20, y + 120, 60, seed=14, opacity=0.9, colour="#E2C48C", wisp=1.1, foot=0.3, side_fade=0.45) + wind)
 
@@ -55,7 +55,7 @@ def scene_3():                                               # the shamal: wind 
 def scene_4():                                               # coast: the sea, an onshore ribbon, fog at the shore
     x, y, w, h = CELLS[3]
     hz = y + 62
-    land = S.plain(f"{U}l3", x + 170, x + w, hz, y + h, seed=3, tone="day", palms=((x + 236, y + 112, 1.0), (x + 266, y + 120, 0.9)), houses=((x + 214, hz + 10, 0.9), (x + 244, hz + 8, 0.8)))
+    land = S.plain(f"{U}l3", x + 170, x + w, hz, y + h, seed=3, tone="day", palms=((x + 236, y + 112, 1.0), (x + 266, y + 120, 0.9)), houses=((x + 214, hz + 10, 0.9), (x + 244, hz + 8, 0.8)), photo=True)
     sea = S.sea(f"{U}s3", x, x + 176, hz, y + h, seed=2) + S.dhow(x + 60, hz + 34, 1.3)
     shore = f'<path d="M{n(x + 168)} {n(hz)} L{n(x + 188)} {n(hz)} L{n(x + 176)} {n(y + h)} L{n(x + 150)} {n(y + h)} Z" fill="#EAD9AF"/>'
     onshore = S.ribbon(f"{U}o3", [(x + 40, y + 112), (x + 110, y + 102), (x + 180, y + 106), (x + 250, y + 112)], 7.0, "#2F7FD0", "#A8D0F4", opacity=0.9, head=2.2, tail=0.4, per=8)

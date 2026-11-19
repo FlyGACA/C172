@@ -45,7 +45,7 @@ def scene_1():                                               # the sun's arc: mo
     morning = S.glow(f"{U}m1", x + 26, y + 92, 20, "#FFF4D2", 0.55) + f'<circle cx="{n(x + 26)}" cy="{n(y + 92)}" r="7" fill="#EAF3FF" stroke="#9CC0EA" stroke-width="1.5"/>'
     noon = S.sun(f"{U}n1", x + 100, y + 28, 11)
     sunset = S.glow(f"{U}u1", x + 176, y + 92, 26, "#FFB347", 0.9) + f'<circle cx="{n(x + 176)}" cy="{n(y + 92)}" r="8" fill="#F28C28"/>'
-    return panel(0, DAY, S.plain(f"{U}l1", x, x + w, y + 98, y + h, seed=4, tone="day") + strip_runway(x + 12, x + 150, y + 124) + arc + morning + noon + sunset)
+    return panel(0, DAY, S.plain(f"{U}l1", x, x + w, y + 98, y + h, seed=4, tone="day", photo=True) + strip_runway(x + 12, x + 150, y + 124) + arc + morning + noon + sunset)
 
 
 def scene_2():                                               # reduce mass: +10% on mass, +21% on the takeoff distance
@@ -54,7 +54,7 @@ def scene_2():                                               # reduce mass: +10%
     bag = (f'<rect x="{n(x + 150)}" y="{n(y + 92)}" width="26" height="20" rx="3" fill="#C2410C" stroke="#FFFFFF" stroke-width="1.5"/><path d="M{n(x + 157)} {n(y + 92)} v-5 h12 v5" fill="none" stroke="#7C2D12" stroke-width="2"/>'
            f'<path d="M{n(x + 150)} {n(y + 66)} l24 -18 M{n(x + 166)} {n(y + 46)} h10 v10" fill="none" stroke="{RED}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>')
     bars = (f'<rect x="{n(x + 20)}" y="{n(y + 124)}" width="64" height="8" rx="3" fill="#6B7A93"/><rect x="{n(x + 20)}" y="{n(y + 136)}" width="78" height="8" rx="3" fill="{RED}"/>')
-    return panel(1, DAY, S.plain(f"{U}l2", x, x + w, y + 108, y + h, seed=7, tone="day") + weight + bag + bars + pill(x + 48, y + 56, "+10%", RED) + pill(x + 146, y + 134, "+21%", RED))
+    return panel(1, DAY, S.plain(f"{U}l2", x, x + w, y + 108, y + h, seed=7, tone="day", photo=True) + weight + bag + bars + pill(x + 48, y + 56, "+10%", RED) + pill(x + 146, y + 134, "+21%", RED))
 
 
 def scene_3():                                               # lean: the mixture knob pulled back, the speed dial at its highest
@@ -80,7 +80,7 @@ def scene_5():                                               # climb out and the
     hill = f'<path d="M{n(x + 96)} {n(y + h)} L{n(x + 96)} {n(y + 118)} C{n(x + 130)} {n(y + 108)} {n(x + 160)} {n(y + 70)} {n(x + w + 4)} {n(y + 50)} L{n(x + w + 4)} {n(y + h)} Z" fill="#9A8768"/>'
     runway = strip_runway(x + 10, x + 90, y + 122)
     turn = S.ribbon(f"{U}t5", [(x + 100, y + 46), (x + 74, y + 32), (x + 56, y + 52), (x + 76, y + 80), (x + 34, y + 108)], 4.6, "#E8782E", "#F6B36B", opacity=0.92, head=2.2, tail=0.4, per=8)
-    return panel(4, DAY, S.plain(f"{U}l5", x, x + w, y + 112, y + h, seed=9, tone="day") + hill + runway + turn)
+    return panel(4, DAY, S.plain(f"{U}l5", x, x + w, y + 112, y + h, seed=9, tone="day", photo=True) + hill + runway + turn)
 
 
 def scene_6():                                               # landing: a stable approach; +10% on the speed, +21% on the distance
@@ -88,7 +88,7 @@ def scene_6():                                               # landing: a stable
     run = strip_runway(x + 14, x + 186, y + 112, 12.0)
     d1 = f'<rect x="{n(x + 40)}" y="{n(y + 126)}" width="78" height="8" rx="3" fill="#6B7A93"/><rect x="{n(x + 40)}" y="{n(y + 137)}" width="94" height="8" rx="3" fill="{RED}"/>'
     path = f'<line x1="{n(x + 20)}" y1="{n(y + 30)}" x2="{n(x + 50)}" y2="{n(y + 112)}" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="5 5" stroke-opacity="0.9"/>'
-    return panel(5, DAY, S.plain(f"{U}l6", x, x + w, y + 104, y + h, seed=3, tone="day") + run + path + d1 + pill(x + 122, y + 40, "+10%", RED) + pill(x + 164, y + 133, "+21%", RED))
+    return panel(5, DAY, S.plain(f"{U}l6", x, x + w, y + 104, y + h, seed=3, tone="day", photo=True) + run + path + d1 + pill(x + 122, y + 40, "+10%", RED) + pill(x + 164, y + 133, "+21%", RED))
 
 
 def sprites():

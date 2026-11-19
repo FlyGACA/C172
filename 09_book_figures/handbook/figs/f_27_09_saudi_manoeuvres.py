@@ -35,7 +35,7 @@ def pill(cx, cy, w, text, fill="#1F2937", h=10.0):
 
 def scene_1():                                               # references over open desert
     x, y, w, h = CELLS[0]
-    land = S.plain(f"{U}l1", x, x + w, y + 70, y + h, seed=4, tone="day")
+    land = S.plain(f"{U}l1", x, x + w, y + 70, y + h, seed=4, tone="day", photo=True)
     dunes = S.dune(f"{U}d1", x, x + w, y + 84, 6.0, 3) + S.dune(f"{U}d2", x, x + w, y + 98, 5.0, 8)
     road = f'<path d="M{n(x + 128)} {n(y + h)} L{n(x + 162)} {n(y + 100)} L{n(x + 168)} {n(y + 100)} L{n(x + 148)} {n(y + h)} Z" fill="#6B7385"/><path d="M{n(x + 139)} {n(y + h)} L{n(x + 164)} {n(y + 100)}" stroke="#F1F5F9" stroke-width="1.4" stroke-dasharray="6 5"/>'
     pipe = f'<line x1="{n(x)}" y1="{n(y + 118)}" x2="{n(x + 126)}" y2="{n(y + 112)}" stroke="#3B4252" stroke-width="2.4"/><line x1="{n(x)}" y1="{n(y + 118)}" x2="{n(x + 126)}" y2="{n(y + 112)}" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="0.8"/>'
@@ -50,14 +50,14 @@ def scene_2():                                               # a forced-landing 
     glide = f'<path d="M{n(x + 56)} {n(y + 50)} L{n(x + 100)} {n(y + 118)} M{n(x + 56)} {n(y + 50)} L{n(x + 182)} {n(y + 118)}" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="6 5" stroke-opacity="0.9"/>'
     check = f'<path d="M{n(x + 118)} {n(y + 128)} l9 9 l20 -22" fill="none" stroke="{GREEN}" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'
     cross = f'<path d="M{n(x + 20)} {n(y + 112)} l24 24 M{n(x + 44)} {n(y + 112)} l-24 24" stroke="{RED}" stroke-width="5.5" stroke-linecap="round"/>'
-    return panel(1, DAY, S.plain(f"{U}l2", x, x + w, y + 92, y + h, seed=7, tone="day") + soft + field + glide + check + cross)
+    return panel(1, DAY, S.plain(f"{U}l2", x, x + w, y + 92, y + h, seed=7, tone="day", photo=True) + soft + field + glide + check + cross)
 
 
 def scene_3():                                               # heat: thermals under a high sun
     x, y, w, h = CELLS[2]
     sun = S.sun(f"{U}s3", x + 34, y + 36, 11)
     spirals = "".join(S.ribbon(f"{U}t3{k}", [(x + sx, y + 138), (x + sx - 10, y + 112), (x + sx + 10, y + 88), (x + sx - 8, y + 62)], 5.0, "#E8782E", "#F6B36B", opacity=0.85, head=2.0, tail=0.4, per=8) for k, sx in enumerate((70, 126, 176)))
-    return panel(2, [(0.0, "#3A74C0"), (0.5, "#8FBBEA"), (0.85, "#F3E9C6"), (1.0, "#F6E8C0")], S.plain(f"{U}l3", x, x + w, y + 112, y + h, seed=3, tone="day") + sun + spirals)
+    return panel(2, [(0.0, "#3A74C0"), (0.5, "#8FBBEA"), (0.85, "#F3E9C6"), (1.0, "#F6E8C0")], S.plain(f"{U}l3", x, x + w, y + 112, y + h, seed=3, tone="day", photo=True) + sun + spirals)
 
 
 def scene_4():                                               # the shamal: the circle seen from above, the wind, the two banks
@@ -72,7 +72,7 @@ def scene_4():                                               # the shamal: the c
 
 def scene_5():                                               # dust and haze: a faint horizon and the attitude indicator
     x, y, w, h = CELLS[4]
-    haze = S.plain(f"{U}l5", x, x + w, y + 84, y + h, seed=9, tone="dusk") + S.fog(f"{U}h5", x, x + w, y + 120, 90, seed=6, opacity=0.95, colour="#E0C890", wisp=1.0, foot=0.4)
+    haze = S.plain(f"{U}l5", x, x + w, y + 84, y + h, seed=9, tone="dusk", photo=True) + S.fog(f"{U}h5", x, x + w, y + 120, 90, seed=6, opacity=0.95, colour="#E0C890", wisp=1.0, foot=0.4)
     ai = (f'<circle cx="{n(x + 218)}" cy="{n(y + 66)}" r="30" fill="#1E3A8A" stroke="#E2E8F0" stroke-width="3.4"/><path d="M{n(x + 188)} {n(y + 66)} A30 30 0 0 1 {n(x + 248)} {n(y + 66)} Z" fill="#38BDF8"/><circle cx="{n(x + 218)}" cy="{n(y + 66)}" r="3.4" fill="#FACC15"/>'
           f'<path d="M{n(x + 200)} {n(y + 66)} H{n(x + 236)}" stroke="#FACC15" stroke-width="3.4" stroke-linecap="round"/>')
     return panel(4, HAZE, haze + ai)
