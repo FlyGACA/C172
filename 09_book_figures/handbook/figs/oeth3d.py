@@ -1084,13 +1084,15 @@ def night_aerodrome_31_01(view):
               {"points": [P(-103.0, 277.0)], "colour": "#FFD48A", "size": 3.0, "strength": 15.0, "power": 4000.0, "lift": 21.0},
               {"points": _town(*P(5200.0, 7800.0), 1400.0, 420, 11, 95.0), "colour": "#FFD08A", "size": 2.5, "strength": 8.0, "power": 1500.0, "light_every": 6}]
     if view == "runway":
-        cam = {"at": P(-L / 2 - 700.0, -330.0) + [gz + 250.0], "look": P(-200.0, 40.0) + [gz], "lens": 34}       # from above the approach, on the left of the centreline: both rows of edge lights apart
+        cam = {"at": P(-L / 2 - 170.0, -70.0) + [38.0], "look": P(-L / 2 + 330.0, 70.0) + [-12.0], "lens": 30, "above_ground": True}     # close, just short of the threshold and to its left: the lights large, the apron and the tower beyond       # from above the approach, on the left of the centreline: both rows of edge lights apart
     else:
-        cam = {"at": P(-1350.0, -950.0) + [gz + 260.0], "look": P(-80.0, 200.0) + [gz], "lens": 32}
+        cam = {"at": P(-300.0, -95.0) + [46.0], "look": P(-75.0, 215.0) + [-8.0], "lens": 30, "above_ground": True}      # close to the tower and the apron, the runway lights across the front
     return {"id": f"night-31-01-{view}", "camera": cam, "size": [2000, 1700], "samples": 128, "exposure": 0.45, "look": "AgX - Medium High Contrast", "transparent": True,
             "plan": base["plan"], "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000,
             "night": {"horizon": "#2E3B66", "low": "#131C3A", "zenith": "#050916", "strength": 1.0, "moon": 0.7, "moon_elevation": 38, "moon_azimuth": 150, "star_bright": 0.0},
             "lights": lights,
+            "aircraft": [{"at": P(-135.0, 205.0) + [0.0], "heading": hd - 90.0, "scale": 3.0, "on_ground": True}, {"at": P(-75.0, 205.0) + [0.0], "heading": hd - 90.0, "scale": 3.0, "on_ground": True},
+                         {"at": P(-15.0, 205.0) + [0.0], "heading": hd - 90.0, "scale": 3.0, "on_ground": True}],     # parked on the apron, noses to the runway, enlarged 3 times so that they read
             "haze": {"start": 2500.0, "depth": 16000.0, "colour": "#26325A", "strength": 0.8, "glare": {"threshold": 3.0, "strength": 0.25, "size": 0.25, "size_steps": 5}},
             "anchors": {"thr": P(-L / 2, 0.0), "end": P(L / 2, 0.0), "mid": P(0.0, 0.0), "tower": P(-103.0, 277.0) + [22.0], "apron": P(-50.0, 200.0),
                         "hz": [round(rx0 + nx * 400000.0, 1), round(ry0 + ny * 400000.0, 1), 0.0]}}

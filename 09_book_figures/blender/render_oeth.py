@@ -9,7 +9,7 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
     size      [w, h] pixels; samples; sun {"elevation": deg, "azimuth": deg}
     airspace  names (or prefixes) of objects of OETH_airspace.glb to show (none by default)
     hide      name prefixes of scene objects to leave out
-    aircraft  [{"at": [x, y, z], "heading": deg true, "pitch": deg, "bank": deg, "scale": 1}] copies of the C172 model (C172N_realistic_medium.glb)
+    aircraft  [{"at": [x, y, z], "heading": deg true, "pitch": deg, "bank": deg, "scale": 1, "on_ground": true}] copies of the C172 model (C172N_realistic_medium.glb)
     anchors   {name: [x, y, z] | {"object": name, "at": [u, v, w]}} projected into the picture as fractions (0..1) of its width and height
     tint      {"object prefix": "#RRGGBB"}: paint those objects one flat colour (to show what a callout is about)
     paths     [{"points": [[x, y, z], ...], "colour": "#RRGGBB", "radius": m}] tubes drawn in the scene (a circuit, a track)
@@ -1050,7 +1050,10 @@ def main():
         for o in obs:
             if o.parent is None:
                 o.parent = root
-        root.location = Vector(ac["at"])
+        at = list(ac["at"])
+        if ac.get("on_ground"):                           # parked: the height is the ground's under it (plus "at"'s own z, a lift)
+            at[2] = ground_z(at[0], at[1]) + (at[2] if len(at) > 2 else 0.0)
+        root.location = Vector(at)
         s = ac.get("scale", 1.0)
         root.scale = (s, s, s)
         # the model's nose points along -y of its build frame after import (glTF: forward is +z, which becomes -y); heading is true, clockwise from north
@@ -1096,6 +1099,9 @@ def main():
     cam = bpy.data.objects.new("cam", cam_d)
     sc.collection.objects.link(cam)
     c = r["camera"] if "camera" in r else frame_camera(r["frame"], sc)
+    if c.get("above_ground"):                             # the heights of "at" and "look" are above the ground under each of them
+        c = dict(c, at=[c["at"][0], c["at"][1], c["at"][2] + ground_z(c["at"][0], c["at"][1])],
+                 look=[c["look"][0], c["look"][1], c["look"][2] + ground_z(c["look"][0], c["look"][1])])
     cam.location = Vector(c["at"])
     cam.rotation_euler = (Vector(c["look"]) - Vector(c["at"])).to_track_quat("-Z", "Y").to_euler()
     if "ortho" in c:
