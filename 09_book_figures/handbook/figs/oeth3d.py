@@ -746,7 +746,7 @@ def night_31_10():
     lights = [
         {"points": near, "colour": "#FFC46B", "size": 5.0, "strength": 70.0, "power": 4000.0, "light_every": 2},
         {"points": far, "colour": "#FFD08A", "size": 7.0, "strength": 45.0, "power": 6000.0, "light_every": 4},
-        {"points": fogged, "colour": "#FFC46B", "size": 5.0, "strength": 70.0, "power": 4000.0, "light_every": 2},
+        {"points": fogged, "colour": "#FFC46B", "size": 7.0, "strength": 120.0, "power": 9000.0, "light_every": 1},     # (bright, so that they glow through the fog as haloes)
         {"points": road, "colour": "#FFA640", "size": 4.0, "strength": 80.0, "power": 2500.0, "light_every": 3},
         # the aeroplane's own lights (the model's places, scaled with it): red on the left wingtip, green on the right, white at the tail, the red
         # beacon on top of the fin, white strobes at the wingtips; each a small emitter with a short glow, not bright enough to light the ground
@@ -763,7 +763,7 @@ def night_31_10():
         "night": {"horizon": "#2E3B66", "low": "#131C3A", "zenith": "#050916", "strength": 1.0, "moon": 0.28, "moon_elevation": 32, "moon_azimuth": 150,
                   "star_bright": 0.0},
         "lights": lights,
-        "fogs": [{"center": [round(fog_c[0], 1), round(fog_c[1], 1)], "size": [2200.0, 2200.0, 220.0], "density": 0.0016, "colour": "#AEB8D4", "noise": 2.5}],
+        "fogs": [{"center": [round(fog_c[0], 1), round(fog_c[1], 1)], "size": [2200.0, 2200.0, 160.0], "density": 0.0009, "colour": "#C9D2EA", "noise": 1.6}],
         "haze": {"start": 2000.0, "depth": 14000.0, "colour": "#1E2846", "strength": 0.95, "glare": {"threshold": 0.8, "strength": 1.0, "size": 0.6, "size_steps": 8}},
         "aircraft": [{"at": list(ac), "heading": hd, "scale": s}],
         # a flash from the camera (the aeroplane lit as in a photograph taken with a flash, so that it reads clearly against the night), and a weaker

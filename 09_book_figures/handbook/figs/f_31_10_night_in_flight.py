@@ -55,7 +55,15 @@ def sky(at, ph):
         x, y = rnd.uniform(PX + 4, PX + PW - 4), PY + (hy - PY - 14) * rnd.random() ** 1.35
         r = rnd.choice((0.45, 0.55, 0.7, 0.9, 1.2))
         stars.append(f'<circle cx="{n(x)}" cy="{n(y)}" r="{n(r)}" fill="#FFFFFF" opacity="{n(rnd.uniform(0.45, 0.95) * (1 - 0.5 * (y - PY) / (hy - PY)))}"/>')
-    return grad + "".join(stars)
+    band = (f'<defs><linearGradient id="{U}hz" x1="0" y1="{n(hy - 9)}" x2="0" y2="{n(hy + 9)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="{col}" stop-opacity="0"/>'
+            f'<stop offset="0.5" stop-color="{col}" stop-opacity="0.9"/><stop offset="1" stop-color="{col}" stop-opacity="0"/></linearGradient></defs>')
+    return grad + "".join(stars) + band
+
+
+def horizon_band(at):
+    """A soft band of the horizon's own colour over the meeting of the drawn sky and the render, so that no line shows there."""
+    hx, hy = at("hz")
+    return f'<rect x="{n(PX)}" y="{n(hy - 9)}" width="{n(PW)}" height="18" fill="url(#{U}hz)"/>'
 
 
 def attitude(cx, cy, r=24.0):
@@ -89,7 +97,7 @@ def layers():
              f'<circle cx="{n(ix)}" cy="{n(iy)}" r="43" fill="#0F172A" fill-opacity="0.6"/><g clip-path="url(#{U}ic)"><rect x="{n(ix - 40)}" y="{n(iy - 40)}" width="80" height="80" fill="#141C34"/>'
              f'<ellipse cx="{n(ix)}" cy="{n(iy + 4)}" rx="30" ry="13" fill="url(#{U}m)"/></g><circle cx="{n(ix)}" cy="{n(iy)}" r="40" fill="none" stroke="#E2E8F0" stroke-width="2"/>'
              + pill(ix, iy + 54, 72, "5 000 FT") + f'<line x1="{n(ix + 38)}" y1="{n(iy + 14)}" x2="{n(nx - 30)}" y2="{n(ny - 8)}" stroke="#FFFFFF" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.7"/>')
-    over = (pill(nx, ny + 26, 72, "2 000 FT") + inset
+    over = (horizon_band(at) + pill(nx, ny + 26, 72, "2 000 FT") + inset
             + attitude(rx - 14, hy - 62) + f'<line x1="{n(rx - 14)}" y1="{n(hy - 35)}" x2="{n(rx)}" y2="{n(ry - 6)}" stroke="#FFFFFF" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.8"/>'
             + autokinesis(gx - 70, hy - 70))
     frame = f'</g><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>'
