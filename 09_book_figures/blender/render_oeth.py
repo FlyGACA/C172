@@ -514,6 +514,47 @@ def fogs(items):
         ob.visible_shadow = False
 
 
+def scene_clouds(items):
+    """Clouds of the cloud library (blender/render_clouds.py: the same kinds, shapes and media) set into the scene: each built in its own units, then
+    placed by an empty at `at` (the middle of its foot, metres) and scaled by `scale` (metres to the unit); the medium's density is divided by the scale,
+    so that a cloud keeps the look it has in the library. items: [{kind, seed, width, height, ..., at, scale, heading}]."""
+    import random as _random
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import render_clouds as RC
+    sc = bpy.context.scene
+    for ci, c in enumerate(items):
+        rnd = _random.Random(c.get("seed", 1))
+        way, make = RC.KINDS[c["kind"]]
+        args = {k: v for k, v in c.items() if k in ("width", "height", "anvil", "rows", "per_row", "layers", "girth", "depth", "lean", "lens_density", "lens_erode", "deck")}
+        parts = [RC.lumpy(make(rnd, **args))] if way == "lumpy" else make(rnd, **args)
+        x0, x1, z0, z1 = RC.bounds_of(parts)
+        span = x1 - x0
+        scale = c.get("scale", 100.0)
+        recipe = dict(c)
+        recipe["density"] = c.get("density", 60.0) / scale
+        before = set(bpy.data.objects)
+        for k, part in enumerate(parts):
+            mat = RC.volume_material(f"c{ci}m{k}", recipe, part)
+            band = part.get("band", 1.0) * c.get("band", 0.025) * span
+            voxel = max(0.02, c.get("voxel", 0.009) * span)
+            if part["part"] == "lumpy":
+                RC.soft_volume(sc, f"cloud{ci}p{k}", RC.mesh_of_metaballs(part["elements"], part.get("resolution") or max(0.025, 0.005 * span)), mat, band, voxel)
+            elif part["part"] == "lens":
+                RC.soft_volume(sc, f"cloud{ci}p{k}", RC.mesh_of_lens(part["centre"], part["size"], wobble=part.get("wobble", 0.0), rnd=_random.Random(c.get("seed", 1) * 31 + k)), mat, band, voxel)
+            else:
+                RC.hard_volume(sc, f"cloud{ci}p{k}", RC.mesh_of_box(part["centre"], part["size"]), mat)
+        root = bpy.data.objects.new(f"cloud{ci}", None)
+        sc.collection.objects.link(root)
+        for o in bpy.data.objects:
+            if o not in before and o is not root and o.parent is None:
+                o.parent = root
+                o.location.x -= (x0 + x1) / 2
+                o.location.z -= z0
+        root.location = Vector(c["at"])
+        root.scale = (scale, scale, scale)
+        root.rotation_euler = (0.0, 0.0, math.radians(-c.get("heading", 0.0)))
+
+
 def lay_plan(plan):
     twy = bpy.data.materials["taxi"]
     apron = bpy.data.materials["apron"]
@@ -758,6 +799,8 @@ def main():
     if "fogs" in r:
         bpy.context.view_layer.update()
         fogs(r["fogs"])
+    if "clouds" in r:
+        scene_clouds(r["clouds"])
     if "haze" in r:
         haze(r["haze"])
     if "ink" in r:
