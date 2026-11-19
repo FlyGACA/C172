@@ -81,7 +81,7 @@ def autokinesis(cx, cy):
 
 
 def pill(cx, cy, w, text):
-    return M.chip(cx, cy, text, "#1F2937", size=8.0, min_w=w)
+    return M.chip(cx, cy, text, "#1F2937", size=8.0, min_w=w, dark=True)
 
 
 def layers():

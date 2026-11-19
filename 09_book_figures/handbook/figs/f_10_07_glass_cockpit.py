@@ -24,7 +24,7 @@ def gwidth(s, height, spacing=0.3):
 
 
 def pill(cx, cy, text, fill, size=8.0):
-    return M.chip(cx, cy, text, fill, size=size, anchor="middle")
+    return M.chip(cx, cy, text, fill, size=size, anchor="middle", dark=True)
 
 
 def pfd():

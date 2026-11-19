@@ -1,13 +1,14 @@
 """The marks of the figures, in one style (the third design pass, after the owner's review of Figure 31-1): the labels that carry a figure's digits and codes, and
 its plain arrows. A figure's own pill() and arrow() call these, so that every figure draws its labels and arrows the same way.
 
-    chip(cx, cy, text, accent)   a label: dark glass, a bar of the accent colour on its left, the figures in a light shade of it (white for an ink label); with kind= a small sign before them (up: a takeoff
-                                 or a climb, down: a landing or a descent, clock, route); light=True: a pale label, its border and its figures in the colour, for a pale chart
+    chip(cx, cy, text, accent)   a label written straight on the figure: the number large, its unit small; in its colour with a white halo, or (dark=True, on a
+                                 night scene or a panel) white with a dark halo and a dot of its colour; kind= a small sign before it (up, down, clock, route)
     arrow(x0, y0, x1, y1, col)   a straight arrow: a dark halo under it, a slim head along its line
     flight(p0, c, p1, col)       a path in the air: a smooth curve from p0 to p1 bent towards c, the same halo and head
 
 The figures and the labels' text are drawn with the book's glyphs (figs/h_b2.glyph_text): no font is needed to render them."""
 import math
+import re
 
 from figs import h_b2 as H
 
@@ -49,34 +50,61 @@ def icon(kind, x, y, col, s=1.0):
     return ""
 
 
-def chip(cx, cy, text, accent, size=7.8, kind=None, anchor="middle", min_w=None, light=False, height=None):
-    """A label. anchor "start" or "end": cx is its left or right end. height: the height of the label (else from the size of its figures)."""
-    tw = width(text, size)
-    s = size / 7.8
-    iw = 11.0 * s if kind else 0.0
-    w = max(tw + (10.0 if size < 7.0 else 15.0) * s + iw, min_w or 0.0)
-    h = height if height else size + 9.0 * s
-    if anchor == "start":
-        cx += w / 2
-    elif anchor == "end":
-        cx -= w / 2
-    x0, y0 = cx - w / 2, cy - h / 2
-    small = light                                          # a label in a pale chart: pale, its border and its figures in the colour
-    bar = tint(accent) if not light else accent
-    fill, fill_op = ("#FFFFFF", 0.96) if light else ("#0B1224", 0.86)
-    if light:
-        ink = accent if (small and tint(accent) != "#CBD5E1") else "#1E293B"
-    else:                                                  # the figures in a light shade of the label's colour, so that the colour keys of a figure still read
-        ink = "#FFFFFF" if tint(accent) == "#CBD5E1" else tint(accent, 0.30)
-    r = min(5.0 * s, h / 2)
-    shadow = f'<rect x="{n(x0)}" y="{n(y0 + 1.1 * s)}" width="{n(w)}" height="{n(h)}" rx="{n(r)}" fill="#000814" fill-opacity="0.22"/>'
-    body = f'<rect x="{n(x0)}" y="{n(y0)}" width="{n(w)}" height="{n(h)}" rx="{n(r)}" fill="{fill}" fill-opacity="{fill_op}" stroke="{bar}" stroke-opacity="{'0.95' if size < 7.0 else '0.6'}" stroke-width="{n((1.1 if size < 7.0 else 0.9) * s)}"/>'
-    accent_bar = "" if small else f'<rect x="{n(x0 + 2.2 * s)}" y="{n(y0 + 2.6 * s)}" width="{n(2.6 * s)}" height="{n(h - 5.2 * s)}" rx="{n(1.3 * s)}" fill="{bar}"/>'
-    sign = icon(kind, x0 + 12.0 * s, cy, bar, s) if kind else ""
-    tx = (cx if size < 7.0 else x0 + 8.5 * s + iw + (w - 8.5 * s - iw - 6.5 * s) / 2)
-    if small:
-        shadow = f'<rect x="{n(x0)}" y="{n(y0 + 0.8 * s)}" width="{n(w)}" height="{n(h)}" rx="{n(r)}" fill="#000814" fill-opacity="0.10"/>'
-    return shadow + body + accent_bar + sign + H.glyph_text(text, tx, cy, size, ink, spacing=0.4)
+UNIT = re.compile(r"^([<>+\-]?\d[\d .,]*)\s([A-Z°%/]{1,6})$")
+
+
+def deepen(colour, k=0.18):
+    """The colour a little darker: figures written in it on a pale ground read as well as ink."""
+    c = colour.lstrip("#")
+    if len(c) != 6:
+        return colour
+    r, g, b = (int(c[i:i + 2], 16) for i in (0, 2, 4))
+    return "#{:02X}{:02X}{:02X}".format(*(round(v * (1 - k)) for v in (r, g, b)))
+
+
+def chip(cx, cy, text, accent, size=7.8, kind=None, anchor="middle", min_w=None, light=False, height=None, dark=False):
+    """A label written straight on the figure, as on a good map (the fourth design pass, after the owner's review of the boxed labels): no box; the number
+    large, its unit smaller after it; on a pale or bright ground the figures in the label's colour with a white halo round them, so that they read across
+    lines, bars and pictures; on a dark ground (dark=True: night, a panel) white figures with a soft dark halo and a dot of the label's colour before them,
+    which keeps a figure's colour key. kind= draws a small sign before the figures. The old arguments of the boxed label (light, min_w, height) are accepted
+    and have no effect."""
+    m = UNIT.match(text)
+    num, unit = (m.group(1).strip(), m.group(2)) if m else (text, "")
+    if size < 7.5:                                         # a small label in a chart: the figures a little larger, the unit nearly as large, to stay legible in print
+        big, small = size * 1.28, size * 0.98
+    else:
+        big, small = size * 1.08, size * 0.76
+    wn = width(num, big)
+    wu = width(unit, small, 0.6) if unit else 0.0
+    gap = size * 0.32 if unit else 0.0
+    sign = size * 1.25 if kind else 0.0
+    dot = size * 0.95 if dark and not kind else 0.0
+    w = sign + dot + wn + gap + wu
+    x0 = cx - w / 2 if anchor == "middle" else cx if anchor == "start" else cx - w
+    if dark:
+        ink, unit_ink, halo, halo_op = "#FFFFFF", "#E2E8F0", "#08101F", 0.62
+    else:
+        ink = deepen(accent) if tint(accent) != "#CBD5E1" else "#1E293B"
+        unit_ink, halo, halo_op = ink, "#FFFFFF", 0.96
+    hw = size * 0.55                                       # the halo: wide enough to part the figures from what is under them
+    out = ""
+    x = x0
+    if kind:
+        col = tint(accent, 0.15) if dark else deepen(accent)
+        out += f'<circle cx="{n(x + sign * 0.42)}" cy="{n(cy)}" r="{n(size * 0.62)}" fill="{halo}" fill-opacity="{n(halo_op * 0.9)}"/>' + icon(kind, x + sign * 0.42, cy, col, size / 7.8)
+        x += sign
+    if dot:
+        out += (f'<circle cx="{n(x + dot * 0.38)}" cy="{n(cy)}" r="{n(size * 0.34)}" fill="{halo}" fill-opacity="{n(halo_op)}"/>'
+                f'<circle cx="{n(x + dot * 0.38)}" cy="{n(cy)}" r="{n(size * 0.24)}" fill="{tint(accent, 0.1)}"/>')
+        x += dot
+    def write(t, xx, hgt, colour, sp):
+        return (H.glyph_text(t, xx, cy, hgt, halo, stroke=halo, stroke_width=hw, spacing=sp, anchor="start", opacity=halo_op)
+                + H.glyph_text(t, xx, cy, hgt, colour, stroke=colour, stroke_width=hgt * 0.05, spacing=sp, anchor="start"))
+    out += write(num, x, big, ink, 0.4)
+    if unit:
+        out += H.glyph_text(unit, x + wn + gap, cy + (big - small) / 2, small, halo, stroke=halo, stroke_width=hw * 0.85, spacing=0.6, anchor="start", opacity=halo_op)
+        out += H.glyph_text(unit, x + wn + gap, cy + (big - small) / 2, small, unit_ink, spacing=0.6, anchor="start", opacity=0.85)
+    return out
 
 
 def _head(x1, y1, ux, uy, col, s):

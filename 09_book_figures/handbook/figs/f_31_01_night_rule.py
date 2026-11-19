@@ -48,7 +48,7 @@ def icon(kind, x, y, col):
 
 
 def chip(cx, cy, text, accent, kind=None, size=7.8):
-    return M.chip(cx, cy, text, accent, size=size, kind=kind)
+    return M.chip(cx, cy, text, accent, size=size, kind=kind, dark=True)
 
 
 def flight(p0, c, p1, col, dash=False, width=2.2):

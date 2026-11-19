@@ -25,7 +25,7 @@ def gwidth(s, height, spacing=0.4):
 
 
 def pill(cx, cy, text, fill, size=8.4):
-    return M.chip(cx, cy, text, fill, size=size, anchor="middle")
+    return M.chip(cx, cy, text, fill, size=size, anchor="middle", dark=True)
 
 
 def background():

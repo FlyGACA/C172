@@ -44,7 +44,7 @@ def lamp(cx, cy, r=1.8, col="#FFE9A8", glow=8.0):
 
 
 def pill(cx, cy, text, fill="#1F2937", size=10.0):
-    return M.chip(cx, cy, text, fill, size=size, anchor="middle")
+    return M.chip(cx, cy, text, fill, size=size, anchor="middle", dark=True)
 
 
 def ground(i, hz, col="#2A2F3F"):

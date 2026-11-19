@@ -30,7 +30,7 @@ def frame(uid, r, body):
 
 
 def pill(cx, cy, w, text, fill="#1F2937", h=11.0):
-    return M.chip(cx, cy, text, fill, size=h * 0.8, min_w=w)
+    return M.chip(cx, cy, text, fill, size=h * 0.8, min_w=w, dark=True)
 
 
 def stars(r, seed):
