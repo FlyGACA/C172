@@ -736,6 +736,74 @@ def _path(i, p):
         cone.data.materials.append(mat)
 
 
+def _frustum(name, a, b, ra, rb, mat, n=32):
+    """A tube from point a (radius ra) to point b (radius rb), open at both ends: one band of a windsock."""
+    axis = (b - a).normalized()
+    u = axis.orthogonal().normalized()
+    v = axis.cross(u)
+    verts = []
+    for p, r in ((a, ra), (b, rb)):
+        for k in range(n):
+            t = 2 * math.pi * k / n
+            verts.append(p + (u * math.cos(t) + v * math.sin(t)) * r)
+    faces = [(k, (k + 1) % n, n + (k + 1) % n, n + k) for k in range(n)]
+    ob = _mesh(name, [tuple(q) for q in verts], faces, mat)
+    ob.data.polygons.foreach_set("use_smooth", [True] * len(faces))
+    sol = ob.modifiers.new("thick", "SOLIDIFY")
+    sol.thickness = 0.02
+    return ob
+
+
+def windsock(w, i):
+    """A windsock on its mast (the scene has none): a 6 m mast, a ring at its head, and a sock of five bands, orange and white, that hangs by `inflate` (0 calm, 1 full);
+    it points downwind, its mouth toward the wind's direction `wind_from` (degrees true)."""
+    x, y = w["at"]
+    z0 = w.get("z", ground_z(x, y))
+    mast_h, L, r0, r1 = w.get("mast", 6.0), w.get("length", 3.6), w.get("mouth", 0.45), w.get("tail", 0.22)
+    pole = flat_material("windsock pole", "#D9DCE0")
+    pole.node_tree.nodes["Principled BSDF"].inputs["Metallic"].default_value = 0.6
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.08, depth=mast_h, location=(x, y, z0 + mast_h / 2))
+    m = bpy.context.active_object
+    m.name = f"windsock{i} mast"
+    m.data.materials.append(pole)
+    cols = [flat_material("sock orange", "#F26A1B"), flat_material("sock white", "#F4F4F0")]
+    down = math.radians(w.get("wind_from", 270.0) + 180.0)
+    fwd = Vector((math.sin(down), math.cos(down), 0.0))
+    droop = math.radians(75.0 * (1.0 - w.get("inflate", 0.8)))
+    p = Vector((x, y, z0 + mast_h - 0.15)) + fwd * 0.1
+    bpy.ops.mesh.primitive_torus_add(major_radius=r0, minor_radius=0.03, location=tuple(p))
+    ring = bpy.context.active_object
+    ring.name = f"windsock{i} ring"
+    ring.rotation_euler = fwd.to_track_quat("Z", "Y").to_euler()
+    ring.data.materials.append(pole)
+    for k in range(5):
+        ang = droop * (k + 1) / 5.0
+        d = (fwd * math.cos(ang) + Vector((0, 0, -math.sin(ang)))).normalized()
+        q = p + d * (L / 5.0)
+        ra, rb = r0 + (r1 - r0) * k / 5.0, r0 + (r1 - r0) * (k + 1) / 5.0
+        _frustum(f"windsock{i} band{k}", p, q, ra, rb, cols[k % 2])
+        p = q
+
+
+def frame_camera(f, sc):
+    """A camera that frames the named objects (prefixes) from an azimuth (clockwise from north, from the objects to the camera) and an elevation, the
+    whole of their bounding sphere in view with a margin."""
+    bpy.context.view_layer.update()
+    pts = [o.matrix_world @ Vector(c) for k in f["objects"] for o in find(k) if o.type == "MESH" for c in o.bound_box]
+    lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
+    hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+    mid = (lo + hi) / 2
+    rad = max((hi - lo).length / 2, 0.5)
+    lens = f.get("lens", 50)
+    w, h = f.get("size", [1200, 1200])
+    fov = 2 * math.atan(18.0 * min(1.0, h / w) / lens)          # (the sensor's 36 mm lies along the longer side)
+    d = rad / math.sin(fov / 2) * f.get("margin", 1.05)
+    az, el = math.radians(f.get("azimuth", 200)), math.radians(f.get("elevation", 30))
+    at = mid + Vector((math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el))) * d
+    print(f"render_oeth: frame {f['objects']} centre {tuple(round(v, 1) for v in mid)} radius {rad:.1f} m")
+    return {"at": list(at), "look": list(mid), "lens": lens}
+
+
 def main():
     a = args()
     r = json.load(open(a.recipe))
@@ -778,6 +846,20 @@ def main():
     for o in scene_obs:
         if any(o.name.startswith(k) for k in r.get("hide", [])):
             o.hide_render = True
+    for pre, strength in r.get("emit", {}).items():     # lamps of the scene lit (the PAPI lenses): their own colour as emission
+        for m in bpy.data.materials:
+            if m.name.startswith(pre) and m.use_nodes:
+                b = m.node_tree.nodes.get("Principled BSDF")
+                if b is not None:
+                    b.inputs["Emission Color"].default_value = b.inputs["Base Color"].default_value
+                    b.inputs["Emission Strength"].default_value = strength
+    for i, w in enumerate(r.get("windsocks", [])):
+        bpy.context.view_layer.update()
+        windsock(w, i)
+    if "only" in r:                                    # a spot: one piece of the scene (or of its airspace) alone, on a clear background
+        for o in scene_obs + air_obs:
+            if o.type == "MESH":
+                o.hide_render = not any(o.name.startswith(k) for k in r["only"])
     for pre, col in r.get("tint", {}).items():
         mat = flat_material("tint_" + pre, col, emission=0.15)
         for o in find(pre):
@@ -837,7 +919,7 @@ def main():
     cam_d = bpy.data.cameras.new("cam")
     cam = bpy.data.objects.new("cam", cam_d)
     sc.collection.objects.link(cam)
-    c = r["camera"]
+    c = r["camera"] if "camera" in r else frame_camera(r["frame"], sc)
     cam.location = Vector(c["at"])
     cam.rotation_euler = (Vector(c["look"]) - Vector(c["at"])).to_track_quat("-Z", "Y").to_euler()
     if "ortho" in c:

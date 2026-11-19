@@ -764,7 +764,7 @@ def night_31_10():
                   "star_bright": 0.0},
         "lights": lights,
         "fogs": [{"center": [round(fog_c[0], 1), round(fog_c[1], 1)], "size": [2200.0, 2200.0, 160.0], "density": 0.0009, "colour": "#C9D2EA", "noise": 1.6}],
-        "haze": {"start": 2000.0, "depth": 14000.0, "colour": "#1E2846", "strength": 0.95, "glare": {"threshold": 0.8, "strength": 1.0, "size": 0.6, "size_steps": 8}},
+        "haze": {"start": 1500.0, "depth": 12000.0, "colour": "#1E2846", "strength": 1.0, "glare": {"threshold": 0.8, "strength": 1.0, "size": 0.6, "size_steps": 8}},
         "aircraft": [{"at": list(ac), "heading": hd, "scale": s}],
         # a flash from the camera (the aeroplane lit as in a photograph taken with a flash, so that it reads clearly against the night), and a weaker
         # cool moonlit key from above and to the right that gives it shape; both small enough at the distance of the ground to leave it dark
@@ -859,7 +859,41 @@ def backdrop_plan():
             "keep_sources": ["srtm"], "ground_image": ground_texture(), "far_ground_size": 3000000, "clip_end": 2000000, "anchors": {}}
 
 
+def _spot(rid, only, frame, camera=None, sun=None, size=(1200, 1200)):
+    """A small picture of one piece of the Thumamah scene (or of its airspace) alone on a clear background, for the figures to place as they place the
+    model's spots (figs/spots.py): the rest of the scene and the ground are left out, the camera frames the piece (render_oeth.frame_camera) or is given."""
+    r = {"id": rid, "only": only, "far_ground": False, "transparent": True, "size": list(size), "samples": 64, "anchors": {},
+         "sun": sun or {"elevation": 40, "azimuth": 150, "energy": 3.6, "sky": 1.0}, "look": "AgX - Medium High Contrast"}
+    if camera:
+        r["camera"] = camera
+    else:
+        r["frame"] = dict(frame, size=r["size"])
+    return r
+
+
+def _along(x, y, heading, d):
+    h = math.radians(heading)
+    return x + d * math.sin(h), y + d * math.cos(h)
+
+
+THR35 = (306.0, -2033.0)                              # (about: the middle of the designator 35, from the scene's bounding boxes)
+RWY = ["RWY 17-35", "Runway markings", "Designator", "Stopway chevrons", "STOPWAY", "Stopway light", "PAPI"]
+
+SPOTS = {
+    "spot-papi": lambda: dict(_spot("spot-papi", ["PAPI 35 L", "PAPI 35 lens L"], {"objects": ["PAPI 35 L"], "azimuth": 228, "elevation": 5, "lens": 60, "margin": 0.8}), emit={"Light": 25.0}),
+    "spot-threshold": lambda: _spot("spot-threshold", RWY, {"objects": ["Designator 35", "STOPWAY 35 END", "PAPI 35"], "azimuth": 170, "elevation": 32, "lens": 40, "margin": 1.0}),
+    "spot-stopway": lambda: _spot("spot-stopway", RWY, {"objects": ["STOPWAY 17 END", "Designator 17"], "azimuth": 20, "elevation": 30, "lens": 40, "margin": 0.9}),
+    "spot-windsock": lambda: dict(_spot("spot-windsock", ["windsock"], {"objects": ["windsock"], "azimuth": 160, "elevation": 12, "lens": 60, "margin": 0.95}),
+                                  windsocks=[{"at": [-200.0, -300.0], "z": 0.0, "wind_from": 250.0, "inflate": 0.85}]),
+    "spot-windsock-calm": lambda: dict(_spot("spot-windsock-calm", ["windsock"], {"objects": ["windsock"], "azimuth": 160, "elevation": 12, "lens": 60, "margin": 0.95}),
+                                       windsocks=[{"at": [-200.0, -300.0], "z": 0.0, "wind_from": 250.0, "inflate": 0.1}]),
+    "spot-approach": lambda: _spot("spot-approach", RWY, None, size=(1600, 800), camera={
+        "at": [*_along(*THR35, 170.8, 1300.0), 1300.0 * math.tan(math.radians(3.0)) + 4.0], "look": [*_along(*THR35, 350.8, 650.0), 0.0], "lens": 180}),
+}
+
+
 RECIPES = {
+    **SPOTS,
     "vfr-2-04-cloud": vfr_2_04_cloud,
     "vfr-2-04-ceiling": vfr_2_04_ceiling,
     "night-31-10": night_31_10,
