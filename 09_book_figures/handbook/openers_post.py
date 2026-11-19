@@ -37,19 +37,21 @@ def sky(w, h, hz):
     return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8), "RGB")
 
 
-def rose(w, h, cx, cy, r, colour=(170, 196, 255), alpha=84):
-    """A fine compass rose: rings, a tick every 10 degrees, a 16-point star; drawn four times the size and reduced, for thin clean lines."""
+def rose(w, h, cx, cy, r, colour=(170, 196, 255), alpha=96):
+    """A fine compass rose: rings, a tick every 5 degrees, a 16-point star; drawn three times the size and reduced, for thin clean lines whose width keeps
+    its share of the picture."""
     k = 3
+    u = max(1, round(w / 1100.0))
     im = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     c = colour + (alpha,)
     X, Y, R = cx * k, cy * k, r * k
     for f, wd in ((1.0, 3), (0.9, 2), (0.62, 2), (0.3, 2)):
-        d.ellipse([X - R * f, Y - R * f, X + R * f, Y + R * f], outline=c, width=wd)
+        d.ellipse([X - R * f, Y - R * f, X + R * f, Y + R * f], outline=c, width=wd * u)
     for a in range(0, 360, 5):
         t = math.radians(a)
         f0 = 0.9 if a % 30 == 0 else 0.94 if a % 10 == 0 else 0.97
-        d.line([X + R * f0 * math.sin(t), Y - R * f0 * math.cos(t), X + R * math.sin(t), Y - R * math.cos(t)], fill=c, width=2)
+        d.line([X + R * f0 * math.sin(t), Y - R * f0 * math.cos(t), X + R * math.sin(t), Y - R * math.cos(t)], fill=c, width=2 * u)
     for i in range(16):
         t = math.radians(i * 22.5)
         length = 1.16 if i % 4 == 0 else 0.86 if i % 2 == 0 else 0.6
@@ -57,8 +59,8 @@ def rose(w, h, cx, cy, r, colour=(170, 196, 255), alpha=84):
         tip = (X + R * length * math.sin(t), Y - R * length * math.cos(t))
         for sgn in (-1, 1):
             base_pt = (X + R * 0.16 * math.sin(t + sgn * wdt * 4), Y - R * 0.16 * math.cos(t + sgn * wdt * 4))
-            d.line([base_pt, tip], fill=c, width=2)
-        d.line([(X, Y), tip], fill=colour + (alpha // 2,), width=1)
+            d.line([base_pt, tip], fill=c, width=2 * u)
+        d.line([(X, Y), tip], fill=colour + (alpha // 2,), width=u)
     return im.resize((w, h), Image.LANCZOS)
 
 

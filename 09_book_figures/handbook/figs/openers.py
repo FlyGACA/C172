@@ -102,6 +102,26 @@ def final():
     return r
 
 
+def lineup():
+    """Part 3 (performance and preflight): lined up on runway 35 at dusk, seen from behind and low: the model on the numbers, the edge lights running away to
+    the far end 4 km off."""
+    hd35 = O.heading(O.T35, O.T17)
+    fx, fy = unit(hd35)
+    lx, ly = -fy, fx
+    ac = rp(L - 70.0, 0.0, 0.05)
+    cam = [round(ac[0] - fx * 15.0 + lx * 7.5, 2), round(ac[1] - fy * 15.0 + ly * 7.5, 2), 2.7]
+    far = [round(ac[0] + fx * 30.0, 2), round(ac[1] + fy * 30.0, 2), 2.4]
+    r = base("opener-lineup", {"at": cam, "look": far, "lens": 26, "above_ground": True})
+    r["aircraft"] = [{"at": ac, "heading": hd35, "on_ground": True}]
+    r["spots"] = [{"at": [cam[0] + lx * 3.0, cam[1] + ly * 3.0, 6.0], "look": [ac[0], ac[1], 1.5], "power": 2600.0, "size": 4.0, "colour": "#FFE2B8"}]
+    r["lights"] = runway_lights(size=0.7, strength=24.0)
+    r["emit"] = {"Light": 10.0}
+    r["haze"] = dict(HAZE, start=700.0, depth=9000.0, strength=0.9, glare={"threshold": 3.0, "strength": 0.45, "size": 0.4, "size_steps": 6})
+    r["anchors"] = {"ac": [ac[0], ac[1], 1.5], "hz": [round(ac[0] + fx * 600000.0, 1), round(ac[1] + fy * 600000.0, 1), 0.0]}
+    r["rose"] = {"at": [0.5, 0.16], "r": 0.46}
+    return r
+
+
 def circuit():
     """Part 5 (airspace, radio and navigation): Thumamah from the south-east at dusk, its runway lit, the left-hand circuit of runway 35 (west of the runway, at
     2 900 ft: AD 2 OETH 2.22) as the dashed track, the model on the downwind leg, enlarged so that it reads."""
@@ -126,7 +146,7 @@ def circuit():
     return r
 
 
-RECIPES = {"opener-departure": departure, "opener-final": final, "opener-circuit": circuit}
+RECIPES = {"opener-departure": departure, "opener-final": final, "opener-lineup": lineup, "opener-circuit": circuit}
 
 
 if __name__ == "__main__":
