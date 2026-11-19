@@ -6,6 +6,7 @@ hides the runway, and sand blowing across it). Shapes, colours and the numbers o
 import math
 
 from figs import h_b2 as H
+from figs import photo_ground as PG
 from figs import scene as S
 
 n = S.n
@@ -54,7 +55,7 @@ def scene2():
     x, y = PX[1], PY[1]
     cx = x + 150
     rw = f'<g transform="rotate(-12 {n(cx)} {n(y + 100)})"><rect x="{n(cx - 8)}" y="{n(y + 10)}" width="16" height="170" fill="#5B6577"/><line x1="{n(cx)}" y1="{n(y + 14)}" x2="{n(cx)}" y2="{n(y + 176)}" stroke="#F1F5F9" stroke-width="1.6" stroke-dasharray="9 7"/></g>'
-    ground = f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#E8D7AC"/>'
+    ground = PG.plan(x, y, PW, PH, zoom=1.2, cx=0.7, cy=0.35) + f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#FFF8EC" fill-opacity="0.3"/>'
     w1 = S.ribbon(f"{U}w", [(x + 34, y + 40), (x + 70, y + 62), (x + 106, y + 84), (x + 130, y + 98)], 8.0, "#4B6FB5", "#A9C0E6", opacity=0.9, head=2.2, tail=0.4, per=8)
     w2 = S.ribbon(f"{U}w2", [(x + 24, y + 90), (x + 52, y + 106), (x + 80, y + 122), (x + 104, y + 134)], 6.0, "#4B6FB5", "#A9C0E6", opacity=0.6, head=2.2, tail=0.4, per=8)
     return frame(1, ground + rw + w1 + w2 + pill(x + 66, y + 28, 58.0, "16 KT") + pill(x + 220, y + 40, 58.0, "26 KT", "#B91C1C") + pill(x + 232, y + 120, 66.0, "8 KT") + pill(x + 232, y + 152, 66.0, "13 KT", "#B91C1C"))

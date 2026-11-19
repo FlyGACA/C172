@@ -6,6 +6,7 @@ ahead and abeam of the disc, the green zone behind), 4 the propeller blast throw
 import math
 
 from figs import h_b2 as H
+from figs import photo_ground as PG
 from figs import scene as S
 
 n = S.n
@@ -36,7 +37,7 @@ def side_panel(i, seed, extra=""):
 
 def apron_panel(i, extra=""):
     x, y = PX[i], PY[i]
-    apron = (f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#E3C27F"/>'
+    apron = (PG.plan(x, y, PW, PH, zoom=1.5, cx=0.3, cy=0.6) + f'<rect x="{n(x)}" y="{n(y)}" width="{n(PW)}" height="{n(PH)}" fill="#FFF8EC" fill-opacity="0.3"/>'
              f'<rect x="{n(x + 18)}" y="{n(y + 14)}" width="{n(PW - 36)}" height="{n(PH - 28)}" rx="6" fill="#9AA3B2"/>'
              f'<line x1="{n(x + 18)}" y1="{n(y + PH / 2)}" x2="{n(x + PW - 18)}" y2="{n(y + PH / 2)}" stroke="#F1F5F9" stroke-width="2" stroke-dasharray="12 9" stroke-opacity="0.7"/>')
     return frame(i, apron + extra)
