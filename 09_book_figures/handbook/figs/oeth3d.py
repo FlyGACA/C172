@@ -792,6 +792,8 @@ def _day_3d(rid, camera, size, extra, ac=None, ac_scale=10.0, ac_heading=90.0, f
     anchors = extra.pop("anchors", {})
     r.update(extra)
     r["anchors"].update(anchors)
+    if r.get("ink") is None:                               # (no outlines: Freestyle over the terrain costs more than half an hour a frame; the flash keeps the aeroplane clear)
+        r.pop("ink", None)
     return r
 
 
@@ -801,8 +803,9 @@ def vfr_2_04_cloud():
     (enlarged 10 times) flying past outside the box."""
     cx, cy, base = 9000.0, 1500.0, 1500.0
     ac = (cx - 2700.0, cy - 3600.0, base + 380.0)
-    return _day_3d("vfr-2-04-cloud", {"at": [cx - 2300.0, cy - 7600.0, base + 450.0], "look": [cx + 200.0, cy, base + 420.0], "lens": 30}, [2400, 1000],
-                   {"transparent": True, "haze": {"start": 6000.0, "depth": 16000.0, "colour": "#D8E5F1", "strength": 0.9},
+    return _day_3d("vfr-2-04-cloud", {"at": [cx - 2300.0, cy - 7600.0, base + 450.0], "look": [cx + 200.0, cy, base - 150.0], "lens": 30}, [2400, 1000],
+                   {"transparent": True, "haze": {"start": 6000.0, "depth": 30000.0, "colour": "#DDD5C8", "strength": 0.75},
+                    "ground_image": dict(ground_texture(), detail={"scale": 0.0012, "strength": 0.35, "bump": 0.0}), "exposure": 0.2, "ink": None,
                     "sun": {"elevation": 50, "azimuth": 200, "energy": 3.6, "sky": 0.9},
                     "clouds": [{"kind": "cumulus", "seed": 3, "width": 9.0, "height": 4.0, "floor": True, "voxel": 0.0065, "at": [cx, cy, base], "scale": 230.0, "density": 600.0,
                                 "clearance": {"side": 610.0, "above": 305.0, "below": 152.0, "colour": "#2563EB", "alpha": 0.10, "edge": 5.0}}],
@@ -829,18 +832,19 @@ def vfr_2_04_ceiling():
             "marks": [{"ring": rect(s, s + 30.0, -0.5, 0.5), "colour": "#FFFFFF", "lift": 0.55} for s in [-L / 2 + 120.0 + 60.0 * k for k in range(26)]]
                      + [{"ring": rect(e - 30.0, e, -19.5 + 5.0 * k, -17.0 + 5.0 * k), "colour": "#FFFFFF", "lift": 0.55} for e in (-L / 2 + 36.0, L / 2 - 6.0) for k in range(8)]
                      + [{"ring": rect(-L / 2 + 6.0, L / 2 - 6.0, side - 0.6, side + 0.6), "colour": "#FFFFFF", "lift": 0.55} for side in (-Wd / 2 + 1.5, Wd / 2 - 1.5)],
-            "grade": True,
+            "grade": True, "flatten": {"inner": 70.0, "outer": 500.0},
             "blocks": [{"ring": rect(-110.0, -96.0, 270.0, 284.0), "height": 22.0, "colour": "#CBD5E1"}, {"ring": rect(-60.0, 40.0, 275.0, 305.0), "height": 9.0, "colour": "#E2E8F0"}]}
-    back = L / 2 + 520.0                                  # the camera on the extended centreline, short of the threshold, under the ceiling
-    cam = [round(rx0 - ux * back + nx * 40.0, 1), round(ry0 - uy * back + ny * 40.0, 1), 170.0]
-    ac = (round(rx0 - ux * (back - 420.0) - nx * 160.0, 1), round(ry0 - uy * (back - 420.0) - ny * 160.0, 1), 182.0)
-    return _day_3d("vfr-2-04-ceiling", {"at": cam, "look": [rx0 - ux * 300.0, ry0 - uy * 300.0, 0.0], "lens": 26}, [2400, 1000],
-                   {"plan": plan, "sun": {"elevation": 55, "azimuth": 140, "energy": 1.6, "sky": 0.8}, "exposure": 0.15,
+    back = L / 2 + 380.0                                  # the camera on the extended centreline, short of the threshold, under the ceiling
+    cam = [round(rx0 - ux * back + nx * 50.0, 1), round(ry0 - uy * back + ny * 50.0, 1), 125.0]
+    ac = (round(rx0 - ux * (back - 420.0) - nx * 50.0, 1), round(ry0 - uy * (back - 420.0) - ny * 50.0, 1), 150.0)
+    return _day_3d("vfr-2-04-ceiling", {"at": cam, "look": [rx0 + ux * 250.0, ry0 + uy * 250.0, 40.0], "lens": 32}, [2400, 1000],
+                   {"plan": plan, "sun": {"elevation": 55, "azimuth": 140, "energy": 1.6, "sky": 0.8}, "exposure": 0.15, "ink": None,
+                    "ground_image": dict(ground_texture(), detail={"scale": 0.06, "strength": 0.22, "bump": 0.3}),
                     "haze": {"start": 2500.0, "depth": 14000.0, "colour": "#D6D9DE", "strength": 0.6},
                     "clouds": [{"kind": "stratus", "seed": 6, "width": 18.0, "height": 0.6, "depth": 6.0, "density": 40.0, "erode": [0.30, 0.6], "ragged": 0.6, "gaps": [0.35, 0.6],
                                 "gap_floor": 0.40, "taper": 8.0, "end_fade": 0.25, "absorb": 0.0, "absorb_white": 1.0, "at": [rx0 - 200.0, ry0 + 1500.0, 230.0], "scale": 900.0, "heading": 70.0}],
                     "anchors": {"deck": [rx0 + ux * 600.0, ry0 + uy * 600.0, 235.0], "rwy": [rx0, ry0], "thr": [round(rx0 - ux * L / 2, 1), round(ry0 - uy * L / 2, 1)], "tower": [round(c, 1) for c in rect(-110.0, -96.0, 270.0, 284.0)[0]]}},
-                   ac=ac, ac_scale=2.2, ac_heading=hd + 35.0)
+                   ac=ac, ac_scale=5.0, ac_heading=hd + 25.0)
 
 
 def backdrop_side():

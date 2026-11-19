@@ -278,7 +278,36 @@ def ground_material(gi):
     nt.links.new(tex.outputs["Alpha"], mix.inputs["Factor"])
     nt.links.new(sand.outputs[0], mix.inputs[6])
     nt.links.new(tex.outputs["Color"], mix.inputs[7])
-    nt.links.new(mix.outputs[2], bsdf.inputs["Base Color"])
+    col = mix.outputs[2]
+    det = gi.get("detail")
+    if det:                                                # fine grain for low views, where 10 m pixels are a blur: noise in the colour and a little bump
+        nz = nt.nodes.new("ShaderNodeTexNoise")
+        nz.inputs["Scale"].default_value = det.get("scale", 0.08)
+        nz.inputs["Detail"].default_value = 12.0
+        nz.inputs["Roughness"].default_value = 0.65
+        nt.links.new(tc.outputs["Object"], nz.inputs["Vector"])
+        rng = nt.nodes.new("ShaderNodeMapRange")
+        rng.inputs["To Min"].default_value, rng.inputs["To Max"].default_value = 1.0 - det.get("strength", 0.25), 1.0 + det.get("strength", 0.25) * 0.6
+        nt.links.new(nz.outputs["Fac"], rng.inputs["Value"])
+        mul = nt.nodes.new("ShaderNodeMix")
+        mul.data_type = "RGBA"
+        mul.blend_type = "MULTIPLY"
+        mul.inputs["Factor"].default_value = 1.0
+        nt.links.new(col, mul.inputs[6])
+        gray = nt.nodes.new("ShaderNodeCombineColor")
+        for k in ("Red", "Green", "Blue"):
+            nt.links.new(rng.outputs["Result"], gray.inputs[k])
+        nt.links.new(gray.outputs[0], mul.inputs[7])
+        col = mul.outputs[2]
+        fine = nt.nodes.new("ShaderNodeTexNoise")
+        fine.inputs["Scale"].default_value = det.get("scale", 0.08) * 12.0
+        fine.inputs["Detail"].default_value = 6.0
+        nt.links.new(tc.outputs["Object"], fine.inputs["Vector"])
+        bump = nt.nodes.new("ShaderNodeBump")
+        bump.inputs["Strength"].default_value = det.get("bump", 0.35)
+        nt.links.new(fine.outputs["Fac"], bump.inputs["Height"])
+        nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    nt.links.new(col, bsdf.inputs["Base Color"])
     return m
 
 
@@ -565,6 +594,62 @@ def scene_clouds(items):
             print("clearance", ci, [round(v) for v in (x0, x1, y0, y1, min(zs), max(zs))])
 
 
+def flatten_ground(plan):
+    import numpy as np
+    rings = [p["ring"] for p in plan.get("pavements", [])]
+    xs = [x for r in rings for x, _ in r]
+    ys = [y for r in rings for _, y in r]
+    step = plan.get("grade_step", 40.0)
+    hs = [ground_z(min(xs) + i * step, min(ys) + j * step) for i in range(int((max(xs) - min(xs)) / step) + 1) for j in range(int((max(ys) - min(ys)) / step) + 1)]
+    gz = float(np.median(hs))
+    inner, outer = plan["flatten"].get("inner", 60.0), plan["flatten"].get("outer", 450.0)
+    x0, x1, y0, y1 = min(xs) - outer, max(xs) + outer, min(ys) - outer, max(ys) + outer
+
+    def dist(px, py):                                      # distance from the points to the nearest pavement (0 inside one); rings are convex quadrilaterals or polygons
+        d = np.full(px.shape, np.inf)
+        for r in rings:
+            n = len(r)
+            inside = np.ones(px.shape, bool)
+            sign = None
+            dr = np.full(px.shape, np.inf)
+            for k in range(n):
+                ax, ay = r[k]
+                bx, by = r[(k + 1) % n]
+                ex, ey = bx - ax, by - ay
+                cr = ex * (py - ay) - ey * (px - ax)
+                sign = np.sign(cr) if sign is None else sign
+                inside &= np.sign(cr) == sign
+                t = np.clip(((px - ax) * ex + (py - ay) * ey) / (ex * ex + ey * ey), 0.0, 1.0)
+                dr = np.minimum(dr, np.hypot(px - (ax + t * ex), py - (ay + t * ey)))
+            d = np.minimum(d, np.where(inside, 0.0, dr))
+        return d
+
+    n_moved = 0
+    for ob in bpy.data.objects:
+        if ob.type != "MESH" or not ob.name.startswith("Terrain"):
+            continue
+        me = ob.data
+        co = np.empty(len(me.vertices) * 3)
+        me.vertices.foreach_get("co", co)
+        co = co.reshape(-1, 3)
+        mw = np.array(ob.matrix_world)
+        w = co @ mw[:3, :3].T + mw[:3, 3]
+        sel = (w[:, 0] > x0) & (w[:, 0] < x1) & (w[:, 1] > y0) & (w[:, 1] < y1)
+        if not sel.any():
+            continue
+        d = dist(w[sel, 0], w[sel, 1])
+        t = np.clip((d - inner) / (outer - inner), 0.0, 1.0)
+        t = t * t * (3 - 2 * t)
+        w[sel, 2] = gz * (1 - t) + w[sel, 2] * t
+        n_moved += int((t < 1).sum())
+        loc = (w - mw[:3, 3]) @ np.linalg.inv(mw[:3, :3]).T
+        me.vertices.foreach_set("co", loc.ravel())
+        me.update()
+    bpy.context.view_layer.update()
+    print(f"render_oeth: ground levelled at {gz:.1f} m under the plan ({n_moved} vertices moved)")
+    return gz
+
+
 def lay_plan(plan):
     twy = bpy.data.materials["taxi"]
     apron = bpy.data.materials["apron"]
@@ -573,7 +658,9 @@ def lay_plan(plan):
     roof = flat_material("roof", "#F4F1EA")
     rwy = bpy.data.materials["asphalt"]
     gz = None
-    if plan.get("grade"):                                  # a graded aerodrome: its pavements and paint level, at the highest ground under them
+    if plan.get("flatten"):                                # a graded aerodrome: the ground itself levelled under its pavements (at their median height), eased back to
+        gz = flatten_ground(plan)                          # the natural ground beyond them, so that nothing floats and nothing is buried
+    elif plan.get("grade"):                                  # a graded aerodrome: its pavements and paint level, at the highest ground under them
         xs = [x for p in plan.get("pavements", []) for x, _ in p["ring"]]
         ys = [y for p in plan.get("pavements", []) for _, y in p["ring"]]
         step = plan.get("grade_step", 40.0)

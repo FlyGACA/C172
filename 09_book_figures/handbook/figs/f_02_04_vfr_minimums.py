@@ -94,8 +94,8 @@ def top_over(at, ph):
 
 
 def bot_over(at, ph):
-    (ax, ay), (rx, ry), (dx, dy) = at("ac"), at("thr"), at("deck")
-    return (pill(ax + 4, ay + 26, "3 KM", INK) + pill(PX + PW / 2 + 40, PY2 + 30, "< 1 000 FT", RED) + pill(rx + 46, ry + 40, "5 KM", INK))
+    (ax, ay), (rx, ry), (dx, dy) = at("ac"), at("rwy"), at("deck")
+    return (pill(ax + 4, ay + 26, "3 KM", INK) + pill(PX + PW / 2 + 40, PY2 + 30, "< 1 000 FT", RED) + pill(rx + 70, ry + 34, "5 KM", INK))
 
 
 def layers():
