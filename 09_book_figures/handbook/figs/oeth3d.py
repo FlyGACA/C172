@@ -779,7 +779,7 @@ def night_31_10():
 def _day_3d(rid, camera, size, extra, ac=None, ac_scale=10.0, ac_heading=90.0, flash=8000.0):
     """A day scene of the second design pass: the open picture of the desert east of Thumamah on its relief, the C172 sky, a high sun, haze, outlines on
     the aeroplane and a soft flash from the camera on it (so that it reads as clearly as the ground and the clouds)."""
-    r = {"id": rid, "camera": camera, "size": size, "samples": 128, "exposure": -0.1, "look": "AgX - Medium High Contrast",
+    r = {"id": rid, "camera": camera, "size": size, "samples": 48,                     # (denoised; the clouds' volumes make every sample dear) "exposure": -0.1, "look": "AgX - Medium High Contrast",
          "sun": {"elevation": 55, "azimuth": 140, "energy": 3.4, "sky": 0.9}, "keep_sources": ["srtm"], "ground_image": ground_texture(),
          "far_ground_size": 3000000, "clip_end": 2000000, "haze": {"start": 3000.0, "depth": 26000.0, "colour": "#E8E4DC", "strength": 0.55},
          "ink": {"thickness": 0.9, "colour": "#1F2937"}, "anchors": {}}
