@@ -70,4 +70,5 @@ def sprites():
                         "elt": {"part": "AVIONICS.elt", "at": [0.5, 0.5, 0.5]}, "ext": {"part": "INTERIOR.floor", "at": [0.5, 0.5, 1.0], "add": [0.0, 0.0, 0.30]},
                         "rear_back": {"part": "INTERIOR.seat_rear.back_L", "at": [0.5, 0.5, 0.8]}, "panel": {"part": "INTERIOR.glareshield", "at": [0.5, 0.5, 0.5]}},
             "size": [1800, 1300], "samples": 64, "mirror": True}},
+        *__import__("figs.spots", fromlist=["spots"]).spots(),        # the small pictures of figs/spots.py
     ]
