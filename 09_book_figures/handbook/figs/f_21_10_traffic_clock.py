@@ -1,4 +1,4 @@
-"""Figure 21-9 (new). Traffic by the clock, from Chapter 21 ("Vectors and traffic information"): the controller sees your track, not your heading; correcting for a wind from the left, your nose
+"""Figure 21-10 (new). Traffic by the clock, from Chapter 21 ("Vectors and traffic information"): the controller sees your track, not your heading; correcting for a wind from the left, your nose
 points left of the track, so traffic called at 12 o'clock appears at about 1 o'clock.
 
 From above, on the open picture of the desert east of Thumamah (backdrop-plan-desert, figs/oeth3d.backdrop_plan): the aeroplane (sprite-top) crabbing into a wind from the left, its nose 22 degrees
@@ -96,11 +96,11 @@ def layers():
 
 def plate():
     return {
-        "id": "fig-21-09-traffic-clock",
-        "replaces": "fig-21-09-traffic-clock.svg",             # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
-        "book_file": "plate-21-09-traffic-clock.jpg",
-        "caption": "Figure 21-9. Traffic by the clock: the controller sees your track, you see past your nose",
-        "desc": ("Figure 21-9. From above: the aeroplane crabbing into a wind from the left, its nose left of its track; the controller's clock set on the track and the pilot's clock set on the nose. "
+        "id": "fig-21-10-traffic-clock",
+        "replaces": "fig-21-10-traffic-clock.svg",             # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
+        "book_file": "plate-21-10-traffic-clock.jpg",
+        "caption": "Figure 21-10. Traffic by the clock: the controller sees your track, you see past your nose",
+        "desc": ("Figure 21-10. From above: the aeroplane crabbing into a wind from the left, its nose left of its track; the controller's clock set on the track and the pilot's clock set on the nose. "
                  "Traffic ahead on the track, called at 12 o'clock, appears at about 1 o'clock from the cockpit. The crab angle is drawn large."),
         "legend": [
             "The track: what the controller sees, and where the controller's 12 o'clock points.",

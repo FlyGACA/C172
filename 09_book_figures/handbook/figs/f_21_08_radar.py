@@ -1,4 +1,4 @@
-"""Figure 21-7. Primary radar, secondary radar and ADS-B. Drawn again as an illustrated picture on the old figure's canvas: a sky over the curve of the earth, the radar on its tower
+"""Figure 21-8. Primary radar, secondary radar and ADS-B. Drawn again as an illustrated picture on the old figure's canvas: a sky over the curve of the earth, the radar on its tower
 (a dish with the secondary antenna on top of it, and the beam as a translucent wedge), the aeroplane of the model with its reply, the high ground and the shadow behind it, the ADS-B
 ground station and a second aeroplane, and the display with its two targets. Every callout, code and altitude of the old figure is kept (figs/h_a4.py has the parts)."""
 import math
@@ -139,11 +139,11 @@ def plate():
         c(5, 598, 236, 568, 238), c(6, 122, 330, 94, 340), c(7, 222, 354, 176, 352),
     ]))
     return {
-        "id": "fig-21-07-radar",
-        "replaces": "fig-21-07-radar.svg",
-        "book_file": "plate-21-07-radar.jpg",
-        "caption": "Figure 21-7. Primary radar, secondary radar and ADS-B",
-        "desc": "Figure 21-7. Primary radar, secondary radar and ADS-B",
+        "id": "fig-21-08-radar",
+        "replaces": "fig-21-08-radar.svg",
+        "book_file": "plate-21-08-radar.jpg",
+        "caption": "Figure 21-8. Primary radar, secondary radar and ADS-B",
+        "desc": "Figure 21-8. Primary radar, secondary radar and ADS-B",
         "legend": [
             "Primary radar: a pulse out and a faint echo back, transponder or not.",
             "Secondary radar: interrogation and reply.",
@@ -155,5 +155,5 @@ def plate():
         ],
         "canvas": [640, 400],
         "background": "pale",
-        "reskin": {"svg": "fig-21-07-radar.svg", "blank": True, "layers": layers},
+        "reskin": {"svg": "fig-21-08-radar.svg", "blank": True, "layers": layers},
     }
