@@ -127,7 +127,8 @@ def exercise():
 
 def passengers():
     x = TX[2]
-    o = R.tile(f"{U}t4", x, TY, TW, TH, "night")
+    under, img, frame = render_tile(f"{U}t4", x, "night-31-01-runway")
+    o = f'<rect x="{n(x)}" y="{n(TY)}" width="{n(TW)}" height="{n(TH)}" fill="#0B1226" fill-opacity="0.35"/>'      # the picture dimmed, under the calendar and the passengers
     cx = x + TW / 2
     cal_x, cal_y = cx - 28, TY + 36                        # a calendar of 90 days
     o += (f'<rect x="{n(cal_x)}" y="{n(cal_y)}" width="56" height="52" rx="5" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6"{ds()}/><rect x="{n(cal_x)}" y="{n(cal_y)}" width="56" height="13" rx="4" fill="{RED}"/>'
@@ -137,7 +138,7 @@ def passengers():
     for k in range(3):                                     # three passengers' heads
         hx = cx - 18 + k * 18
         o += f'<circle cx="{n(hx)}" cy="{n(TY + 146)}" r="6" fill="#E2E8F0"/><path d="M{n(hx - 9)} {n(TY + 162)} q9 -12 18 0 Z" fill="#E2E8F0"/>'
-    return o
+    return [under, img, o + frame]
 
 
 def callouts():
@@ -146,7 +147,7 @@ def callouts():
 
 
 def layers():
-    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', timeline(), *course(), *exercise(), passengers(), callouts()]
+    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', timeline(), *course(), *exercise(), *passengers(), callouts()]
 
 
 def plate():
