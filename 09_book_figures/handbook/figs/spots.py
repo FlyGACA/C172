@@ -32,11 +32,10 @@ PARTS = [
     ("spot-yoke", ["INTERIOR.yoke_L", "INTERIOR.yoke_shaft_L"], "INTERIOR.yoke_L", 0.5, 25, 10, "side"),
     ("spot-nose-gear", ["GEAR.nose_*"], "GEAR.nose_strut", 1.1, 35, 10, "side"),
     ("spot-main-wheel", ["GEAR.main_wheel_L.*", "GEAR.main_leg_L", "GEAR.main_wheel_fairing_L", "GEAR.brake_line_L"], "GEAR.main_wheel_L.tyre", 1.3, 30, 10, "side"),
-    ("spot-gust-lock", ["EMPENNAGE.rudder_gust_lock", "EMPENNAGE.rudder*", "EMPENNAGE.fin*", "EMPENNAGE.vertical*"], "EMPENNAGE.rudder_gust_lock", 2.2, 60, 10, "side"),
     ("spot-compass", ["PANEL.magnetic_compass"], "PANEL.magnetic_compass", 0.16, 0, 0, "panel"),
     ("spot-ignition", ["PANEL.ignition", "PANEL.ignition_switch", "PANEL.ignition_nut"], "PANEL.ignition_switch", 0.12, 0, 0, "panel"),
-    ("spot-master", ["PANEL.master_alt", "PANEL.master_bat"], "PANEL.master_bat", 0.10, 0, 0, "panel"),
-    ("spot-engine-controls", ["PANEL.throttle*", "PANEL.mixture*", "PANEL.primer*"], "PANEL.mixture", 0.30, 0, 0, "panel"),
+    ("spot-master", ["PANEL.master_alt", "PANEL.master_bat", "PANEL.lower_panel"], "PANEL.master_bat", 0.14, -35, 25, "panel"),
+    ("spot-engine-controls", ["PANEL.throttle*", "PANEL.mixture*", "PANEL.carb_heat*", "PANEL.primer*"], "PANEL.mixture", 0.30, -30, 20, "panel"),
 ]
 
 

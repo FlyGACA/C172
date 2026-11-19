@@ -60,6 +60,16 @@ returns a plate in the same form; `plates_spec.py` joins them), written in three
 The pictures of the aeroplane are `figs/sprites.py`: from above, from the side (both sides), from ahead, from behind, from above by moonlight and in a
 developed spin, rendered once on a transparent background, and the four instruments of Figure 31-4 (`npm run plates:render` makes them with the rest).
 
+The **spot library** (`figs/spots.py`, registered in `figs/sprites.py`) is a set of small pictures on a transparent background for figures to place in
+place of flat icons: the sixteen instruments of the panel (airspeed, attitude, altimeter, turn coordinator, heading, vertical speed, tachometer, oil
+temperature and pressure, both fuel gauges, ammeter, suction, clock, VOR and ADF), and parts of the model (the engine, the propeller, a magneto, the
+battery, the oil dipstick, the pitot tube, a fuel cap, the fuel selector, the control lock, a control wheel, the nose and main gear, the compass, the
+ignition switch, the master switch and the engine controls). Pieces of Thumamah come from the saudi-airspace scene through `figs/oeth3d.SPOTS` and
+`blender/render_oeth.py` (an `only` key keeps one piece of the scene, `frame` aims the camera at it, `emit` lights its lamps): the PAPI of runway 35,
+the threshold of 35 with its stopway, the stopway of 17 with its chevrons and the runway from 1 300 m out on a 3 degree approach; the windsock (full
+and nearly calm) is built by render_oeth.py, as the scene has none. Render with `render_plate.py --plate <ids>` (the model's) and
+`render_oeth.py --recipe cache/oeth3d/<id>.json` after `python3 -m figs.oeth3d <id>` (Thumamah's).
+
 The clouds of the weather figures are `figs/clouds.py` (recipes) and `blender/render_clouds.py` (the renderer; the model is not needed). A cloud is a few volumes of a
 scattering medium lit by a physical sky and a white sun from the upper left: the heaps (cumulus, towering cumulus, the tower and the anvil of a cumulonimbus, a roll, the
 fields of cloudlets of altocumulus and stratocumulus) are metaballs made into a closed mesh and then, by geometry nodes, into a grid whose density rises gently from the surface,
