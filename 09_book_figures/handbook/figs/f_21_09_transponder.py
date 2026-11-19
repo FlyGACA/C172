@@ -22,7 +22,7 @@ DIGITS_X = [266.5, 327.5, 388.5, 449.5]
 DISP_Y = 52.0
 
 
-def unit():
+def unit(X=X, Y=Y, WU=WU, HU=HU):
     g = S.gradient
     out = [f'<defs>{g(U + "b", [(0, "#4A5466"), (0.08, "#3A4354"), (0.55, "#262D3A"), (1, "#1A202B")])}'
            f'{g(U + "f", [(0, "#2E3646"), (1, "#1D232F")])}'
@@ -51,16 +51,15 @@ def knob(cx, cy, r, ridges=24):
     return "".join(out)
 
 
-def selector():
-    cx, cy = SEL
+def selector(cx=SEL[0], cy=SEL[1], pos=POS, at=3, r=28.0):
+    POS = pos
     out = []
     for i, a in enumerate(POS):
-        x, y = cx + 44 * math.sin(math.radians(a)), cy - 44 * math.cos(math.radians(a))
-        x0, y0 = cx + 34 * math.sin(math.radians(a)), cy - 34 * math.cos(math.radians(a))
-        out.append(f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(cx + 39 * math.sin(math.radians(a)))}" y2="{n(cy - 39 * math.cos(math.radians(a)))}" stroke="#E2E8F0" stroke-width="2" stroke-linecap="round"/>')
-    out.append(knob(cx, cy, 28, 30))
-    a = math.radians(POS[3])                                # on altitude
-    out.append(f'<path d="M{n(cx + 25 * math.sin(a))} {n(cy - 25 * math.cos(a))} L{n(cx - 8 * math.sin(a))} {n(cy + 8 * math.cos(a))}" stroke="#F8FAFC" stroke-width="3.4" stroke-linecap="round"/>')
+        x0, y0 = cx + (r + 6) * math.sin(math.radians(a)), cy - (r + 6) * math.cos(math.radians(a))
+        out.append(f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(cx + (r + 11) * math.sin(math.radians(a)))}" y2="{n(cy - (r + 11) * math.cos(math.radians(a)))}" stroke="#E2E8F0" stroke-width="2" stroke-linecap="round"/>')
+    out.append(knob(cx, cy, r, 30))
+    a = math.radians(POS[at])                                # on altitude
+    out.append(f'<path d="M{n(cx + (r - 3) * math.sin(a))} {n(cy - (r - 3) * math.cos(a))} L{n(cx - 8 * math.sin(a))} {n(cy + 8 * math.cos(a))}" stroke="#F8FAFC" stroke-width="3.4" stroke-linecap="round"/>')
     return "".join(out)
 
 
