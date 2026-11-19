@@ -766,11 +766,81 @@ def night_31_10():
         "fogs": [{"center": [round(fog_c[0], 1), round(fog_c[1], 1)], "size": [2200.0, 2200.0, 220.0], "density": 0.0016, "colour": "#AEB8D4", "noise": 2.5}],
         "haze": {"start": 2000.0, "depth": 14000.0, "colour": "#1E2846", "strength": 0.95, "glare": {"threshold": 0.8, "strength": 1.0, "size": 0.6, "size_steps": 8}},
         "aircraft": [{"at": list(ac), "heading": hd, "scale": s}],
-        "spots": [{"at": [ac[0] - fx * 40.0 + rx * 30.0, ac[1] - fy * 40.0 + ry * 30.0, ac[2] + 45.0], "look": list(ac), "power": 9000.0, "size": 25.0, "colour": "#BFD0FF"}],
+        # a flash from the camera (the aeroplane lit as in a photograph taken with a flash, so that it reads clearly against the night), and a weaker
+        # cool moonlit key from above and to the right that gives it shape; both small enough at the distance of the ground to leave it dark
+        "spots": [{"at": [ac[0] - fx * 70.0 - rx * 18.0, ac[1] - fy * 70.0 - ry * 18.0, ac[2] + 24.0], "look": list(ac), "power": 60000.0, "size": 4.0, "colour": "#FFF6EA"},
+                  {"at": [ac[0] - fx * 40.0 + rx * 30.0, ac[1] - fy * 40.0 + ry * 30.0, ac[2] + 45.0], "look": list(ac), "power": 12000.0, "size": 25.0, "colour": "#BFD0FF"}],
         "anchors": {"town_near": [round(c, 1) for c in pt(4200.0, -900.0)], "town_far": [round(c, 1) for c in pt(11500.0, -2600.0)], "road": [round(c, 1) for c in pt(6000.0, -300.0)],
                     "fog": [round(c, 1) for c in fog_c], "dark": [round(c, 1) for c in pt(5000.0, 3200.0)],
                     "ac": list(ac), "hz": [round(ac[0] + fx * 400000.0, 1), round(ac[1] + fy * 400000.0, 1), 0.0], "n0": [0.0, 0.0, 0.0], "n1": [0.0, 4000.0, 0.0]},
     }
+
+
+def _day_3d(rid, camera, size, extra, ac=None, ac_scale=10.0, ac_heading=90.0, flash=8000.0):
+    """A day scene of the second design pass: the open picture of the desert east of Thumamah on its relief, the C172 sky, a high sun, haze, outlines on
+    the aeroplane and a soft flash from the camera on it (so that it reads as clearly as the ground and the clouds)."""
+    r = {"id": rid, "camera": camera, "size": size, "samples": 128, "exposure": -0.1, "look": "AgX - Medium High Contrast",
+         "sun": {"elevation": 55, "azimuth": 140, "energy": 3.4, "sky": 0.9}, "keep_sources": ["srtm"], "ground_image": ground_texture(),
+         "far_ground_size": 3000000, "clip_end": 2000000, "haze": {"start": 3000.0, "depth": 26000.0, "colour": "#E8E4DC", "strength": 0.55},
+         "ink": {"thickness": 0.9, "colour": "#1F2937"}, "anchors": {}}
+    if ac:
+        r["aircraft"] = [{"at": list(ac), "heading": ac_heading, "scale": ac_scale}]
+        c = camera["at"]
+        d = math.dist(c, ac)                                   # (the light falls off with the square of the distance: about the sun's light on the aeroplane again)
+        r["spots"] = [{"at": [c[0], c[1], c[2] + 10.0], "look": list(ac), "power": round(flash / 8000.0 * 6.0 * d * d), "size": 6.0, "colour": "#FFF8EE"}]
+        r["anchors"]["ac"] = list(ac)
+    anchors = extra.pop("anchors", {})
+    r.update(extra)
+    r["anchors"].update(anchors)
+    return r
+
+
+def vfr_2_04_cloud():
+    """Figure 2-4, upper view: a cumulus over the desert east of Thumamah, its base about 5 000 ft above the ground, inside a glass box of the distances to
+    keep from it below 10 000 ft MSL (500 ft below, 1 000 ft above, 2 000 ft all round: GACAR 91.165, as the chapter gives them), and the aeroplane
+    (enlarged 10 times) flying past outside the box."""
+    cx, cy, base = 9000.0, 1500.0, 1500.0
+    ac = (cx - 2700.0, cy - 3600.0, base + 380.0)
+    return _day_3d("vfr-2-04-cloud", {"at": [cx - 2300.0, cy - 7600.0, base + 450.0], "look": [cx + 200.0, cy, base + 420.0], "lens": 30}, [2400, 1000],
+                   {"transparent": True, "haze": {"start": 9000.0, "depth": 30000.0, "colour": "#E8E4DC", "strength": 0.5},
+                    "sun": {"elevation": 50, "azimuth": 200, "energy": 3.6, "sky": 0.9},
+                    "clouds": [{"kind": "cumulus", "seed": 3, "width": 9.0, "height": 4.0, "floor": True, "voxel": 0.0065, "at": [cx, cy, base], "scale": 230.0, "density": 600.0,
+                                "clearance": {"side": 610.0, "above": 305.0, "below": 152.0, "colour": "#2563EB", "alpha": 0.10, "edge": 5.0}}],
+                    "anchors": {"top": {"object": "air clear0", "at": [0.5, 0.0, 1.0]}, "bottom": {"object": "air clear0", "at": [0.5, 0.0, 0.0]},
+                                "left": {"object": "air clear0", "at": [0.0, 0.0, 0.5]}, "left_far": {"object": "air clear0", "at": [0.0, 1.0, 0.5]},
+                                "front_left_top": {"object": "air clear0", "at": [0.0, 0.0, 1.0]}, "front_right_top": {"object": "air clear0", "at": [1.0, 0.0, 1.0]},
+                                "front_left_bottom": {"object": "air clear0", "at": [0.0, 0.0, 0.0]}, "cloud": {"object": "cloud0p0", "at": [0.5, 0.5, 0.6]},
+                                "cloud_top": {"object": "cloud0p0", "at": [0.5, 0.0, 1.0]}, "cloud_base": {"object": "cloud0p0", "at": [0.5, 0.0, 0.0]},
+                                "cloud_left": {"object": "cloud0p0", "at": [0.0, 0.0, 0.5]}}},
+                   ac=ac, ac_scale=34.0, ac_heading=75.0)
+
+
+def vfr_2_04_ceiling():
+    """Figure 2-4, lower view: a generic aerodrome (a runway, an apron, a tower; not any real one) on the desert east of Thumamah under a layer of
+    stratus whose base is below 1 000 ft above the ground, and, away from it, the aeroplane (enlarged 6 times) low over the desert, clear of the cloud."""
+    rx0, ry0, hd = 12500.0, -2500.0, 80.0
+    ux, uy = math.sin(math.radians(hd)), math.cos(math.radians(hd))
+    nx, ny = uy, -ux
+    L, Wd = 1800.0, 45.0
+    rect = lambda s0, s1, t0, t1: [[round(rx0 + ux * s + nx * t, 1), round(ry0 + uy * s + ny * t, 1)] for s, t in ((s0, t0), (s1, t0), (s1, t1), (s0, t1))]
+    plan = {"pavements": [{"name": "rwy", "zone": "runway", "ring": rect(-L / 2, L / 2, -Wd / 2, Wd / 2), "holes": [], "lift": 0.3},
+                          {"name": "twy", "zone": "taxi", "ring": rect(-60.0, -40.0, Wd / 2, 140.0), "holes": [], "lift": 0.25},
+                          {"name": "apron", "zone": "apron", "ring": rect(-160.0, 60.0, 140.0, 260.0), "holes": [], "lift": 0.25}],
+            "marks": [{"ring": rect(s, s + 30.0, -0.5, 0.5), "colour": "#FFFFFF", "lift": 0.55} for s in [-L / 2 + 120.0 + 60.0 * k for k in range(26)]]
+                     + [{"ring": rect(e - 30.0, e, -19.5 + 5.0 * k, -17.0 + 5.0 * k), "colour": "#FFFFFF", "lift": 0.55} for e in (-L / 2 + 36.0, L / 2 - 6.0) for k in range(8)]
+                     + [{"ring": rect(-L / 2 + 6.0, L / 2 - 6.0, side - 0.6, side + 0.6), "colour": "#FFFFFF", "lift": 0.55} for side in (-Wd / 2 + 1.5, Wd / 2 - 1.5)],
+            "grade": True,
+            "blocks": [{"ring": rect(-110.0, -96.0, 270.0, 284.0), "height": 22.0, "colour": "#CBD5E1"}, {"ring": rect(-60.0, 40.0, 275.0, 305.0), "height": 9.0, "colour": "#E2E8F0"}]}
+    back = L / 2 + 520.0                                  # the camera on the extended centreline, short of the threshold, under the ceiling
+    cam = [round(rx0 - ux * back + nx * 40.0, 1), round(ry0 - uy * back + ny * 40.0, 1), 170.0]
+    ac = (round(rx0 - ux * (back - 420.0) - nx * 160.0, 1), round(ry0 - uy * (back - 420.0) - ny * 160.0, 1), 182.0)
+    return _day_3d("vfr-2-04-ceiling", {"at": cam, "look": [rx0 - ux * 300.0, ry0 - uy * 300.0, 0.0], "lens": 26}, [2400, 1000],
+                   {"plan": plan, "sun": {"elevation": 55, "azimuth": 140, "energy": 1.6, "sky": 0.8}, "exposure": 0.15,
+                    "haze": {"start": 2500.0, "depth": 14000.0, "colour": "#D6D9DE", "strength": 0.6},
+                    "clouds": [{"kind": "stratus", "seed": 6, "width": 18.0, "height": 0.6, "depth": 6.0, "density": 40.0, "erode": [0.30, 0.6], "ragged": 0.6, "gaps": [0.35, 0.6],
+                                "gap_floor": 0.40, "taper": 8.0, "end_fade": 0.25, "absorb": 0.0, "absorb_white": 1.0, "at": [rx0 - 200.0, ry0 + 1500.0, 230.0], "scale": 900.0, "heading": 70.0}],
+                    "anchors": {"deck": [rx0 + ux * 600.0, ry0 + uy * 600.0, 235.0], "rwy": [rx0, ry0], "thr": [round(rx0 - ux * L / 2, 1), round(ry0 - uy * L / 2, 1)], "tower": [round(c, 1) for c in rect(-110.0, -96.0, 270.0, 284.0)[0]]}},
+                   ac=ac, ac_scale=2.2, ac_heading=hd + 35.0)
 
 
 def backdrop_side():
@@ -790,6 +860,8 @@ def backdrop_plan():
 
 
 RECIPES = {
+    "vfr-2-04-cloud": vfr_2_04_cloud,
+    "vfr-2-04-ceiling": vfr_2_04_ceiling,
     "night-31-10": night_31_10,
     "backdrop-side-desert": backdrop_side,
     "backdrop-plan-desert": backdrop_plan,

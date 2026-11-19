@@ -153,7 +153,7 @@ def ground_z(x, y):
         hit, loc, _n, _i, ob, _m = bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(), origin, Vector((0, 0, -1)))
         if not hit:
             return 0.0
-        if not ob.name.startswith(("air ", "edge ", "path")):
+        if not ob.name.startswith(("air ", "edge ", "path", "cloud", "fog", "lamps", "spot")):
             return loc.z
         origin = loc - Vector((0, 0, 0.01))
     return 0.0
@@ -553,6 +553,16 @@ def scene_clouds(items):
         root.location = Vector(c["at"])
         root.scale = (scale, scale, scale)
         root.rotation_euler = (0.0, 0.0, math.radians(-c.get("heading", 0.0)))
+        if c.get("clearance"):                            # the distances to keep from the cloud: a glass box round its bounds (above, below, all round)
+            bpy.context.view_layer.update()
+            pts = [o.matrix_world @ Vector(corner) for o in bpy.data.objects if o.parent is root for corner in o.bound_box]
+            xs, ys, zs = [p.x for p in pts], [p.y for p in pts], [p.z for p in pts]
+            cl = c["clearance"]
+            sd = cl.get("side", 610.0)
+            x0, x1, y0, y1 = min(xs) - sd, max(xs) + sd, min(ys) - sd, max(ys) + sd
+            volumes([{"name": f"clear{ci}", "ring": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], "floor": min(zs) - cl.get("below", 152.0), "ceiling": max(zs) + cl.get("above", 305.0),
+                      "colour": cl.get("colour", "#2563EB"), "alpha": cl.get("alpha", 0.12), "edge": cl.get("edge", 6.0), "corner_edges": True}])
+            print("clearance", ci, [round(v) for v in (x0, x1, y0, y1, min(zs), max(zs))])
 
 
 def lay_plan(plan):
@@ -562,8 +572,15 @@ def lay_plan(plan):
     walls = bpy.data.materials["walls"]
     roof = flat_material("roof", "#F4F1EA")
     rwy = bpy.data.materials["asphalt"]
+    gz = None
+    if plan.get("grade"):                                  # a graded aerodrome: its pavements and paint level, at the highest ground under them
+        xs = [x for p in plan.get("pavements", []) for x, _ in p["ring"]]
+        ys = [y for p in plan.get("pavements", []) for _, y in p["ring"]]
+        step = plan.get("grade_step", 40.0)
+        gz = max(ground_z(x0 + i * step, y0 + j * step) for x0, y0 in [(min(xs), min(ys))]
+                 for i in range(int((max(xs) - min(xs)) / step) + 1) for j in range(int((max(ys) - min(ys)) / step) + 1))
     for p in plan.get("pavements", []):
-        flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], 0.30, {"apron": apron, "runway": rwy}.get(p["zone"], twy))
+        flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], p.get("lift", 0.30), {"apron": apron, "runway": rwy}.get(p["zone"], twy), z=gz)
     for i, p in enumerate(plan.get("islands", [])):
         flat_poly(f"plan island {i}", [p["ring"]], 0.45, island)
     for b in plan.get("buildings", []):
@@ -573,7 +590,7 @@ def lay_plan(plan):
         build(f"plan block {i}", bl["ring"], bl["height"], mat, mat)
     for i, mk in enumerate(plan.get("marks", [])):        # paint: flat shapes of one colour (chevrons, holding lines), a little above the pavement
         mat = bpy.data.materials.get("paint_" + mk["colour"]) or flat_material("paint_" + mk["colour"], mk["colour"], emission=0.25)
-        flat_poly(f"plan mark {i}", [mk["ring"]], 0.55, mat)
+        flat_poly(f"plan mark {i}", [mk["ring"]], mk.get("lift", 0.55), mat, z=gz)
     for i, rd in enumerate(plan.get("roads", [])):
         pts, w = rd["points"], rd.get("width", 8.0) / 2.0
         for j, (a, c) in enumerate(zip(pts, pts[1:])):
@@ -801,6 +818,9 @@ def main():
         fogs(r["fogs"])
     if "clouds" in r:
         scene_clouds(r["clouds"])
+        sc.cycles.volume_bounces = r.get("volume_bounces", 12)     # (as the cloud library: light scattered many times inside the cloud is what makes it white)
+        sc.cycles.max_bounces = max(sc.cycles.max_bounces, 16)
+        sc.cycles.transparent_max_bounces = max(sc.cycles.transparent_max_bounces, 16)
     for i, sp in enumerate(r.get("spots", [])):         # area lights aimed at a point (a soft key on the aeroplane at night)
         ld = bpy.data.lights.new(f"spot{i}", "AREA")
         ld.energy = sp.get("power", 2000.0)
