@@ -1,0 +1,141 @@
+{
+  "_doc": "Study-visual pack for the FlyGACA Individuals funnel. One entry per SVG: which tier consumes it, how it is drawn, and where every number comes from. The pack is deterministic: `python3 content/study-visuals/build.py` rewrites out/<lang>/<id>.svg byte for byte. Values are read from shared/js/sim.js; tests/test_study_visuals.py checks every drawing against 08_realistic_digital_twin/data/poh_references.json.",
+  "aircraft": "Cessna 172N, 1979 model (factory-standard educational baseline; serial-specific configuration not verified)",
+  "languages": ["en", "ar"],
+  "status": "draft",
+  "source_table": "08_realistic_digital_twin/data/poh_references.json",
+  "tiers": {
+    "free": "Free sample: included in the free chapter and question pack at /free",
+    "premium": "Premium study content: Study PDF and above"
+  },
+  "non_affiliation": {
+    "en": "Fly GACA is an independent educational platform, not affiliated with, endorsed by, or operated by GACA or the Government of Saudi Arabia. GACA (gaca.gov.sa) is always the authoritative source.",
+    "ar": "فلاي قاكا منظومة تعليمية مستقلة، غير تابعة لهيئة الطيران المدني (GACA) وغير مرتبطة بها ولا معتمدة منها. هيئة الطيران المدني هي المصدر الرسمي."
+  },
+  "strings": {
+    "en": {
+      "aircraft": "Cessna 172N (1979 model) · POH-cited study visual",
+      "sources": "Sources",
+      "tier_free": "Free sample",
+      "tier_premium": "Premium study content",
+      "status": "DRAFT · values cited to the POH; layout is illustrative",
+      "band": "For study and development. Not for navigation or operational use. Not affiliated with GACA.",
+      "disclaimer": "Training and reference only. Not for flight, navigation or maintenance."
+    },
+    "ar": {
+      "aircraft": "سيسنا 172N (موديل 1979) · صورة دراسية موثّقة بدليل الطيران",
+      "sources": "المصادر",
+      "tier_free": "ضمن العينة المجانية",
+      "tier_premium": "ضمن المحتوى الدراسي المميّز",
+      "status": "مسودة · القيم موثّقة بدليل الطيران والتخطيط توضيحي",
+      "band": "للدراسة والتطوير. ليس للملاحة ولا للاستخدام التشغيلي. غير تابعة لهيئة الطيران المدني (GACA).",
+      "disclaimer": "للتدريب والمرجع فقط. غير مخصصة للطيران أو الملاحة أو الصيانة."
+    }
+  },
+  "visuals": [
+    {
+      "id": "v-speeds",
+      "tier": "free",
+      "title": {
+        "en": "C172N V-speeds and airspeed colour arcs",
+        "ar": "سرعات C172N وأقواس مؤشر السرعة الجوية"
+      },
+      "data": "v-speeds.json",
+      "sources": [
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "2-4 Fig 2-1",
+          "keys": ["airspeed.limits_KIAS"],
+          "what_en": "airspeed limitations",
+          "what_ar": "حدود السرعة الجوية"
+        },
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "2-5 Fig 2-2",
+          "keys": ["airspeed.markings_KIAS"],
+          "what_en": "indicator colour markings",
+          "what_ar": "العلامات اللونية للمؤشر"
+        }
+      ],
+      "notes": "Numeric values are the POH table's; arc limits also exist in 08_realistic_digital_twin/data/instruments.json and shared/js/sim.js and the test compares all three."
+    },
+    {
+      "id": "fuel-capacity",
+      "tier": "premium",
+      "title": {
+        "en": "C172N fuel capacity: standard and long-range tanks",
+        "ar": "سعة الوقود في C172N: الخزانات القياسية وبعيدة المدى"
+      },
+      "data": "fuel-capacity.json",
+      "sources": [
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "1-4",
+          "keys": ["fuel.standard_tanks", "fuel.long_range_tanks"],
+          "what_en": "standard and long-range capacities",
+          "what_ar": "السعات القياسية وبعيدة المدى"
+        },
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "2-6 Fig 2-3",
+          "keys": ["fuel.unusable_marking"],
+          "what_en": "E red line and unusable fuel",
+          "what_ar": "خط E الأحمر والوقود غير القابل للاستخدام"
+        }
+      ],
+      "notes": "Per-tank usable figures are the published totals divided by two; the drawing labels them as derived. Fuel quantity is a planning value only, never a dipstick replacement."
+    },
+    {
+      "id": "alternate-static",
+      "tier": "premium",
+      "title": {
+        "en": "Airspeed correction with the alternate static source",
+        "ar": "تصحيح السرعة الجوية مع مصدر الاستاتيك البديل"
+      },
+      "data": "alternate-static.json",
+      "sources": [
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "5-9 Fig 5-1 sheet 2",
+          "keys": ["alternate_static.calibration"],
+          "what_en": "calibration, flaps up, vents closed",
+          "what_ar": "المعايرة، القلابات مرفوعة والفتحات مغلقة"
+        }
+      ],
+      "notes": "The curve is drawn from ALT_STATIC_TABLE in shared/js/sim.js, which cites the same POH page. Values between the published points are linear interpolations."
+    },
+    {
+      "id": "engine-propeller",
+      "tier": "premium",
+      "title": {
+        "en": "C172N engine, propeller and operating limits",
+        "ar": "محرك C172N والمروحة وحدود التشغيل"
+      },
+      "data": "engine-propeller.json",
+      "sources": [
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "1-3",
+          "keys": ["engine.model", "engine.type", "engine.rating", "propeller", "fuel.grade"],
+          "what_en": "engine, propeller and fuel data",
+          "what_ar": "بيانات المحرك والمروحة والوقود"
+        },
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "2-5",
+          "keys": ["engine.static_rpm_full_throttle", "engine.max_rpm"],
+          "what_en": "maximum and static RPM",
+          "what_ar": "أقصى دورات ودورات السكون"
+        },
+        {
+          "doc": "Cessna Model 172N POH (1979 model, 1 July 1978)",
+          "page": "2-6 Fig 2-3",
+          "keys": ["tach.green"],
+          "what_en": "tachometer green bands",
+          "what_ar": "أقواس عدّاد الدورات الخضراء"
+        }
+      ],
+      "notes": "One card lists all three published tachometer green bands; it is not a substitute for the POH limitations section."
+    }
+  ]
+}

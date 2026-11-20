@@ -1,0 +1,53 @@
+{
+  "poh_keys": ["airspeed.limits_KIAS", "airspeed.markings_KIAS"],
+  "facts": [
+    { "key": "airspeed.limits_KIAS", "text": "VNE 160" },
+    { "key": "airspeed.limits_KIAS", "text": "VNO 128" },
+    { "key": "airspeed.limits_KIAS", "text": "VA 97 at 2300 lb" },
+    { "key": "airspeed.limits_KIAS", "text": "VFE 110 (10 deg) / 85 (10-40 deg)" },
+    { "key": "airspeed.markings_KIAS", "text": "white 41-85" },
+    { "key": "airspeed.markings_KIAS", "text": "green 47-128" },
+    { "key": "airspeed.markings_KIAS", "text": "yellow 128-160" },
+    { "key": "airspeed.markings_KIAS", "text": "red line 160" }
+  ],
+  "v_speeds": [
+    { "code": "VNE", "value": "160", "label": "vs_vne" },
+    { "code": "VNO", "value": "128", "label": "vs_vno" },
+    { "code": "VA", "value": "97", "label": "vs_va" },
+    { "code": "VFE", "value": "110 / 85", "label": "vs_vfe" }
+  ],
+  "arcs": [
+    { "id": "white", "from": 41, "to": 85, "label": "arc_white" },
+    { "id": "green", "from": 47, "to": 128, "label": "arc_green" },
+    { "id": "yellow", "from": 128, "to": 160, "label": "arc_yellow" }
+  ],
+  "redline": { "value": 160, "label": "arc_red" },
+  "strings": {
+    "en": {
+      "scale_label": "Indicated airspeed (KIAS)",
+      "arc_white": "Flap operating range (white)",
+      "arc_green": "Normal operating range (green)",
+      "arc_yellow": "Caution range (yellow)",
+      "arc_red": "Red line",
+      "vs_vne": "Never exceed",
+      "vs_vno": "Maximum structural cruising",
+      "vs_va": "Manoeuvring, at 2300 lb",
+      "vs_vfe": "With flaps: 10° / 10–40°",
+      "unit": "KIAS",
+      "note": "All speeds are indicated airspeed in knots. The arcs are the POH indicator markings; the dial layout is illustrative."
+    },
+    "ar": {
+      "scale_label": "السرعة الجوية المؤشَّرة (KIAS)",
+      "arc_white": "نطاق تشغيل القلابات (أبيض)",
+      "arc_green": "نطاق التشغيل العادي (أخضر)",
+      "arc_yellow": "نطاق الحذر (أصفر)",
+      "arc_red": "الخط الأحمر",
+      "vs_vne": "السرعة التي لا يجوز تجاوزها",
+      "vs_vno": "أقصى سرعة إبحار هيكلية",
+      "vs_va": "سرعة المناورة عند 2300 رطل",
+      "vs_vfe": "مع القلابات: 10° / 10–40°",
+      "unit": "KIAS",
+      "note": "جميع السرعات مؤشَّرة بالعقد. الأقواس هي علامات مؤشر دليل الطيران، وتخطيط المؤشر توضيحي."
+    }
+  }
+}

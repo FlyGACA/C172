@@ -1,0 +1,59 @@
+{
+  "poh_keys": ["engine.model", "engine.type", "engine.rating", "engine.static_rpm_full_throttle", "engine.max_rpm", "propeller", "fuel.grade", "tach.green"],
+  "facts": [
+    { "key": "engine.model", "text": "Lycoming O-320-H2AD" },
+    { "key": "engine.type", "text": "normally aspirated, direct drive, air cooled, horizontally opposed, carburetor equipped, four cylinder, 320 cu in" },
+    { "key": "engine.rating", "text": "160 BHP at 2700 RPM" },
+    { "key": "engine.static_rpm_full_throttle", "text": "2280-2400 RPM (carb heat off, full rich)" },
+    { "key": "engine.max_rpm", "text": "2700" },
+    { "key": "propeller", "text": "McCauley 1C160/DTM7557, fixed pitch, two blades, 75 in max / 74 in min" },
+    { "key": "fuel.grade", "text": "100LL (blue) or 100 (green)" },
+    { "key": "tach.green", "text": "2100-2450 RPM sea level; 2100-2575 at 5000 ft; 2100-2700 at 10000 ft" }
+  ],
+  "tach_bands": [
+    { "label": "band_sea_level", "from": 2100, "to": 2450 },
+    { "label": "band_5000", "from": 2100, "to": 2575 },
+    { "label": "band_10000", "from": 2100, "to": 2700 }
+  ],
+  "rows": [
+    { "label": "row_engine", "value": "Lycoming O-320-H2AD" },
+    { "label": "row_type", "value": "normally aspirated, direct drive, air cooled, horizontally opposed, carburetor equipped, four cylinder, 320 cu in" },
+    { "label": "row_rating", "value": "160 BHP at 2700 RPM" },
+    { "label": "row_max_rpm", "value": "2700 RPM" },
+    { "label": "row_static_rpm", "value": "2280–2400 RPM (full throttle, carb heat off, full rich)" },
+    { "label": "row_propeller", "value": "McCauley 1C160/DTM7557, fixed pitch, two blades, 75 in max / 74 in min" },
+    { "label": "row_fuel", "value": "100LL (blue) or 100 (green)" }
+  ],
+  "strings": {
+    "en": {
+      "row_engine": "Engine",
+      "row_type": "Type",
+      "row_rating": "Rated power",
+      "row_max_rpm": "Maximum RPM",
+      "row_static_rpm": "Static RPM",
+      "row_propeller": "Propeller",
+      "row_fuel": "Fuel grade",
+      "tach_title": "Tachometer green arc (POH Fig 2-3)",
+      "band_sea_level": "Sea level",
+      "band_5000": "5,000 ft",
+      "band_10000": "10,000 ft",
+      "rpm": "RPM",
+      "note": "Values are the POH limitations and descriptions; the green bands change with altitude, so read the arc current for your pressure altitude."
+    },
+    "ar": {
+      "row_engine": "المحرك",
+      "row_type": "النوع",
+      "row_rating": "القدرة المقنَّنة",
+      "row_max_rpm": "أقصى دورات",
+      "row_static_rpm": "دورات السكون",
+      "row_propeller": "المروحة",
+      "row_fuel": "نوع الوقود",
+      "tach_title": "القوس الأخضر لعدّاد الدورات (الشكل 2-3)",
+      "band_sea_level": "مستوى سطح البحر",
+      "band_5000": "5,000 قدم",
+      "band_10000": "10,000 قدم",
+      "rpm": "دورة/دقيقة",
+      "note": "القيم هي حدود ووصف دليل الطيران، والأقواس الخضراء تتغير مع الارتفاع فاقرأ القوس الخاص بارتفاع الضغط الحالي."
+    }
+  }
+}
