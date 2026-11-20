@@ -13,10 +13,12 @@ import re
 
 from figs import h_a1 as A1
 from figs import h_b1 as B
+from figs import h_b4 as B4
 from figs import scene as S
 from figs import terrain_real as TR
 
-W, HT = 640, 372
+TOPH = 230                                # the 3D view above the section (the airport round): the section is drawn as before and moved down by TOPH
+W, HT = 640, 372 + TOPH
 U = "b171"
 SEC = B.Section()
 DATA = B.data()
@@ -306,10 +308,48 @@ def callouts():
     return "".join(out)
 
 
+# ------------------------------------------------------------------------------------------------ the 3D view (figs/oeth3d.py airspace_17_01)
+import json
+import os
+
+R3D = "oeth-17-01-airspace"
+PX, PY, PW, PH = 8.0, 8.0, 624.0, TOPH - 16.0
+V_MID = 0.44                               # the height in the render (0 top, 1 bottom) that sits at the middle of the panel: the blocks, not the empty sky and sand
+
+
+def r3d():
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "renders", R3D + ".anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    w, h = d["size"]
+    ih = PW * h / w
+    y0 = PY + PH / 2 - V_MID * ih
+    return (lambda k: (round(PX + d["anchors"][k][0] * PW, 1), round(y0 + d["anchors"][k][1] * ih, 1))), y0, ih
+
+
+def top3d():
+    at, y0, ih = r3d()
+    clip = f'<defs><clipPath id="{U}c3"><rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="10"/></clipPath></defs><g clip-path="url(#{U}c3)">'
+    img = {"name": R3D, "at": [PX + PW / 2, y0 + ih / 2], "width": PW}
+    (x0, y0n), (x1, y1n) = at("n0"), at("n1")
+    north = B4.north_arrow(PX + PW - 34, PY + 34, (x1 - x0, y1n - y0n))
+    c = S.callout
+    marks = "".join(c(k, dx, dy, *at(a), r=9.5) for k, a, dx, dy in ((3, "ctr", 500.0, 206.0), (4, "tma", 150.0, 206.0), (5, "fda", 128.0, 30.0), (6, "g", 336.0, 210.0),
+                                                                   (7, "ac", 96.0, 108.0), (8, "atz", 272.0, 102.0), (9, "oerk", 424.0, 104.0)))
+    return [clip, img, north + "</g>" + f'<rect x="{PX}" y="{PY}" width="{PW}" height="{PH}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>' + marks]
+
+
+def shifted(layer):
+    """A layer of the section moved down under the 3D view."""
+    if isinstance(layer, dict):
+        return {**layer, "at": [layer["at"][0], layer["at"][1] + TOPH]}
+    return f'<g transform="translate(0 {TOPH})">{layer}</g>'
+
+
 def layers():
     vfr, circuit = aeroplanes()
     inner = [fade_defs(), frame_clip(), f'<g clip-path="url(#{U}fc)">' + air() + "</g>", ground_layer(), aerodromes(), f'<g clip-path="url(#{U}fc)">' + outlines() + "</g>", fir_frame(), marks()]
-    return [*page_and_card(), S.card_front(U + "fr", BOX[0], BOX[1], BOX[2], BOX[3], "".join(inner), radius=10), vfr, circuit, axes(), callouts()]
+    section = [*page_and_card()[1:], S.card_front(U + "fr", BOX[0], BOX[1], BOX[2], BOX[3], "".join(inner), radius=10), vfr, circuit, axes(), callouts()]
+    return [A1.page(U + "pg", W, HT), *top3d(), *[shifted(x) for x in section]]
 
 
 def plate():
@@ -317,8 +357,9 @@ def plate():
         "id": "fig-17-01-airspace-structure",
         "replaces": "fig-17-01-airspace-structure.svg",
         "book_file": "plate-17-01-airspace-structure.jpg",
-        "caption": "Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side",
-        "desc": ("Figure 17-1. Airspace blocks between Thumamah and Riyadh, seen from the side. A vertical section along the line from Thumamah (OETH) to Riyadh King Khaled (OERK): "
+        "caption": "Figure 17-1. Airspace blocks between Thumamah and Riyadh, in three dimensions and seen from the side",
+        "desc": ("Figure 17-1. Airspace blocks between Thumamah and Riyadh, in three dimensions and seen from the side. Above, the blocks in 3D from the west-south-west, "
+                 "their heights enlarged five times and the ground flat; below, a vertical section along the line from Thumamah (OETH) to Riyadh King Khaled (OERK): "
                  "the Thumamah aerodrome traffic zone, the Riyadh control zone, the terminal control area and the final director area, uncontrolled air under their floor, FL 150 and "
                  "the control area above. Drawn to the limits of the AIP (AMDT 11/26) along the line from Thumamah to Riyadh, 15.5 NM; the ground is from open elevation data (NASA SRTM); not for navigation."),
         "legend": [

@@ -13,7 +13,9 @@ from figs import h_a2 as H
 from figs import scene as S
 from figs import terrain
 
-W, HT = 640, 360
+W, HT = 640, 360                                  # the plan (its ground is made at this size)
+TOPH = 260                                        # the 3D view above it (the aerodrome round): the plate is W x (HT + TOPH)
+R3D = "oeth-18-01-aerodrome"
 D = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "oeth_plan.json")))
 terrain.ensure("terrain-18-01-thumamah", size=(W * 4, HT * 4), seed=1870, kind="plain", features=(), veil=0.36, soft=2.8)
 
@@ -309,7 +311,21 @@ def callouts():
     ])
 
 
+def top3d():
+    """The 3D view (figs/oeth3d.aerodrome_18_01): the northern part of the aerodrome from the north-west. Callouts 6 and 7 (the colours of the manoeuvring
+    and movement areas) are on the plan only."""
+    from figs import panel3d as P3
+    return P3.panel(R3D, (8.0, 8.0, 624.0, TOPH - 16.0), 0.62, U, [
+        (1, "rwy", 250.0, 40.0), (2, "des", 80.0, 124.0), (3, "twy", 330.0, 172.0), (4, "hold", 400.0, 40.0), (5, "apron", 440.0, 104.0),
+        (8, "stopway", 40.0, 236.0), (9, "loop", 150.0, 236.0), (10, "hangar", 252.0, 226.0)])
+
+
 def layers():
+    from figs import panel3d as P3
+    return [*top3d(), *P3.below(plan_layers(), TOPH)]
+
+
+def plan_layers():
     det, spr = detail()
     return [{"name": "terrain-18-01-thumamah", "at": [W / 2, HT / 2], "width": W}, defs(), overview(), frame(OX0, OY0, OW, OH), det, *spr, frame(MX0, MY0, MW, MH), north_arrow(), callouts()]
 
@@ -319,8 +335,8 @@ def plate():
         "id": "fig-18-01-aerodrome-plan",
         "replaces": "fig-18-01-aerodrome-plan.svg",
         "book_file": "plate-18-01-aerodrome-plan.jpg",
-        "caption": "Figure 18-1. The parts of an aerodrome seen from above: Thumamah (OETH)",
-        "desc": "Figure 18-1. The parts of an aerodrome seen from above: Thumamah (OETH). North is to the left, as the arrow shows; both panels are to scale; the pavements and buildings are outlines derived from open Sentinel-2 satellite imagery (contains modified Copernicus Sentinel data 2026); not for navigation.",
+        "caption": "Figure 18-1. The parts of an aerodrome in three dimensions and seen from above: Thumamah (OETH)",
+        "desc": "Figure 18-1. The parts of an aerodrome in three dimensions and seen from above: Thumamah (OETH). Above, the northern part in 3D from the north-west, the aeroplanes enlarged; below, north is to the left, as the arrow shows, and both panels are to scale; the pavements and buildings are outlines derived from open Sentinel-2 satellite imagery (contains modified Copernicus Sentinel data 2026); not for navigation.",
         "legend": [
             "Runway 17/35: 4 000 m by 50 m, asphalt.",
             "Runway designator: `17` at the north end (in the strip, `35` at the south end).",
@@ -333,7 +349,7 @@ def plate():
             "The turn loop beside the north end, round a sand island.",
             "Hangar. Thumamah has no control tower: its radio is a UNICOM.",
         ],
-        "canvas": [W, HT],
+        "canvas": [W, HT + TOPH],
         "background": "pale",
         "reskin": {"svg": "fig-18-01-aerodrome-plan.svg", "blank": True, "layers": layers()},
     }

@@ -10,6 +10,7 @@ import math
 from figs import h_a4 as A
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 372
@@ -53,12 +54,7 @@ def arc(cx, cy, r, a0, a1, col, width=3.2, head=True):
 
 
 def arrow(x0, y0, x1, y1, col, width=3.4):
-    ang = math.atan2(y1 - y0, x1 - x0)
-    hx, hy = x1 - 8 * math.cos(ang), y1 - 8 * math.sin(ang)
-    nx, ny = -math.sin(ang), math.cos(ang)
-    return (f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(hx)}" y2="{n(hy)}" stroke="#FFFFFF" stroke-width="{n(width + 3.2)}" stroke-linecap="round" opacity="0.9"/>'
-            f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(hx)}" y2="{n(hy)}" stroke="{col}" stroke-width="{n(width)}" stroke-linecap="round"/>'
-            f'<path d="M{n(x1)} {n(y1)} L{n(hx + nx * 5.6)} {n(hy + ny * 5.6)} L{n(hx - nx * 5.6)} {n(hy - ny * 5.6)} Z" fill="{col}" stroke="#FFFFFF" stroke-width="1.2" stroke-linejoin="round"/>')
+    return M.arrow(x0, y0, x1, y1, col, width=width * 0.8)
 
 
 def into_page(x, y, col, r=7.4):

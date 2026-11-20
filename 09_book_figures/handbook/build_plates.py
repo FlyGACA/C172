@@ -144,20 +144,22 @@ def picture(plate, lossless=False, anchors=None):
 SPRITES = {}
 
 
-def sprite_source(name):
-    """A sprite cropped to the aeroplane in it: its width is then the wingspan (from above, ahead, behind) or the length (from the side)."""
-    if name not in SPRITES:
+def sprite_source(name, whole=False):
+    """A sprite cropped to the aeroplane in it: its width is then the wingspan (from above, ahead, behind) or the length (from the side). `whole` keeps the
+    whole picture, clear parts and all (a 3D view whose anchors are fractions of the whole frame, laid over a sky the figure draws)."""
+    key = (name, whole)
+    if key not in SPRITES:
         image = Image.open(os.path.join(HERE, "renders", name + ".png")).convert("RGBA")
-        SPRITES[name] = image.crop(image.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox())
-    return SPRITES[name]
+        SPRITES[key] = image if whole else image.crop(image.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox())
+    return SPRITES[key]
 
 
 def sprite_image(o):
     """An overlay {"type": "sprite", "name": "sprite-top", "at": [x, y] or an anchor, "width": canvas units across the aeroplane, "angle": degrees clockwise,
-    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity", "height" (canvas units: stretches the picture, as a thin veil of cloud), "haze", "flip"}: the
+    "tint": "#RRGGBB" (with "tint_strength"), "outline": {"width", "colour", "opacity"}, "shadow": {"dx", "dy", "blur", "opacity"}, "opacity", "height" (canvas units: stretches the picture, as a thin veil of cloud), "haze", "flip", "whole"}: the
     aeroplane of figs/sprites.py as a picture, with its middle on the point. Returns (picture, its size in canvas units)."""
     k = o.get("px", 4.0)                                      # pixels to a canvas unit in the file (the plate itself is flattened at 3)
-    source = sprite_source(o["name"])
+    source = sprite_source(o["name"], o.get("whole", False))
     width = o["width"]
     height = o.get("height", width * source.height / source.width)         # (a cloud may be stretched: a thin veil, a tall column)
     image = source.resize((max(2, round(width * k)), max(2, round(height * k))), Image.LANCZOS)

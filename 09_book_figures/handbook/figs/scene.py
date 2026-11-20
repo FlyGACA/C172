@@ -444,14 +444,20 @@ def card_front(uid, x, y, w, h, body, radius=9.0):
             f'<g clip-path="url(#{uid}c2)">{body}</g><rect x="{n(x)}" y="{n(y)}" width="{n(w)}" height="{n(h)}" rx="{n(radius)}" fill="none" stroke="#ffffff" stroke-width="1.6"/>')
 
 
-def plain(uid, x0, x1, horizon, bottom, seed=1, tone="day", houses=(), palms=(), acacias=(), hills=14.0):
+def plain(uid, x0, x1, horizon, bottom, seed=1, tone="day", houses=(), palms=(), acacias=(), hills=14.0, photo=False):
     """A flat country of the Peninsula seen from afar: a low range of hills on the horizon, a sandy plain with scrub, and what stands on it (lists of (x, y, size)).
-    `tone` is day, storm (darkened under a storm) or dusk."""
+    `tone` is day, storm (darkened under a storm) or dusk. `photo` (style C) lays the rendered open picture of the desert (figs/photo_ground.py) in place of the
+    drawn hills, plain and scrub; what stands on it is still drawn, and the figure's note must name the picture."""
     sets = {"day": (("#7F8DB4", "#B6C2DA"), ("#E8D7AC", "#D2B988"), 0.0), "storm": (("#4D5C80", "#7C89A8"), ("#BBA97F", "#9C8A63"), 0.18), "dusk": (("#8794B4", "#C0C9DD"), ("#E4CFA2", "#C9AD7C"), 0.06)}
     far, ground_, shade = sets[tone]
-    out = [land_layer(uid + "h", ridge(seed, x0, x1, horizon + 2, hills, peaks=0.5), horizon + 6, far, rim=tone != "storm", haze=0.2 if tone != "storm" else 0.0)]
-    out.append(f'<defs>{gradient(uid + "g", [(0, ground_[0]), (1, ground_[1])])}</defs><rect x="{n(x0)}" y="{n(horizon)}" width="{n(x1 - x0)}" height="{n(bottom - horizon + 2)}" fill="url(#{uid}g)"/>')
-    out.append(scrub(seed + 3, x0, x1, horizon + 4, bottom - 2, int((x1 - x0) / 11), scale=0.6))
+    if photo:
+        from figs import photo_ground                        # (Pillow: only when it is asked for)
+        out = [photo_ground.side(x0, x1, horizon, bottom, tone=tone, offset=(seed * 0.37) % 1.0)]
+        shade = 0.0                                          # (the picture is toned already)
+    else:
+        out = [land_layer(uid + "h", ridge(seed, x0, x1, horizon + 2, hills, peaks=0.5), horizon + 6, far, rim=tone != "storm", haze=0.2 if tone != "storm" else 0.0)]
+        out.append(f'<defs>{gradient(uid + "g", [(0, ground_[0]), (1, ground_[1])])}</defs><rect x="{n(x0)}" y="{n(horizon)}" width="{n(x1 - x0)}" height="{n(bottom - horizon + 2)}" fill="url(#{uid}g)"/>')
+        out.append(scrub(seed + 3, x0, x1, horizon + 4, bottom - 2, int((x1 - x0) / 11), scale=0.6))
     for (x, y, s_) in houses:
         out.append(house(x, y, 18.0 * s_, 10.0 * s_, seed + int(x)))
     for (x, y, s_) in acacias:

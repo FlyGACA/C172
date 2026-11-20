@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340">
+<rect x="0" y="0" width="640" height="340" fill="#ffffff"/>
+<rect x="14" y="14" width="256" height="312" rx="10" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.2"/>
+<path d="M 40 70 L 240 70 L 240 200 L 80 220 L 40 220 Z" fill="#ffffff"/>
+<path d="M 40 140 L 240 140 L 240 200 L 80 220 L 40 220 Z" fill="#1d4ed8" fill-opacity="0.3"/>
+<path d="M 40 204 L 112 204 L 80 220 L 40 220 Z" fill="#ffffff"/>
+<path d="M 40 204 Q 76 200 112 204" fill="none" stroke="#6b7280" stroke-width="1.4"/>
+<circle cx="90" cy="192" r="3.5" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<circle cx="122" cy="182" r="3" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<circle cx="106" cy="170" r="2.5" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<path d="M 40 70 L 240 70 L 240 200 L 80 220 L 40 220 Z" fill="none" stroke="#1f2937" stroke-width="2.4"/>
+<line x1="40" y1="140" x2="240" y2="140" stroke="#1d4ed8" stroke-width="1.6"/>
+<circle cx="46" cy="88" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="46" cy="112" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="100" cy="76" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="160" cy="76" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="220" cy="76" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="234" cy="100" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="234" cy="124" r="3" fill="#1d4ed8" opacity="0.7"/>
+<circle cx="130" cy="76" r="3" fill="#1d4ed8" opacity="0.7"/>
+<path d="M 210 70 L 210 44 L 230 34" fill="none" stroke="#1f2937" stroke-width="3"/>
+<rect x="54" y="220" width="12" height="14" fill="#1f2937"/>
+<line x1="60" y1="236" x2="60" y2="252" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="3 3"/>
+<path d="M 47 256 L 47 289 A 13 13 0 0 0 73 289 L 73 256 Z" fill="#1d4ed8" fill-opacity="0.3"/>
+<path d="M 47 256 L 47 289 A 13 13 0 0 0 73 289 L 73 256" fill="none" stroke="#1f2937" stroke-width="1.8"/>
+<circle cx="140" cy="104" r="11" fill="#1f2937"/>
+<text x="140" y="108.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<line x1="179.2" y1="215.8" x2="112" y2="202" stroke="#9ca3af" stroke-width="1.2"/>
+<circle cx="190" cy="218" r="11" fill="#1f2937"/>
+<text x="190" y="222.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<line x1="100.1" y1="243.3" x2="68" y2="228" stroke="#9ca3af" stroke-width="1.2"/>
+<circle cx="110" cy="248" r="11" fill="#1f2937"/>
+<text x="110" y="252.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<line x1="198.2" y1="37.4" x2="210" y2="48" stroke="#9ca3af" stroke-width="1.2"/>
+<circle cx="190" cy="30" r="11" fill="#1f2937"/>
+<text x="190" y="34.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<rect x="292" y="14" width="334" height="312" rx="10" fill="#ffffff" stroke="#9ca3af" stroke-width="1.6"/>
+<path d="M 327 70 L 327 217 A 23 23 0 0 0 373 217 L 373 70 Z" fill="#1d4ed8" fill-opacity="0.3"/>
+<path d="M 327 70 L 327 217 A 23 23 0 0 0 373 217 L 373 70" fill="none" stroke="#1f2937" stroke-width="2.2"/>
+<line x1="323" y1="70" x2="377" y2="70" stroke="#1f2937" stroke-width="2.2"/>
+<circle cx="350" cy="44" r="11" fill="#1f2937"/>
+<text x="350" y="48.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<path d="M 338 280 L 347 290 L 364 268" fill="none" stroke="#047857" stroke-width="4"/>
+<path d="M 402 70 L 402 217 A 23 23 0 0 0 448 217 L 448 70 Z" fill="#1d4ed8" fill-opacity="0.3"/>
+<path d="M 402 196 L 402 217 A 23 23 0 0 0 448 217 L 448 196 Z" fill="#ffffff"/>
+<path d="M 402 196 Q 425 190 448 196" fill="none" stroke="#6b7280" stroke-width="1.4"/>
+<circle cx="417" cy="180" r="4" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<circle cx="434" cy="166" r="3" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<circle cx="423" cy="148" r="2.5" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<path d="M 402 70 L 402 217 A 23 23 0 0 0 448 217 L 448 70" fill="none" stroke="#1f2937" stroke-width="2.2"/>
+<line x1="398" y1="70" x2="452" y2="70" stroke="#1f2937" stroke-width="2.2"/>
+<circle cx="425" cy="44" r="11" fill="#1f2937"/>
+<text x="425" y="48.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<line x1="414" y1="269" x2="436" y2="291" stroke="#b91c1c" stroke-width="4"/>
+<line x1="414" y1="291" x2="436" y2="269" stroke="#b91c1c" stroke-width="4"/>
+<path d="M 477 70 L 477 217 A 23 23 0 0 0 523 217 L 523 70 Z" fill="#1d4ed8" fill-opacity="0.3"/>
+<circle cx="490" cy="230" r="2.6" fill="#1f2937"/>
+<circle cx="504" cy="234" r="2.6" fill="#1f2937"/>
+<circle cx="512" cy="224" r="2.6" fill="#1f2937"/>
+<circle cx="496" cy="222" r="2.6" fill="#1f2937"/>
+<circle cx="508" cy="210" r="2.6" fill="#1f2937"/>
+<circle cx="486" cy="214" r="2.6" fill="#1f2937"/>
+<circle cx="500" cy="200" r="2.6" fill="#1f2937"/>
+<path d="M 477 70 L 477 217 A 23 23 0 0 0 523 217 L 523 70" fill="none" stroke="#1f2937" stroke-width="2.2"/>
+<line x1="473" y1="70" x2="527" y2="70" stroke="#1f2937" stroke-width="2.2"/>
+<circle cx="500" cy="44" r="11" fill="#1f2937"/>
+<text x="500" y="48.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+<line x1="489" y1="269" x2="511" y2="291" stroke="#b91c1c" stroke-width="4"/>
+<line x1="489" y1="291" x2="511" y2="269" stroke="#b91c1c" stroke-width="4"/>
+<path d="M 552 70 L 552 217 A 23 23 0 0 0 598 217 L 598 70 Z" fill="#f6e7b8"/>
+<path d="M 552 70 L 552 217 A 23 23 0 0 0 598 217 L 598 70" fill="none" stroke="#1f2937" stroke-width="2.2"/>
+<line x1="548" y1="70" x2="602" y2="70" stroke="#1f2937" stroke-width="2.2"/>
+<circle cx="575" cy="44" r="11" fill="#1f2937"/>
+<text x="575" y="48.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">8</text>
+<line x1="564" y1="269" x2="586" y2="291" stroke="#b91c1c" stroke-width="4"/>
+<line x1="564" y1="291" x2="586" y2="269" stroke="#b91c1c" stroke-width="4"/>
+<path d="M 470 292 Q 470 314 446 314 L 100 314 Q 84 314 84 300" fill="none" stroke="#b45309" stroke-width="2.2"/>
+<polygon points="84,292 89.5,302 78.5,302" fill="#b45309"/>
+<line x1="607.9" y1="289.8" x2="608" y2="290" stroke="#9ca3af" stroke-width="1.2"/>
+<circle cx="612" cy="300" r="11" fill="#1f2937"/>
+<text x="612" y="304.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">9</text>
+<line x1="529.1" y1="312.5" x2="482" y2="306" stroke="#9ca3af" stroke-width="1.2"/>
+<circle cx="540" cy="314" r="11" fill="#1f2937"/>
+<text x="540" y="318.6" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">10</text>
+</svg>
