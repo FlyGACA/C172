@@ -1,0 +1,63 @@
+/* The C172N training handbook page. Colours, type and spacing come from the Ufuq tokens (site/ufuq/ufuq.css);
+   nothing here sets a literal colour, and every side is a logical property so the page mirrors in Arabic. */
+body.hb {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  margin: 0;
+  background: var(--ufuq-bg);
+  color: var(--ufuq-text);
+  font-family: var(--ufuq-font-body);
+  line-height: var(--ufuq-lh-body);
+}
+.hb-main { flex: 1; padding-block: var(--ufuq-space-6) var(--ufuq-space-10); max-inline-size: var(--ufuq-container-narrow); }
+.hb-head h1 { margin: var(--ufuq-space-1) 0 var(--ufuq-space-3); font-family: var(--ufuq-font-display); font-size: var(--ufuq-fs-h1); line-height: var(--ufuq-lh-tight); }
+.hb-lead { margin: 0 0 var(--ufuq-space-5); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-lg); }
+.hb-notice__title { font-weight: 700; }
+.hb-notice p { margin-block: var(--ufuq-space-2); }
+
+.hb-toc { margin-block: var(--ufuq-space-6); }
+.hb-toc ol { display: grid; gap: var(--ufuq-space-1); margin: 0; padding: 0; list-style: none; }
+.hb-num { display: inline-block; min-inline-size: 1.6em; color: var(--ufuq-text-muted); font-variant-numeric: tabular-nums; }
+
+.hb-section { margin-block-start: var(--ufuq-space-8); }
+.hb-section h2 { margin: 0 0 var(--ufuq-space-4); padding-block-end: var(--ufuq-space-2); border-block-end: 1px solid var(--ufuq-border); font-family: var(--ufuq-font-display); font-size: var(--ufuq-fs-h2); line-height: var(--ufuq-lh-snug); }
+.hb-section h3 { margin: var(--ufuq-space-5) 0 var(--ufuq-space-2); font-size: var(--ufuq-fs-h3); line-height: var(--ufuq-lh-snug); }
+.hb-page { margin-inline-start: var(--ufuq-space-1); white-space: nowrap; }
+
+.hb-scroll { overflow-x: auto; margin-block: var(--ufuq-space-4); }
+.hb-facts th { inline-size: 32%; text-align: start; vertical-align: top; font-weight: 600; }
+.hb-facts td { vertical-align: top; }
+.hb-table { margin: var(--ufuq-space-5) 0; }
+.hb-table figcaption { font-weight: 600; }
+.hb-table td, .hb-table th { font-variant-numeric: tabular-nums; }
+/* The performance tables have up to seven columns: their headings wrap and the cells are tighter than Ufuq's default. */
+.hb-table .ufuq-table thead th { white-space: normal; }
+.hb-table .ufuq-table th, .hb-table .ufuq-table td { padding: var(--ufuq-space-2) var(--ufuq-space-3); }
+
+.hb-steps ol { margin: 0; padding-inline-start: var(--ufuq-space-6); }
+.hb-steps li { margin-block: var(--ufuq-space-1); }
+.hb-after { color: var(--ufuq-text-muted); }
+.hb-list { margin-block: var(--ufuq-space-3) 0; padding-inline-start: var(--ufuq-space-6); }
+.hb-list-cite { margin-block-start: var(--ufuq-space-1); }
+
+/* The figures are drawn for paper: they sit on a white panel in both themes. */
+.hb-figure { margin: var(--ufuq-space-5) 0; }
+.hb-figure__art { padding: var(--ufuq-space-3); border-radius: var(--ufuq-radius-md); background: var(--ufuq-print-paper); }
+.hb-figure__art img { display: block; inline-size: 100%; block-size: auto; }
+/* That rule outranks Ufuq's layered one that hides the other language, so the figures restate it. */
+:root:lang(ar) .hb-figure__art .ufuq-en, :root:not(:lang(ar)) .hb-figure__art .ufuq-ar { display: none; }
+.hb-figure figcaption { margin-block-start: var(--ufuq-space-2); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }
+
+@media print {
+  /* A printed page reads smaller than a screen: about 10 pt body text, and figures no taller than 105 mm. */
+  html { font-size: 13.5px; }
+  .hb-figure__art img { inline-size: auto; max-inline-size: 100%; max-block-size: 105mm; margin-inline: auto; }
+  .ufuq-shell, .hb-toc { display: none; }
+  .hb-main { max-inline-size: none; padding: 0; }
+  .hb-section { break-before: page; margin-block-start: 0; }
+  .hb-steps, .hb-figure, tr { break-inside: avoid; }
+  .hb-section h2, .hb-section h3, .hb-table figcaption { break-after: avoid; }
+  .hb-scroll { overflow: visible; }
+  .ufuq-shell-foot { break-before: avoid; }
+}
