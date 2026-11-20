@@ -14,8 +14,10 @@ e2e-screenshots/
 # the handbook plates: the raw renders of new plates and their web SVGs are large and are made again by `npm run plates:render` and
 # `npm run plates:build` (Blender needed); what is kept is the finished plate of the book in 09_book_figures/handbook/out/book
 09_book_figures/handbook/renders/
-# (kept by name with `git add -f`: the small <id>.anchors.json of each render that a figure reads, where its points fell in the picture;
-# without them the plates' spec cannot load in a fresh clone. 09_book_figures/tests/test_plates.py names any that is missing)
+# (kept by name with `git add -f`: what a fresh clone cannot make again and the plates' spec reads while it loads: the small
+# <id>.anchors.json of each Blender render, where its points fell in the picture, and the two desert backdrops the grounds are cut
+# from, backdrop-*.png. 09_book_figures/tests/test_plates.py names any that is missing; the pieces of ground and the relief of
+# Arabia are made again when they are not there)
 09_book_figures/handbook/out/*.svg
 # the aerodrome atlas: the cards are made again from data/ (python3 09_book_figures/atlas/card.py; node 09_book_figures/atlas/rasterize_cards.mjs)
 09_book_figures/atlas/cache/

@@ -7,7 +7,6 @@ The book's two editions share one file for each figure, so the artwork carries n
 callouts and each edition explains the numbers in a list under the figure. These checks keep that: every plate has exactly
 as many callouts as its legend has items, numbered 1 to n, and its SVG holds no text. Standard library only.
 """
-import builtins
 import json
 import os
 import re
@@ -22,21 +21,22 @@ sys.path.insert(0, PLATES)
 from book_rules import problems_of_jpeg, problems_of_svg      # noqa: E402
 import plates_spec                                            # noqa: E402  (the first six plates of plates.json and one module per figure in figs/)
 from reskin import sprites_used                               # noqa: E402  (the pictures of the aeroplane a re-skinned plate lays on its old drawing)
-ANCHORS_READ = []                                             # the files of render anchors that the figures read while the spec loads
-_open = builtins.open
+RENDERS = os.path.realpath(os.path.join(PLATES, "renders"))
+RENDERS_READ = set()                                          # every file of handbook/renders opened from here on: by the figures while the spec loads, and by the tests
 
 
-def _noting_anchors(path, *args, **kwargs):
-    if str(path).endswith(".anchors.json"):
-        ANCHORS_READ.append(os.path.abspath(str(path)))
-    return _open(path, *args, **kwargs)
+def _note_renders(event, args):
+    if event == "open" and args and isinstance(args[0], (str, bytes, os.PathLike)):
+        try:
+            path = os.path.realpath(os.fsdecode(args[0]))
+        except (TypeError, ValueError):
+            return
+        if path.startswith(RENDERS + os.sep):
+            RENDERS_READ.add(path)
 
 
-builtins.open = _noting_anchors
-try:
-    SPEC = plates_spec.load()
-finally:
-    builtins.open = _open
+sys.addaudithook(_note_renders)
+SPEC = plates_spec.load()
 with open(os.path.join(PLATES, "glyphs.json"), encoding="utf-8") as f:
     GLYPHS = json.load(f)
 MARKER = SPEC["palette"]["marker"]
@@ -127,18 +127,9 @@ class PlateSpec(unittest.TestCase):
         self.assertEqual(arcs, {"white": (45, 90), "green": (52, 125), "yellow": (125, 160)})
         self.assertEqual([r["value"] for r in asi["redlines"]], [160])
 
-    def test_the_anchors_the_figures_read_are_in_the_repository(self):
-        """A figure laid on a 3D render reads where its points fell in the picture (handbook/renders/<id>.anchors.json). The renders folder is not in git
-        (the pictures are large and are made again), so each of these small files is added by name (git add -f). Without it the spec cannot load in a fresh
-        clone, which is how the CI runs this file: there the failure is a missing file while this module loads, here it is named."""
-        top = subprocess.run(["git", "-C", PLATES, "rev-parse", "--show-toplevel"], capture_output=True, text=True)
-        if top.returncode != 0:
-            self.skipTest("not a git checkout")
-        root = top.stdout.strip()
-        tracked = set(subprocess.run(["git", "-C", root, "ls-files", "09_book_figures/handbook/renders"], capture_output=True, text=True, check=True).stdout.split("\n"))
-        read = sorted({os.path.relpath(os.path.realpath(p), os.path.realpath(root)) for p in ANCHORS_READ})
-        self.assertTrue(read, "no figure read an anchors file: the check has lost its hold")
-        self.assertEqual([p for p in read if p not in tracked], [], "not in git: add them with git add -f")
+    def test_figures_read_render_anchors(self):
+        """(The check at the end of this file, tearDownModule, has something to hold on to.)"""
+        self.assertTrue([p for p in RENDERS_READ if p.endswith(".anchors.json")], "no figure read an anchors file")
 
     def test_glyphs_cover_the_digits_and_alpha(self):
         for ch in "0123456789α":
@@ -210,6 +201,23 @@ class BookFiles(unittest.TestCase):
         self.assertEqual(problems_of_svg("fig-05-01-x.svg", '<svg viewBox="0 0 1 1"><text>105 kt</text></svg>'), ["figure fig-05-01-x.svg: the text '105 kt' is not language-neutral"])
         self.assertTrue(problems_of_jpeg("plate-07-01-x.jpg", b"<svg/>"))
         self.assertTrue(problems_of_jpeg("photo.jpg", b"\xff\xd8\xff\xd9"))
+
+
+def tearDownModule():
+    """What a fresh clone cannot make again has to be in git. The renders folder is not (the pictures are large and most are made again when they are missing:
+    the pieces of ground, the relief of Arabia). Two kinds of file in it are not made again here, because they come from Blender: the anchors of a render (where
+    its points fell in the picture, <id>.anchors.json) and the two desert backdrops that the grounds are cut from (backdrop-*.png). Each is added by name
+    (git add -f). Without them the spec cannot load in a fresh clone, which is how the CI runs this file; on a machine that has the renders nothing fails, so
+    this names any such file that was read during the run and is not in git."""
+    top = subprocess.run(["git", "-C", PLATES, "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+    if top.returncode != 0:
+        return                                                # not a git checkout: nothing to compare with
+    root = os.path.realpath(top.stdout.strip())
+    tracked = set(subprocess.run(["git", "-C", root, "ls-files", "09_book_figures/handbook/renders"], capture_output=True, text=True, check=True).stdout.split("\n"))
+    needed = sorted(os.path.relpath(p, root) for p in RENDERS_READ if p.endswith(".anchors.json") or os.path.basename(p).startswith("backdrop-"))
+    missing = [p for p in needed if p not in tracked]
+    if missing:
+        raise AssertionError("read by the figures or the tests and not in git (git add -f): " + ", ".join(missing))
 
 
 if __name__ == "__main__":
