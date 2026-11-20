@@ -6,6 +6,7 @@ No words but SAR: shapes and the numbers of the callouts. The drawings are gener
 import math
 
 from figs import h_b2 as H
+from figs import h_rich as R
 from figs import scene as S
 
 n = S.n
@@ -27,7 +28,7 @@ def background():
 
 def tile(i):
     x, y = GX[i % 4], GY[i // 4]
-    return f'<rect x="{n(x)}" y="{n(y)}" width="{n(TW)}" height="{n(TH)}" rx="9" fill="#EEF2F7" stroke="#CBD5E1" stroke-width="1.2"/>'
+    return R.tile(f"{U}t{i}", x, y, TW, TH, ("sand", "green", "blue", "slate", "sand", "blue", "green", "red")[i])
 
 
 def page(x, y, w=44.0, h=58.0, lines=3, fill="#FFFFFF"):

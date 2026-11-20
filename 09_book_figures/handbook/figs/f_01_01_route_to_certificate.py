@@ -13,6 +13,7 @@ The two bars of hours are drawn to one scale (5.6 units to the hour). Dual 20 h 
 and unlabelled, and the legend says so. No words: digits, units (H, D, M, NM), the codes of the parts and the numbers of the steps."""
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 330
@@ -41,13 +42,7 @@ def gwidth(s, height, spacing=0.3):
 
 
 def pill(s, x, y, colour, size=5.4, height=10.0, solid=True):
-    w = gwidth(s, size) + 10.0
-    x0 = x - w / 2
-    if solid:
-        return (f'<rect x="{n(x0)}" y="{n(y - height / 2)}" width="{n(w)}" height="{n(height)}" rx="{n(height / 2)}" fill="{colour}" stroke="#FFFFFF" stroke-width="1.1" filter="url(#{U}ds)"/>'
-                + H.glyph_text(s, x0 + w / 2, y, size, "#FFFFFF", spacing=0.3))
-    return (f'<rect x="{n(x0)}" y="{n(y - height / 2)}" width="{n(w)}" height="{n(height)}" rx="{n(height / 2)}" fill="#FFFFFF" fill-opacity="0.95" stroke="{colour}" stroke-width="0.9"/>'
-            + H.glyph_text(s, x0 + w / 2, y, size, colour, spacing=0.3))
+    return M.chip(x, y, s, colour, size=size * 1.05, anchor="middle", light=True, height=height)
 
 
 def background():

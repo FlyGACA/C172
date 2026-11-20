@@ -416,10 +416,10 @@ def dim_line(x0, y0, x1, y1, colour="#10233F", width=1.6, head=7.0, casing=2.6, 
 
 
 def pill(cx, cy, w, h, text, colour="#1F2937", size=13, border=None):
-    """A white label with a thin coloured border and bold text, centred on (cx, cy)."""
-    border = border or colour
-    return (f'<rect x="{n(cx - w / 2)}" y="{n(cy - h / 2)}" width="{n(w)}" height="{n(h)}" rx="4.5" fill="#FFFFFF" fill-opacity="0.97" stroke="{border}" stroke-width="1.3" filter="url(#a1ds)"/>'
-            f'<text x="{n(cx)}" y="{n(cy + size * 0.35)}" font-family="sans-serif" font-size="{size}" font-weight="bold" fill="{colour}" text-anchor="middle">{text}</text>')
+    """A label centred on (cx, cy): since the fourth design pass, written straight on the figure in its colour with a white halo (figs/marks.chip; the font size
+    given is that of the old boxed label, w, h and border are kept for the callers and not used)."""
+    from figs import marks as M
+    return M.chip(cx, cy, str(text), colour, size=size * 0.66)
 
 
 def vor_station(x, gy, scale=1.0):

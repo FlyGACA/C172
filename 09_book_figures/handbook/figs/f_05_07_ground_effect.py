@@ -8,6 +8,7 @@ import math
 from figs import h_b1 as B
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 214
@@ -27,9 +28,7 @@ def gwidth(s, height, spacing=0.3):
 
 
 def pill(s, x, y, colour, size=6.2, height=12.0):
-    w = gwidth(s, size) + 12.0
-    return (f'<rect x="{n(x - w / 2)}" y="{n(y - height / 2)}" width="{n(w)}" height="{n(height)}" rx="{n(height / 2)}" fill="{colour}" stroke="#FFFFFF" stroke-width="1.2" filter="url(#{U}ds)"/>'
-            + H.glyph_text(s, x, y, size, "#FFFFFF", spacing=0.35))
+    return M.chip(x, y, s, colour, size=size * 1.05, anchor="middle", light=True, height=height)
 
 
 def background():
@@ -46,11 +45,7 @@ def ground():
 
 
 def arrow(x0, y0, x1, y1, col, width=2.4, head=6.0):
-    ang = math.atan2(y1 - y0, x1 - x0)
-    hx, hy = x1 - head * math.cos(ang), y1 - head * math.sin(ang)
-    nx, ny = -math.sin(ang), math.cos(ang)
-    return (f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(hx)}" y2="{n(hy)}" stroke="{col}" stroke-width="{n(width)}" stroke-linecap="round"/>'
-            f'<path d="M{n(x1)} {n(y1)} L{n(hx + nx * head * 0.62)} {n(hy + ny * head * 0.62)} L{n(hx - nx * head * 0.62)} {n(hy - ny * head * 0.62)} Z" fill="{col}"/>')
+    return M.arrow(x0, y0, x1, y1, col, width=width * 0.8, head=head)
 
 
 def vortex(x, y, r, col):

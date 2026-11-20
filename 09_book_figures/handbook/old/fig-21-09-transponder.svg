@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380">
+<rect x="0" y="0" width="640" height="380" fill="#ffffff"/>
+<rect x="30" y="24" width="580" height="150" rx="14" fill="#1f2937"/>
+<rect x="38" y="32" width="564" height="134" rx="10" fill="none" stroke="#4b5563" stroke-width="1.2"/>
+<circle cx="116" cy="104" r="30" fill="#4b5563" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="99.0" y1="133.4" x2="95.0" y2="140.4" stroke="#ffffff" stroke-width="2"/>
+<circle cx="88.0" cy="152.5" r="9" fill="#ffffff"/><text x="88.0" y="156.5" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">1</text>
+<line x1="83.2" y1="112.8" x2="75.4" y2="114.9" stroke="#ffffff" stroke-width="2"/>
+<circle cx="61.9" cy="118.5" r="9" fill="#ffffff"/><text x="61.9" y="122.5" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">2</text>
+<line x1="86.6" y1="87.0" x2="79.6" y2="83.0" stroke="#ffffff" stroke-width="2"/>
+<circle cx="67.5" cy="76.0" r="9" fill="#ffffff"/><text x="67.5" y="80.0" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">3</text>
+<line x1="107.2" y1="71.2" x2="105.1" y2="63.4" stroke="#ffffff" stroke-width="2"/>
+<circle cx="101.5" cy="49.9" r="9" fill="#ffffff"/><text x="101.5" y="53.9" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">4</text>
+<line x1="133.0" y1="74.6" x2="137.0" y2="67.6" stroke="#ffffff" stroke-width="2"/>
+<circle cx="144.0" cy="55.5" r="9" fill="#ffffff"/><text x="144.0" y="59.5" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#1f2937" text-anchor="middle">5</text>
+<line x1="116.0" y1="104.0" x2="109.3" y2="78.9" stroke="#ffffff" stroke-width="4"/>
+<rect x="214" y="46" width="44" height="52" rx="5" fill="#000000" stroke="#6b7280" stroke-width="1.5"/>
+<text x="236.0" y="86.0" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="bold" fill="#fbbf24" text-anchor="middle">4</text>
+<circle cx="236" cy="132" r="16" fill="#4b5563" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="236.0" y1="120.0" x2="236.0" y2="128.0" stroke="#ffffff" stroke-width="2"/>
+<rect x="278" y="46" width="44" height="52" rx="5" fill="#000000" stroke="#6b7280" stroke-width="1.5"/>
+<text x="300.0" y="86.0" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="bold" fill="#fbbf24" text-anchor="middle">6</text>
+<circle cx="300" cy="132" r="16" fill="#4b5563" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="300.0" y1="120.0" x2="300.0" y2="128.0" stroke="#ffffff" stroke-width="2"/>
+<rect x="342" y="46" width="44" height="52" rx="5" fill="#000000" stroke="#6b7280" stroke-width="1.5"/>
+<text x="364.0" y="86.0" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="bold" fill="#fbbf24" text-anchor="middle">0</text>
+<circle cx="364" cy="132" r="16" fill="#4b5563" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="364.0" y1="120.0" x2="364.0" y2="128.0" stroke="#ffffff" stroke-width="2"/>
+<rect x="406" y="46" width="44" height="52" rx="5" fill="#000000" stroke="#6b7280" stroke-width="1.5"/>
+<text x="428.0" y="86.0" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="bold" fill="#fbbf24" text-anchor="middle">0</text>
+<circle cx="428" cy="132" r="16" fill="#4b5563" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="428.0" y1="120.0" x2="428.0" y2="128.0" stroke="#ffffff" stroke-width="2"/>
+<circle cx="470.0" cy="72.0" r="10" fill="#1d4ed8"/><text x="470.0" y="76.3" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<line x1="457.0" y1="72.0" x2="456.0" y2="72.0" stroke="#1d4ed8" stroke-width="1"/>
+<rect x="510" y="52" width="66" height="34" rx="6" fill="#4b5563" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="543.0" cy="69.0" r="9" fill="#1d4ed8"/><text x="543.0" y="73.0" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+<circle cx="543" cy="128" r="9" fill="#fbbf24"/>
+<circle cx="543" cy="128" r="14" fill="none" stroke="#fbbf24" stroke-width="1.2"/>
+<circle cx="574.0" cy="128.0" r="9" fill="#1d4ed8"/><text x="574.0" y="132.0" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">8</text>
+<rect x="80" y="216" width="80" height="36" rx="6" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="120.0" y="242.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#1f2937" text-anchor="middle">4600</text>
+<line x1="164.0" y1="234.0" x2="198.0" y2="234.0" stroke="#047857" stroke-width="2.4"/><polygon points="206.0,234.0 196.0,239.5 196.0,228.5" fill="#047857"/>
+<rect x="210" y="216" width="80" height="36" rx="6" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="250.0" y="242.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#1f2937" text-anchor="middle">4200</text>
+<line x1="294.0" y1="234.0" x2="328.0" y2="234.0" stroke="#047857" stroke-width="2.4"/><polygon points="336.0,234.0 326.0,239.5 326.0,228.5" fill="#047857"/>
+<rect x="340" y="216" width="80" height="36" rx="6" fill="#ffffff" stroke="#047857" stroke-width="2"/><text x="380.0" y="242.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#1f2937" text-anchor="middle">7200</text>
+<path d="M492,234 l10,10 l20,-22" fill="none" stroke="#047857" stroke-width="5"/>
+<circle cx="52.0" cy="234.0" r="10" fill="#047857"/><text x="52.0" y="238.3" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">9</text>
+<rect x="80" y="306" width="80" height="36" rx="6" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="120.0" y="332.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#1f2937" text-anchor="middle">4600</text>
+<line x1="164.0" y1="324.0" x2="198.0" y2="324.0" stroke="#b91c1c" stroke-width="2.4"/><polygon points="206.0,324.0 196.0,329.5 196.0,318.5" fill="#b91c1c"/>
+<rect x="210" y="306" width="80" height="36" rx="6" fill="#b91c1c" stroke="#b91c1c" stroke-width="2"/><text x="250.0" y="332.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">7600</text>
+<line x1="294.0" y1="324.0" x2="328.0" y2="324.0" stroke="#b91c1c" stroke-width="2.4"/><polygon points="336.0,324.0 326.0,329.5 326.0,318.5" fill="#b91c1c"/>
+<rect x="340" y="306" width="80" height="36" rx="6" fill="#b91c1c" stroke="#b91c1c" stroke-width="2"/><text x="380.0" y="332.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">7500</text>
+<line x1="424.0" y1="324.0" x2="458.0" y2="324.0" stroke="#b91c1c" stroke-width="2.4"/><polygon points="466.0,324.0 456.0,329.5 456.0,318.5" fill="#b91c1c"/>
+<rect x="470" y="306" width="80" height="36" rx="6" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="510.0" y="332.0" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="bold" fill="#1f2937" text-anchor="middle">7200</text>
+<circle cx="52.0" cy="324.0" r="10" fill="#b91c1c"/><text x="52.0" y="328.3" font-family="IBM Plex Sans, IBM Plex Sans Arabic, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">10</text>
+</svg>

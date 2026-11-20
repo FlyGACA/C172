@@ -1,16 +1,76 @@
-"""Figure 15-2. Flying an approach through a microburst. The diagram of the book's figure with the aeroplane of the model (reskin.py), the dark base of a thunderstorm in place
-of the drawn cloud, billows of dust in place of the tan ovals on the ground, and a plain of sand under it (figs/clouds.py, figs/scene.py)."""
+"""Figure 15-2. Flying an approach through a microburst (redrawn in the second design pass as one 3D view).
+
+One render (figs/oeth3d.microburst_15_02; blender/render_oeth.py): the open picture of the desert east of Thumamah on its relief, seen from behind and to the left
+of the approach to a generic aerodrome (the plan of 2-4's lower view); the intended 3 degree glide path dashed in green and the path flown in red: above the
+glide path in the increasing headwind, pushed down in the downdraft, sinking fast in the increasing tailwind, touching the ground short of the runway; the
+base of a cumulonimbus over the approach and a ring of dust raised by the outflow; the aeroplane (the model, enlarged) where it floats. The sky, the virga
+and rain shaft and the wind arrows are drawn on the plate. The heights of the paths and of the cloud base are drawn 2.5 times their size."""
+import json
+import os
+
+from figs import h_b2 as H
 from figs import scene as S
 
+n = S.n
+W = 640
+U = "f1502"
+R3D = "microburst-15-02"
+PX, PY, PW = 8.0, 8.0, 624.0
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BLUE = ("#2F63C8", "#8DB3F2")
+GREEN = ("#15803D", "#86EFAC")
+RED = ("#B91C1C", "#FCA5A5")
 
-from reskin import LOOK        # noqa: E402
+
+def info():
+    with open(os.path.join(HERE, "renders", R3D + ".anchors.json"), encoding="utf-8") as f:
+        d = json.load(f)
+    w, h = d["size"]
+    ph = PW * h / w
+    return (lambda k: (PX + d["anchors"][k][0] * PW, PY + d["anchors"][k][1] * ph)), ph
 
 
-GROUND = ('<defs>' + S.gradient("f1502sand", [(0, "#E7D5AA"), (1, "#C9AD7A")]) + '</defs><rect x="0" y="316" width="640" height="44" fill="url(#f1502sand)"/>'
-          + S.scrub(5, 0, 640, 320, 358, 26, colour=("#8A8A55", "#5E603E"), scale=0.7))
-TAN = {"tint": "#C9A06B", "tint_strength": 0.8}
-DUST = [{"name": "cloud-cumulus-b", "at": [198, 302], "width": 98, "height": 30, **TAN}, {"name": "cloud-cumulus-b", "at": [152, 309], "width": 54, "height": 16, **TAN},
-        {"name": "cloud-cumulus-b", "at": [446, 302], "width": 98, "height": 30, **TAN}, {"name": "cloud-cumulus-b", "at": [492, 309], "width": 54, "height": 16, **TAN}]
+PH = PW * 1125 / 2000
+HT = int(PY + PH + 8)
+
+
+def layers():
+    at, ph = info()
+    hx, hy = at("hz")
+    sky = (f'<defs>{S.gradient(U + "sk", [(0, "#4F6079"), (0.5, "#8A9BB2"), (0.92, "#D6CBB6"), (1, "#DED2BC")])}</defs>'
+           f'<rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(hy - PY + 30)}" fill="url(#{U}sk)"/>')
+    # the storm's base as the render shows it (checked on the built plate): a dark dome over x 318-482 whose underside is near y 58
+    (mx, my) = at("mb_ground")
+    bx, by, blx, brx = 400.0, 56.0, 330.0, 470.0
+    rain = (S.rain(U + "vg", blx, brx, by, by + (my - by) * 0.5, slant=-4, count=50, seed=7, colour="#5A6E95", veil=0.16, bottom=0.0)
+            + S.rain(U + "rn", (bx + blx) / 2, (bx + brx) / 2, by, max(my, 224.0), slant=-4, count=70, seed=3, colour="#33508F", veil=0.30, bottom=0.25))
+    clip = f'<defs><clipPath id="{U}c"><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10"/></clipPath></defs><g clip-path="url(#{U}c)">'
+    img = {"name": R3D, "at": [PX + PW / 2, PY + ph / 2], "width": PW, "whole": True}
+    (ha, hay), (hb, hby) = at("head_a"), at("head_b")
+    (ta, tay), (tb, tby) = at("tail_a"), at("tail_b")
+    (fx, fy), (dx, dy), (sx, sy), (cx, cy) = at("float"), at("down"), at("sink"), at("contact")
+    (gx, gy), (thx, thy) = at("gp_mid"), at("thr")
+    (dlx, dly), (drx, dry) = at("dust_left"), at("dust_right")
+    arrows = "".join([
+        S.ribbon(U + "hw", [(hb, hby), ((ha + hb) / 2, (hay + hby) / 2), (ha, hay)], 6.5, *BLUE),
+        S.ribbon(U + "dd", [(bx, by + 30), ((bx + dx) / 2, (by + dy) / 2), (dx + 10, dy - 22)], 7.0, *BLUE),
+        S.ribbon(U + "tw", [(ta, tay), ((ta + tb) / 2, (tay + tby) / 2), (tb, tby)], 6.5, *BLUE),
+        S.ribbon(U + "ol", [(mx - 8, my - 6), ((mx + dlx) / 2, (my + dly) / 2 - 4), (dlx + 6, dly - 4)], 5.0, *BLUE),
+        S.ribbon(U + "or", [(mx + 8, my - 6), ((mx + drx) / 2, (my + dry) / 2 - 4), (drx - 6, dry - 4)], 5.0, *BLUE),
+    ])
+    c = S.callout
+    calls = "".join([
+        c(1, fx - 10, fy - 46, fx - 4, fy - 10, r=10.5),
+        c(2, (bx + dx) / 2 + 40, (by + dy) / 2, (bx + dx) / 2 + 10, (by + dy) / 2, r=10.5),
+        c(3, sx + 44, sy - 30, sx + 4, sy - 2, r=10.5),
+        c(4, cx + 30, cy + 34, cx, cy, r=10.5),
+        c(5, gx - 6, gy + 40, gx, gy + 4, r=10.5),
+        c(6, dlx - 30, dly + 32, dlx, dly + 6, r=10.5),
+        c(7, thx + 40, thy + 30, thx + 6, thy + 2, r=10.5),
+        c(8, brx + 26, by + 40, brx - 10, by + 40, r=10.5),
+    ])
+    frame = f'</g><rect x="{n(PX)}" y="{n(PY)}" width="{n(PW)}" height="{n(ph)}" rx="10" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>'
+    return [H.defs(U, W, HT), f'<rect x="0" y="0" width="{W}" height="{HT}" fill="#ffffff"/>', clip + sky + rain, img, arrows + frame + calls]
 
 
 def plate():
@@ -19,7 +79,9 @@ def plate():
         "replaces": "fig-15-02-microburst.svg",
         "book_file": "plate-15-02-microburst.jpg",
         "caption": "Figure 15-2. Flying an approach through a microburst",
-        "desc": "Figure 15-2. Flying an approach through a microburst",
+        "desc": ("Figure 15-2. Flying an approach through a microburst. A 3D view from behind the approach: the intended glide path, and the path flown, which rises above it "
+                 "in the increasing headwind, is pushed down in the downdraft, sinks fast in the increasing tailwind and touches the ground short of the runway, under the "
+                 "base of a thunderstorm with virga and a rain shaft, and a ring of dust raised by the outflow."),
         "legend": [
             "Increasing headwind: airspeed and lift rise, and the aeroplane floats above the glide path.",
             "Downdraft: the aeroplane is pushed down.",
@@ -30,14 +92,7 @@ def plate():
             "Runway.",
             "Virga and the rain shaft.",
         ],
-        "canvas": [640, 396],
+        "canvas": [W, HT],
         "background": "pale",
-        "reskin": {
-            "svg": "fig-15-02-microburst.svg",
-            "replace": [['<rect x="0" y="316" width="640" height="44" fill="url(#f1502-gr)"/>', GROUND]],
-            # the aeroplane on the approach, a cartoon in the old figure, is the model seen from the right, at the same place and the same descent angle
-            "drop": [['<g transform="translate(60 155.6) rotate(17) scale(1.0)"', '<line x1="199.7" y1="170.4"', {"sprites": [{"name": "sprite-side", "at": [61, 155], "width": 96, "angle": 17, **LOOK}]}],
-                     ['<circle cx="196" cy="36" r="34" fill="#94a3b8" stroke="#94a3b8" stroke-width="3"/>', '<line x1="214" y1="92" x2="211" y2="132"', {"sprites": [{"name": "cloud-stormbase", "at": [322, 44], "width": 304}]}],
-                     ['<ellipse cx="196" cy="309" rx="30" ry="9"', '<line x1="130" y1="236" x2="70" y2="236"', {"sprites": DUST}]],
-        },
+        "reskin": {"blank": True, "layers": layers()},
     }

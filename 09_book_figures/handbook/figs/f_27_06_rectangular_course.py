@@ -28,7 +28,11 @@ def plate():
             "Upwind leg: headwind, lowest groundspeed, no crab.",
             "Crosswind leg: nose toward the outside.",
         ],
-        "canvas": [640, 440],
+        "canvas": [640, 440 + 260],
+        # above the drawing, the course in 3D (figs/oeth3d.rectangle_27_06): at 1 000 ft over the field, its shadow the ground track, the aeroplanes enlarged
+        "top3d": {"render": "farm-27-06-rectangle", "height": 260, "v_mid": 0.45, "uid": "r276", "callouts": [
+            (1, "wind", 60.0, 40.0), (2, "field", 236.0, 236.0), (3, "entry", 40.0, 236.0), (4, "down", 336.0, 236.0), (5, "corner", 522.0, 236.0),
+            (6, "base", 566.0, 96.0), (7, "up", 404.0, 30.0), (8, "cross", 104.0, 140.0)]},
         "background": "pale",
         "reskin": h_plan.layer({
             "svg": "fig-27-06-rectangular-course.svg",

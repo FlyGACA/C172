@@ -24,8 +24,10 @@ from figs import h_b4 as B
 from figs import imagery_real as IR
 from figs import scene as S
 
-W, HT = 640, 434
+W, HT = 640, 434                                                     # the map (its picture is made at this size)
 U = "lp8"
+TOPH = 260                                                           # the 3D view above it (the airspace round): the plate is W x (HT + TOPH)
+R3D = "oeth-18-08-procedures"
 SCALE = 47.0                                                         # canvas units to the NM
 OETH = H.DATA["oeth"]
 F = H.Frame(OETH["arp"]["lat"], OETH["arp"]["lon"], SCALE, 165.0, 254.0)
@@ -267,7 +269,25 @@ def callouts():
     return "".join(out)
 
 
+def top3d():
+    """The 3D view: the procedures at their heights over the ground (figs/oeth3d.procedures_18_08); callout 4 (no turn to the east) is in the map only."""
+    from figs import panel3d as P3
+
+    def marks(at):
+        return H.vrp(U, *at("nv"), 10.0) + H.vrp(U, *at("ev"), 10.0)
+    return P3.panel(R3D, (8.0, 8.0, 624.0, TOPH - 16.0), 0.62, U, CALLOUTS_3D, marks=marks)
+
+
+CALLOUTS_3D = [(1, "rwy", 196.0, 200.0), (2, "dep35", 215.0, 34.0), (3, "dep17", 140.0, 34.0), (5, "nv", 302.0, 40.0), (6, "ev", 592.0, 172.0), (7, "ridge", 440.0, 32.0),
+               (8, "mid", 252.0, 150.0), (9, "hw", 40.0, 190.0), (10, "entry", 40.0, 40.0), (11, "reserve", 120.0, 206.0), (12, "atz", 300.0, 228.0)]
+
+
 def layers():
+    from figs import panel3d as P3
+    return [*top3d(), *P3.below(map_layers(), TOPH)]
+
+
+def map_layers():
     out = [H.defs(U, W, HT), B.defs(), {"name": "terrain-18-08-picture", "at": [W / 2, HT / 2], "width": W}, H.vignette(U, W, HT, 0.12),
            H.edge(ATZ, "G", dash="8 4.5", width=1.7, uid=U), highway(), reserve(), circuits(), departures(), no_turn_east(), arrivals(), marks(), *sprites(), altitudes(),
            H.north_arrow(U, 612, 60, 30), H.scale_bar(U, 506, 408, 2 * SCALE, nm_total=2, segments=2, text="2 NM"), callouts()]
@@ -280,7 +300,8 @@ def plate():
         "replaces": "fig-18-08-local-procedures.svg",          # nothing: the book had no such figure (the name only keeps the rule that it starts with the id)
         "book_file": "plate-18-08-local-procedures.jpg",
         "caption": "Figure 18-8. The published procedures of Thumamah: departures, arrivals and the two circuits",
-        "desc": ("Figure 18-8. The published procedures of Thumamah: departures, arrivals and the two circuits. North is up. The procedures are the AIP's (AD 2.22, AMDT 11/26); where the turns are "
+        "desc": ("Figure 18-8. The published procedures of Thumamah: departures, arrivals and the two circuits. Above, in 3D from the south-south-west at their heights over the ground "
+                 "(heights, the ground's too, enlarged four times); below, the map, north up. The procedures are the AIP's (AD 2.22, AMDT 11/26); where the turns are "
                  "made and how wide the circuits are is illustrative. The ground is an open satellite picture (contains modified Copernicus Sentinel data 2026); not for navigation."),
         "legend": [
             "Runway 17/35 and its circuits, both west of the runway at 2 900 ft AMSL: left-hand for runway 35 (solid blue), right-hand for runway 17 (dashed).",
@@ -296,7 +317,7 @@ def plate():
             "The wildlife reserve 0.7 NM west of the runway, which pilots are asked not to overfly; the AIP gives no limits for it.",
             "The edge of the ATZ, 5 NM from the aerodrome reference point.",
         ],
-        "canvas": [W, HT],
+        "canvas": [W, HT + TOPH],
         "background": "pale",
         "reskin": {"blank": True, "layers": layers()},
     }

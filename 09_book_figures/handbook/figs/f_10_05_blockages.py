@@ -8,6 +8,7 @@ import math
 
 from figs import h_b2 as H
 from figs import scene as S
+from figs import marks as M  # noqa: E402
 
 n = S.n
 W, HT = 640, 300
@@ -28,11 +29,7 @@ def background():
 
 
 def arrow(x0, y0, x1, y1, col, width=3.4, head=8.0):
-    ang = math.atan2(y1 - y0, x1 - x0)
-    hx, hy = x1 - head * math.cos(ang), y1 - head * math.sin(ang)
-    nx, ny = -math.sin(ang), math.cos(ang)
-    return (f'<line x1="{n(x0)}" y1="{n(y0)}" x2="{n(hx)}" y2="{n(hy)}" stroke="{col}" stroke-width="{n(width)}" stroke-linecap="round"/>'
-            f'<path d="M{n(x1)} {n(y1)} L{n(hx + nx * head * 0.62)} {n(hy + ny * head * 0.62)} L{n(hx - nx * head * 0.62)} {n(hy - ny * head * 0.62)} Z" fill="{col}"/>')
+    return M.arrow(x0, y0, x1, y1, col, width=width * 0.8, head=head)
 
 
 def dial(cx, cy, needle, col=INK, zero=False):

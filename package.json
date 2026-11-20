@@ -8,6 +8,7 @@
     "verify:model": "python3 07_kinematic_twin/build/verify_model.py",
     "verify:checksums": "if sha256sum --help 2>&1 | grep -q -- --quiet; then SHA=sha256sum; else SHA='shasum -a 256'; fi; echo \"checking the archived packages with ${SHA}\"; sed 's#  README.md$#  docs/archive/UPLOAD_PACKAGE_README.md#' SHA256SUMS.txt | $SHA -c --quiet",
     "test": "node --test 07_kinematic_twin/tests/*.test.mjs 08_realistic_digital_twin/tests/*.test.mjs 09_book_figures/tests/*.test.mjs test/evidence.test.mjs test/site.test.mjs",
+    "test": "node --test 07_kinematic_twin/tests/*.test.mjs 08_realistic_digital_twin/tests/*.test.mjs 09_book_figures/tests/*.test.mjs 11_training_handbook/tests/*.test.mjs test/site.test.mjs",
     "build:site": "node scripts/build_site.mjs",
     "check:site": "node scripts/build_site.mjs --check",
     "test:e2e": "node 07_kinematic_twin/tests/e2e.mjs",
@@ -37,6 +38,9 @@
     "plates:render:clouds": "\"$(08_realistic_digital_twin/scripts/get_blender.sh)\" -b --python 09_book_figures/blender/render_clouds.py -- --all",
     "plates:build": "python3 09_book_figures/handbook/build_plates.py && node 09_book_figures/handbook/rasterize.mjs && python3 09_book_figures/handbook/book_plates.py",
     "test:plates:py": "python3 09_book_figures/tests/test_plates.py",
+    "handbook": "node 11_training_handbook/build.mjs",
+    "handbook:pdf": "node 11_training_handbook/build.mjs --pdf",
+    "handbook:check": "node 11_training_handbook/build.mjs --check",
     "flight:doc": "node 08_realistic_digital_twin/scripts/flight_doc.mjs",
     "survey": "node 08_realistic_digital_twin/scripts/flight_survey.mjs"
   },
