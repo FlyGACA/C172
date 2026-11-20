@@ -7,21 +7,46 @@
 // not certified, not calibrated against a real aircraft, and must not be used
 // for flight or maintenance decisions.
 
-export const POH = {
-  vne: 160, vno: 128, vfe: 85, va2300: 97,                // KIAS, p.2-4
-  asiWhite: [41, 85], asiGreen: [47, 128], asiYellow: [128, 160], // p.2-5 Fig 2-2
-  maxRpm: 2700,                                          // p.2-5
-  staticRpm: [2280, 2400],                               // p.2-5 note (full throttle, carb heat off, full rich)
-  tachGreenSL: [2100, 2450],                             // p.2-6 Fig 2-3
-  oilTempMaxF: 245, oilTempGreen: [100, 245],            // p.2-5 / 2-6
-  oilPressMin: 25, oilPressMax: 100, oilPressGreen: [60, 90], // p.2-5 / 2-6
-  suctionGreen: [4.5, 5.4],                              // p.2-6, p.7-34
-  magDropMax: 125, magDiffMax: 50, magCheckRpm: 1700,    // p.4-7, p.4-13
-  carbHeatFullThrottleDrop: [100, 225],                  // p.7-19
-  leanPeakDrop: [25, 50],                                // p.4-16
-  fuelPerTankTotal: 21.5, fuelPerTankUsable: 20, fuelUnusablePerTank: 1.5, // p.7-21, p.2-6
-  systemVolts: 28, batteryVolts: 24, alternatorAmps: 60, // p.7-23, p.7-25
+// Every published limit is fetched through the evidence gate (evidence.js): it returns the value
+// with its citation only when the record has a document, an edition, a page and the conditions the
+// value was read under. A missing value stops the module instead of showing an uncited number.
+import { useValue } from './evidence.js';
+
+const poh = (id, context = {}) => {
+  const r = useValue(id, context);
+  if (r.value == null) throw new Error(`C172: ${id} has no usable POH evidence (${r.reasons.join(', ')})`);
+  return r.value;
 };
+
+export const POH = Object.freeze({
+  vne: poh('c172n.vne'),                                 // p.2-4 Fig 2-1
+  vno: poh('c172n.vno'),
+  vfe: poh('c172n.vfe', { flapsDeg: 20 }),               // 85 KIAS, the 10-40 deg row; the handbook's 110 KIAS at 10 deg overlaps it
+  va2300: poh('c172n.va', { weightLb: 2300 }),
+  asiWhite: poh('c172n.asiWhite'),                       // p.2-5 Fig 2-2
+  asiGreen: poh('c172n.asiGreen'),
+  asiYellow: poh('c172n.asiYellow'),
+  maxRpm: poh('c172n.maxRpm'),                           // p.2-5
+  staticRpm: poh('c172n.staticRpm', { throttle: 'full', carbHeat: 'off', mixture: 'full rich' }),
+  tachGreenSL: poh('c172n.tachGreen', { altitudeFt: 0 }), // p.2-6 Fig 2-3
+  oilTempMaxF: poh('c172n.oilTempMax'),                  // p.2-5 / 2-6
+  oilTempGreen: poh('c172n.oilTempGreen'),
+  oilPressMin: poh('c172n.oilPressMin'),
+  oilPressMax: poh('c172n.oilPressMax'),
+  oilPressGreen: poh('c172n.oilPressGreen'),
+  suctionGreen: poh('c172n.suctionGreen'),               // p.2-6, p.7-34
+  magDropMax: poh('c172n.magDropMax', { rpm: 1700 }),    // p.4-7, p.4-13
+  magDiffMax: poh('c172n.magDiffMax', { rpm: 1700 }),
+  magCheckRpm: poh('c172n.magCheckRpm'),
+  carbHeatFullThrottleDrop: poh('c172n.carbHeatDrop', { throttle: 'full', carbHeat: 'full' }), // p.7-19
+  leanPeakDrop: poh('c172n.leanPeakDrop'),               // p.4-16
+  fuelPerTankTotal: poh('c172n.fuelPerTankTotal', { tanks: 'standard' }),   // p.1-4, 7-21
+  fuelPerTankUsable: poh('c172n.fuelPerTankUsable', { tanks: 'standard' }),
+  fuelUnusablePerTank: poh('c172n.fuelUnusablePerTank', { tanks: 'standard' }), // p.2-6 Fig 2-3
+  systemVolts: poh('c172n.systemVolts'),                 // p.7-23, p.7-25
+  batteryVolts: poh('c172n.batteryVolts'),
+  alternatorAmps: poh('c172n.alternatorAmps'),
+});
 
 // ------------------------------------------------------------ atmosphere / pitot-static
 export const P0_INHG = 29.92;
@@ -129,11 +154,11 @@ export function createState(overrides = {}) {
     truth: { ias: 0, alt: 0, vs: 0, heading: 360, turnRate: 0 },
     engine: { running: false, rpm: 0, oilTempF: 59, oilPress: 0, ice: 0, cranking: false, startTimer: 0,
       flooded: false, prime: 0, power: 0, phi: 1.1, roughness: 0, fuelFlowGph: 0, carbBowl: 1, magsFiring: [] },
-    fuel: { left: 21.5, right: 21.5 },
+    fuel: { left: POH.fuelPerTankTotal, right: POH.fuelPerTankTotal },
     elec: { soc: 0.95, busVolts: 0, ammeter: 0, lowVoltage: false, acuTripped: false, altOnline: false, load: 0, ovTimer: 0, prevMaster: false },
     vac: { suction: 0, gyro: 0, aiBank: 0, aiPitch: 0, hiHeading: 360 },
     lines: { pitot: P0_INHG, static: P0_INHG },
-    ind: { ias: 0, alt: 0, vsi: 0, rpm: 0, suction: 0, ammeter: 0, oilT: 59, oilP: 0, fuelL: 20, fuelR: 20, aiBank: 0, aiPitch: 0, hi: 360, tc: 0, tcFlag: true },
+    ind: { ias: 0, alt: 0, vsi: 0, rpm: 0, suction: 0, ammeter: 0, oilT: 59, oilP: 0, fuelL: POH.fuelPerTankUsable, fuelR: POH.fuelPerTankUsable, aiBank: 0, aiPitch: 0, hi: 360, tc: 0, tcFlag: true },
     events: [],
   };
   deepMerge(s, overrides);
