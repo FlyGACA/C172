@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from openers_blueprint import ground, rose, glow_lines, NAVY, GOLD, PALE
+from covers_post import page_top, PAGE
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -39,7 +40,7 @@ def main(w=1792, h=2400):
     phi = math.radians(215.0)                              # north on the page, clockwise from up
     n = (math.sin(phi), -math.cos(phi))
     wv = (-math.cos(phi), -math.sin(phi))                  # west on the page
-    t17 = (330.0 * u * k, 2130.0 * u * k)
+    t17 = (330.0 * u * k, 1880.0 * u * k)                  # clear of the cover page's own lines at the foot
     P = lambda t, s: (t17[0] - n[0] * s * m + wv[0] * t * m, t17[1] - n[1] * s * m + wv[1] * t * m)     # s runs south from the threshold of 17, t west
     im = ground(w, h)
     fill = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
@@ -119,12 +120,12 @@ def main(w=1792, h=2400):
     src = src.crop(box)
     pw = int(1560 * u)
     src = src.resize((pw, int(src.height * pw / src.width)), Image.LANCZOS)
-    px0, py0 = (w - pw) // 2 + int(10 * u), int(1385 * u) - src.height // 2
+    px0, py0 = (w - pw) // 2 + int(10 * u), int(1140 * u) - src.height // 2     # below the cover page's title and facts (they end near 600 of 2400)
     a = np.asarray(src, dtype=np.float32) / 255.0
     alpha = a[..., 3]
     ink = alpha * np.clip(1.0 - a[..., :3].mean(axis=2) * 1.15, 0, 1)
     cx, cy = px0 + pw / 2.0, py0 + src.height / 2.0
-    im.alpha_composite(rose(w, h, cx, cy, 0.47 * w, north=215.0, alpha=62))
+    im.alpha_composite(rose(w, h, cx, cy, 0.47 * w, north=215.0, alpha=62, marker=False))
     im.alpha_composite(fill.resize((w, h), Image.LANCZOS))
     glow_lines(im, line.resize((w, h), Image.LANCZOS), w / 520.0)
     halo = np.zeros((src.height, pw, 4), dtype=np.float32)   # a soft dark ground under the drawing, so that the plan does not show through it
@@ -151,29 +152,27 @@ def main(w=1792, h=2400):
     tx = lambda t, s: (P(t, s)[0] / k, P(t, s)[1] / k)
     x, y = tx(-150, 60)
     d.text((x - 24 * u, y - 4 * u), "17", font=f1, fill=GOLD + (255,), anchor="mm")
-    x, y = tx(-150, L - 60)
-    d.text((x - 24 * u, y - 4 * u), "35", font=f1, fill=GOLD + (255,), anchor="mm")
-    bx, by = int(1010 * u), int(2118 * u)
-    back = Image.new("RGBA", (w, h), (0, 0, 0, 0))             # a calm ground under the words, so that the circuit's dashes do not run through them
-    ImageDraw.Draw(back).rounded_rectangle([bx - 26 * u, by - 34 * u, bx + 670 * u, by + 122 * u], radius=int(14 * u), fill=(8, 20, 46, 235))
+    bx, by = int(92 * u), int(1588 * u)                         # the chart's words, left of the runway and above the cover page's foot
+    back = Image.new("RGBA", (w, h), (0, 0, 0, 0))             # a calm ground under them
+    ImageDraw.Draw(back).rounded_rectangle([bx - 22 * u, by - 30 * u, bx + 372 * u, by + 168 * u], radius=int(14 * u), fill=(8, 20, 46, 225))
     im.alpha_composite(back.filter(ImageFilter.GaussianBlur(6 * u)))
     d = ImageDraw.Draw(im)
-    d.line([bx, by - 14 * u, bx + 640 * u, by - 14 * u], fill=PALE + (150,), width=max(1, int(2 * u)))
+    d.line([bx, by - 12 * u, bx + 350 * u, by - 12 * u], fill=PALE + (150,), width=max(1, int(2 * u)))
     d.text((bx, by), "OETH", font=font(int(54 * u)), fill=GOLD + (255,))
-    d.text((bx + 200 * u, by + 8 * u), "RWY 17/35   4000 x 50 M", font=f2, fill=(214, 226, 250, 255))
-    d.text((bx + 200 * u, by + 38 * u), "ARP 25 12 51 N  046 38 27 E", font=f2, fill=(214, 226, 250, 255))
-    d.text((bx, by + 78 * u), "ELEV 1870 FT", font=f2, fill=(214, 226, 250, 255))
+    d.text((bx, by + 72 * u), "RWY 17/35   4000 x 50 M", font=f2, fill=(214, 226, 250, 255))
+    d.text((bx, by + 102 * u), "ARP 25 12 51 N  046 38 27 E", font=f2, fill=(214, 226, 250, 255))
+    d.text((bx, by + 132 * u), "ELEV 1870 FT", font=f2, fill=(214, 226, 250, 255))
     for cxm, cym in ((70, 70), (w / u - 70, 70), (70, h / u - 70), (w / u - 70, h / u - 70)):          # corner marks
         X, Y = cxm * u, cym * u
         d.line([X - 22 * u, Y, X + 22 * u, Y], fill=PALE + (150,), width=max(1, int(2 * u)))
         d.line([X, Y - 22 * u, X, Y + 22 * u], fill=PALE + (150,), width=max(1, int(2 * u)))
     a = np.asarray(im.convert("RGB"), dtype=np.float32)
     yy = np.arange(h, dtype=np.float32)[:, None, None] / h
-    top = np.clip(1.0 - yy / 0.40, 0, 1) ** 1.3 * 0.72           # calmer under the title
-    a = a * (1 - top) + np.array((7, 17, 40), dtype=np.float32) * top
     yv, xv = np.mgrid[0:h, 0:w].astype(np.float32)
     vig = 1.0 - 0.36 * np.clip((((xv / w - 0.5) / 0.74) ** 2 + ((yv / h - 0.5) / 0.74) ** 2), 0, 1) ** 1.5
     a = a * vig[..., None] + np.random.default_rng(5).normal(0, 1.4, (h, w, 1)).astype(np.float32)
+    top = np.clip((0.31 - yy) / 0.13, 0, 1) ** 1.2 * 0.92         # calm under the title and the facts, in the cover page's own colour: the plan fades in below them
+    a = page_top(a * (1 - top) + PAGE * top)
     os.makedirs(os.path.join(HERE, "out", "covers"), exist_ok=True)
     out = os.path.join(HERE, "out", "covers", "cover-blueprint.jpg")
     Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGB").save(out, quality=92)

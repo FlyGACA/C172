@@ -1,8 +1,10 @@
 """The finish of the cover pictures (figs/covers.py): a drawn sky under the render of the model and Thumamah, a fine compass rose, a dashed golden track, the
 glow of the lamps, a painted look, the cover's deep blue and gold, grain and a vignette.
 
-    python3 covers_post.py <name> [--quick]     renders/<name>.png + .anchors.json + cache/covers/<name>.json -> out/covers/<name>.jpg
-    python3 covers_post.py mock <name> [ar|en]  the picture under the book's own cover page (title, facts, badge): out/covers/<name>-mock-<lang>.jpg
+    python3 covers_post.py <name>               renders/<name>.png + .anchors.json + cache/covers/<name>.json -> out/covers/<name>.jpg
+    python3 covers_post.py mock <name> [ar|en]  the picture under the book's own cover page (title, facts, badge): <book>/build/covers/<name>-mock-<lang>.jpg
+
+The remake of the present cover and every mock-up carry the book's own cover and go into the book's checkout (see PRIVATE below), not into this repository.
 
 Proposals for the owner to choose from; nothing here is in the book."""
 import json
@@ -18,6 +20,11 @@ from openers_blueprint import rose as rose_layer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LUM = np.array([0.299, 0.587, 0.114], dtype=np.float32)
+BOOK = os.environ.get("FLIGHTBAG", "/workspace/flightbag")
+# What carries the book's own cover (the remake, made on its cover painting; every mock-up, which is its cover page; the sheets) is written into the book's
+# checkout, in its build/ folder, which is not in git: the book's repository is private and this one is public. Only the pictures made from the model, the
+# scene and open data alone are kept here, in out/covers.
+PRIVATE = os.path.join(BOOK, "build", "covers")
 
 
 def load(name):
@@ -128,9 +135,25 @@ def bezier(p0, p1, p2, p3, n=200):
     return out
 
 
-def save(a, name):
-    os.makedirs(os.path.join(HERE, "out", "covers"), exist_ok=True)
-    out = os.path.join(HERE, "out", "covers", name + ".jpg")
+PAGE = np.array((6, 21, 42), dtype=np.float32)            # the cover page's own ground (#06152a in the book's print styles)
+
+
+def page_top(a, reach=0.28):
+    """The cover page lays its picture 12 mm below its top edge, on its own ground colour: the picture's top melts into that colour (as the present
+    cover's does), so that no seam shows there. The page colour holds for the first fifth of `reach` (a fraction of the height) and gives way evenly below
+    it, under the page's title, where a slow change does not show as a band."""
+    h = a.shape[0]
+    yy = np.arange(h, dtype=np.float32)[:, None, None] / h
+    t = np.clip((reach - yy) / (reach * 0.8), 0, 1)
+    t = t * t * (3 - 2 * t)
+    return a * (1 - t) + PAGE * t
+
+
+def save(a, name, top=0.28, private=False):
+    folder = PRIVATE if private else os.path.join(HERE, "out", "covers")
+    os.makedirs(folder, exist_ok=True)
+    out = os.path.join(folder, name + ".jpg")
+    a = page_top(a, top)
     Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGB").save(out, quality=92)
     print(out, a.shape[1], a.shape[0])
     return out
@@ -163,6 +186,20 @@ def touchdown(name="cover-touchdown"):
     hz = an["hz"][1] * h
     a = night_sky(src, an, (an["end"][0] * w, hz - 0.02 * h), 0.40 * w, 900, max(1, round(w / 700)))
     a = bloom(a, 205.0, w / 70.0, 0.75)
+    # the outermost approach light lies right under the viewer, 30 m below: it blooms into a large pool at the foot of the page. It stays, toned down to the
+    # size of the lights ahead: its pool is brought two thirds of the way back to the ground round it
+    y0 = int(0.72 * h)
+    lum = a[y0:] @ LUM
+    by, bx = np.unravel_index(int(lum.argmax()), lum.shape)
+    if lum[by, bx] > 150.0:
+        by += y0
+        R = int(0.075 * w)
+        ys, xs = np.mgrid[max(0, by - R):min(h, by + R), max(0, bx - R):min(w, bx + R)]
+        rr = np.hypot(ys - by, xs - bx) / R
+        box = a[ys[0, 0]:ys[-1, 0] + 1, xs[0, 0]:xs[0, -1] + 1]
+        ring = box[(rr > 0.85) & (rr <= 1.0)].mean(axis=0)
+        k = (np.clip(1.0 - rr, 0, 1) ** 0.6 * 0.68)[..., None] * (rr > 0.045)[..., None]      # (its small core stays)
+        a[ys[0, 0]:ys[-1, 0] + 1, xs[0, 0]:xs[0, -1] + 1] = box * (1 - k) + ring * k
     a = grade(a, shadows=0.24, lights=0.06, contrast=1.1, saturation=1.08)
     return save(vignette(a, 0.34), name)
 
@@ -217,18 +254,18 @@ def topdown(name="cover-topdown"):
                         colour=(255, 232, 160), grow=(0.5, 1.0))
     a = over(over(a, glow), dash)
     a = grade(a, shadow="#101E48", light="#FFD9A0", shadows=0.3, lights=0.1, contrast=1.1, saturation=1.12)
-    yy = np.arange(h, dtype=np.float32)[:, None, None] / h      # the title's ground: deep blue from the top, fading out by 0.44 of the height; a little at the bottom
-    top = np.clip(1.0 - yy / 0.44, 0, 1) ** 1.15 * 0.96
+    yy = np.arange(h, dtype=np.float32)[:, None, None] / h      # the title's ground (the cover page's title and facts end near a quarter of the height): deep blue from the top, clear by 0.38; a little at the bottom
+    top = np.clip((0.38 - yy) / 0.2, 0, 1) ** 1.1 * 0.96
     bot = np.clip((yy - 0.86) / 0.14, 0, 1) ** 1.3 * 0.85
-    navy = rgb("#081430")
-    a = a * (1 - top) + navy * top
-    a = a * (1 - bot) + navy * bot
-    return save(vignette(a, 0.22), name)
+    a = vignette(a, 0.22)
+    a = a * (1 - top) + PAGE * top                              # (the cover page's own colour)
+    a = a * (1 - bot) + PAGE * bot
+    return save(a, name, top=0.05)
 
 
 def mock(name, lang="ar"):
     """The picture under the book's own cover page (tools/handbook/pdf.py of the FlightBag repository): its title, facts and badge, as the first page prints."""
-    book = os.environ.get("FLIGHTBAG", "/workspace/flightbag")
+    book = BOOK
     sys.path.insert(0, os.path.join(book, "tools", "handbook"))
     from html import escape
     import pdf
@@ -239,7 +276,7 @@ def mock(name, lang="ar"):
     manifest = ctx["manifest"]
     t = lambda key: render.t(lang, key)
     facts = "".join(f"<li><strong>{escape(n)}</strong>{escape(label)}</li>" for n, label in render.cover_facts(ctx, lang))
-    art = os.path.join(HERE, "out", "covers", name + ".jpg")
+    art = next(p for p in (os.path.join(HERE, "out", "covers", name + ".jpg"), os.path.join(PRIVATE, name + ".jpg")) if os.path.exists(p))
     body = (f'<section class="cover"><img class="cover-art" src="file://{art}" alt=""><div class="cover-shade"></div><div class="cover-top"><div class="brand">FLYGACA</div>'
             f'<p class="tag">{t("cover_tag")}</p><h1>{t("handbook")}</h1><p class="sub">{render.text(manifest["subtitle"], lang)}</p><ul class="facts">{facts}</ul></div>'
             f'<div class="cover-bottom"><span class="badge">{t("cover_badge")}</span><p class="edition">{t("edition")} <span dir="ltr">{manifest["edition"]}</span></p>'
@@ -249,13 +286,14 @@ def mock(name, lang="ar"):
     tmp = os.path.join(HERE, "cache", "covers", f"{name}-mock-{lang}.pdf")
     HTML(string=html, base_url=book + "/").write_pdf(tmp)
     page = pypdfium2.PdfDocument(tmp)[0].render(scale=1500 / 595.276).to_pil().convert("RGB")
-    out = os.path.join(HERE, "out", "covers", f"{name}-mock-{lang}.jpg")
+    os.makedirs(PRIVATE, exist_ok=True)
+    out = os.path.join(PRIVATE, f"{name}-mock-{lang}.jpg")
     page.save(out, quality=90)
     print(out, page.size)
     return out
 
 
-COVER = os.path.join(os.environ.get("FLIGHTBAG", "/workspace/flightbag"), "site", "handbook", "assets", "cover.jpg")
+COVER = os.path.join(BOOK, "site", "handbook", "assets", "cover.jpg")
 # on the present cover (1792 x 2400): the floor of its valley, where the painted runway lies; and the course of its painted track
 VALLEY = [(0, 1995), (250, 1985), (520, 1968), (700, 1958), (860, 1945), (960, 1915), (1040, 1885), (1120, 1868), (1250, 1858), (1420, 1856), (1500, 1862),
           (1560, 1880), (1640, 1912), (1700, 1938), (1700, 1946), (1610, 1976), (1500, 2016), (1400, 2052), (1290, 2078), (1200, 2150), (700, 2160),
@@ -330,6 +368,15 @@ def remake(name="cover-remake", debug=False):
     dash_px = band & (warm > rowwarm[:, None] + 13.0)
     dm = np.asarray(Image.fromarray((dash_px * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(2 * max(2, int(6 * u)) + 1))) > 0
     A = fill_rows(A, dm & band, pad=max(2, int(4 * u)))
+    # its last stretch runs nearly level and pale into the glow, where a row has no sky on either side of a dash: there each column is filled from above and below
+    tail = [(x * u, y * u) for x, y in OLD_TRACK if x >= 935] + [(1420 * u, 1763 * u)]
+    hw, edge = int(15 * u), int(5 * u)
+    for x in range(int(tail[0][0]), int(tail[-1][0])):
+        k = max(i for i in range(len(tail) - 1) if tail[i][0] <= x)
+        yc = int(round(tail[k][1] + (tail[k + 1][1] - tail[k][1]) * (x - tail[k][0]) / (tail[k + 1][0] - tail[k][0])))
+        top, bot = A[yc - hw - edge:yc - hw, x].mean(axis=0), A[yc + hw:yc + hw + edge, x].mean(axis=0)
+        t = ((np.arange(-hw, hw, dtype=np.float32) + hw + 0.5) / (2 * hw))[:, None]
+        A[yc - hw:yc + hw, x] = top[None, :] * (1 - t) + bot[None, :] * t + rnd.normal(0, 0.8, (2 * hw, 1)).astype(np.float32)
     # 3 our valley: the render inside the valley's floor, each row brought to the painting's sand (the sand east of the runway, left of it in the picture)
     R = np.asarray(src, dtype=np.float32)
     rgbk = kuwahara(R[..., :3], max(1, round(w / 800)))
@@ -356,7 +403,8 @@ def remake(name="cover-remake", debug=False):
         kk = int(18 * u)
         pad = np.pad(gain, ((kk, kk), (0, 0)), mode="edge")
         gain = np.stack([np.convolve(pad[:, c], np.ones(2 * kk + 1) / (2 * kk + 1), mode="valid") for c in range(3)], axis=1)
-    lit = np.clip(((rgbk @ LUM) - 150.0) / 70.0, 0, 1)[..., None]      # the lamps keep their own brightness
+    sat = (rgbk.max(axis=2) - rgbk.min(axis=2)) / np.maximum(rgbk.max(axis=2), 1.0)
+    lit = np.clip(np.maximum(((rgbk @ LUM) - 150.0) / 70.0, (sat - 0.55) / 0.2 * (rgbk.max(axis=2) > 120)), 0, 1)[..., None]      # the lamps keep their own brightness and colour
     ours = np.clip(rgbk * (gain[:, None, :] * (1 - lit) + lit), 0, 255)
     vm3 = (vmask * (R[..., 3] / 255.0))[..., None]
     A = A * (1 - vm3) + ours * vm3
@@ -387,8 +435,9 @@ def remake(name="cover-remake", debug=False):
     if debug:
         dbg = Image.fromarray(np.clip(A, 0, 255).astype(np.uint8))
         ImageDraw.Draw(dbg).line([(x * u, y * u) for x, y in VALLEY + VALLEY[:1]], fill=(0, 255, 255), width=2)
-        dbg.save(os.path.join(HERE, "out", "covers", name + "-debug.jpg"))
-    return save(A, name)
+        os.makedirs(PRIVATE, exist_ok=True)
+        dbg.save(os.path.join(PRIVATE, name + "-debug.jpg"))
+    return save(A, name, top=0.05, private=True)            # the painting's own top is the page colour already; the picture carries the book's painting
 
 
 FINISH = {"cover-remake": remake, "cover-touchdown": touchdown, "cover-cockpit": cockpit, "cover-sunrise": sunrise, "cover-topdown": topdown}

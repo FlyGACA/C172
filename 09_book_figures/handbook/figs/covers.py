@@ -81,7 +81,11 @@ def remake():
     cam[2] = 22.6
     r = base("cover-remake", {"at": cam, "look": along(cam, (f, 100.0)), "lens": lens}, night=dict(DUSK),
              haze={"start": 500.0, "depth": 7000.0, "colour": "#E7A24F", "strength": 0.9})
+    # seen low and against the light: the ground at one level (the runway's) for 600 m round the pavements, in place of the two levels the scene was graded
+    # to; and no shadows from the pavements and the paint, which lie a little above the ground (each edge threw a long black line across the valley)
+    r["plan"] = dict(r["plan"], flatten={"inner": 600.0, "outer": 1800.0, "z": -0.01}, flat_shadows=False)
     r["lights"] = runway_lights(size=0.5, strength=16.0)
+    r["lights"][1]["colour"], r["lights"][2]["colour"] = "#FF3A2A", "#49FF86"     # seen from the north: the threshold of 17 green before us, the far end red
     # the model where the painted aeroplane is (its nose, tail and wingtips fitted to the painting's, 24 pixels rms): 11.5 m from the camera, heading north,
     # as after a takeoff from runway 35 toward the viewer
     ac = along(cam, (f, 11.474), (rt, -1.861), (up, 0.314))
@@ -157,6 +161,9 @@ def cockpit():
                       "hide": ["AIRFRAME.windshield", "POWERPLANT.propeller"],
                       "lights": {"landing": {"power": 260000.0, "angle": 46.0, "down": 4.5, "strength": 40.0}},
                       "emit": {"instrument_dials": 1.5, "panel_misc": 0.9, "panel_placards": 0.8},
+                      # the panel as it would read there: the aerodrome's elevation (1 870 ft; the threshold of 35 is at 1 868 ft: AD 2 OETH 2.2 and 2.12), at rest on the
+                      # ground, the engine idling, the heading of runway 35 (351 degrees true, about 347 magnetic with the AIP's 3 degrees east of 2015: shown as 350)
+                      "pose": {"ALT": 1870.0, "ASI": 0.0, "VSI": 0.0, "TACH": 1000.0, "SUCTION": 4.8, "heading": 350.0},
                       "lamps": [{"at": [0.05, -0.02, 1.70], "power": 3.6, "colour": "#FFD3A0", "size": 0.05}, {"at": [0.22, -0.38, 1.50], "power": 0.6, "colour": "#FFC890", "size": 0.03},
                                 {"at": [0.24, 0.10, 1.18], "power": 1.6, "colour": "#FFCFA0", "size": 0.06}]}]
     edge = runway_lights(size=0.5, strength=30.0)
@@ -170,10 +177,11 @@ def cockpit():
 def topdown():
     """Straight down on the threshold of runway 17 at sunrise, south at the top so that the 17 reads: the numbers, the stopway's chevrons, the turn loop and
     the aprons with their long shadows, and the model crossing close under the viewer."""
-    cam = rp(170.0, 115.0, 430.0)
-    r = base("cover-topdown", {"at": cam, "look": rp(170.0, 115.0, 0.0), "lens": 35, "roll": 180.0 - (360.0 - HD35)}, exposure=-0.2,
+    # the view is laid out for the cover page: its title and facts cover the top quarter and its foot the last quarter, so the designator and the model lie between
+    cam = rp(86.0, 100.0, 430.0)
+    r = base("cover-topdown", {"at": cam, "look": rp(86.0, 100.0, 0.0), "lens": 35, "roll": 180.0 - (360.0 - HD35)}, exposure=-0.2,
              sun={"elevation": 15.0, "azimuth": 100.0, "energy": 5.4, "colour": "#FFC790", "sky": 0.55, "angle": 2.0})
-    ac = rp(166.0, 116.5, 404.0)
+    ac = rp(88.1, 101.0, 404.0)
     r["aircraft"] = [{"at": ac, "heading": 218.0, "pitch": 0.0, "bank": 14.0, "attitude": "body", "model": "high", "prop": {"alpha": 0.1},
                       "anchors": {"tail": [0.0, 5.7, 1.5], "nose": [0.0, -2.1, 1.38]}}] + parked()
     r["anchors"] = {"t17": rp(0.0, 0.0, 0.0), "s300": rp(300.0, 0.0, 0.0), "west": rp(0.0, 200.0, 0.0)}

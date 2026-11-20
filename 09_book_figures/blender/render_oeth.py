@@ -15,7 +15,10 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
     paths     [{"points": [[x, y, z], ...], "colour": "#RRGGBB", "radius": m}] tubes drawn in the scene (a circuit, a track)
     keep_sources  statuses of scene/oeth/models/scene_index.json to keep (all by default); every other object of the scene is deleted
     plan      {"pavements": [{"zone", "ring", "holes"}], "islands": [{"ring"}], "buildings": [{"ring", "height"}], "roads": [{"points", "width"}], "marks": [{"ring", "colour"}]}
-              in the scene frame (x, y): a ground plan laid on the terrain in place of the scene's own (figs/oeth3d.py: the book's open plan); zone "runway" is asphalt
+              in the scene frame (x, y): a ground plan laid on the terrain in place of the scene's own (figs/oeth3d.py: the book's open plan); zone "runway" is asphalt.
+              "flatten": {"inner", "outer", "z"} levels the ground under the pavements (at their median height, or at "z"), eased back to the natural ground
+              between inner and outer metres from them. "flat_shadows": false: the pavements, the islands, the paint and the scene's own runway cast no shadow
+              (they lie a little above the ground so that they show; under a low light each edge would throw a long black shadow)
     zscale    heights of the ground (the scene and the far ground) drawn this many times their scale; the recipe's own heights (volumes, paths,
               aircraft, anchors) are given already multiplied
     volumes   [{"name", "ring": [[x, y], ...], "floor": z | {"agl": m}, "ceiling": z, "colour", "alpha", "edge": m, "subtract": [names]}]
@@ -32,6 +35,8 @@ origin at the AIP aerodrome reference point, z = 0 at 570 m AMSL). A recipe (JSO
               "lights": {"nav": strength, "strobe": strength, "beacon": strength, "landing": {"power": W, "angle": deg, "down": deg}}: its lamps lit;
               "emit": {material name: strength}: those materials glow in their own colours (instrument faces at night);
               "lamps": [{"at": [x, y, z], "power", "colour", "size"}]: small lights that go with it (the cabin lit);
+              "pose": {"ALT": ft, "ASI": kt, "VSI": ft/min, "TACH": rpm, "heading": deg, "clock": [h, min], ...}: what its instruments show (the pointers by the
+              scales of the model's own instrument data, as render_plate.py's "pose"; the card of the directional indicator by "heading");
               "anchors": {name: [x, y, z]}: points of the model projected into the picture with the recipe's own anchors
     camera    ... {"aircraft": index, "at": [x, y, z], "look": [x, y, z]} gives both points in that aeroplane's model coordinates (a view from its cabin,
               a view that follows it); "shift_y", "clip_start" and "dof": {"focus": m, "fstop"} are passed to the camera
@@ -658,12 +663,12 @@ def scene_clouds(items):
 
 def flatten_ground(plan):
     import numpy as np
-    rings = [p["ring"] for p in plan.get("pavements", [])]
+    rings = [p["ring"][:-1] if p["ring"][0] == p["ring"][-1] else p["ring"] for p in plan.get("pavements", [])]     # (a closed ring has an edge of no length)
     xs = [x for r in rings for x, _ in r]
     ys = [y for r in rings for _, y in r]
     step = plan.get("grade_step", 40.0)
     hs = [ground_z(min(xs) + i * step, min(ys) + j * step) for i in range(int((max(xs) - min(xs)) / step) + 1) for j in range(int((max(ys) - min(ys)) / step) + 1)]
-    gz = float(np.median(hs))
+    gz = float(plan["flatten"].get("z", np.median(hs)))     # "z": a height of the recipe's own choosing (the level the scene's runway already lies on)
     inner, outer = plan["flatten"].get("inner", 60.0), plan["flatten"].get("outer", 450.0)
     x0, x1, y0, y1 = min(xs) - outer, max(xs) + outer, min(ys) - outer, max(ys) + outer
 
@@ -681,7 +686,7 @@ def flatten_ground(plan):
                 cr = ex * (py - ay) - ey * (px - ax)
                 sign = np.sign(cr) if sign is None else sign
                 inside &= np.sign(cr) == sign
-                t = np.clip(((px - ax) * ex + (py - ay) * ey) / (ex * ex + ey * ey), 0.0, 1.0)
+                t = np.clip(((px - ax) * ex + (py - ay) * ey) / max(ex * ex + ey * ey, 1e-9), 0.0, 1.0)
                 dr = np.minimum(dr, np.hypot(px - (ax + t * ex), py - (ay + t * ey)))
             d = np.minimum(d, np.where(inside, 0.0, dr))
         return d
@@ -728,10 +733,11 @@ def lay_plan(plan):
         step = plan.get("grade_step", 40.0)
         gz = max(ground_z(x0 + i * step, y0 + j * step) for x0, y0 in [(min(xs), min(ys))]
                  for i in range(int((max(xs) - min(xs)) / step) + 1) for j in range(int((max(ys) - min(ys)) / step) + 1))
+    flat = []
     for p in plan.get("pavements", []):
-        flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], p.get("lift", 0.30), {"apron": apron, "runway": rwy}.get(p["zone"], twy), z=gz)
+        flat.append(flat_poly("plan " + p["name"], [p["ring"], *p.get("holes", [])], p.get("lift", 0.30), {"apron": apron, "runway": rwy}.get(p["zone"], twy), z=gz))
     for i, p in enumerate(plan.get("islands", [])):
-        flat_poly(f"plan island {i}", [p["ring"]], 0.45, island)
+        flat.append(flat_poly(f"plan island {i}", [p["ring"]], 0.45, island))
     for b in plan.get("buildings", []):
         build("plan " + b["name"], b["ring"], b["height"], walls, roof)
     for i, bl in enumerate(plan.get("blocks", [])):       # a box of one colour on the ground (a vehicle on a road)
@@ -739,14 +745,17 @@ def lay_plan(plan):
         build(f"plan block {i}", bl["ring"], bl["height"], mat, mat)
     for i, mk in enumerate(plan.get("marks", [])):        # paint: flat shapes of one colour (chevrons, holding lines), a little above the pavement
         mat = bpy.data.materials.get("paint_" + mk["colour"]) or flat_material("paint_" + mk["colour"], mk["colour"], emission=0.25)
-        flat_poly(f"plan mark {i}", [mk["ring"]], mk.get("lift", 0.55), mat, z=gz)
+        flat.append(flat_poly(f"plan mark {i}", [mk["ring"]], mk.get("lift", 0.55), mat, z=gz))
     for i, rd in enumerate(plan.get("roads", [])):
         pts, w = rd["points"], rd.get("width", 8.0) / 2.0
         for j, (a, c) in enumerate(zip(pts, pts[1:])):
             dx, dy = c[0] - a[0], c[1] - a[1]
             L = math.hypot(dx, dy) or 1.0
             nx, ny = -dy / L * w, dx / L * w
-            flat_poly(f"plan road {i}.{j}", [[(a[0] + nx, a[1] + ny), (c[0] + nx, c[1] + ny), (c[0] - nx, c[1] - ny), (a[0] - nx, a[1] - ny)]], 0.25, twy)
+            flat.append(flat_poly(f"plan road {i}.{j}", [[(a[0] + nx, a[1] + ny), (c[0] + nx, c[1] + ny), (c[0] - nx, c[1] - ny), (a[0] - nx, a[1] - ny)]], 0.25, twy))
+    if plan.get("flat_shadows") is False:                  # a low light: each of these, lifted clear of the ground, would throw a long black shadow from its edge
+        for o in flat + [o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith(("RWY", "STOPWAY", "Runway markings", "Taxiway markings", "Designator", "Stopway chevrons", "Apron pads"))]:
+            o.visible_shadow = False
 
 
 def import_glb(path):
@@ -1117,6 +1126,23 @@ def aircraft_extras(ac, obs, root, i):
             else:
                 b.inputs["Emission Color"].default_value = src.default_value
             b.inputs["Emission Strength"].default_value = strength
+    if ac.get("pose"):                                    # the panel's readings: each pointer carries its instrument's name (the model's "needle" property)
+        sys.path.insert(0, os.path.join(C172, "08_realistic_digital_twin", "blender"))
+        from c172.dials import instrument_specs, value_to_angle
+        specs, readings = instrument_specs(), ac["pose"]
+        alt = readings.get("ALT")
+        special = {} if alt is None else {"ALT_100": (alt % 1000.0) * 0.36, "ALT_1000": (alt % 10000.0) * 0.036, "ALT_10000": alt * 0.0036}
+        if "clock" in readings:
+            special.update({"CLOCK_H": (readings["clock"][0] % 12 + readings["clock"][1] / 60.0) * 30.0, "CLOCK_M": readings["clock"][1] * 6.0})
+        for o in obs:
+            kind = o.get("needle")
+            angle = special.get(kind) if kind in special else (value_to_angle(specs[kind], readings[kind]) if kind in specs and kind in readings else None)
+            if angle is not None:
+                o.rotation_mode = "XYZ"
+                o.rotation_euler = (0.0, -math.radians(angle), 0.0)     # clockwise as the pilot sees it
+            elif _base(o.name) == "PANEL.DG.card" and "heading" in readings:
+                o.rotation_mode = "XYZ"
+                o.rotation_euler = (0.0, math.radians(readings["heading"]), 0.0)
     for k, lp in enumerate(ac.get("lamps", [])):
         ld = bpy.data.lights.new(f"cabin {i}.{k}", "POINT")
         ld.energy = lp.get("power", 5.0)
