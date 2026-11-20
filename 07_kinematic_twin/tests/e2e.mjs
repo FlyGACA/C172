@@ -71,8 +71,16 @@ try {
 
   await check('pistons follow the slider-crank motion between BDC and TDC', async () => {
     await page.click('#views button[data-view="engine"]');
+    // The displayed crank advances by at most 0.1 s of motion per frame (app.js clamps dt), so on a software-rendered
+    // CI runner it turns slower than real time. As for the exploded view, wait for the motion rather than a fixed
+    // window: keep sampling until the piston has travelled, for up to 15 s.
     const xs = [];
-    for (let i = 0; i < 12; i++) { xs.push(await page.evaluate(() => window.__twin.pistonX(1))); await page.waitForTimeout(120); }
+    const spread = () => Math.max(...xs.map(Math.abs)) - Math.min(...xs.map(Math.abs));
+    const deadline = Date.now() + 15000;
+    while (xs.length < 12 || (spread() <= 0.02 && Date.now() < deadline)) {
+      xs.push(await page.evaluate(() => window.__twin.pistonX(1)));
+      await page.waitForTimeout(120);
+    }
     const mags = xs.map(Math.abs);
     assert.ok(Math.max(...mags) - Math.min(...mags) > 0.02, `piston 1 travel ${Math.max(...mags) - Math.min(...mags)}`);
     assert.ok(Math.min(...mags) >= 0.162 - 0.0492 - 1e-3 && Math.max(...mags) <= 0.162 + 0.0492 + 1e-3);
