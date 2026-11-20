@@ -40,8 +40,12 @@ export const CRUISE = {
   },
 };
 
-/** Maximum glide, propeller windmilling, flaps up (p.3-11, Figure 3-1). */
-export const GLIDE = { ref: 'p.3-11 Fig 3-1', kias: 65, ratio: 9.1 };
+/**
+ * Maximum glide, propeller windmilling, flaps up (p.3-11, Figure 3-1). The 65 KIAS speed is also
+ * printed in the emergency airspeeds table on p.3-3. The figure's weight is not recorded in the
+ * committed extract, so it is not stated here; see docs/value-audit.md (R01).
+ */
+export const GLIDE = { ref: 'p.3-11 Fig 3-1', kias: 65, ratio: 9.1, conditions: ['flaps up', 'propeller windmilling'] };
 
 /** Static RPM at full throttle (p.2-5). */
 export const STATIC_RPM = { ref: 'p.2-5', min: 2280, max: 2400 };
