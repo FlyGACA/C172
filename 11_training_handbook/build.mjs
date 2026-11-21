@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import * as C from './content.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -318,6 +319,9 @@ async function printPdfs() {
   } finally {
     await browser.close();
   }
+  // Chromium leaves U+0000 in the PDF's text map for the font's alternate glyphs; give them their characters (needs python3, pypdf, fontTools).
+  const fix = spawnSync('python3', ['-I', join(HERE, 'fix_tounicode.py'), ...['en', 'ar'].map((l) => join(HERE, 'out', `flygaca-c172n-training-handbook-${l}.pdf`))], { stdio: 'inherit' });
+  if (fix.status !== 0) throw new Error('fix_tounicode.py failed: the PDFs still carry NUL characters');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

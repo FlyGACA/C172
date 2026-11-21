@@ -4,7 +4,7 @@
     python3 11_training_handbook/check_pdf.py [--allow-nul] [pdf ...]
 
 Defaults to both PDFs in 11_training_handbook/out/. Needs pypdf. Exits 1 on any failure.
---allow-nul reports NUL bytes (Arabic shadda that the font's ToUnicode map does not cover) without failing.
+--allow-nul reports NUL bytes without failing (fix_tounicode.py, run by the build, removes them).
 """
 import re, sys
 from pathlib import Path
