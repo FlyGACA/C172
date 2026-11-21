@@ -62,7 +62,8 @@ body.hb {
   .hb-figure__art img { inline-size: auto; max-inline-size: 100%; max-block-size: 105mm; margin-inline: auto; }
   .ufuq-shell, .hb-toc { display: none; }
   .hb-main { max-inline-size: none; padding: 0; }
-  .hb-section { break-before: page; margin-block-start: 0; }
+  .hb-section { margin-block-start: var(--ufuq-space-6); }
+  .hb-section:first-of-type { margin-block-start: 0; }
   .hb-steps, .hb-figure, tr { break-inside: avoid; }
   .hb-section h2, .hb-section h3, .hb-table figcaption { break-after: avoid; }
   .hb-scroll { overflow: visible; }
