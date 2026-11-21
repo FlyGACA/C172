@@ -191,8 +191,8 @@ function tableHtml(data, name, caption) {
 // ------------------------------------------------------------------ figures from Phase 9
 
 const FIGURES = {
-  'aircraft-exterior': { en: '../09_book_figures/renders/aircraft-exterior.png', ar: '../09_book_figures/renders/aircraft-exterior.png', w: 2400, h: 1080 },
-  'flight-controls': { en: '../09_book_figures/renders/flight-controls.png', ar: '../09_book_figures/renders/flight-controls.png', w: 1800, h: 1395 },
+  'aircraft-exterior': { en: 'figures/aircraft-exterior.en.png', ar: 'figures/aircraft-exterior.ar.png', w: 1892, h: 1300 },
+  'flight-controls': { en: 'figures/flight-controls.en.png', ar: 'figures/flight-controls.ar.png', w: 1892, h: 1417 },
   'asi-markings': { en: '../09_book_figures/out/en/asi-markings.svg', ar: '../09_book_figures/out/ar/asi-markings.svg', w: 1600, h: 930 },
   'fuel-system': { en: '../09_book_figures/out/en/fuel-system.svg', ar: '../09_book_figures/out/ar/fuel-system.svg', w: 1600, h: 930 },
 };

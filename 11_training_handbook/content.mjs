@@ -340,6 +340,6 @@ export const TABLE_TEXT = {
 
 export const SOURCES = {
   title: L('Sources', 'المصادر'),
-  en: 'The values come from the twin\'s records of the Cessna Model 172N Pilot\'s Operating Handbook, 1979 model (issued 1 July 1978), each with its page: 08_realistic_digital_twin/data/poh_references.json, 04b_poh_reference/poh_1979_reference_data.json, 08_realistic_digital_twin/data/instruments.json and shared/js/poh_tables.js. Those files say how each value was read. The text is FlyGACA\'s; no page or figure of the handbook is reproduced.',
-  ar: 'القيم مأخوذة من سجلات التوأم لدليل تشغيل الطيار لطائرة Cessna Model 172N موديل 1979 (الصادر في 1 يوليو 1978)، مع صفحة كل قيمة: 08_realistic_digital_twin/data/poh_references.json و04b_poh_reference/poh_1979_reference_data.json و08_realistic_digital_twin/data/instruments.json وshared/js/poh_tables.js. وتبيّن تلك الملفات كيف قُرئت كل قيمة. والنص من كتابة FlyGACA، ولا تُستنسخ فيه أي صفحة أو شكل من الدليل.',
+  en: 'The values come from the twin\'s records of the Cessna Model 172N Pilot\'s Operating Handbook, 1979 model (issued 1 July 1978), each with its page: the POH reference values, the 1979 reference data, the instrument markings and the performance tables. The repository\'s handbook README names the files and says how each value was read. The text is FlyGACA\'s; no page or figure of the handbook is reproduced.',
+  ar: 'القيم مأخوذة من سجلات التوأم لدليل تشغيل الطيار لطائرة Cessna Model 172N موديل 1979 (الصادر في 1 يوليو 1978)، مع صفحة كل قيمة: قيم مرجع الدليل، وبيانات المرجع لموديل 1979، وعلامات الأجهزة، وجداول الأداء. ويسمّي ملف README الخاص بالدليل في المستودع الملفات ويبيّن كيف قُرئت كل قيمة. والنص من كتابة FlyGACA، ولا تُستنسخ فيه أي صفحة أو شكل من الدليل.',
 };
