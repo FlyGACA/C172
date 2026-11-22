@@ -1,0 +1,74 @@
+{
+  "_doc": "Side view of the tail, drawn beside the plan view of flight-controls: from above the rudder is edge-on, so the plan view cannot show which surface is green. Same recipe keys as flight_controls.render.json.",
+  "id": "flight-controls-tail",
+  "camera": {
+    "type": "ortho",
+    "pos": [
+      60,
+      5.6,
+      1.8
+    ],
+    "target": [
+      0,
+      5.6,
+      1.8
+    ],
+    "ortho_scale": 3.6
+  },
+  "resolution": [
+    1200,
+    900
+  ],
+  "samples": 96,
+  "ambient": 0.55,
+  "key": 1.25,
+  "key_rotation": [
+    38,
+    0,
+    150
+  ],
+  "ground_shadow": false,
+  "ink": {
+    "outer_px": 4.6,
+    "part_px": 2.4,
+    "fine_px": 1.5
+  },
+  "highlights": [
+    {
+      "key": "elevator",
+      "ids": [
+        "EMPENNAGE.elevator"
+      ],
+      "color": "#2F7FC1"
+    },
+    {
+      "key": "rudder",
+      "ids": [
+        "EMPENNAGE.rudder"
+      ],
+      "color": "#2E9E6B"
+    },
+    {
+      "key": "trim_tab",
+      "ids": [
+        "EMPENNAGE.trim_tab"
+      ],
+      "color": "#8A5BB5"
+    }
+  ],
+  "anchors": [
+    {
+      "key": "rudder",
+      "ids": [
+        "EMPENNAGE.rudder"
+      ],
+      "at": [
+        0.5,
+        0.5
+      ]
+    }
+  ],
+  "hide": [
+    "ELECTRICAL.adf_sense_wire"
+  ]
+}
