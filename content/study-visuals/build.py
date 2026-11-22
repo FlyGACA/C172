@@ -12,6 +12,7 @@ are isolated (U+2066 ... U+2069) so "41–85" and "85 / 110" keep their order in
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -43,7 +44,25 @@ def align(direction, visual):
 
 
 def load_sim():
-    text = SIM_JS.read_text(encoding="utf-8")
+    """Read the published values from shared/js/sim.js by importing it with Node.
+
+    sim.js takes every limit through the evidence gate (shared/js/evidence.js), so the numbers are
+    no longer literals in its text; importing the module gives the same values the viewer uses.
+    """
+    script = (
+        "import(process.argv[1]).then(m => process.stdout.write("
+        "JSON.stringify({ POH: m.POH, altStatic: m.ALT_STATIC_TABLE })))"
+    )
+    try:
+        out = subprocess.run(
+            ["node", "--input-type=module", "-e", script, SIM_JS.as_uri()],
+            check=True, capture_output=True, text=True,
+        ).stdout
+    except FileNotFoundError:
+        raise SystemExit("node is needed to read shared/js/sim.js")
+    except subprocess.CalledProcessError as error:
+        raise SystemExit("shared/js/sim.js could not be read: %s" % error.stderr.strip())
+    data = json.loads(out)
     numbers = {}
     for key in (
         "vne",
@@ -55,19 +74,17 @@ def load_sim():
         "fuelPerTankUsable",
         "fuelUnusablePerTank",
     ):
-        match = re.search(r"\b%s\s*:\s*([0-9.]+)" % key, text)
-        if not match:
+        if not isinstance(data["POH"].get(key), (int, float)):
             raise SystemExit("shared/js/sim.js: constant %s not found" % key)
-        numbers[key] = float(match.group(1))
+        numbers[key] = float(data["POH"][key])
     for key in ("asiWhite", "asiGreen", "asiYellow"):
-        match = re.search(r"\b%s\s*:\s*\[\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\]" % key, text)
-        if not match:
+        arc = data["POH"].get(key)
+        if not (isinstance(arc, list) and len(arc) == 2):
             raise SystemExit("shared/js/sim.js: arc %s not found" % key)
-        numbers[key] = [float(match.group(1)), float(match.group(2))]
-    match = re.search(r"ALT_STATIC_TABLE\s*=\s*(\[\[.*?\]\])", text, re.S)
-    if not match:
+        numbers[key] = [float(arc[0]), float(arc[1])]
+    if not data.get("altStatic"):
         raise SystemExit("shared/js/sim.js: ALT_STATIC_TABLE not found")
-    numbers["altStatic"] = json.loads(match.group(1))
+    numbers["altStatic"] = data["altStatic"]
     return numbers
 
 
