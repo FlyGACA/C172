@@ -94,7 +94,7 @@
       "ailerons_effect": "الدحرجة (Roll) — الميل يمينًا أو يسارًا",
       "ailerons_control": "عجلة التحكم بتدويرها",
       "elevator": "الرافع",
-      "elevator_effect": "الميلان الطولي (Pitch) — رفع المقدمة أو خفضها",
+      "elevator_effect": "الميل الطولي (Pitch) — رفع المقدمة أو خفضها",
       "elevator_control": "عجلة التحكم بدفعها أو سحبها",
       "rudder": "الدفة",
       "rudder_effect": "الانعراج (Yaw) — المقدمة يمينًا أو يسارًا",
