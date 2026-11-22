@@ -174,7 +174,7 @@ function tableHtml(data, name, caption) {
     rows = Object.entries(c.rows).map(([alt, r]) => [alt, ...r]);
   } else if (name === 'cruise') {
     refs = ['tab:CRUISE'];
-    head = [T.altitude, T.rpm, T.bhp, T.ktas];
+    head = [T.altitude, T.rpm, T.bhp, T.ktas, T.gph];
     rows = Object.entries(tab.CRUISE.rows).flatMap(([alt, rs]) => rs.map((r, k) => [k ? '' : alt, ...r]));
   } else if (name === 'landing') {
     refs = ['tab:LANDING'];
