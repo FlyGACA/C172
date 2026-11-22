@@ -41,6 +41,7 @@
     "handbook": "node 11_training_handbook/build.mjs",
     "handbook:pdf": "node 11_training_handbook/build.mjs --pdf",
     "handbook:check": "node 11_training_handbook/build.mjs --check",
+    "handbook:pdf:check": "python3 11_training_handbook/check_pdf.py",
     "flight:doc": "node 08_realistic_digital_twin/scripts/flight_doc.mjs",
     "survey": "node 08_realistic_digital_twin/scripts/flight_survey.mjs"
   },

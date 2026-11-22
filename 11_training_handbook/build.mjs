@@ -4,9 +4,11 @@
 //   node 11_training_handbook/build.mjs           write index.html
 //   node 11_training_handbook/build.mjs --check   fail when index.html is stale
 //   node 11_training_handbook/build.mjs --pdf     also print out/flygaca-c172n-training-handbook-{en,ar}.pdf (Playwright)
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import * as C from './content.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,10 +105,12 @@ function arabic(text) {
 
 const both = (l) => `<span class="ufuq-en">${esc(l.en)}</span><span class="ufuq-ar" lang="ar">${arabic(l.ar)}</span>`;
 const cites = (data, refs) => pagesOf(data, refs).map((p) => ` <span class="ufuq-cite hb-page" dir="ltr" title="Pilot's Operating Handbook page">POH ${esc(p)}</span>`).join('');
-const cell = (v) => (v === null || v === undefined ? '—' : esc(v));
+// Numbers, ranges and units in tables are left-to-right isolates, so an Arabic row reads 41–85 and −20 °C, not 85–41.
+const ltr = (v) => (String(v).trim() ? `<bdi dir="ltr">${esc(String(v).trim())}</bdi>` : '');
+const cell = (v) => (v === null || v === undefined ? '—' : ltr(v));
 
 function headRow(cols) {
-  return `<thead><tr>${cols.map((c) => `<th scope="col">${typeof c === 'string' ? esc(c) : both(c)}</th>`).join('')}</tr></thead>`;
+  return `<thead><tr>${cols.map((c) => `<th scope="col">${typeof c === 'string' ? ltr(c) : both(c)}</th>`).join('')}</tr></thead>`;
 }
 
 // ------------------------------------------------------------------ tables drawn from the records
@@ -170,7 +174,7 @@ function tableHtml(data, name, caption) {
     rows = Object.entries(c.rows).map(([alt, r]) => [alt, ...r]);
   } else if (name === 'cruise') {
     refs = ['tab:CRUISE'];
-    head = [T.altitude, T.rpm, T.bhp, T.ktas];
+    head = [T.altitude, T.rpm, T.bhp, T.ktas, T.gph];
     rows = Object.entries(tab.CRUISE.rows).flatMap(([alt, rs]) => rs.map((r, k) => [k ? '' : alt, ...r]));
   } else if (name === 'landing') {
     refs = ['tab:LANDING'];
@@ -187,8 +191,8 @@ function tableHtml(data, name, caption) {
 // ------------------------------------------------------------------ figures from Phase 9
 
 const FIGURES = {
-  'aircraft-exterior': { en: '../09_book_figures/renders/aircraft-exterior.png', ar: '../09_book_figures/renders/aircraft-exterior.png', w: 2400, h: 1080 },
-  'flight-controls': { en: '../09_book_figures/renders/flight-controls.png', ar: '../09_book_figures/renders/flight-controls.png', w: 1800, h: 1395 },
+  'aircraft-exterior': { en: 'figures/aircraft-exterior.en.png', ar: 'figures/aircraft-exterior.ar.png', w: 1892, h: 1300 },
+  'flight-controls': { en: 'figures/flight-controls.en.png', ar: 'figures/flight-controls.ar.png', w: 1892, h: 1417 },
   'asi-markings': { en: '../09_book_figures/out/en/asi-markings.svg', ar: '../09_book_figures/out/ar/asi-markings.svg', w: 1600, h: 930 },
   'fuel-system': { en: '../09_book_figures/out/en/fuel-system.svg', ar: '../09_book_figures/out/ar/fuel-system.svg', w: 1600, h: 930 },
 };
@@ -286,26 +290,38 @@ ${sources}
 async function printPdfs() {
   const mod = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
   const pw = mod.chromium ? mod : mod.default;  // a CommonJS path given in PLAYWRIGHT_MODULE arrives as `default`
-  const browser = await pw.chromium.launch();
+  // The two SVG figures are <img>s: an image cannot load the page's @font-face, so its text uses whatever font the system
+  // has under the name "IBM Plex Sans Arabic" and otherwise falls back to a system CFF font that Chromium embeds as Type 3.
+  // Make the vendored files visible to fontconfig for this one browser (Linux; harmless elsewhere).
+  const fontDir = join(ROOT, '09_book_figures', 'vendor', 'fonts');
+  const conf = join(mkdtempSync(join(tmpdir(), 'c172-fonts-')), 'fonts.conf');
+  writeFileSync(conf, `<?xml version="1.0"?><fontconfig><include ignore_missing="yes">/etc/fonts/fonts.conf</include><dir>${fontDir}</dir></fontconfig>`);
+  const browser = await pw.chromium.launch({ env: { ...process.env, FONTCONFIG_FILE: conf } });
   mkdirSync(join(HERE, 'out'), { recursive: true });
   try {
     for (const lang of ['en', 'ar']) {
       const page = await browser.newPage();
       await page.goto(`${pathToFileURL(OUT_HTML).href}?lang=${lang}&theme=day`, { waitUntil: 'load' });
       // The figures load lazily on screen; for print every one must be loaded, the hidden language's included.
+      // The print stylesheet names the vendored fonts; load them under print media, before the PDF is made.
+      await page.emulateMedia({ media: 'print' });
+      await page.evaluate(() => document.fonts.ready);
       await page.evaluate(() => Promise.all([...document.images].map((i) => { i.loading = 'eager'; return i.decode().catch(() => null); })));
       const label = lang === 'ar' ? 'مرجع دراسي، ليس دليل تشغيل الطيار · لا تطِر به' : 'Study reference, not a POH · never fly from it';
       await page.pdf({
         path: join(HERE, 'out', `flygaca-c172n-training-handbook-${lang}.pdf`), format: 'A4', printBackground: true,
-        margin: { top: '16mm', bottom: '18mm', left: '15mm', right: '15mm' }, displayHeaderFooter: true,
+        margin: { top: '16mm', bottom: '18mm', left: '15mm', right: '15mm' }, displayHeaderFooter: true, outline: true, tagged: true,
         headerTemplate: '<span></span>',
-        footerTemplate: `<div style="font:8px sans-serif;width:100%;padding:0 15mm;display:flex;justify-content:space-between;color:#555"><span>FlyGACA · ${label}</span><span class="pageNumber"></span></div>`,
+        footerTemplate: `<div style="font:8px \'IBM Plex Sans Arabic\',sans-serif;width:100%;padding:0 15mm;display:flex;justify-content:space-between;color:#555"><span>FlyGACA · ${label}</span><span class="pageNumber"></span></div>`,
       });
       await page.close();
     }
   } finally {
     await browser.close();
   }
+  // Chromium leaves U+0000 in the PDF's text map for the font's alternate glyphs; give them their characters (needs python3, pypdf, fontTools).
+  const fix = spawnSync('python3', ['-I', join(HERE, 'fix_tounicode.py'), ...['en', 'ar'].map((l) => join(HERE, 'out', `flygaca-c172n-training-handbook-${l}.pdf`))], { stdio: 'inherit' });
+  if (fix.status !== 0) throw new Error('fix_tounicode.py failed: the PDFs still carry NUL characters');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

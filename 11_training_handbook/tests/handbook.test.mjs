@@ -100,3 +100,9 @@ test('everything the page loads or links to exists in the repository', () => {
     assert.ok(existsSync(path.endsWith('/') || ref === '../' || ref === './' ? join(path, 'index.html') : path), ref);
   }
 });
+
+test('numbers, ranges and units in table cells are left-to-right isolates (an Arabic row must not read 85–41)', () => {
+  const cells = [...html.matchAll(/<td>([^<]*(?:<bdi[^>]*>[^<]*<\/bdi>[^<]*)*)<\/td>/g)].map((m) => m[1]).filter((c) => /\d/.test(c) && !/class=/.test(c));
+  assert.ok(cells.length > 50);
+  for (const c of cells) assert.match(c, /^<bdi dir="ltr">[^<]+<\/bdi>$/, `table cell not isolated: ${c}`);
+});

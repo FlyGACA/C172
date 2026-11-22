@@ -12,7 +12,7 @@ export const STRINGS = {
     startHold: 'START (اضغط مطولًا)', throttle: 'الخانق', mixture: 'الخليط', carbHeat: 'تسخين المكربن', primer: 'ضخة تحضير',
     primes: 'ضخات', fuelSelector: 'صمام الوقود', altStatic: 'المصدر الساكن البديل', pitotHeat: 'تسخين البيتو',
     beacon: 'المنارة', navLights: 'أضواء الملاحة', landingLight: 'ضوء الهبوط', kollsman: 'ضبط مقياس الارتفاع',
-    onGround: 'على الأرض', iasTarget: 'السرعة المطلوبة', altTarget: 'الارتفاع المطلوب', bank: 'الميلان', pitch: 'الانحدار',
+    onGround: 'على الأرض', iasTarget: 'السرعة المطلوبة', altTarget: 'الارتفاع المطلوب', bank: 'الميلان', pitch: 'الميل الطولي',
     timeScale: 'تسريع الزمن', pause: 'إيقاف مؤقت', resume: 'استئناف', resetSim: 'إعادة ضبط',
     f_pitot: 'البيتو', f_pitot_none: 'سليم', f_pitot_ram: 'انسداد المدخل (التصريف مفتوح)', f_pitot_both: 'انسداد المدخل والتصريف',
     f_static: 'انسداد منفذ الضغط الساكن', f_alt: 'المولد', f_alt_none: 'سليم', f_alt_failed: 'متعطل', f_alt_ov: 'جهد زائد (يفصل)',
