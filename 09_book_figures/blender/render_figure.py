@@ -565,7 +565,7 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", help="one render recipe (JSON)")
-    parser.add_argument("--all", action="store_true", help="every figure in figures.json that has a render recipe")
+    parser.add_argument("--all", action="store_true", help="every figure in figures.json that has a render recipe (and its render_extra recipes)")
     parser.add_argument("--out", default=os.path.join(ROOT, "renders"))
     parser.add_argument("--quick", action="store_true", help="small, noisy preview for choosing a camera")
     parser.add_argument("--anchors-only", action="store_true", help="recompute the label anchors without rendering")
@@ -573,7 +573,8 @@ def main():
     args = parser.parse_args(argv)
     if args.all:
         with open(os.path.join(ROOT, "figures.json"), encoding="utf-8") as stream:
-            specs = [os.path.join(ROOT, figure["render"]) for figure in json.load(stream)["figures"] if figure.get("render")]
+            specs = [os.path.join(ROOT, path) for figure in json.load(stream)["figures"]
+                     for path in ([figure["render"]] if figure.get("render") else []) + figure.get("render_extra", [])]
     elif args.spec:
         specs = [args.spec]
     else:

@@ -78,7 +78,8 @@
       "flaps_control": "Flap switch lever",
       "trim": "Elevator trim tab",
       "trim_effect": "Relieves steady control pressure",
-      "trim_control": "Trim wheel"
+      "trim_control": "Trim wheel",
+      "inset_title": "Tail, side view"
     },
     "ar": {
       "name_flap_L": "القلاب الأيسر",
@@ -103,7 +104,12 @@
       "flaps_control": "ذراع مفتاح القلابات",
       "trim": "لسان موازنة الرافع",
       "trim_effect": "يخفف ضغط التحكم المستمر",
-      "trim_control": "عجلة الموازنة"
+      "trim_control": "عجلة الموازنة",
+      "inset_title": "الذيل، منظر جانبي"
     }
+  },
+  "inset": {
+    "render": "renders/flight-controls-tail.anchors.json",
+    "anchor": "rudder"
   }
 }
