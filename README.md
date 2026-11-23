@@ -117,6 +117,17 @@ aircraft-specific POH/AFM and Cessna/Lycoming manuals.
 
 [GACAR and Saudi AIP cross-reference](REGULATORY-CROSSWALK.md) — repository topics, official sections, editions and review gaps.
 
+## Related repositories
+
+Each subject has one home; the others link to it and copy from it unchanged.
+
+| Repository | What it owns | How it meets this one |
+| --- | --- | --- |
+| [FlyGACA/C172](https://github.com/FlyGACA/C172) (here) | The aircraft: the Cessna 172N model, its book figures and its handbook | |
+| [FlyGACA/airport](https://github.com/FlyGACA/airport) | Aerodromes: the AD 2 cards, diagrams and plates, their site and the atlas book | The cards began here and moved there on 17 November 2026; [`09_book_figures/atlas/`](09_book_figures/atlas/README.md) is the first batch, kept as a record. It copies this repository's drawing helpers unchanged |
+| [FlyGACA/saudi-airspace](https://github.com/FlyGACA/saudi-airspace) | Airspace: volumes, routes, waypoints, navaids, the map and the 3D viewer | The book figures draw on its data; the two sites link to each other in their footers |
+| [FlyGACA/UFUQ](https://github.com/FlyGACA/UFUQ) | The design system | `site/ufuq/`, copied unchanged |
+
 ## Independence and licence
 
 FlyGACA is an independent educational project. It is not affiliated with, endorsed by or operated by the
