@@ -1,5 +1,11 @@
 /* The C172N training handbook page. Colours, type and spacing come from the Ufuq tokens (site/ufuq/ufuq.css);
    nothing here sets a literal colour, and every side is a logical property so the page mirrors in Arabic. */
+/* The PDF must not depend on whatever fonts the build machine has: a system OpenType (CFF) font such as Inter is
+   embedded by Chromium as Type 3, which loses the text layer (numbers extract as private-use characters). These are the
+   repository's own TrueType files (SIL OFL, 09_book_figures/vendor/fonts/OFL.txt); one family covers Latin and Arabic. */
+@font-face { font-family: 'FlyGACA Plex'; font-weight: 100 500; src: url('../09_book_figures/vendor/fonts/IBMPlexSansArabic-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'FlyGACA Plex'; font-weight: 600 900; src: url('../09_book_figures/vendor/fonts/IBMPlexSansArabic-SemiBold.ttf') format('truetype'); }
+
 body.hb {
   display: flex;
   flex-direction: column;
@@ -50,12 +56,14 @@ body.hb {
 .hb-figure figcaption { margin-block-start: var(--ufuq-space-2); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }
 
 @media print {
+  :root:root:root { --ufuq-font-body: 'FlyGACA Plex', sans-serif; --ufuq-font-display: 'FlyGACA Plex', sans-serif; --ufuq-font-mono: 'FlyGACA Plex', monospace; }
   /* A printed page reads smaller than a screen: about 10 pt body text, and figures no taller than 105 mm. */
   html { font-size: 13.5px; }
   .hb-figure__art img { inline-size: auto; max-inline-size: 100%; max-block-size: 105mm; margin-inline: auto; }
   .ufuq-shell, .hb-toc { display: none; }
   .hb-main { max-inline-size: none; padding: 0; }
-  .hb-section { break-before: page; margin-block-start: 0; }
+  .hb-section { margin-block-start: var(--ufuq-space-6); }
+  .hb-section:first-of-type { margin-block-start: 0; }
   .hb-steps, .hb-figure, tr { break-inside: avoid; }
   .hb-section h2, .hb-section h3, .hb-table figcaption { break-after: avoid; }
   .hb-scroll { overflow: visible; }

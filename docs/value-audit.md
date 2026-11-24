@@ -99,3 +99,20 @@ the figure's weight: it is not in the text layer or the extract, so it is not as
 3. **Copy reviewed.** The committed extract is a public scan, not a serial-number-specific approved flight
    manual (`04b_poh_reference/poh_1979_reference_data.json`, `cautions`). A serial-specific AFM still
    governs any real aircraft.
+
+## Addendum, 2026-11-22: values read from the 1978 handbook scan
+
+The owner supplied a scan of the 1978 Model 172N handbook (page images, no text layer). The training handbook's
+new limits, emergency checklists, normal checklists, cruise fuel flow and weight-and-balance values were read
+from it page by page and are recorded in `08_realistic_digital_twin/data/poh_references.json` with
+`"copy": "1978 handbook"` and the POH page. The cruise fuel flow is the GPH column of Figure 5-7 (p.5-16, standard
+temperature), added to `CRUISE` in `shared/js/poh_tables.js`. The statements above are left as written.
+
+- **VFE differs between the two scans (open item 1).** The 1978 scan's Figure 2-1 (p.2-4) prints one flap row,
+  85 KIAS (86 KCAS), "do not exceed this speed with flaps down", and no 110 KIAS row. The earlier record carries
+  both rows. The two editions therefore do not share p.2-4. Which one governs the aeroplane is the owner's
+  decision; the handbook page still shows the earlier record.
+- **Figure 3-1 (open item 2)** in the 1978 scan lists its conditions as 65 KIAS, propeller windmilling, flaps up,
+  zero wind. It states no weight there either.
+- **Not read:** the fuel arm (the loading problem implies it but the page does not print it), the loading graph
+  and the centre of gravity envelope charts (the limits are taken from the written text on p.2-7).

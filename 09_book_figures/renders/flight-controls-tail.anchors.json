@@ -1,0 +1,27 @@
+{
+ "figure": "flight-controls-tail",
+ "image": "flight-controls-tail.png",
+ "width": 1200,
+ "height": 900,
+ "model": "C172N_realistic.blend",
+ "anchors": {
+  "rudder": {
+   "ids": [
+    "EMPENNAGE.rudder"
+   ],
+   "visible": true,
+   "label_en": "Rudder",
+   "label_ar": "الدفة",
+   "system": "EMPENNAGE",
+   "status": "estimated",
+   "x": 704.3,
+   "cx": 705.3,
+   "x0": 543.1,
+   "x1": 861.8,
+   "y": 465.7,
+   "cy": 459.3,
+   "y0": 244.8,
+   "y1": 677.9
+  }
+ }
+}

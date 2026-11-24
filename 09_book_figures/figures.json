@@ -87,6 +87,7 @@
       },
       "data": "data/flight_controls.json",
       "render": "data/flight_controls.render.json",
+      "render_extra": ["data/flight_controls_tail.render.json"],
       "sources": [
         {
           "poh": "Section 7",
