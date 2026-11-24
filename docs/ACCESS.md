@@ -1,5 +1,7 @@
 # Who can open the site
 
+> Renting the twin to the public is built and not deployed: see [RENTAL.md](RENTAL.md). Until the owner turns that on, everything below is how the site is gated.
+
 The site is a set of static files. A sign-in form written into the pages would not protect them: the model files and every other file would still answer to anyone who knows the address. The gate therefore sits in front of the whole hostname, at Cloudflare, and nothing in this repository implements it.
 
 **Update, later on 2026-11-16: applied.** A Cloudflare Access application, "Fly GACA C172 Twin (members only)", now covers the `c172` Worker that serves this site. It protects the whole Worker, not one hostname, so it covers `c172.flygaca.com`, the Worker's `workers.dev` address and its preview URLs through one destination of type Worker. It uses the account's one-time-PIN sign-in and one shared Allow policy, "Company domain and named members", which includes the company's email domain and a named list kept in Cloudflare. The same policy is attached to the Office, Airspace, C172 Twin and Ufuq applications, so a person is added or removed once.
