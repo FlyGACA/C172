@@ -1,0 +1,16 @@
+// The twin served through worker/index.js, for when it is rented out. NOT in use: it is kept
+// out of the repository root on purpose, so that no deploy picks it up by accident. The owner
+// switches to it by following docs/RENTAL.md. Secrets are set in the Cloudflare dashboard,
+// never here.
+{
+  "name": "c172",
+  "main": "../../worker/index.js",
+  "compatibility_date": "2026-11-13",
+  "keep_vars": true,
+  "assets": {
+    "directory": "../../",
+    "binding": "ASSETS",
+    // Every request runs the Worker first: nothing is served that it has not allowed.
+    "run_worker_first": true
+  }
+}

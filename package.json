@@ -7,7 +7,7 @@
     "build:model": "python3 07_kinematic_twin/build/build_phase7_model.py",
     "verify:model": "python3 07_kinematic_twin/build/verify_model.py",
     "verify:checksums": "if sha256sum --help 2>&1 | grep -q -- --quiet; then SHA=sha256sum; else SHA='shasum -a 256'; fi; echo \"checking the archived packages with ${SHA}\"; sed 's#  README.md$#  docs/archive/UPLOAD_PACKAGE_README.md#' SHA256SUMS.txt | $SHA -c --quiet",
-    "test": "node --test 07_kinematic_twin/tests/*.test.mjs 08_realistic_digital_twin/tests/*.test.mjs 09_book_figures/tests/*.test.mjs 11_training_handbook/tests/*.test.mjs test/evidence.test.mjs test/licensing.test.mjs test/site.test.mjs",
+    "test": "node --test 07_kinematic_twin/tests/*.test.mjs 08_realistic_digital_twin/tests/*.test.mjs 09_book_figures/tests/*.test.mjs 11_training_handbook/tests/*.test.mjs test/evidence.test.mjs test/licensing.test.mjs test/rental.test.mjs test/site.test.mjs",
     "build:site": "node scripts/build_site.mjs",
     "check:site": "node scripts/build_site.mjs --check",
     "test:e2e": "node 07_kinematic_twin/tests/e2e.mjs",
