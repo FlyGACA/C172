@@ -60,6 +60,16 @@ npm run part -- export --part @aileron_control --out aileron.glb   # الأجز�
 python3 09_book_figures/atlas.py                                   # إعادة رسم الأطلس
 ```
 
+ولكل جزء مكانه في [فهرس القطع المصوَّر](parts/index.html): الجزء لوحده، والجزء ملوَّنًا في موضعه داخل
+الطائرة الشفافة، وعرض ثلاثي الأبعاد يمكن تدويره وتقريبه. يُبنى على خطوتين، والأولى تحتاج Blender ونحو أربع
+عشرة ساعة على أربعة أنوية:
+
+```bash
+python3 09_book_figures/parts/render_all.py --out /path/to/renders   # كل جزء مرتين، ونموذج لكل نظام (لا تُحفظ في المستودع)
+python3 09_book_figures/parts/build.py --renders /path/to/renders    # يجمعها في parts/ (يحتاج Pillow)
+```
+
+
 تُحفظ الصور في `09_book_figures/parts/` بخلفية شفافة، ومع كل صورة ملف صغير بأسماء الأجزاء التي فيها.
 
 | صيغة الرقم | مثال |

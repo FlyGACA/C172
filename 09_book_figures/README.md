@@ -86,6 +86,16 @@ npm run part -- export --part @aileron_control --out aileron.glb   # the same pa
 python3 09_book_figures/atlas.py                                   # redraw the atlas
 ```
 
+Every part also has a page of its own in the [parts catalogue](parts/index.html): the part alone, the part
+tinted in its place inside the phantom aircraft, and a 3D view to turn and zoom. It is made in two steps, and
+the first needs Blender and about fourteen hours on four cores:
+
+```bash
+python3 09_book_figures/parts/render_all.py --out /path/to/renders   # every part, twice, and one model per system (not committed)
+python3 09_book_figures/parts/build.py --renders /path/to/renders    # packs them into parts/ (needs Pillow)
+```
+
+
 Pictures go to `09_book_figures/parts/` as transparent PNGs, each with a small JSON file naming the
 parts in it.
 
@@ -152,6 +162,7 @@ blender/render_figure.py   illustration render (shading, drawing data, ink) + la
 blender/ink.py             the ink-line rules (numpy only)
 blender/framing.py         how far away the automatic camera stands (pure Python)
 blender/part.py            list, draw or export any part of the model
+parts/                     the parts catalogue: a page with every part alone, in place and in 3D, and its two builders
 atlas.py, atlas/           a picture of every assembly under the skin, with the command that made it
 renders/                   rendered illustrations and their anchor files
 css/figure.css             the shared visual language (type, colours, line codes)
