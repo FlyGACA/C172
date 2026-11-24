@@ -124,7 +124,9 @@ General Authority of Civil Aviation (GACA / الهيئة العامة للطير
 Manufacturer and product names are used only to identify the aircraft the model describes; handbook values
 quoted here remain their publishers' material.
 
-The project's own code and models are released under the [MIT License](LICENSE). Third-party material keeps
+The project's own code is released under the [MIT License](LICENSE). The three-dimensional model, the pictures
+made from it and the training handbook are not: all rights in them are reserved. [LICENSING.md](LICENSING.md)
+says which is which, and what holds for versions published before that change. Third-party material keeps
 its own licence, for example the vendored Three.js build (`08_realistic_digital_twin/vendor/three/LICENSE`).
 
 Security reports: see [SECURITY.md](SECURITY.md).
