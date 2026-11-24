@@ -235,6 +235,22 @@ class DisclosureAndBindingTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             build.verify_poh(dict(sim, fuelUnusablePerTank=sim["fuelUnusablePerTank"] + 0.5))
 
+    def test_builder_reads_sim_through_the_evidence_gate(self):
+        """load_sim takes sim.js's exported values, so a value the gate withholds stops the build."""
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as folder:
+            stub = Path(folder) / "sim.mjs"
+            stub.write_text("export const POH = { vno: 128 };\nexport const ALT_STATIC_TABLE = [[40, 39]];\n", encoding="utf-8")
+            with mock.patch.object(build, "SIM_JS", stub), self.assertRaises(SystemExit) as raised:
+                build.load_sim()
+            self.assertIn("constant vne not found", str(raised.exception))
+            stub.write_text("throw new Error('C172: c172n.vne has no usable POH evidence (needs_source)');\n", encoding="utf-8")
+            with mock.patch.object(build, "SIM_JS", stub), self.assertRaises(SystemExit) as raised:
+                build.load_sim()
+            self.assertIn("could not be read", str(raised.exception))
+
     def test_fuel_and_engine_figures_bind_to_the_poh(self):
         poh = build.load_poh()
         for figure in MANIFEST["visuals"]:
