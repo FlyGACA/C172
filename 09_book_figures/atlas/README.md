@@ -1,5 +1,8 @@
 # Aerodrome atlas: the cards
 
+> [!NOTE]
+> Superseded. The atlas moved to [FlyGACA/airport](https://github.com/FlyGACA/airport) on 17 November 2026 and is maintained there (one AIP edition per facts file, Arabic edition, diagrams and plates). This folder is the first batch, built from AMDT 11/26, kept as a record; change the atlas there, not here.
+
 A first batch (all 29 cards; `out/sheet-all.jpg` shows them together) for a separate book, the FlyGACA aerodrome atlas: one card for each civil aerodrome of the Kingdom, with what its entry AD 2 in AIP-KSA prints, on an open satellite picture. An editorial draft; nothing here is approved or verified, and nothing is for navigation. Fly GACA is independent and is not affiliated with GACA. (FlyGACA جهة مستقلة وليست تابعة للهيئة العامة للطيران المدني.)
 
 ## Decisions of the owner (17 November 2026)
