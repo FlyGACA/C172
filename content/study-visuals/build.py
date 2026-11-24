@@ -12,6 +12,8 @@ are isolated (U+2066 ... U+2069) so "41–85" and "85 / 110" keep their order in
 import argparse
 import json
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -42,32 +44,57 @@ def align(direction, visual):
     return "start" if (direction == "ltr") == left else "end"
 
 
+SIM_KEYS = (
+    "vne",
+    "vno",
+    "vfe",
+    "va2300",
+    "maxRpm",
+    "fuelPerTankTotal",
+    "fuelPerTankUsable",
+    "fuelUnusablePerTank",
+)
+SIM_ARCS = ("asiWhite", "asiGreen", "asiYellow")
+
+# sim.js no longer holds number literals: every published limit comes through the evidence gate
+# (shared/js/evidence.js), which withholds a value whose record is incomplete or whose conditions do
+# not match. Reading the module's own exports keeps the builder behind that same gate instead of
+# re-implementing it here.
+_SIM_EXPORT = """
+const sim = await import(process.argv[1]);
+process.stdout.write(JSON.stringify({ POH: sim.POH, ALT_STATIC_TABLE: sim.ALT_STATIC_TABLE }));
+"""
+
+
 def load_sim():
-    text = SIM_JS.read_text(encoding="utf-8")
+    node = shutil.which("node")
+    if not node:
+        raise SystemExit("shared/js/sim.js: node is needed to read the constants (they come through shared/js/evidence.js)")
+    result = subprocess.run(
+        [node, "--input-type=module", "-e", _SIM_EXPORT, SIM_JS.as_uri()],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr.strip().splitlines() or ["no output"])[-1]
+        raise SystemExit("shared/js/sim.js: could not be read (%s)" % detail)
+    exported = json.loads(result.stdout)
+    poh = exported.get("POH") or {}
     numbers = {}
-    for key in (
-        "vne",
-        "vno",
-        "vfe",
-        "va2300",
-        "maxRpm",
-        "fuelPerTankTotal",
-        "fuelPerTankUsable",
-        "fuelUnusablePerTank",
-    ):
-        match = re.search(r"\b%s\s*:\s*([0-9.]+)" % key, text)
-        if not match:
+    for key in SIM_KEYS:
+        value = poh.get(key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise SystemExit("shared/js/sim.js: constant %s not found" % key)
-        numbers[key] = float(match.group(1))
-    for key in ("asiWhite", "asiGreen", "asiYellow"):
-        match = re.search(r"\b%s\s*:\s*\[\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\]" % key, text)
-        if not match:
+        numbers[key] = float(value)
+    for key in SIM_ARCS:
+        value = poh.get(key)
+        if not (isinstance(value, list) and len(value) == 2 and all(isinstance(v, (int, float)) for v in value)):
             raise SystemExit("shared/js/sim.js: arc %s not found" % key)
-        numbers[key] = [float(match.group(1)), float(match.group(2))]
-    match = re.search(r"ALT_STATIC_TABLE\s*=\s*(\[\[.*?\]\])", text, re.S)
-    if not match:
+        numbers[key] = [float(value[0]), float(value[1])]
+    table = exported.get("ALT_STATIC_TABLE")
+    if not isinstance(table, list) or not table:
         raise SystemExit("shared/js/sim.js: ALT_STATIC_TABLE not found")
-    numbers["altStatic"] = json.loads(match.group(1))
+    numbers["altStatic"] = table
     return numbers
 
 
