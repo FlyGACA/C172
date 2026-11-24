@@ -38,9 +38,9 @@ Nothing below has been done, and none of it is done from this repository.
 - **Not tested against real services.** The gate and the shop are tested with fakes only. No deploy, no purchase and no sign-in has been tried.
 - **The repository is public.** Everything the gate protects on the site can be taken from GitHub without paying. The gate is worth little until the repository is private. See `LICENSING.md`.
 - **The handbook is inside the gate.** A renter can read the handbook pages and download its PDFs from this site. The shop also sells that handbook as a licensed PDF for one price; the two overlap.
-- **Staff access.** Once Cloudflare Access is removed, the company's own people need a pass like anyone else. There is no free or staff pass yet.
+- **Staff access.** Once Cloudflare Access is removed, the company's own people need a pass like anyone else. The shop's operator can give each a free pass (`/api/twin-admin` in FlyGACA/FlightBag, `docs/c172-twin.md` there); do that before step 6.
 - **The sign-out link in the header** still points at Cloudflare Access (`site/ufuq/ufuq.shell.js`, copied from FlyGACA/UFUQ and not edited here). `/api/signout` exists; the header does not use it yet.
-- **Classes.** A classroom licence is built on the shop's side: students join there with a class code, and each then signs in here like any renter. This site cannot tell a student from any other renter, and the instructor cannot remove a student.
+- **Classes.** A classroom licence is built on the shop's side: students join there with a class code, and each then signs in here like any renter. This site cannot tell a student from any other renter, and an instructor who takes a student out does so in the shop. That ends the student's access there; a session this site already gave runs until its own end (at most 30 days), because this Worker keeps no list. Changing `TWIN_ACCESS_SECRET` on both Workers signs everyone out at once.
 - **Sharing.** A session is tied to a browser, not a person; nothing stops a renter from forwarding the sign-in link while it is valid.
 
 ## Checks
