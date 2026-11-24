@@ -10,7 +10,7 @@ Two repositories share the work, and one secret.
 
 | Part | Where | What it does |
 | --- | --- | --- |
-| The shop | FlyGACA/FlightBag (`lib/twin.js`, `api/twin-signin.js`) | Takes the payment (30 days or 12 months), keeps the record of who has access until when, and emails a sign-in link. A renewal adds days to the end. Nothing renews by itself. |
+| The shop | FlyGACA/FlightBag (`lib/twin.js`, `api/twin-signin.js`) | Takes the payment (30 days, 12 months, or a classroom licence for one instructor and up to 30 students), keeps the record of who has access until when, and emails a sign-in link. A renewal adds days to the end. Nothing renews by itself. |
 | The pass | signed by the shop with `TWIN_ACCESS_SECRET` | Five minutes long. It says when the access ends and carries a hash in place of the email, so this site never learns who the renter is. |
 | The gate | here: `worker/access.js`, `worker/index.js` | Checks the pass, sets its own session cookie (until the access ends, or 30 days, whichever is first), and lets a signed-in visitor open the files. |
 
@@ -40,7 +40,7 @@ Nothing below has been done, and none of it is done from this repository.
 - **The handbook is inside the gate.** A renter can read the handbook pages and download its PDFs from this site. The shop also sells that handbook as a licensed PDF for one price; the two overlap.
 - **Staff access.** Once Cloudflare Access is removed, the company's own people need a pass like anyone else. There is no free or staff pass yet.
 - **The sign-out link in the header** still points at Cloudflare Access (`site/ufuq/ufuq.shell.js`, copied from FlyGACA/UFUQ and not edited here). `/api/signout` exists; the header does not use it yet.
-- **A classroom licence** (one instructor and up to 30 students) is not built. Only individual passes are.
+- **Classes.** A classroom licence is built on the shop's side: students join there with a class code, and each then signs in here like any renter. This site cannot tell a student from any other renter, and the instructor cannot remove a student.
 - **Sharing.** A session is tied to a browser, not a person; nothing stops a renter from forwarding the sign-in link while it is valid.
 
 ## Checks
