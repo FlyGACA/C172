@@ -68,6 +68,7 @@ function show() {
   $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = !is3d;
   if (!is3d) { $('bsolid').hidden = $('hide').hidden = $('pull').hidden = true; $('dlg').classList.remove('is-wide'); }
   tile($('d-pic'), view === 'place' ? D.place : D.large, p.i);
+  $('d-full').href = `full/${view === 'place' ? 'place' : 'alone'}/${p.k}.png`; $('d-full').parentElement.hidden = is3d;
   const keep = keepCamera; keepCamera = false;
   if (is3d) show3d(keep); else { turn += 1; message(); }
 }
