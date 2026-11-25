@@ -67,7 +67,7 @@ python3 09_book_figures/atlas.py                                   # إعادة 
 
 ```bash
 python3 09_book_figures/parts/render_all.py --out /path/to/renders   # كل جزء مرتين، ونموذج لكل نظام (لا تُحفظ في المستودع)
-python3 09_book_figures/parts/build.py --renders /path/to/renders    # يجمعها في parts/ (يحتاج Pillow)
+python3 09_book_figures/parts/build.py --renders /path/to/renders    # يجمعها في parts/ وينسخ الصور بالحجم الكامل إلى parts/full/ (يحتاج Pillow)
 ```
 
 

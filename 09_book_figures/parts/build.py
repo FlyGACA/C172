@@ -4,7 +4,8 @@
     python3 09_book_figures/parts/build.py --renders DIR
 
 Reads DIR/alone, DIR/place and DIR/models and writes, beside this file: t/ (small pictures), l/ (the part on
-its own), p/ (the part in the aircraft), m/ (one model per system) and parts.json, which the page reads.
+its own), p/ (the part in the aircraft), m/ (one model per system), full/ (every picture as it was rendered, for
+opening one at full size) and parts.json, which the page reads.
 Pictures are packed many to a sheet so the page asks for a few hundred files, not several thousand.
 Needs Pillow. Nothing here is typed by hand: names, systems and sources come from the model's own records.
 """
@@ -66,6 +67,11 @@ def main():
     os.makedirs(os.path.join(HERE, "m"))
     for system in systems:
         shutil.copyfile(os.path.join(args.renders, "models", system + ".glb"), os.path.join(HERE, "m", system + ".glb"))
+    for source in ("alone", "place"):
+        shutil.rmtree(os.path.join(HERE, "full", source), ignore_errors=True)
+        os.makedirs(os.path.join(HERE, "full", source))
+        for part in parts:
+            shutil.copyfile(os.path.join(args.renders, source, part["k"] + ".png"), os.path.join(HERE, "full", source, part["k"] + ".png"))
     catalogue["parts"] = parts
     with open(os.path.join(HERE, "parts.json"), "w", encoding="utf-8") as stream:
         json.dump(catalogue, stream, ensure_ascii=False, separators=(",", ":"))

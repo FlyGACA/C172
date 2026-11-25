@@ -54,3 +54,5 @@ body.page > main { flex: 1; }
 .parts-dlg.is-wide .parts-big { aspect-ratio: auto; block-size: 62dvh; }
 .parts-pull { display: inline-flex; align-items: center; gap: var(--ufuq-space-2); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }
 .parts-pull input { inline-size: 10rem; max-inline-size: 40vw; accent-color: var(--ufuq-brand); }
+.parts-full { margin: 0; font-size: var(--ufuq-fs-sm); }
+.parts-full a { color: var(--ufuq-link); }

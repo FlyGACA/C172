@@ -38,6 +38,7 @@ test('every picture sheet and model file the page asks for is in the repository'
     assert.equal(sheet.files.length, Math.ceil(data.parts.length / sheet.per));
     for (const file of sheet.files) assert.ok(existsSync(path(file.f)), `${file.f} is missing`);
   }
+  for (const p of data.parts) for (const kind of ['alone', 'place']) assert.ok(existsSync(path(`full/${kind}/${p.k}.png`)), `full/${kind}/${p.k}.png is missing`);
   for (const system of new Set(data.parts.map((p) => p.s))) {
     const names = new Set(nodeNames(path(`m/${system}.glb`)));
     for (const p of data.parts) if (p.s === system) assert.ok(names.has(p.id), `${p.id} is not in m/${system}.glb`);

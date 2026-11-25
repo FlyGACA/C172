@@ -94,7 +94,7 @@ the first needs Blender and about fourteen hours on four cores:
 
 ```bash
 python3 09_book_figures/parts/render_all.py --out /path/to/renders   # every part, twice, and one model per system (not committed)
-python3 09_book_figures/parts/build.py --renders /path/to/renders    # packs them into parts/ (needs Pillow)
+python3 09_book_figures/parts/build.py --renders /path/to/renders    # packs them into parts/ and copies the full-size pictures to parts/full/ (needs Pillow)
 ```
 
 
