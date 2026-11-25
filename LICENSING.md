@@ -12,7 +12,8 @@ The [MIT License](LICENSE) covers the software only:
 
 - the viewers and the simulation: `shared/js/`, and the `js` and `css` folders and HTML pages of each phase;
 - the site and the checks: `scripts/`, `site/site.css`, `test/`, `tests/`, each phase's own `tests` folder, `.github/`;
-- the builders of pages and PDFs: `09_book_figures/build.mjs`, `11_training_handbook/build.mjs`, `content/study-visuals/build.py` and their helpers.
+- the builders of pages and PDFs: `09_book_figures/build.mjs`, `11_training_handbook/build.mjs`, `content/study-visuals/build.py` and their helpers;
+- the parts catalogue's page and builders: `09_book_figures/parts/index.html`, `09_book_figures/parts/parts.js`, `09_book_figures/parts/parts.css`, `09_book_figures/parts/build.py` and `09_book_figures/parts/render_all.py`.
 
 ## 2. The model, the pictures and the books: all rights reserved
 
@@ -20,8 +21,8 @@ Copyright © 2026 BDA Company International / شركة بدع الدولية. Al
 
 This covers:
 
-- **the three-dimensional model of the aeroplane in every form**: the `.blend` and `.glb` files of every phase, their textures (`08_realistic_digital_twin/assets/`), and the scripts that generate the model (`07_kinematic_twin/build/`, `08_realistic_digital_twin/blender/`, `09_book_figures/blender/`);
-- **every picture made from the model**: renders, figures, plates, covers, cards and study visuals (`09_book_figures/out/`, `09_book_figures/handbook/out/`, `09_book_figures/renders/`, `09_book_figures/atlas/`, `08_realistic_digital_twin/docs/` pictures, `11_training_handbook/figures/`, `content/study-visuals/out/`, `site/hero.webp`);
+- **the three-dimensional model of the aeroplane in every form**: the `.blend` and `.glb` files of every phase, the model of each system in the parts catalogue (`09_book_figures/parts/m/`), their textures (`08_realistic_digital_twin/assets/`), and the scripts that generate the model (`07_kinematic_twin/build/`, `08_realistic_digital_twin/blender/`, `09_book_figures/blender/`);
+- **every picture made from the model**: renders, figures, plates, covers, cards and study visuals (`09_book_figures/out/`, `09_book_figures/handbook/out/`, `09_book_figures/renders/`, `09_book_figures/atlas/`, the picture sheets of the parts catalogue (`09_book_figures/parts/t/`, `09_book_figures/parts/l/`, `09_book_figures/parts/p/`), `08_realistic_digital_twin/docs/` pictures, `11_training_handbook/figures/`, `content/study-visuals/out/`, `site/hero.webp`);
 - **the FlyGACA C172N Training Handbook**: its text (`11_training_handbook/content.mjs`) and its PDF and web editions (`11_training_handbook/out/`, `11_training_handbook/index.html`);
 - the text of the lessons, notes and guides written for the twin.
 
