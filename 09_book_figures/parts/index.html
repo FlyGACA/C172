@@ -37,6 +37,7 @@
     <p class="ufuq-eyebrow"><span class="ufuq-en">Fly GACA · Cessna 172N, 1979</span><span class="ufuq-ar" lang="ar">فلاي قاكا · سيسنا 172N، موديل 1979</span></p>
     <h1><span class="ufuq-en">Parts catalogue</span><span class="ufuq-ar" lang="ar">فهرس القطع</span></h1>
     <p class="parts-lead"><span class="ufuq-en">Every part of the model, drawn on its own, shown in its place in the aircraft, and in 3D to turn and zoom. Search by name in English or Arabic, or narrow by system and by how well the part is sourced.</span><span class="ufuq-ar" lang="ar">كل قطعة في النموذج: مرسومة وحدها، وفي مكانها من الطائرة، وبعرض ثلاثي الأبعاد يمكن تدويره وتقريبه. ابحث بالاسم بالعربية أو الإنجليزية، أو اختر النظام ودرجة توثيق القطعة.</span></p>
+    <p class="parts-actions"><button type="button" class="ufuq-btn ufuq-btn--primary" id="explore"><span class="ufuq-en">Explore the whole aircraft in 3D</span><span class="ufuq-ar" lang="ar">استكشف الطائرة كاملة بعرض ثلاثي الأبعاد</span></button></p>
   </div>
   <div class="parts-bar">
     <div class="parts-row">
@@ -79,9 +80,15 @@
       <button type="button" class="ufuq-tab" data-view="alone" aria-pressed="true"><span class="ufuq-en">On its own</span><span class="ufuq-ar" lang="ar">وحدها</span></button>
       <button type="button" class="ufuq-tab" data-view="place" aria-pressed="false"><span class="ufuq-en">In the aircraft</span><span class="ufuq-ar" lang="ar">في الطائرة</span></button>
       <button type="button" class="ufuq-tab" data-view="3d" aria-pressed="false"><span class="ufuq-en">3D</span><span class="ufuq-ar" lang="ar">ثلاثي الأبعاد</span></button></div>
-      <button type="button" class="ufuq-btn ufuq-btn--quiet" id="bsys" aria-pressed="false" hidden><span class="ufuq-en">Show the rest of its system</span><span class="ufuq-ar" lang="ar">أظهر بقية النظام</span></button>
+      <div class="ufuq-tabs" id="around" role="group" aria-label="Around it · حولها" hidden>
+        <button type="button" class="ufuq-tab" data-scope="part" aria-pressed="true"><span class="ufuq-en">Part only</span><span class="ufuq-ar" lang="ar">القطعة فقط</span></button>
+        <button type="button" class="ufuq-tab" data-scope="system" aria-pressed="false"><span class="ufuq-en">With its system</span><span class="ufuq-ar" lang="ar">مع نظامها</span></button>
+        <button type="button" class="ufuq-tab" data-scope="aircraft" aria-pressed="false"><span class="ufuq-en">Whole aircraft</span><span class="ufuq-ar" lang="ar">الطائرة كاملة</span></button>
+      </div>
+      <button type="button" class="ufuq-btn ufuq-btn--quiet" id="bsolid" aria-pressed="false" hidden><span class="ufuq-en">Solid</span><span class="ufuq-ar" lang="ar">مصمتة</span></button>
       <button type="button" class="ufuq-btn ufuq-btn--quiet" id="bfit" hidden><span class="ufuq-en">Reset the view</span><span class="ufuq-ar" lang="ar">أعد ضبط العرض</span></button>
     </div>
+    <div class="parts-chips" id="hide" role="group" aria-label="Systems shown · الأنظمة الظاهرة" hidden></div>
     <div class="parts-nav">
       <span><button type="button" class="ufuq-btn ufuq-btn--quiet" id="prev"><span class="ufuq-en">Previous</span><span class="ufuq-ar" lang="ar">السابقة</span></button>
       <button type="button" class="ufuq-btn ufuq-btn--quiet" id="next"><span class="ufuq-en">Next</span><span class="ufuq-ar" lang="ar">التالية</span></button></span>

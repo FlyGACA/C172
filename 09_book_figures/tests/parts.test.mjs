@@ -62,6 +62,12 @@ test('the page carries the notice in both languages and says what the model is n
   assert.doesNotMatch(page + text('parts.js'), /\b1,?198\b/, 'the part count is read from parts.json, not typed into the page');
 });
 
+test('the page offers the whole aircraft in 3D, with every control named in both languages', () => {
+  for (const id of ['explore', 'around', 'bsolid', 'bfit', 'hide']) assert.match(page, new RegExp(`id="${id}"`), `#${id} is missing`);
+  assert.deepEqual([...page.matchAll(/data-scope="([a-z]+)"/g)].map((m) => m[1]), ['part', 'system', 'aircraft']);
+  for (const [, inner] of page.matchAll(/<button[^>]*>([\s\S]*?)<\/button>/g)) assert.ok(inner.includes('ufuq-en') && inner.includes('ufuq-ar'), `a button is in one language only: ${inner.slice(0, 60)}`);
+});
+
 test('the stylesheet takes its colours from the Ufuq tokens', () => {
   const css = text('parts.css').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i, 'a literal colour');

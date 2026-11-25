@@ -11,7 +11,7 @@ try { D = await (await fetch('parts.json')).json(); } catch { say($('list').firs
 const P = D.parts;
 P.forEach((p, i) => { p.i = i; p.h = [p.en, p.ar, p.id, ...p.more.flatMap((m) => [m[1], m[2]])].join(' ').toLowerCase(); });
 const systems = [...new Set(P.map((p) => p.s))];
-let fs = '', fst = '', shown = P, cur = 0, view = 'alone';
+let fs = '', fst = '', shown = P, cur = 0, view = 'alone', keepCamera = false;
 
 /** Show tile `index` of a sheet of pictures as the background of `node`. */
 function tile(node, sheet, index) {
@@ -65,9 +65,11 @@ function open(n) {
 function show() {
   const p = shown[cur], is3d = view === '3d';
   document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
-  $('d-3d').hidden = !is3d; $('bsys').hidden = $('bfit').hidden = !is3d;
+  $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = !is3d;
+  if (!is3d) { $('bsolid').hidden = $('hide').hidden = true; $('dlg').classList.remove('is-wide'); }
   tile($('d-pic'), view === 'place' ? D.place : D.large, p.i);
-  if (is3d) show3d(); else { turn += 1; message(); }
+  const keep = keepCamera; keepCamera = false;
+  if (is3d) show3d(keep); else { turn += 1; message(); }
 }
 document.querySelectorAll('[data-view]').forEach((b) => { b.onclick = () => { view = b.dataset.view; show(); }; });
 $('prev').onclick = () => open(cur - 1); $('next').onclick = () => open(cur + 1); $('close').onclick = () => $('dlg').close();
@@ -76,7 +78,10 @@ $('dlg').addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') open(cu
 let timer; $('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 120); });
 
 // The 3D view. Three.js and one model file per system (m/<SYSTEM>.glb) are fetched the first time they are asked for.
-let T = null, ready = null, turn = 0, ghost = false; const models = {};
+// Round the chosen part it can draw nothing, the rest of its system, or the whole aircraft; in the whole aircraft a
+// click on any part chooses it, and whole systems can be put away to see what is under them.
+let T = null, ready = null, turn = 0, scope = 'part', solid = false, quiet = false; const models = {}, hidden = new Set();
+const entry = new Map(); P.forEach((p) => { for (const id of [p.id, ...p.more.map((m) => m[0])]) entry.set(id, p); });
 function message(en, ar) { $('d-msg').hidden = !en; if (en) say($('d-msg'), en, ar); }
 function setup() {
   ready ||= (async () => {
@@ -88,7 +93,9 @@ function setup() {
     const camera = new THREE.PerspectiveCamera(24, 1.6, 0.01, 100), sun = new THREE.DirectionalLight(0xffffff, 1.2);
     camera.add(sun); sun.position.set(1, 2, 1); scene.add(camera);
     const controls = new OrbitControls(camera, canvas);
-    const faint = new THREE.MeshBasicMaterial({ color: getComputedStyle(canvas).getPropertyValue('--ufuq-print-teal').trim() || 'gray', transparent: true, opacity: 0.07, depthWrite: false });
+    const token = (name) => getComputedStyle(canvas).getPropertyValue(name).trim() || 'gray';
+    const faint = new THREE.MeshBasicMaterial({ color: token('--ufuq-print-teal'), transparent: true, opacity: 0.06, depthWrite: false });
+    const marked = new THREE.MeshStandardMaterial({ color: token('--ufuq-print-clay'), roughness: 0.55, metalness: 0, emissive: token('--ufuq-print-clay'), emissiveIntensity: 0.35 });
     const frame = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
       const k = renderer.getPixelRatio();
@@ -97,49 +104,97 @@ function setup() {
     };
     const draw = () => requestAnimationFrame(frame);
     controls.addEventListener('change', draw); new ResizeObserver(draw).observe(canvas);
-    T = { THREE, GLTFLoader, scene, camera, controls, faint, draw, root: null };
+    T = { THREE, GLTFLoader, scene, camera, controls, faint, marked, draw, roots: new Map(), ray: new THREE.Raycaster() };
+    // A click that is not a drag chooses the part under it.
+    let down = null;
+    canvas.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+    canvas.addEventListener('pointerup', (e) => { if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 5) pick(e); down = null; });
   })();
   return ready;
 }
-/** The meshes of one system, each marked with the catalogue part it belongs to, flat under one group. */
+/** The meshes of one system, each marked with the catalogue part it belongs to, flat under one group in the scene. */
 function model(system) {
   models[system] ||= new T.GLTFLoader().loadAsync(`m/${system}.glb`).then((gltf) => {
     const { THREE } = T, ids = {};
     for (const p of P) if (p.s === system) for (const id of [p.id, ...p.more.map((m) => m[0])]) ids[THREE.PropertyBinding.sanitizeNodeName(id)] = id;
     gltf.scene.updateMatrixWorld(true);
     const meshes = []; gltf.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
-    for (const m of meshes) { let a = m, id = null; while (a && !id) { id = ids[a.name] || null; a = a.parent; } m.userData.part = id; m.userData.material = m.material; }
+    for (const m of meshes) { let a = m, id = null; while (a && !id) { id = ids[a.name] || null; a = a.parent; } m.userData.part = id; m.userData.material = m.material; m.visible = false; }
     const root = new THREE.Group(); for (const m of meshes) root.attach(m);
+    T.roots.set(system, root); T.scene.add(root);
     return root;
   });
   return models[system];
 }
-function fit() {
+const meshes = function* () { for (const [system, root] of T.roots) for (const m of root.children) yield [system, m]; };
+function fit(all) {
   const { THREE, camera, controls } = T, box = new THREE.Box3();
-  for (const m of T.root.children) if (m.userData.chosen) box.expandByObject(m);
+  for (const [system, m] of meshes()) if (all ? m.visible && system !== 'GROUND_EQUIPMENT' : m.userData.chosen) box.expandByObject(m);
   if (box.isEmpty()) return;
-  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * 1.08, az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(22);
+  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(22);
   controls.target.copy(s.center); camera.position.set(s.center.x + d * Math.cos(el) * Math.sin(az), s.center.y + d * Math.sin(el), s.center.z + d * Math.cos(el) * Math.cos(az));
-  camera.near = Math.max(R / 200, 1e-4); camera.far = d + R * 400 + 50; camera.updateProjectionMatrix();
-  controls.minDistance = R * 0.3; controls.maxDistance = d * 30 + 20; controls.update(); T.draw();
+  camera.near = all ? 0.02 : Math.max(R / 200, 1e-4); camera.far = d + R * 400 + 50; camera.updateProjectionMatrix();
+  controls.minDistance = all ? 0.05 : R * 0.3; controls.maxDistance = d * 30 + 20; controls.update(); T.draw();
 }
 function paint() {
-  for (const m of T.root.children) { m.visible = m.userData.chosen || ghost; m.material = m.userData.chosen ? m.userData.material : T.faint; m.renderOrder = m.userData.chosen ? 0 : 1; }
+  const home = shown[cur].s;
+  for (const [system, m] of meshes()) {
+    const chosen = m.userData.chosen, around = scope === 'aircraft' ? !hidden.has(system) : scope === 'system' && system === home;
+    m.visible = scope === 'aircraft' ? around : chosen || around;
+    m.material = chosen ? (solid && !quiet ? T.marked : m.userData.material) : solid ? m.userData.material : T.faint;
+    m.renderOrder = chosen || solid ? 0 : 1;
+  }
   T.draw();
 }
-async function show3d() {
-  const mine = ++turn, p = shown[cur];
+function choose() {
+  const p = shown[cur], want = new Set([p.id, ...p.more.map((m) => m[0])]); let any = false;
+  for (const [, m] of meshes()) { m.userData.chosen = want.has(m.userData.part); any ||= m.userData.chosen; }
+  return any;
+}
+const HINT = ['Drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
+const HINT_ALL = ['Click a part to choose it · drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'انقر على قطعة لاختيارها · اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
+async function show3d(keep) {
+  const mine = ++turn, p = shown[cur], whole = scope === 'aircraft';
+  $('dlg').classList.toggle('is-wide', whole); $('bsolid').hidden = scope === 'part'; $('hide').hidden = !whole;
   message('Loading the 3D model…', 'جارٍ تحميل النموذج ثلاثي الأبعاد…');
   try {
-    await setup(); const root = await model(p.s); if (mine !== turn) return;
-    if (T.root !== root) { if (T.root) T.scene.remove(T.root); T.scene.add(root); T.root = root; }
-    const want = new Set([p.id, ...p.more.map((m) => m[0])]); let any = false;
-    for (const m of root.children) { m.userData.chosen = want.has(m.userData.part); any ||= m.userData.chosen; }
-    if (!any) { for (const m of root.children) m.visible = false; T.draw(); message('This part has no 3D model. Choose another view to see its picture.', 'لا يوجد نموذج ثلاثي الأبعاد لهذه القطعة. اختر عرضًا آخر لرؤية صورتها.'); return; }
-    paint(); fit(); message('Drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك');
+    await setup(); await model(p.s); if (mine !== turn) return;
+    if (!choose()) { paint(); message('This part has no 3D model. Choose another view to see its picture.', 'لا يوجد نموذج ثلاثي الأبعاد لهذه القطعة. اختر عرضًا آخر لرؤية صورتها.'); return; }
+    paint(); if (!keep) fit(false);
+    if (!whole) { message(...HINT); return; }
+    // The rest of the aircraft arrives a system at a time and is drawn as it comes.
+    const rest = systems.filter((s) => !T.roots.has(s)); let done = systems.length - rest.length;
+    for (const s of rest) {
+      message(`Loading the aircraft: ${done} of ${systems.length} systems…`, `جارٍ تحميل الطائرة: ${done} من ${systems.length} نظامًا…`);
+      await model(s); if (mine !== turn) return; done += 1; choose(); paint();
+    }
+    if (!keep) fit(true);
+    message(...HINT_ALL);
   } catch { if (mine === turn) message('The 3D view could not be loaded here. Choose another view to see the picture.', 'تعذّر تحميل العرض ثلاثي الأبعاد هنا. اختر عرضًا آخر لرؤية الصورة.'); }
 }
-$('bsys').onclick = () => { ghost = !ghost; $('bsys').setAttribute('aria-pressed', String(ghost)); if (T?.root) paint(); };
-$('bfit').onclick = () => { if (T?.root) fit(); };
+function pick(event) {
+  if (scope !== 'aircraft' || !T) return;
+  const { THREE, ray, camera } = T, box = $('d-3d').getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2(((event.clientX - box.left) / box.width) * 2 - 1, -((event.clientY - box.top) / box.height) * 2 + 1), camera);
+  const seen = []; for (const [, m] of meshes()) if (m.visible && m.userData.part) seen.push(m);
+  const hit = ray.intersectObjects(seen, false)[0], p = hit && entry.get(hit.object.userData.part);
+  if (!p) return;
+  quiet = false; keepCamera = true;
+  if (!shown.includes(p)) { fs = ''; fst = ''; $('q').value = ''; for (const box of [$('sys'), $('stat')]) [...box.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === 0))); render(); }
+  open(shown.indexOf(p));
+}
+document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { scope = b.dataset.scope; document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); if (view === '3d') show3d(); }; });
+$('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pressed', String(solid)); if (T) paint(); };
+$('bfit').onclick = () => { if (T) fit(scope === 'aircraft'); };
+systems.forEach((s) => {
+  const b = el('button', 'ufuq-tab', s); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
+  b.onclick = () => { if (hidden.has(s)) hidden.delete(s); else hidden.add(s); b.setAttribute('aria-pressed', String(!hidden.has(s))); if (T) paint(); };
+  $('hide').append(b);
+});
+$('explore').onclick = () => {
+  view = '3d'; scope = 'aircraft'; solid = true; quiet = true; $('bsolid').setAttribute('aria-pressed', 'true');
+  document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.scope === 'aircraft')));
+  open(Math.max(0, shown.findIndex((p) => p.id === 'AIRFRAME.fuselage')));
+};
 
 render();

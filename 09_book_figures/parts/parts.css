@@ -47,3 +47,8 @@ body.page > main { flex: 1; }
 .parts-more { margin: 0; padding-inline-start: var(--ufuq-space-5); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-xs); }
 .parts-tools, .parts-nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ufuq-space-2); }
 .parts-nav { justify-content: space-between; }
+.parts-actions { margin: var(--ufuq-space-4) 0 0; }
+.parts-tools .ufuq-btn[aria-pressed='true'] { background: var(--ufuq-brand); border-color: var(--ufuq-brand); color: var(--ufuq-on-brand); }
+/* The whole aircraft needs room: the window fills the screen and the picture area takes most of its height. */
+.parts-dlg.is-wide { inline-size: calc(100vw - 1.5rem); max-inline-size: none; }
+.parts-dlg.is-wide .parts-big { aspect-ratio: auto; block-size: 62dvh; }
