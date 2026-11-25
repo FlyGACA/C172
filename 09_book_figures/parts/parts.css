@@ -52,3 +52,5 @@ body.page > main { flex: 1; }
 /* The whole aircraft needs room: the window fills the screen and the picture area takes most of its height. */
 .parts-dlg.is-wide { inline-size: calc(100vw - 1.5rem); max-inline-size: none; }
 .parts-dlg.is-wide .parts-big { aspect-ratio: auto; block-size: 62dvh; }
+.parts-pull { display: inline-flex; align-items: center; gap: var(--ufuq-space-2); color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }
+.parts-pull input { inline-size: 10rem; max-inline-size: 40vw; accent-color: var(--ufuq-brand); }

@@ -63,7 +63,7 @@ test('the page carries the notice in both languages and says what the model is n
 });
 
 test('the page offers the whole aircraft in 3D, with every control named in both languages', () => {
-  for (const id of ['explore', 'around', 'bsolid', 'bfit', 'hide']) assert.match(page, new RegExp(`id="${id}"`), `#${id} is missing`);
+  for (const id of ['explore', 'around', 'bsolid', 'bfit', 'hide', 'pull', 'spread']) assert.match(page, new RegExp(`id="${id}"`), `#${id} is missing`);
   assert.deepEqual([...page.matchAll(/data-scope="([a-z]+)"/g)].map((m) => m[1]), ['part', 'system', 'aircraft']);
   for (const [, inner] of page.matchAll(/<button[^>]*>([\s\S]*?)<\/button>/g)) assert.ok(inner.includes('ufuq-en') && inner.includes('ufuq-ar'), `a button is in one language only: ${inner.slice(0, 60)}`);
 });

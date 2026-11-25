@@ -66,7 +66,7 @@ function show() {
   const p = shown[cur], is3d = view === '3d';
   document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
   $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = !is3d;
-  if (!is3d) { $('bsolid').hidden = $('hide').hidden = true; $('dlg').classList.remove('is-wide'); }
+  if (!is3d) { $('bsolid').hidden = $('hide').hidden = $('pull').hidden = true; $('dlg').classList.remove('is-wide'); }
   tile($('d-pic'), view === 'place' ? D.place : D.large, p.i);
   const keep = keepCamera; keepCamera = false;
   if (is3d) show3d(keep); else { turn += 1; message(); }
@@ -79,8 +79,9 @@ let timer; $('q').addEventListener('input', () => { clearTimeout(timer); timer =
 
 // The 3D view. Three.js and one model file per system (m/<SYSTEM>.glb) are fetched the first time they are asked for.
 // Round the chosen part it can draw nothing, the rest of its system, or the whole aircraft; in the whole aircraft a
-// click on any part chooses it, and whole systems can be put away to see what is under them.
-let T = null, ready = null, turn = 0, scope = 'part', solid = false, quiet = false; const models = {}, hidden = new Set();
+// click on any part chooses it, and whole systems can be put away to see what is under them. With anything round it,
+// the parts can be pulled apart: each moves straight out from the middle of what is shown, by the same proportion.
+let T = null, ready = null, turn = 0, scope = 'part', solid = false, quiet = false, pull = 0; const models = {}, hidden = new Set();
 const entry = new Map(); P.forEach((p) => { for (const id of [p.id, ...p.more.map((m) => m[0])]) entry.set(id, p); });
 function message(en, ar) { $('d-msg').hidden = !en; if (en) say($('d-msg'), en, ar); }
 function setup() {
@@ -121,6 +122,12 @@ function model(system) {
     const meshes = []; gltf.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
     for (const m of meshes) { let a = m, id = null; while (a && !id) { id = ids[a.name] || null; a = a.parent; } m.userData.part = id; m.userData.material = m.material; m.visible = false; }
     const root = new THREE.Group(); for (const m of meshes) root.attach(m);
+    root.updateMatrixWorld(true);
+    // Where each mesh sits, and the middle of the catalogue entry it is drawn with: what is pulled apart moves as one piece.
+    const boxes = new Map();
+    for (const m of meshes) { const key = entry.get(m.userData.part)?.id ?? m.uuid; if (!boxes.has(key)) boxes.set(key, new THREE.Box3()); boxes.get(key).expandByObject(m); m.userData.piece = key; m.userData.home = m.position.clone(); }
+    const middles = new Map([...boxes].map(([key, box]) => [key, box.getCenter(new THREE.Vector3())]));
+    for (const m of meshes) m.userData.middle = middles.get(m.userData.piece);
     T.roots.set(system, root); T.scene.add(root);
     return root;
   });
@@ -131,15 +138,19 @@ function fit(all) {
   const { THREE, camera, controls } = T, box = new THREE.Box3();
   for (const [system, m] of meshes()) if (all ? m.visible && system !== 'GROUND_EQUIPMENT' : m.userData.chosen) box.expandByObject(m);
   if (box.isEmpty()) return;
-  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(22);
+  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all && scope === 'aircraft' ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(22);
   controls.target.copy(s.center); camera.position.set(s.center.x + d * Math.cos(el) * Math.sin(az), s.center.y + d * Math.sin(el), s.center.z + d * Math.cos(el) * Math.cos(az));
   camera.near = all ? 0.02 : Math.max(R / 200, 1e-4); camera.far = d + R * 400 + 50; camera.updateProjectionMatrix();
   controls.minDistance = all ? 0.05 : R * 0.3; controls.maxDistance = d * 30 + 20; controls.update(); T.draw();
 }
 function paint() {
-  const home = shown[cur].s;
+  const home = shown[cur].s, { THREE } = T, span = new THREE.Box3(), k = scope === 'part' ? 0 : pull * 1.5;
+  const round = (system) => (scope === 'aircraft' ? !hidden.has(system) : scope === 'system' && system === home);
+  if (k) for (const [system, m] of meshes()) if (round(system) && system !== 'GROUND_EQUIPMENT') span.expandByPoint(m.userData.middle);
+  const centre = span.isEmpty() ? null : span.getCenter(new THREE.Vector3()), out = new THREE.Vector3();
   for (const [system, m] of meshes()) {
-    const chosen = m.userData.chosen, around = scope === 'aircraft' ? !hidden.has(system) : scope === 'system' && system === home;
+    const chosen = m.userData.chosen, around = round(system);
+    m.position.copy(m.userData.home); if (centre && around) m.position.addScaledVector(out.subVectors(m.userData.middle, centre), k);
     m.visible = scope === 'aircraft' ? around : chosen || around;
     m.material = chosen ? (solid && !quiet ? T.marked : m.userData.material) : solid ? m.userData.material : T.faint;
     m.renderOrder = chosen || solid ? 0 : 1;
@@ -155,13 +166,13 @@ const HINT = ['Drag to turn · scroll or pinch to zoom · right-drag or two fing
 const HINT_ALL = ['Click a part to choose it · drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'انقر على قطعة لاختيارها · اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
 async function show3d(keep) {
   const mine = ++turn, p = shown[cur], whole = scope === 'aircraft';
-  $('dlg').classList.toggle('is-wide', whole); $('bsolid').hidden = scope === 'part'; $('hide').hidden = !whole;
+  $('dlg').classList.toggle('is-wide', whole); $('bsolid').hidden = $('pull').hidden = scope === 'part'; $('hide').hidden = !whole;
   message('Loading the 3D model…', 'جارٍ تحميل النموذج ثلاثي الأبعاد…');
   try {
     await setup(); await model(p.s); if (mine !== turn) return;
     if (!choose()) { paint(); message('This part has no 3D model. Choose another view to see its picture.', 'لا يوجد نموذج ثلاثي الأبعاد لهذه القطعة. اختر عرضًا آخر لرؤية صورتها.'); return; }
     paint(); if (!keep) fit(false);
-    if (!whole) { message(...HINT); return; }
+    if (!whole) { message(...(scope === 'system' ? HINT_ALL : HINT)); return; }
     // The rest of the aircraft arrives a system at a time and is drawn as it comes.
     const rest = systems.filter((s) => !T.roots.has(s)); let done = systems.length - rest.length;
     for (const s of rest) {
@@ -173,7 +184,7 @@ async function show3d(keep) {
   } catch { if (mine === turn) message('The 3D view could not be loaded here. Choose another view to see the picture.', 'تعذّر تحميل العرض ثلاثي الأبعاد هنا. اختر عرضًا آخر لرؤية الصورة.'); }
 }
 function pick(event) {
-  if (scope !== 'aircraft' || !T) return;
+  if (scope === 'part' || !T) return;
   const { THREE, ray, camera } = T, box = $('d-3d').getBoundingClientRect();
   ray.setFromCamera(new THREE.Vector2(((event.clientX - box.left) / box.width) * 2 - 1, -((event.clientY - box.top) / box.height) * 2 + 1), camera);
   const seen = []; for (const [, m] of meshes()) if (m.visible && m.userData.part) seen.push(m);
@@ -185,7 +196,8 @@ function pick(event) {
 }
 document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { scope = b.dataset.scope; document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); if (view === '3d') show3d(); }; });
 $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pressed', String(solid)); if (T) paint(); };
-$('bfit').onclick = () => { if (T) fit(scope === 'aircraft'); };
+$('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
+$('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
 systems.forEach((s) => {
   const b = el('button', 'ufuq-tab', s); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
   b.onclick = () => { if (hidden.has(s)) hidden.delete(s); else hidden.add(s); b.setAttribute('aria-pressed', String(!hidden.has(s))); if (T) paint(); };
