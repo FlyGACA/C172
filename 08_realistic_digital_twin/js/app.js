@@ -201,7 +201,8 @@ function showInfo(o) {
   if (u.range_deg) extra.push(`<div>${u.range_deg[0]}° … ${u.range_deg[1]}°</div>`);
   const desc = catalogText(o.name);
   box.innerHTML = `<h3>${rig.label(o)}</h3><div><span class="badge ${st}">${T()['st_' + st]}</span><span class="badge" style="background:var(--line)">${sysName}</span></div>
-    ${desc ? `<p>${desc}</p>` : ''}${extra.join('')}<div class="pair" style="margin-top:8px"><button id="hidePart">${T().hidePart}</button><button id="isoPart">${T().isolatePart}</button><code style="color:var(--mute);font-size:.75rem">${o.name}</code></div>`;
+    ${desc ? `<p>${desc}</p>` : ''}${extra.join('')}<div class="pair" style="margin-top:8px"><button id="hidePart">${T().hidePart}</button><button id="isoPart">${T().isolatePart}</button><code style="color:var(--mute);font-size:.75rem">${o.name}</code></div>
+    <p style="margin:8px 0 0"><a id="inCatalogue" href="../09_book_figures/parts/index.html?part=${encodeURIComponent(o.name)}" target="_blank" rel="noopener">${T().inCatalogue}</a></p>`;
   $('hidePart').onclick = () => { rig.hide(o); select(null); };
   $('isoPart').onclick = () => { rig.isolate(u.system); buildTree(); };
 }

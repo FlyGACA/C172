@@ -1,5 +1,7 @@
 // The parts catalogue: the list, the search and the three views of a part (on its own, in the
-// aircraft, in 3D). Everything shown is read from parts.json, which build.py writes.
+// aircraft, in 3D). Everything shown is read from parts.json, which build.py writes. A part and its view have
+// an address of their own (link.js), which the page keeps up to date while a part is open.
+import { buildLink, indexParts, parseLink } from './link.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -71,6 +73,7 @@ function show() {
   $('d-full').href = `full/${view === 'place' ? 'place' : 'alone'}/${p.k}.png`; $('d-full').parentElement.hidden = is3d;
   const keep = keepCamera; keepCamera = false;
   if (is3d) show3d(keep); else { turn += 1; message(); }
+  sync();
 }
 document.querySelectorAll('[data-view]').forEach((b) => { b.onclick = () => { view = b.dataset.view; show(); }; });
 $('prev').onclick = () => open(cur - 1); $('next').onclick = () => open(cur + 1); $('close').onclick = () => $('dlg').close();
@@ -78,12 +81,33 @@ $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').
 $('dlg').addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') open(cur - 1); if (e.key === 'ArrowRight') open(cur + 1); });
 let timer; $('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 120); });
 
+// The address of what is open. It is written as the reader moves, with no step added to the browser's history, and
+// taken away when the part is closed.
+const here = () => location.href.split(/[?#]/)[0];
+const open_ = () => ($('dlg').open && shown[cur]) ? { part: shown[cur].id, view, scope } : null;
+function sync() {
+  try {
+    const url = new URL(location.href), now = open_();
+    for (const k of ['part', 'view', 'scope']) url.searchParams.delete(k);
+    if (now) for (const [k, v] of new URLSearchParams(buildLink('', now).slice(1))) url.searchParams.set(k, v);
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+  } catch { /* an address that cannot be changed, such as a file opened from disk, is left as it is */ }
+}
+$('dlg').addEventListener('close', sync);
+$('blink').onclick = async () => {
+  const now = open_(); if (!now) return;
+  const link = buildLink(here(), now);
+  try { await navigator.clipboard.writeText(link); say($('blink-msg'), 'Link copied', 'تم نسخ الرابط'); }
+  catch { window.prompt('Link · الرابط', link); say($('blink-msg'), '', ''); }
+  setTimeout(() => $('blink-msg').replaceChildren(), 2500);
+};
+
 // The 3D view. Three.js and one model file per system (m/<SYSTEM>.glb) are fetched the first time they are asked for.
 // Round the chosen part it can draw nothing, the rest of its system, or the whole aircraft; in the whole aircraft a
 // click on any part chooses it, and whole systems can be put away to see what is under them. With anything round it,
 // the parts can be pulled apart: each moves straight out from the middle of what is shown, by the same proportion.
 let T = null, ready = null, turn = 0, scope = 'part', solid = false, quiet = false, pull = 0; const models = {}, hidden = new Set();
-const entry = new Map(); P.forEach((p) => { for (const id of [p.id, ...p.more.map((m) => m[0])]) entry.set(id, p); });
+const entry = indexParts(P);
 function message(en, ar) { $('d-msg').hidden = !en; if (en) say($('d-msg'), en, ar); }
 function setup() {
   ready ||= (async () => {
@@ -195,7 +219,7 @@ function pick(event) {
   if (!shown.includes(p)) { fs = ''; fst = ''; $('q').value = ''; for (const box of [$('sys'), $('stat')]) [...box.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === 0))); render(); }
   open(shown.indexOf(p));
 }
-document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { scope = b.dataset.scope; document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); if (view === '3d') show3d(); }; });
+document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { scope = b.dataset.scope; document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); if (view === '3d') show3d(); sync(); }; });
 $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pressed', String(solid)); if (T) paint(); };
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
@@ -211,3 +235,16 @@ $('explore').onclick = () => {
 };
 
 render();
+
+// An address with a part in it opens that part, in the view and the surroundings it names.
+{
+  const link = parseLink(new URLSearchParams(location.search), (id) => entry.has(id));
+  const p = link.part && entry.get(link.part);
+  if (p) {
+    fs = ''; fst = ''; $('q').value = ''; [$('sys'), $('stat')].forEach((box) => [...box.children].forEach((b, i) => b.setAttribute('aria-pressed', String(i === 0))));
+    render();
+    view = link.view; scope = link.scope; solid = scope === 'aircraft'; quiet = false; $('bsolid').setAttribute('aria-pressed', String(solid));
+    document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.scope === scope)));
+    open(shown.indexOf(p));
+  }
+}
