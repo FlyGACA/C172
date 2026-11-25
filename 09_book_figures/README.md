@@ -87,7 +87,9 @@ python3 09_book_figures/atlas.py                                   # redraw the 
 ```
 
 Every part also has a page of its own in the [parts catalogue](parts/index.html): the part alone, the part
-tinted in its place inside the phantom aircraft, and a 3D view to turn and zoom. It is made in two steps, and
+tinted in its place inside the phantom aircraft, and a 3D view to turn and zoom. The 3D view shows the part alone, with its system, or in the whole
+aircraft, where a click on any part chooses it and whole systems can be put away to see under them; a slider pulls the
+parts apart. It is made in two steps, and
 the first needs Blender and about fourteen hours on four cores:
 
 ```bash
