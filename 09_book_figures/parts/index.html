@@ -40,25 +40,25 @@
     <p class="parts-lead"><span class="ufuq-en">Every part of the model, drawn on its own, shown in its place in the aircraft, and in 3D to turn and zoom. Search by name in English or Arabic, or narrow by system and by how well the part is sourced.</span><span class="ufuq-ar" lang="ar">كل قطعة في النموذج: مرسومة وحدها، وفي مكانها من الطائرة، وبعرض ثلاثي الأبعاد يمكن تدويره وتقريبه. ابحث بالاسم بالعربية أو الإنجليزية، أو اختر النظام ودرجة توثيق القطعة.</span></p>
     <p class="parts-actions"><button type="button" class="ufuq-btn ufuq-btn--primary" id="explore"><span class="ufuq-en">Explore the whole aircraft in 3D</span><span class="ufuq-ar" lang="ar">استكشف الطائرة كاملة بعرض ثلاثي الأبعاد</span></button></p>
   </div>
-  <div class="parts-bar">
+  <div class="parts-bar" id="bar">
     <div class="parts-row">
-      <input id="q" class="ufuq-input" type="search" autocomplete="off" placeholder="Search parts · ابحث عن قطعة" aria-label="Search parts · ابحث عن قطعة">
+      <input id="q" class="ufuq-input" type="search" autocomplete="off" enterkeyhint="search" aria-keyshortcuts="/" placeholder="Search parts · ابحث عن قطعة" aria-label="Search parts · ابحث عن قطعة (press / to jump here)">
+    </div>
+    <div class="parts-row parts-filters">
+      <select id="fsys" class="ufuq-input" aria-label="System · النظام"></select>
+      <select id="fsrc" class="ufuq-input" aria-label="Source · المصدر"></select>
+      <button type="button" class="ufuq-btn ufuq-btn--quiet" id="fclear" hidden><span class="ufuq-en">Clear</span><span class="ufuq-ar" lang="ar">مسح</span></button>
       <span id="count" class="parts-count" aria-live="polite"></span>
     </div>
-    <div class="parts-chips" id="sys" role="group" aria-label="System · النظام"></div>
-    <div class="parts-chips" id="stat" role="group" aria-label="Source · المصدر"></div>
   </div>
   <div id="list" class="parts-list"><p class="parts-empty"><span class="ufuq-en">Loading the parts list…</span><span class="ufuq-ar" lang="ar">جارٍ تحميل قائمة القطع…</span></p></div>
   <section class="parts-key" aria-labelledby="key-title">
     <h2 id="key-title"><span class="ufuq-en">How well a part is sourced</span><span class="ufuq-ar" lang="ar">درجة توثيق القطعة</span></h2>
-    <ul>
-      <li><span class="parts-st poh">poh</span> <span class="ufuq-en">the Pilot's Operating Handbook shows or names it</span><span class="ufuq-ar" lang="ar">يظهر في دليل تشغيل الطيار أو يُذكر فيه</span></li>
-      <li><span class="parts-st type_data">type_data</span> <span class="ufuq-en">from the type's published data</span><span class="ufuq-ar" lang="ar">من البيانات المنشورة للطراز</span></li>
-      <li><span class="parts-st estimated">estimated</span> <span class="ufuq-en">representative: the part is known to exist; its position and size are not from a drawing</span><span class="ufuq-ar" lang="ar">تمثيلية: القطعة موجودة فعلًا، لكن موضعها ومقاسها ليسا من رسم هندسي</span></li>
-    </ul>
+    <ul id="key-list"></ul>
     <p><span class="ufuq-en">A study model with no certified fidelity. It is not a parts manual and not for maintenance.</span><span class="ufuq-ar" lang="ar">نموذج للدراسة بلا دقة معتمدة. ليس دليل قطع وليس للصيانة.</span></p>
   </section>
 </main>
+<button type="button" class="ufuq-btn ufuq-btn--secondary parts-top" id="totop" hidden><span class="ufuq-en">Top</span><span class="ufuq-ar" lang="ar">للأعلى</span></button>
 <footer class="ufuq-shell-foot">
   <a class="ufuq-shell-foot__family" href="https://flygaca.com/"><img src="../../site/ufuq/flygaca-mark.png" alt="" width="48" height="48"><span class="ufuq-en">Part of Fly GACA</span><span class="ufuq-ar" lang="ar">جزء من فلاي قاكا</span></a>
   <ul class="ufuq-shell-foot__links">
@@ -71,14 +71,7 @@
 </footer>
 <dialog id="dlg" class="parts-dlg" aria-labelledby="d-en">
   <div class="parts-big" id="d-pic"><canvas id="d-3d" hidden></canvas><p id="d-msg" class="parts-msg" hidden></p></div>
-  <div class="parts-info">
-    <h3 id="d-en" lang="en" dir="ltr"></h3>
-    <p id="d-ar" class="parts-ar" lang="ar" dir="rtl"></p>
-    <code id="d-id" dir="ltr"></code>
-    <span id="d-st" class="parts-st"></span>
-    <ul id="d-more" class="parts-more" hidden></ul>
-    <p class="parts-copy"><button type="button" class="ufuq-btn ufuq-btn--quiet" id="blink"><span class="ufuq-en">Copy link to this part</span><span class="ufuq-ar" lang="ar">انسخ رابط هذه القطعة</span></button> <span id="blink-msg" class="parts-note" role="status"></span></p>
-    <p class="parts-full"><a id="d-full" target="_blank" rel="noopener"><span class="ufuq-en">Open this picture at full size</span><span class="ufuq-ar" lang="ar">افتح هذه الصورة بالحجم الكامل</span></a></p>
+  <div class="parts-ctl">
     <div class="parts-tools"><div class="ufuq-tabs" role="group" aria-label="View · العرض">
       <button type="button" class="ufuq-tab" data-view="alone" aria-pressed="true"><span class="ufuq-en">On its own</span><span class="ufuq-ar" lang="ar">وحدها</span></button>
       <button type="button" class="ufuq-tab" data-view="place" aria-pressed="false"><span class="ufuq-en">In the aircraft</span><span class="ufuq-ar" lang="ar">في الطائرة</span></button>
@@ -93,12 +86,19 @@
       <button type="button" class="ufuq-btn ufuq-btn--quiet" id="bfit" hidden><span class="ufuq-en">Reset the view</span><span class="ufuq-ar" lang="ar">أعد ضبط العرض</span></button>
     </div>
     <div class="parts-chips" id="hide" role="group" aria-label="Systems shown · الأنظمة الظاهرة" hidden></div>
+  </div>
+  <div class="parts-info">
+    <h3 id="d-en" lang="en" dir="ltr"></h3>
+    <p id="d-ar" class="parts-ar" lang="ar" dir="rtl"></p>
+    <p class="parts-meta"><span id="d-st" class="parts-st"></span> <code id="d-id" dir="ltr"></code></p>
+    <ul id="d-more" class="parts-more" hidden></ul>
+    <p class="parts-acts"><button type="button" class="ufuq-btn ufuq-btn--quiet" id="blink"><span class="ufuq-en">Copy link to this part</span><span class="ufuq-ar" lang="ar">انسخ رابط هذه القطعة</span></button> <a id="d-full" target="_blank" rel="noopener"><span class="ufuq-en">Open this picture at full size</span><span class="ufuq-ar" lang="ar">افتح هذه الصورة بالحجم الكامل</span></a> <span id="blink-msg" class="parts-note" role="status"></span></p>
+  </div>
     <div class="parts-nav">
       <span><button type="button" class="ufuq-btn ufuq-btn--quiet" id="prev"><span class="ufuq-en">Previous</span><span class="ufuq-ar" lang="ar">السابقة</span></button>
       <button type="button" class="ufuq-btn ufuq-btn--quiet" id="next"><span class="ufuq-en">Next</span><span class="ufuq-ar" lang="ar">التالية</span></button></span>
       <button type="button" class="ufuq-btn ufuq-btn--primary" id="close"><span class="ufuq-en">Close</span><span class="ufuq-ar" lang="ar">إغلاق</span></button>
     </div>
-  </div>
 </dialog>
 <script type="module" src="parts.js"></script>
 </body>

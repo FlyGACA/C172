@@ -46,12 +46,52 @@ export function parseLink(params, has) {
   return link;
 }
 
-/** The link to a part, on top of `base` (a URL without its query or fragment). Defaults are left out. */
-export function buildLink(base, { part, view = 'alone', scope = 'part' }) {
-  const q = new URLSearchParams({ part });
-  if (view !== 'alone') q.set('view', view);
-  if (view === '3d' && scope !== 'part') q.set('scope', scope);
-  return `${base}?${q}`;
+/** The query values of a link to a part, in order. Defaults are left out. */
+export function linkPairs({ part, view = 'alone', scope = 'part' }) {
+  const pairs = [['part', part]];
+  if (view !== 'alone') pairs.push(['view', view]);
+  if (view === '3d' && scope !== 'part') pairs.push(['scope', scope]);
+  return pairs;
+}
+
+/** The link to a part, on top of `base` (a URL without its query or fragment). */
+export function buildLink(base, state) {
+  return `${base}?${new URLSearchParams(linkPairs(state))}`;
+}
+
+export const SOURCES = ['poh', 'type_data', 'estimated'];
+export const MAX_QUERY = 80;
+const SYSTEM_NAME = /^[A-Z][A-Z0-9_]*$/;
+
+/**
+ * The list's own state in the address: ?q=piston&system=ENGINE&source=poh, checked like a link to a part.
+ * @param {URLSearchParams} params
+ * @param {string[]} systems  the systems the catalogue has
+ * @returns {{ q: string, system: string, source: string, rejected: { key: string, value: string, reason: string }[] }}
+ */
+export function parseList(params, systems) {
+  const list = { q: '', system: '', source: '', rejected: [] };
+  const reject = (key, value, reason) => list.rejected.push({ key, value: String(value).slice(0, SHOWN), reason });
+  const one = (key) => {
+    const all = params.getAll(key);
+    if (all.length === 0) return null;
+    if (all.length > 1) { reject(key, all.join(','), 'given more than once'); return null; }
+    return all[0];
+  };
+  const q = one('q'), system = one('system'), source = one('source');
+  if (q !== null) { if (q.length > MAX_QUERY) reject('q', q, `longer than ${MAX_QUERY} characters`); else list.q = q.trim(); }
+  if (system !== null) { if (SYSTEM_NAME.test(system) && systems.includes(system)) list.system = system; else reject('system', system, 'no such system'); }
+  if (source !== null) { if (SOURCES.includes(source)) list.source = source; else reject('source', source, 'no such source'); }
+  return list;
+}
+
+/** The query values of the list's state, in order. What is empty is left out. */
+export function listPairs({ q = '', system = '', source = '' }) {
+  const pairs = [];
+  if (q.trim()) pairs.push(['q', q.trim().slice(0, MAX_QUERY)]);
+  if (system) pairs.push(['system', system]);
+  if (source) pairs.push(['source', source]);
+  return pairs;
 }
 
 /**

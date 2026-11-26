@@ -1,7 +1,10 @@
 // The parts catalogue: the list, the search and the three views of a part (on its own, in the
 // aircraft, in 3D). Everything shown is read from parts.json, which build.py writes. A part and its view have
-// an address of their own (link.js), which the page keeps up to date while a part is open.
-import { buildLink, indexParts, parseLink } from './link.js';
+// an address of their own, and so has the list (a search, a system, a source): link.js reads and writes them, and the
+// page keeps the address up to date as the reader moves.
+import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList } from './link.js';
+import { ORDER, SOURCE_NAMES, systemName } from './names.js';
+import { haystack, matches, words } from './search.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -11,9 +14,11 @@ const say = (node, en, ar) => node.replaceChildren(both(en, ar));
 let D;
 try { D = await (await fetch('parts.json')).json(); } catch { say($('list').firstElementChild, 'The parts list could not be loaded. Reload the page to try again.', 'تعذّر تحميل قائمة القطع. أعد تحميل الصفحة.'); throw new Error('parts.json'); }
 const P = D.parts;
-P.forEach((p, i) => { p.i = i; p.h = [p.en, p.ar, p.id, ...p.more.flatMap((m) => [m[1], m[2]])].join(' ').toLowerCase(); });
-const systems = [...new Set(P.map((p) => p.s))];
-let fs = '', fst = '', shown = P, cur = 0, view = 'alone', keepCamera = false;
+P.forEach((p, i) => { p.i = i; p.h = haystack(p); });
+const present = new Set(P.map((p) => p.s));
+const systems = [...ORDER.filter((s) => present.has(s)), ...[...present].filter((s) => !ORDER.includes(s)).sort()];
+const rank = new Map(systems.map((s, i) => [s, i]));
+let shown = P, cur = 0, view = 'alone', keepCamera = false;
 
 /** Show tile `index` of a sheet of pictures as the background of `node`. */
 function tile(node, sheet, index) {
@@ -24,33 +29,46 @@ function tile(node, sheet, index) {
 }
 const seen = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { tile(e.target.firstChild, D.thumb, +e.target.dataset.i); seen.unobserve(e.target); } }), { rootMargin: '600px' });
 
-function chips(box, items, set) {
-  items.forEach(([value, label, n], k) => {
-    const b = el('button', 'ufuq-tab'); b.type = 'button'; b.setAttribute('aria-pressed', String(k === 0)); b.append(label, el('b', null, String(n)));
-    b.onclick = () => { set(value); [...box.children].forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(); };
-    box.append(b);
-  });
+/** How well a part is sourced, as a badge with its name in both languages and what it means as its tooltip. */
+function status(st) {
+  const n = SOURCE_NAMES[st] || { en: st, ar: st, note: { en: '', ar: '' } }, badge = el('span', `parts-st ${st}`);
+  badge.append(both(n.en, n.ar)); badge.title = `${n.note.en} · ${n.note.ar}`; return badge;
 }
 const count = (key, value) => P.filter((p) => p[key] === value).length;
-chips($('sys'), [['', both('All systems', 'كل الأنظمة'), P.length], ...systems.map((s) => [s, s, count('s', s)])], (v) => { fs = v; });
-chips($('stat'), [['', both('Any source', 'أي مصدر'), P.length], ...['poh', 'type_data', 'estimated'].map((s) => [s, s, count('st', s)])], (v) => { fst = v; });
+const names = (n) => `${n.en} · ${n.ar}`;
+function option(select, value, text) { const o = el('option', null, text); o.value = value; select.append(o); }
+option($('fsys'), '', `All systems · كل الأنظمة (${P.length})`);
+for (const s of systems) option($('fsys'), s, `${names(systemName(s))} (${count('s', s)})`);
+option($('fsrc'), '', `Any source · أي مصدر (${P.length})`);
+for (const s of SOURCES) option($('fsrc'), s, `${names(SOURCE_NAMES[s])} (${count('st', s)})`);
+for (const s of SOURCES) { const li = el('li'), n = SOURCE_NAMES[s]; li.append(status(s), ' ', both(n.note.en, n.note.ar)); $('key-list').append(li); }
+
+const filters = () => ({ q: $('q').value, system: $('fsys').value, source: $('fsrc').value });
+function setFilters({ q = '', system = '', source = '' }) { $('q').value = q; $('fsys').value = system; $('fsrc').value = source; }
+function clearFilters() { setFilters({}); render(); }
 
 function render() {
-  const words = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  shown = P.filter((p) => (!fs || p.s === fs) && (!fst || p.st === fst) && words.every((w) => p.h.includes(w)));
+  const f = filters(), ws = words(f.q);
+  shown = P.filter((p) => (!f.system || p.s === f.system) && (!f.source || p.st === f.source) && matches(p.h, ws)).sort((a, b) => rank.get(a.s) - rank.get(b.s) || a.i - b.i);
+  $('fclear').hidden = !(f.q.trim() || f.system || f.source);
   say($('count'), `${shown.length} of ${P.length} parts`, `${shown.length} من ${P.length} قطعة`);
-  seen.disconnect();
-  if (!shown.length) { const none = el('p', 'parts-empty'); say(none, 'No part matches. Clear the search or pick another system.', 'لا توجد قطعة مطابقة. امسح البحث أو اختر نظامًا آخر.'); $('list').replaceChildren(none); return; }
+  seen.disconnect(); sync();
+  if (!shown.length) {
+    const none = el('div', 'parts-empty'), m = el('p'), b = el('button', 'ufuq-btn ufuq-btn--secondary');
+    say(m, 'No part matches. Try fewer words, or clear the filters.', 'لا توجد قطعة مطابقة. جرّب كلمات أقل أو امسح التصفية.');
+    b.type = 'button'; b.append(both('Clear filters', 'امسح التصفية')); b.onclick = clearFilters; none.append(m, b); $('list').replaceChildren(none); return;
+  }
+  const per = new Map(); for (const p of shown) per.set(p.s, (per.get(p.s) || 0) + 1);
   const frag = document.createDocumentFragment(); let system = null, grid = null;
   shown.forEach((p, n) => {
     if (p.s !== system) {
-      system = p.s; const s = el('section'), h = el('h2', null, system), k = shown.filter((x) => x.s === system).length, small = el('small');
-      say(small, `${k} parts`, `${k} قطعة`); h.dir = 'ltr'; h.append(small); grid = el('div', 'parts-grid'); s.append(h, grid); frag.append(s);
+      system = p.s; const s = el('section'), h = el('h2'), nm = systemName(system), small = el('small');
+      say(small, `${per.get(system)} parts`, `${per.get(system)} قطعة`); h.append(both(nm.en, nm.ar), small); grid = el('div', 'parts-grid'); s.append(h, grid); frag.append(s);
     }
-    const b = el('button', 'parts-tile'); b.type = 'button'; b.dataset.i = p.i;
-    const cap = el('div', 'parts-cap'), en = el('span', null, p.en), ar = el('span', 'parts-ar', p.ar);
+    const b = el('button', 'parts-tile'); b.type = 'button'; b.dataset.i = p.i; b.title = `${p.en} · ${p.ar}`;
+    const cap = el('div', 'parts-cap'), en = el('span', 'parts-name', p.en), ar = el('span', 'parts-name parts-ar', p.ar);
     en.lang = 'en'; en.dir = 'ltr'; ar.lang = 'ar'; ar.dir = 'rtl';
-    cap.append(en, ar, el('span', `parts-st ${p.st}`, p.st)); b.append(el('div', 'parts-pic'), cap); b.onclick = () => open(n); grid.append(b); seen.observe(b);
+    cap.append(en, ar, status(p.st)); b.append(el('div', 'parts-pic'), cap); b.onclick = () => open(n); grid.append(b); seen.observe(b);
   });
   $('list').replaceChildren(frag);
 }
@@ -58,7 +76,7 @@ function render() {
 function open(n) {
   cur = (n + shown.length) % shown.length; const p = shown[cur];
   $('d-en').textContent = p.en; $('d-ar').textContent = p.ar; $('d-id').textContent = p.id;
-  $('d-st').className = `parts-st ${p.st}`; $('d-st').textContent = p.st;
+  { const badge = status(p.st); $('d-st').className = badge.className; $('d-st').title = badge.title; $('d-st').replaceChildren(...badge.childNodes); }
   const more = $('d-more'); more.hidden = !p.more.length;
   more.replaceChildren(...p.more.map((m) => { const li = el('li'); say(li, `Also drawn: ${m[1]}`, `مرسومة معها: ${m[2]}`); return li; }));
   if (!$('dlg').open) $('dlg').showModal();
@@ -70,7 +88,7 @@ function show() {
   $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = !is3d;
   if (!is3d) { $('bsolid').hidden = $('hide').hidden = $('pull').hidden = true; $('dlg').classList.remove('is-wide'); }
   tile($('d-pic'), view === 'place' ? D.place : D.large, p.i);
-  $('d-full').href = `full/${view === 'place' ? 'place' : 'alone'}/${p.k}.png`; $('d-full').parentElement.hidden = is3d;
+  $('d-full').href = `full/${view === 'place' ? 'place' : 'alone'}/${p.k}.png`; $('d-full').hidden = is3d;
   const keep = keepCamera; keepCamera = false;
   if (is3d) show3d(keep); else { turn += 1; message(); }
   sync();
@@ -78,8 +96,24 @@ function show() {
 document.querySelectorAll('[data-view]').forEach((b) => { b.onclick = () => { view = b.dataset.view; show(); }; });
 $('prev').onclick = () => open(cur - 1); $('next').onclick = () => open(cur + 1); $('close').onclick = () => $('dlg').close();
 $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').close(); });
-$('dlg').addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') open(cur - 1); if (e.key === 'ArrowRight') open(cur + 1); });
+const rtl = () => getComputedStyle(document.documentElement).direction === 'rtl';
+$('dlg').addEventListener('keydown', (e) => {
+  if (e.target.matches('input[type=range], select') || e.altKey || e.ctrlKey || e.metaKey) return;
+  const next = rtl() ? 'ArrowLeft' : 'ArrowRight', back = rtl() ? 'ArrowRight' : 'ArrowLeft';
+  if (e.key === next) open(cur + 1); else if (e.key === back) open(cur - 1);
+});
+// A swipe over the picture goes to the next or the previous part: toward the reader's past is back, as with a page.
+{
+  let from = null;
+  $('d-pic').addEventListener('touchstart', (e) => { from = view !== '3d' && e.touches.length === 1 ? [e.touches[0].clientX, e.touches[0].clientY] : null; }, { passive: true });
+  $('d-pic').addEventListener('touchend', (e) => {
+    if (!from) return; const t = e.changedTouches[0], dx = t.clientX - from[0], dy = t.clientY - from[1]; from = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) open(cur + ((dx < 0) !== rtl() ? 1 : -1));
+  }, { passive: true });
+}
 let timer; $('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 120); });
+$('fsys').addEventListener('change', render); $('fsrc').addEventListener('change', render); $('fclear').onclick = clearFilters;
+addEventListener('keydown', (e) => { if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !$('dlg').open && !e.target.matches('input, textarea, select')) { e.preventDefault(); $('q').focus(); $('q').select(); } });
 
 // The address of what is open. It is written as the reader moves, with no step added to the browser's history, and
 // taken away when the part is closed.
@@ -88,8 +122,8 @@ const open_ = () => ($('dlg').open && shown[cur]) ? { part: shown[cur].id, view,
 function sync() {
   try {
     const url = new URL(location.href), now = open_();
-    for (const k of ['part', 'view', 'scope']) url.searchParams.delete(k);
-    if (now) for (const [k, v] of new URLSearchParams(buildLink('', now).slice(1))) url.searchParams.set(k, v);
+    for (const k of ['part', 'view', 'scope', 'q', 'system', 'source']) url.searchParams.delete(k);
+    for (const [k, v] of [...listPairs(filters()), ...(now ? linkPairs(now) : [])]) url.searchParams.set(k, v);
     history.replaceState(null, '', url.pathname + url.search + url.hash);
   } catch { /* an address that cannot be changed, such as a file opened from disk, is left as it is */ }
 }
@@ -216,7 +250,7 @@ function pick(event) {
   const hit = ray.intersectObjects(seen, false)[0], p = hit && entry.get(hit.object.userData.part);
   if (!p) return;
   quiet = false; keepCamera = true;
-  if (!shown.includes(p)) { fs = ''; fst = ''; $('q').value = ''; for (const box of [$('sys'), $('stat')]) [...box.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === 0))); render(); }
+  if (!shown.includes(p)) { setFilters({}); render(); }
   open(shown.indexOf(p));
 }
 document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { scope = b.dataset.scope; document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); if (view === '3d') show3d(); sync(); }; });
@@ -224,7 +258,7 @@ $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pre
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
 systems.forEach((s) => {
-  const b = el('button', 'ufuq-tab', s); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
+  const b = el('button', 'ufuq-tab'), nm = systemName(s); b.append(both(nm.en, nm.ar)); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
   b.onclick = () => { if (hidden.has(s)) hidden.delete(s); else hidden.add(s); b.setAttribute('aria-pressed', String(!hidden.has(s))); if (T) paint(); };
   $('hide').append(b);
 });
@@ -234,17 +268,32 @@ $('explore').onclick = () => {
   open(Math.max(0, shown.findIndex((p) => p.id === 'AIRFRAME.fuselage')));
 };
 
-render();
-
-// An address with a part in it opens that part, in the view and the surroundings it names.
+// The list and the part an address names. A part that the list leaves out clears the list.
 {
-  const link = parseLink(new URLSearchParams(location.search), (id) => entry.has(id));
+  const params = new URLSearchParams(location.search);
+  setFilters(parseList(params, systems));
+  render();
+  const link = parseLink(params, (id) => entry.has(id));
   const p = link.part && entry.get(link.part);
   if (p) {
-    fs = ''; fst = ''; $('q').value = ''; [$('sys'), $('stat')].forEach((box) => [...box.children].forEach((b, i) => b.setAttribute('aria-pressed', String(i === 0))));
-    render();
+    if (!shown.includes(p)) { setFilters({}); render(); }
     view = link.view; scope = link.scope; solid = scope === 'aircraft'; quiet = false; $('bsolid').setAttribute('aria-pressed', String(solid));
     document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.scope === scope)));
     open(shown.indexOf(p));
   }
+}
+
+// The search bar steps out of the way while the list is read downward and comes back on the way up; the heading of the
+// system being read stays under it. A button returns to the top once the reader is far down.
+{
+  const bar = $('bar'), root = document.documentElement; let last = scrollY;
+  const height = () => root.style.setProperty('--parts-bar-h', `${bar.classList.contains('is-away') ? 0 : bar.offsetHeight}px`);
+  new ResizeObserver(height).observe(bar);
+  addEventListener('scroll', () => {
+    const y = scrollY, d = y - last; $('totop').hidden = y < innerHeight * 1.5;
+    if (Math.abs(d) < 8) return; last = y;
+    const away = d > 0 && y > 160 && !bar.contains(document.activeElement);
+    if (bar.classList.contains('is-away') !== away) { bar.classList.toggle('is-away', away); height(); }
+  }, { passive: true });
+  $('totop').onclick = () => scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }
