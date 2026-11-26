@@ -1,0 +1,4 @@
+# Markdown files are linked from the pages. Without a charset the browser guesses,
+# and Arabic text in them shows as garbage.
+/*.md
+  Content-Type: text/plain; charset=utf-8

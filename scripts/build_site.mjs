@@ -25,7 +25,7 @@ const PAGES = {
   '06': '06_interactive_twin/FlyGACA_C172N_Phase6_Viewer.html',
   '07': '07_kinematic_twin/index.html',
   '08': '08_realistic_digital_twin/index.html',
-  '09': '09_book_figures/atlas/README.md',
+  '09': '09_book_figures/parts/index.html',
 };
 
 /** The phases as RELEASES.md lists them: `07 — Kinematic twin (2026-11-06):`. */
