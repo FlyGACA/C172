@@ -56,3 +56,5 @@ body.page > main { flex: 1; }
 .parts-pull input { inline-size: 10rem; max-inline-size: 40vw; accent-color: var(--ufuq-brand); }
 .parts-full { margin: 0; font-size: var(--ufuq-fs-sm); }
 .parts-full a { color: var(--ufuq-link); }
+.parts-copy { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--ufuq-space-2); }
+.parts-note { color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }

@@ -89,7 +89,12 @@ python3 09_book_figures/atlas.py                                   # redraw the 
 Every part also has a page of its own in the [parts catalogue](parts/index.html): the part alone, the part
 tinted in its place inside the phantom aircraft, and a 3D view to turn and zoom. The 3D view shows the part alone, with its system, or in the whole
 aircraft, where a click on any part chooses it and whole systems can be put away to see under them; a slider pulls the
-parts apart. It is made in two steps, and
+parts apart.
+
+Every part has an address of its own: `parts/index.html?part=ENGINE.piston_1`, with `&view=alone|place|3d` and, for 3D,
+`&scope=part|system|aircraft`. The page keeps it up to date while a part is open, and "Copy link to this part" copies it.
+The `part` names are the ones the Phase 8 viewer's own `?part=` link uses, and the viewer's part information now carries a
+link to the same part in the catalogue. It is made in two steps, and
 the first needs Blender and about fourteen hours on four cores:
 
 ```bash
