@@ -21,6 +21,7 @@ a.logo:hover { text-decoration:underline; }
 .seg { display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
 .seg button { border:0; border-radius:0; background:transparent; }
 .seg.small button { padding:3px 7px; font-size:.85rem; }
+.seg.small { flex-wrap:wrap; max-width:100%; } /* long Arabic labels wrap to a second row instead of overlapping or clipping */
 #top .right { margin-inline-start:auto; display:flex; gap:8px; align-items:center; }
 #main { position:relative; height:calc(100% - 52px); display:grid; grid-template-columns: 340px 1fr 340px; }
 #left { grid-column:1; grid-row:1; } #viewport { grid-column:2; grid-row:1; } #right { grid-column:3; grid-row:1; }
