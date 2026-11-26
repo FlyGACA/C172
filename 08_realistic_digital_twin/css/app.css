@@ -135,3 +135,20 @@ dialog h3 { margin:0 0 8px; }
   #modes button { flex:1 1 0; padding:5px 4px; }
   #main { height:calc(100% - 86px); }
 }
+/* Touch screens: every control is at least as tall as a fingertip. The numbers are Apple's and Google's usual 40 px, not a
+   claim about any standard; mouse layouts are left as they were. */
+@media (pointer: coarse) {
+  button, select, summary, input[type=number] { min-height:40px; }
+  summary { display:flex; align-items:center; }
+  input[type=range] { min-height:32px; }
+  #tree li button { min-height:32px; }
+  #top a { display:inline-flex; align-items:center; min-height:38px; }
+  #fbar button { min-height:44px; min-width:44px; }
+}
+@media (pointer: coarse) and (max-width: 700px) {
+  #top .right button, #top select, #modes button { min-height:38px; }
+}
+@media (pointer: coarse) and (max-width: 700px) {
+  #top { height:128px; }
+  #main { height:calc(100% - 128px); }
+}
