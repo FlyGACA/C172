@@ -74,3 +74,7 @@ body.page > main { flex: 1; }
 .parts-full a { color: var(--ufuq-link); }
 .parts-copy { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--ufuq-space-2); }
 .parts-note { color: var(--ufuq-text-muted); font-size: var(--ufuq-fs-sm); }
+@media (pointer: coarse) and (max-width: 40rem) {
+  .ufuq-shell__nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ufuq-shell__nav a { flex: none; }
+}

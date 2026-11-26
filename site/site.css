@@ -56,3 +56,11 @@ body.page > main { flex: 1; }
    on the Day theme the ink mark takes its place. */
 :root[data-theme='day'] .on-night,
 :root:not([data-theme='day']) .on-day { display: none; }
+/* Touch screens: links that stand alone get a fingertip-sized target (40 px), without changing how they look on a mouse screen. */
+@media (pointer: coarse) {
+  .ufuq-link, .ufuq-shell__nav a, .ufuq-shell-foot a { display: inline-flex; align-items: center; min-block-size: 2.5rem; }
+}
+@media (pointer: coarse) and (max-width: 40rem) {
+  .ufuq-shell__nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ufuq-shell__nav a { flex: none; }
+}
