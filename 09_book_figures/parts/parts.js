@@ -5,6 +5,7 @@
 import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList } from './link.js';
 import { ORDER, SOURCE_NAMES, systemName } from './names.js';
 import { haystack, matches, words } from './search.js';
+import { CONTROLS, MOVING, pose, rest } from './motions.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -85,8 +86,8 @@ function open(n) {
 function show() {
   const p = shown[cur], is3d = view === '3d';
   document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
-  $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = !is3d;
-  if (!is3d) { $('bsolid').hidden = $('hide').hidden = $('pull').hidden = true; $('dlg').classList.remove('is-wide'); }
+  $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = $('moves3d').hidden = !is3d;
+  if (!is3d) { $('bsolid').hidden = $('hide').hidden = $('pull').hidden = $('slides').hidden = true; $('dlg').classList.remove('is-wide'); }
   tile($('d-pic'), view === 'place' ? D.place : D.large, p.i);
   $('d-full').href = `full/${view === 'place' ? 'place' : 'alone'}/${p.k}.png`; $('d-full').hidden = is3d;
   const keep = keepCamera; keepCamera = false;
@@ -140,7 +141,8 @@ $('blink').onclick = async () => {
 // Round the chosen part it can draw nothing, the rest of its system, or the whole aircraft; in the whole aircraft a
 // click on any part chooses it, and whole systems can be put away to see what is under them. With anything round it,
 // the parts can be pulled apart: each moves straight out from the middle of what is shown, by the same proportion.
-let T = null, ready = null, turn = 0, scope = 'part', solid = false, quiet = false, pull = 0; const models = {}, hidden = new Set();
+let T = null, ready = null, turn = 0, scope = 'part', solid = false, quiet = false, pull = 0, moving = false, deep = false;
+const models = {}, hidden = new Set(), ctl = rest(), shifted = new Map();   // shifted: piece -> how far the reader has dragged it
 const entry = indexParts(P);
 function message(en, ar) { $('d-msg').hidden = !en; if (en) say($('d-msg'), en, ar); }
 function setup() {
@@ -169,6 +171,25 @@ function setup() {
     let down = null;
     canvas.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
     canvas.addEventListener('pointerup', (e) => { if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 5) pick(e); down = null; });
+    // With "Drag a part" on, a drag that starts on a part moves that part in the plane facing the reader (or, with "Drag in
+    // depth", in the plane that holds the line of sight); a drag that starts on empty space still turns the view.
+    let grab = null;
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!moving) return;
+      const hit = rayHit(e); if (!hit) return;
+      const view = camera.getWorldDirection(new THREE.Vector3()), plane = new THREE.Plane();
+      plane.setFromNormalAndCoplanarPoint(deep ? new THREE.Vector3().crossVectors(view, camera.up).normalize() : view.negate(), hit.point);
+      grab = { piece: hit.object.userData.piece, plane, last: hit.point.clone() };
+      controls.enabled = false; canvas.setPointerCapture(e.pointerId);
+    }, true);
+    canvas.addEventListener('pointermove', (e) => {
+      if (!grab) return;
+      aim(e); const at = T.ray.ray.intersectPlane(grab.plane, new THREE.Vector3()); if (!at) return;
+      shifted.set(grab.piece, (shifted.get(grab.piece) || new THREE.Vector3()).add(at.clone().sub(grab.last))); grab.last.copy(at);
+      paint(); $('bback').hidden = false;
+    });
+    const drop = () => { if (grab) { grab = null; controls.enabled = true; } };
+    canvas.addEventListener('pointerup', drop); canvas.addEventListener('pointercancel', drop);
   })();
   return ready;
 }
@@ -179,9 +200,22 @@ function model(system) {
     for (const p of P) if (p.s === system) for (const id of [p.id, ...p.more.map((m) => m[0])]) ids[THREE.PropertyBinding.sanitizeNodeName(id)] = id;
     gltf.scene.updateMatrixWorld(true);
     const meshes = []; gltf.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
+    // The hinge or axis of every part that moves, in the aircraft's own frame, taken before the meshes are flattened: a mesh
+    // keeps the list of the moving parts it hangs from, the nearest first.
+    const AXES = { x: new THREE.Vector3(1, 0, 0), y: new THREE.Vector3(0, 1, 0), z: new THREE.Vector3(0, 0, 1) }, wq = new THREE.Quaternion();
+    const joint = (o) => {
+      const u = o.userData, id = u.id, at = o.getWorldPosition(new THREE.Vector3()), q = o.getWorldQuaternion(new THREE.Quaternion());
+      const parent = o.parent ? o.parent.getWorldQuaternion(wq).clone() : new THREE.Quaternion();
+      if (u.hinge_axis) return { id, kind: 'hinge', at, axis: AXES[u.hinge_axis].clone().applyQuaternion(q), sign: u.hinge_sign || 1 };
+      if (u.spin_axis) return { id, kind: 'spin', at, axis: AXES[u.spin_axis].clone().applyQuaternion(q), sign: u.spin_sign || 1 };
+      return { id, kind: 'move', parent };
+    };
+    const joints = new Map(); gltf.scene.traverse((o) => { if (o.userData.id && MOVING.has(o.userData.id)) joints.set(o, joint(o)); });
+    for (const m of meshes) { m.userData.joints = []; for (let a = m; a; a = a.parent) if (joints.has(a)) m.userData.joints.push(joints.get(a)); }
     for (const m of meshes) { let a = m, id = null; while (a && !id) { id = ids[a.name] || null; a = a.parent; } m.userData.part = id; m.userData.material = m.material; m.visible = false; }
     const root = new THREE.Group(); for (const m of meshes) root.attach(m);
     root.updateMatrixWorld(true);
+    for (const m of meshes) m.userData.homeQ = m.quaternion.clone();   // after the flattening: now a world orientation
     // Where each mesh sits, and the middle of the catalogue entry it is drawn with: what is pulled apart moves as one piece.
     const boxes = new Map();
     for (const m of meshes) { const key = entry.get(m.userData.part)?.id ?? m.uuid; if (!boxes.has(key)) boxes.set(key, new THREE.Box3()); boxes.get(key).expandByObject(m); m.userData.piece = key; m.userData.home = m.position.clone(); }
@@ -202,6 +236,18 @@ function fit(all) {
   camera.near = all ? 0.02 : Math.max(R / 200, 1e-4); camera.far = d + R * 400 + 50; camera.updateProjectionMatrix();
   controls.minDistance = all ? 0.05 : R * 0.3; controls.maxDistance = d * 30 + 20; controls.update(); T.draw();
 }
+/** Moves a mesh as the controls say, about each hinge or axis it hangs from, the nearest first. */
+let current = pose(ctl);
+function place(m) {
+  const { THREE } = T, q = new THREE.Quaternion(), v = new THREE.Vector3();
+  for (const j of m.userData.joints) {
+    if (j.kind === 'move') { const d = current.move.get(j.id); if (d) m.position.add(v.set(...d).applyQuaternion(j.parent)); continue; }
+    const amount = j.kind === 'hinge' ? (current.hinge.get(j.id) ?? 0) * Math.PI / 180 : (current.spin.get(j.id) ?? 0);
+    if (!amount) continue;
+    q.setFromAxisAngle(j.axis, amount * j.sign);
+    m.position.sub(j.at).applyQuaternion(q).add(j.at); m.quaternion.premultiply(q);
+  }
+}
 function paint() {
   const home = shown[cur].s, { THREE } = T, span = new THREE.Box3(), k = scope === 'part' ? 0 : pull * 1.5;
   const round = (system) => (scope === 'aircraft' ? !hidden.has(system) : scope === 'system' && system === home);
@@ -209,7 +255,9 @@ function paint() {
   const centre = span.isEmpty() ? null : span.getCenter(new THREE.Vector3()), out = new THREE.Vector3();
   for (const [system, m] of meshes()) {
     const chosen = m.userData.chosen, around = round(system);
-    m.position.copy(m.userData.home); if (centre && around) m.position.addScaledVector(out.subVectors(m.userData.middle, centre), k);
+    m.position.copy(m.userData.home); m.quaternion.copy(m.userData.homeQ); place(m);
+    if (centre && around) m.position.addScaledVector(out.subVectors(m.userData.middle, centre), k);
+    const by = shifted.get(m.userData.piece); if (by) m.position.add(by);
     m.visible = scope === 'aircraft' ? around : chosen || around;
     m.material = chosen ? (solid && !quiet ? T.marked : m.userData.material) : solid ? m.userData.material : T.faint;
     m.renderOrder = chosen || solid ? 0 : 1;
@@ -222,6 +270,7 @@ function choose() {
   return any;
 }
 const HINT = ['Drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
+const DRAG = ['Drag a part to move it · drag empty space to turn the view', 'اسحب قطعة لتحريكها · اسحب في الفراغ لتدوير العرض'];
 const HINT_ALL = ['Click a part to choose it · drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'انقر على قطعة لاختيارها · اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
 async function show3d(keep) {
   const mine = ++turn, p = shown[cur], whole = scope === 'aircraft';
@@ -242,12 +291,20 @@ async function show3d(keep) {
     message(...HINT_ALL);
   } catch { if (mine === turn) message('The 3D view could not be loaded here. Choose another view to see the picture.', 'تعذّر تحميل العرض ثلاثي الأبعاد هنا. اختر عرضًا آخر لرؤية الصورة.'); }
 }
-function pick(event) {
-  if (scope === 'part' || !T) return;
+/** Points the picking ray through where the pointer is on the canvas. */
+function aim(event) {
   const { THREE, ray, camera } = T, box = $('d-3d').getBoundingClientRect();
   ray.setFromCamera(new THREE.Vector2(((event.clientX - box.left) / box.width) * 2 - 1, -((event.clientY - box.top) / box.height) * 2 + 1), camera);
+}
+/** The nearest drawn part under the pointer, if any. */
+function rayHit(event) {
+  aim(event);
   const seen = []; for (const [, m] of meshes()) if (m.visible && m.userData.part) seen.push(m);
-  const hit = ray.intersectObjects(seen, false)[0], p = hit && entry.get(hit.object.userData.part);
+  return T.ray.intersectObjects(seen, false)[0];
+}
+function pick(event) {
+  if (scope === 'part' || !T || moving) return;
+  const hit = rayHit(event), p = hit && entry.get(hit.object.userData.part);
   if (!p) return;
   quiet = false; keepCamera = true;
   if (!shown.includes(p)) { setFilters({}); render(); }
@@ -257,6 +314,25 @@ document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { s
 $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pressed', String(solid)); if (T) paint(); };
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
+// Moving it like the real aircraft: one slider for each control, which moves every part that control moves in the aircraft.
+for (const c of CONTROLS) {
+  const row = el('label', 'parts-slide'), input = el('input'), name = el('span', 'parts-slide-name'), shown = el('output');
+  input.type = 'range'; input.min = c.min; input.max = c.max; input.step = c.step; input.value = 0; name.append(both(c.en, c.ar));
+  if (c.note) { row.title = c.note.en + ' · ' + c.note.ar; }
+  input.oninput = () => { ctl[c.key] = Number(input.value); shown.textContent = c.max > 1 ? input.value : Number(input.value).toFixed(2); current = pose(ctl); if (T) paint(); };
+  shown.textContent = c.max > 1 ? '0' : '0.00'; input.dataset.key = c.key; row.append(name, input, shown); $('slides').append(row);
+}
+const anything = () => CONTROLS.some((c) => ctl[c.key]) || shifted.size > 0;
+const tidy = () => { $('bback').hidden = !anything(); };
+$('slides').addEventListener('input', tidy);
+$('bctl').onclick = () => { const open = $('slides').hidden; $('slides').hidden = !open; $('bctl').setAttribute('aria-pressed', String(open)); $('dlg').classList.toggle('has-slides', open); };
+$('bmove').onclick = () => { moving = !moving; $('bmove').setAttribute('aria-pressed', String(moving)); $('bdeep').hidden = !moving; message(...(moving ? DRAG : scope === 'aircraft' ? HINT_ALL : HINT)); };
+$('bdeep').onclick = () => { deep = !deep; $('bdeep').setAttribute('aria-pressed', String(deep)); };
+$('bback').onclick = () => {
+  for (const c of CONTROLS) ctl[c.key] = 0; shifted.clear(); current = pose(ctl);
+  $('slides').querySelectorAll('input').forEach((i) => { i.value = 0; i.dispatchEvent(new Event('input')); });
+  $('bback').hidden = true; if (T) paint();
+};
 systems.forEach((s) => {
   const b = el('button', 'ufuq-tab'), nm = systemName(s); b.append(both(nm.en, nm.ar)); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
   b.onclick = () => { if (hidden.has(s)) hidden.delete(s); else hidden.add(s); b.setAttribute('aria-pressed', String(!hidden.has(s))); if (T) paint(); };

@@ -78,3 +78,14 @@ body.page > main { flex: 1; }
   .ufuq-shell__nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .ufuq-shell__nav a { flex: none; }
 }
+/* Moving it like the real aircraft: one slider for each control. */
+.parts-slides { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--ufuq-space-2) var(--ufuq-space-4); max-block-size: 28dvh; overflow-y: auto; padding-block: var(--ufuq-space-2); }
+.parts-slide { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--ufuq-space-2); align-items: center; font-size: var(--ufuq-fs-sm); color: var(--ufuq-text-muted); }
+.parts-slide-name { grid-column: 1 / -1; }
+.parts-slide input { min-inline-size: 0; accent-color: var(--ufuq-brand); direction: ltr; }
+.parts-slide output { font-family: var(--ufuq-font-mono); font-size: var(--ufuq-fs-xs); font-variant-numeric: tabular-nums; min-inline-size: 3.5ch; text-align: end; }
+/* The picture keeps its height; the controls under it scroll if there are many, and the details get what is left. */
+.parts-big { flex: none; }
+.parts-ctl { flex: none; max-block-size: 30dvh; overflow-y: auto; }
+.parts-dlg.is-wide.has-slides .parts-big { block-size: 46dvh; }
+.parts-slides { max-block-size: none; }
