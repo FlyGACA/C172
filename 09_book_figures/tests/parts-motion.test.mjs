@@ -4,7 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, PLUGS, SCENES, SWITCHES, isLit, pose, rest, setScales } from '../parts/motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, PLUGS, SCENES, STROKE_NAMES, SWITCHES, isLit, pose, rest, setScales, strokes } from '../parts/motions.js';
+import { MAX_SHIFTS, buildLink, parsePose, posePairs } from '../parts/link.js';
 
 const path = (relative) => fileURLToPath(new URL(relative, import.meta.url));
 const nodes = new Map();   // id -> the node's extras
@@ -130,4 +131,56 @@ test('every scene names real controls, inside their ranges, in both languages; t
   assert.ok([...p.glow.keys()].some((id) => id.startsWith('ENGINE.plug')), 'in the run-up scene a plug is firing');
   const takeoff = pose({ ...rest(), ...SCENES.find((c) => c.key === 'takeoff').set }).glow;
   assert.ok(takeoff.has('ELECTRICAL.landing_light') && takeoff.has('WING_L.strobe'), 'the takeoff scene has its lights on');
+});
+
+const partNames = new Set(nodes.keys());
+const readPose = (query) => parsePose(new URLSearchParams(query), CONTROLS, (id) => partNames.has(id));
+
+test('a pose goes into a link and comes back the same, and a resting control is left out', () => {
+  const values = { ...rest(), flaps: 30, doorL: 1, crank: 90, ignition: 1, swBeacon: 1, swNav: -1 };
+  const pairs = posePairs(values, CONTROLS, [{ piece: 'ENGINE.piston_1', x: 0.01, y: 0, z: -0.02 }]);
+  assert.deepEqual(pairs.map((p) => p[0]), ['pose', 'moved']);
+  assert.ok(!pairs[0][1].includes('aileron'), 'a control at rest was written');
+  const back = readPose(new URLSearchParams(pairs));
+  assert.deepEqual(back.rejected, []);
+  assert.deepEqual(back.values, { doorL: 1, flaps: 30, crank: 90, ignition: 1, swBeacon: 1, swNav: -1 });
+  assert.deepEqual(back.shifts, [{ piece: 'ENGINE.piston_1', x: 0.01, y: 0, z: -0.02 }]);
+  assert.deepEqual(posePairs(rest(), CONTROLS, []), [], 'a pose at rest writes nothing');
+  assert.ok(buildLink('https://x/parts/', { part: 'ENGINE.piston_1', view: '3d', scope: 'aircraft' }, pairs).includes('pose=') );
+});
+
+test('every scene survives the trip through a link', () => {
+  for (const sc of SCENES) {
+    const values = { ...rest(), ...sc.set, inst: Object.keys(sc.set).some((k) => CONTROLS.find((c) => c.key === k).group === 'instruments') ? 1 : 0 };
+    const read = readPose(new URLSearchParams(posePairs(values, CONTROLS)));
+    assert.deepEqual(read.rejected, [], sc.key);
+    for (const [k, v] of Object.entries(sc.set)) if (v !== (CONTROLS.find((c) => c.key === k).home ?? 0)) assert.equal(read.values[k], v, `${sc.key}: ${k}`);
+  }
+});
+
+test('a pose that is wrong is named and left out, and the rest still applies', () => {
+  const bad = (q, reason) => { const r = readPose(q); assert.ok(r.rejected.some((x) => x.reason.includes(reason)), `${q}: ${JSON.stringify(r.rejected)}`); return r; };
+  assert.deepEqual(bad('pose=nope:1', 'no such control').values, {});
+  assert.deepEqual(bad('pose=flaps:90', 'outside').values, {});
+  assert.deepEqual(bad('pose=flaps:x', 'not a number').values, {});
+  assert.deepEqual(bad('pose=swBat:0.5', 'a switch').values, {});
+  assert.deepEqual(bad('pose=flaps:10,flaps:20', 'more than once').values, { flaps: 10 });
+  assert.deepEqual(bad('pose=flaps:20,doorL:9', 'outside').values, { flaps: 20 });
+  assert.deepEqual(bad('pose=a:1&pose=b:2', 'more than once').values, {});
+  assert.deepEqual(bad(`pose=${'a'.repeat(1300)}`, 'longer').values, {});
+  assert.equal(readPose('pose=flaps:10.4').values.flaps, 10, 'a value is snapped to the control\'s step');
+  bad('moved=NOT.A_PART:0:0:0', 'no such part'); bad('moved=ENGINE.piston_1:1:2', 'three distances'); bad('moved=ENGINE.piston_1:99:0:0', 'three distances'); bad('moved=<script>:0:0:0', 'no such part');
+  assert.equal(readPose('moved=ENGINE.piston_1:0:0:0.1,ENGINE.piston_1:0:0:0.2').shifts.length, 1, 'a part is moved once');
+  const many = [...partNames].slice(0, MAX_SHIFTS + 5).map((id) => `${id}:0:0:0.1`).join(',');
+  assert.equal(readPose(`moved=${many}`).shifts.length, MAX_SHIFTS);
+});
+
+test('the strokes of the four cylinders follow the firing order, one power stroke at a time', () => {
+  for (const crank of [0, 90, 180, 270, 360, 450, 540, 630]) {
+    const now = strokes(crank); assert.deepEqual(now.map((x) => x.cyl), [1, 2, 3, 4]);
+    for (const x of now) assert.ok(STROKE_NAMES[x.stroke]?.en && STROKE_NAMES[x.stroke]?.ar, `${crank}: ${x.stroke}`);
+    assert.equal(now.filter((x) => x.stroke === 'power').length, 1, `at ${crank} exactly one cylinder is on its power stroke`);
+  }
+  const power = (crank) => strokes(crank).find((x) => x.stroke === 'power').cyl;
+  assert.deepEqual([45, 225, 405, 585].map(power), [1, 3, 2, 4], 'the power stroke passes 1, 3, 2, 4');
 });

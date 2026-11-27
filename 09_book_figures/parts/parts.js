@@ -2,10 +2,10 @@
 // aircraft, in 3D). Everything shown is read from parts.json, which build.py writes. A part and its view have
 // an address of their own, and so has the list (a search, a system, a source): link.js reads and writes them, and the
 // page keeps the address up to date as the reader moves.
-import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList } from './link.js';
+import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList, parsePose, posePairs } from './link.js';
 import { ORDER, SOURCE_NAMES, systemName } from './names.js';
 import { haystack, matches, words } from './search.js';
-import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, SCENES, isLit, pose, rest, setScales } from './motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, SCENES, STROKE_NAMES, isLit, pose, rest, setScales, strokes } from './motions.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -123,15 +123,15 @@ const open_ = () => ($('dlg').open && shown[cur]) ? { part: shown[cur].id, view,
 function sync() {
   try {
     const url = new URL(location.href), now = open_();
-    for (const k of ['part', 'view', 'scope', 'q', 'system', 'source']) url.searchParams.delete(k);
-    for (const [k, v] of [...listPairs(filters()), ...(now ? linkPairs(now) : [])]) url.searchParams.set(k, v);
+    for (const k of ['part', 'view', 'scope', 'q', 'system', 'source', 'pose', 'moved']) url.searchParams.delete(k);
+    for (const [k, v] of [...listPairs(filters()), ...(now ? [...linkPairs(now), ...posePairsNow()] : [])]) url.searchParams.set(k, v);
     history.replaceState(null, '', url.pathname + url.search + url.hash);
   } catch { /* an address that cannot be changed, such as a file opened from disk, is left as it is */ }
 }
 $('dlg').addEventListener('close', sync);
 $('blink').onclick = async () => {
   const now = open_(); if (!now) return;
-  const link = buildLink(here(), now);
+  const link = buildLink(here(), now, posePairsNow());
   try { await navigator.clipboard.writeText(link); say($('blink-msg'), 'Link copied', 'تم نسخ الرابط'); }
   catch { window.prompt('Link · الرابط', link); say($('blink-msg'), '', ''); }
   setTimeout(() => $('blink-msg').replaceChildren(), 2500);
@@ -185,10 +185,10 @@ function setup() {
     canvas.addEventListener('pointermove', (e) => {
       if (!grab) return;
       aim(e); const at = T.ray.ray.intersectPlane(grab.plane, new THREE.Vector3()); if (!at) return;
-      shifted.set(grab.piece, (shifted.get(grab.piece) || new THREE.Vector3()).add(at.clone().sub(grab.last))); grab.last.copy(at);
+      const was = shifted.get(grab.piece) || [0, 0, 0], d = at.clone().sub(grab.last); shifted.set(grab.piece, [was[0] + d.x, was[1] + d.y, was[2] + d.z]); grab.last.copy(at);
       paint(); $('bback').hidden = false;
     });
-    const drop = () => { if (grab) { grab = null; controls.enabled = true; } };
+    const drop = () => { if (grab) { grab = null; controls.enabled = true; sync(); } };
     canvas.addEventListener('pointerup', drop); canvas.addEventListener('pointercancel', drop);
   })();
   return ready;
@@ -280,7 +280,7 @@ function paint() {
     const chosen = m.userData.chosen, around = round(system);
     m.position.copy(m.userData.home); m.quaternion.copy(m.userData.homeQ); place(m);
     if (centre && around) m.position.addScaledVector(out.subVectors(m.userData.middle, centre), k);
-    const by = shifted.get(m.userData.piece); if (by) m.position.add(by);
+    const by = shifted.get(m.userData.piece); if (by) { m.position.x += by[0]; m.position.y += by[1]; m.position.z += by[2]; }
     m.visible = scope === 'aircraft' ? around : chosen || around;
     m.material = chosen ? (solid && !quiet ? T.marked : m.userData.material) : solid ? m.userData.material : T.faint;
     const g = m.userData.lamp && current.glow.get(m.userData.lamp);
@@ -339,51 +339,118 @@ document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { s
 $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pressed', String(solid)); if (T) paint(); };
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
-// Moving it like the real aircraft: one slider for each control, which moves every part that control moves in the aircraft.
+// Moving it like the real aircraft: a tab for the scenes and one for each group of controls, a slider (or a box for a
+// switch) for each control, and a play button for the engine. Each control moves every part it moves in the aircraft.
+const PANELS = ['scene', ...new Set(CONTROLS.map((c) => c.group))], panels = {};
+let tab = 'flight', playing = false, lastTick = 0, playFrame = 0;
+{
+  const tabs = el('div', 'ufuq-tabs parts-gtabs'); tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Controls · أدوات التحكم');
+  for (const g of PANELS) {
+    const b = el('button', 'ufuq-tab'); b.type = 'button'; b.dataset.group = g; b.append(both(GROUPS[g].en, GROUPS[g].ar)); b.onclick = () => showTab(g); tabs.append(b);
+    panels[g] = el('div', 'parts-gpanel'); panels[g].dataset.group = g;
+  }
+  $('slides').append(tabs, ...PANELS.map((g) => panels[g]));
+}
+function showTab(g) {
+  tab = g;
+  for (const b of $('slides').querySelectorAll('.parts-gtabs button')) b.setAttribute('aria-pressed', String(b.dataset.group === g));
+  for (const k of PANELS) panels[k].hidden = k !== g;
+}
 // A scene sets the controls and instruments together to a state worth looking at.
 {
   const row = el('label', 'parts-scene'), name = el('span', 'parts-slide-name'), pick = el('select', 'ufuq-input'), note = el('p', 'parts-scene-note');
   pick.id = 'scene'; name.append(both('Scene', 'المشهد')); for (const c of SCENES) pick.append(new Option(`${c.en} · ${c.ar}`, c.key));
   note.append(both('Typical settings to look at, not values from the POH. The aircraft is posed, not simulated.', 'إعدادات نموذجية للمعاينة وليست قيمًا من دليل POH. الطائرة موضوعة في وضع وليست محاكاة.'));
-  pick.onchange = () => applyScene(pick.value); row.append(name, pick); $('slides').append(row, note);
+  pick.onchange = () => applyScene(pick.value); row.append(name, pick); panels.scene.append(row, note);
 }
-let heading = null;
+const strokesEl = el('p', 'parts-strokes'); strokesEl.id = 'strokes';
+/** Which stroke each cylinder is on, at the crank angle the reader has set or the engine has reached. */
+function updateStrokes() {
+  strokesEl.replaceChildren(...strokes(ctl.crank).map(({ cyl, stroke }) => {
+    const s = el('span', 'parts-stroke'), n = STROKE_NAMES[stroke]; s.dataset.stroke = stroke; s.append(`${cyl} · `, both(n.en, n.ar)); return s;
+  }));
+}
 for (const c of CONTROLS) {
-  if (c.group !== heading) { heading = c.group; const h = el('h4', 'parts-slides-head'); h.append(both(GROUPS[heading].en, GROUPS[heading].ar)); $('slides').append(h); }
   const row = el('label', c.toggle ? 'parts-slide parts-switch' : 'parts-slide'), input = el('input'), name = el('span', 'parts-slide-name'), shown = el('output');
   name.append(both(c.en, c.ar)); if (c.note) row.title = c.note.en + ' · ' + c.note.ar;
-  input.dataset.key = c.key; input.onshow = (v) => readout(v); const home = c.home ?? 0; const decimals = (String(c.step).split('.')[1] || '').length; const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = v.toFixed(decimals); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
+  input.dataset.key = c.key; input.onshow = (v) => readout(v); const home = c.home ?? 0; const places = (String(c.step).split('.')[1] || '').length;
+  const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = v.toFixed(places); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
+  const changed = () => { readout(ctl[c.key]); current = pose(ctl); if (T) paint(); if (c.key === 'crank') updateStrokes(); sync(); };
   if (c.toggle) {
     // A switch rests in the middle of its throw; the box puts it up, and unticking it puts it down.
-    input.type = 'checkbox'; input.oninput = () => { ctl[c.key] = input.checked ? 1 : -1; readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
+    input.type = 'checkbox'; input.oninput = () => { ctl[c.key] = input.checked ? 1 : -1; changed(); };
     input.onreset = () => { input.checked = false; ctl[c.key] = 0; readout(0); };
   } else {
     input.type = 'range'; input.min = c.min; input.max = c.max; input.step = c.step; input.value = home;
-    input.oninput = () => { ctl[c.key] = Number(input.value); if (c.group === 'instruments') ctl.inst = 1; readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
+    input.oninput = () => { ctl[c.key] = Number(input.value); if (c.group === 'instruments') ctl.inst = 1; changed(); };
     input.onreset = () => { input.value = home; ctl[c.key] = home; readout(home); };
   }
-  readout(home); row.append(name, input, shown); $('slides').append(row);
+  readout(home); row.append(name, input, shown); panels[c.group].append(row);
+  if (c.key === 'crank') {
+    // Run the engine: the crank turns by itself at the speed chosen, and each cylinder's stroke is named as it goes.
+    const play = el('div', 'parts-play'), bp = el('button', 'ufuq-btn ufuq-btn--quiet'), rate = el('label', 'parts-slide'), rn = el('span', 'parts-slide-name'), rin = el('input'), rout = el('output');
+    bp.type = 'button'; bp.id = 'bplay'; bp.setAttribute('aria-pressed', 'false'); bp.append(both('Run the engine', 'شغّل المحرك')); bp.onclick = () => setPlaying(!playing);
+    rn.append(both('Speed (turns of the crank per minute)', 'السرعة (دورات عمود المرفق في الدقيقة)')); rin.type = 'range'; rin.id = 'rpm'; rin.min = 2; rin.max = 300; rin.step = 1; rin.value = 20; rout.textContent = '20';
+    rin.oninput = () => { rout.textContent = rin.value; }; rate.append(rn, rin, rout); play.append(bp, rate); panels.engine.append(play, strokesEl);
+  }
 }
+/** Sets the crank angle (0 to 720 degrees) as if the slider had been moved. */
+function setCrank(v) {
+  ctl.crank = v; const i = $('slides').querySelector('input[data-key="crank"]'); i.value = v; i.onshow(Math.round(v));
+  current = pose(ctl); if (T) paint(); updateStrokes(); tidy();
+}
+function setPlaying(on) {
+  playing = on && !!T; const bp = $('bplay');
+  bp.setAttribute('aria-pressed', String(playing)); bp.replaceChildren(playing ? both('Pause', 'أوقف') : both('Run the engine', 'شغّل المحرك'));
+  cancelAnimationFrame(playFrame);
+  if (playing) { lastTick = performance.now(); playFrame = requestAnimationFrame(tick); } else sync();
+}
+function tick(now) {
+  if (!playing) return;
+  if (!$('dlg').open || document.hidden) { setPlaying(false); return; }
+  const dt = Math.min(0.1, (now - lastTick) / 1000); lastTick = now;
+  setCrank((ctl.crank + Number($('rpm').value) * 6 * dt) % 720);   // 1 turn per minute is 6 degrees a second
+  playFrame = requestAnimationFrame(tick);
+}
+$('dlg').addEventListener('close', () => setPlaying(false));
+updateStrokes(); showTab('flight');
 function applyScene(key) {
   const scene = SCENES.find((c) => c.key === key);
-  Object.assign(ctl, rest()); $('slides').querySelectorAll('input').forEach((i) => i.onreset());
+  Object.assign(ctl, rest()); $('slides').querySelectorAll('input').forEach((i) => i.onreset?.());
   for (const [k, v] of Object.entries(scene.set)) {
     const i = $('slides').querySelector(`input[data-key="${k}"]`); ctl[k] = v;
     if (i.type === 'checkbox') i.checked = v > 0; else i.value = v;
     i.onshow(v); if (CONTROLS.find((c) => c.key === k).group === 'instruments') ctl.inst = 1;
   }
-  current = pose(ctl); if (T) paint(); tidy();
+  current = pose(ctl); if (T) paint(); updateStrokes(); tidy(); sync();
+}
+/** Sets the controls and the dragged parts from a pose read from an address (see parsePose). */
+function applyPose({ values, shifts }) {
+  Object.assign(ctl, rest()); $('slides').querySelectorAll('input').forEach((i) => i.onreset?.()); shifted.clear();
+  for (const [k, v] of Object.entries(values)) {
+    const i = $('slides').querySelector(`input[data-key="${k}"]`); ctl[k] = v;
+    if (i.type === 'checkbox') i.checked = v > 0; else i.value = v;
+    i.onshow(v); if (CONTROLS.find((c) => c.key === k).group === 'instruments') ctl.inst = 1;
+  }
+  for (const s of shifts) shifted.set(s.piece, [s.x, s.y, s.z]);
+  current = pose(ctl); updateStrokes(); tidy();
+  if (Object.keys(values).length || shifts.length) {
+    $('slides').hidden = false; $('bctl').setAttribute('aria-pressed', 'true'); $('dlg').classList.add('has-slides');
+    showTab(CONTROLS.find((c) => c.key in values)?.group ?? tab);
+  }
 }
 const anything = () => CONTROLS.some((c) => ctl[c.key] !== (c.home ?? 0)) || ctl.inst || shifted.size > 0;
 const tidy = () => { $('bback').hidden = !anything(); };
+/** The pose and the dragged parts, as query values for an address. */
+const posePairsNow = () => (view === '3d' ? posePairs({ ...ctl }, CONTROLS, [...shifted].filter(([k]) => entry.has(k)).map(([piece, [x, y, z]]) => ({ piece, x, y, z }))) : []);
 $('slides').addEventListener('input', tidy);
-$('bctl').onclick = () => { const open = $('slides').hidden; $('slides').hidden = !open; $('bctl').setAttribute('aria-pressed', String(open)); $('dlg').classList.toggle('has-slides', open); };
+$('bctl').onclick = () => { const open = $('slides').hidden; $('slides').hidden = !open; $('bctl').setAttribute('aria-pressed', String(open)); $('dlg').classList.toggle('has-slides', open); if (open) $('slides').scrollIntoView({ block: 'nearest' }); };
 $('bmove').onclick = () => { moving = !moving; $('bmove').setAttribute('aria-pressed', String(moving)); $('bdeep').hidden = !moving; message(...(moving ? DRAG : scope === 'aircraft' ? HINT_ALL : HINT)); };
 $('bdeep').onclick = () => { deep = !deep; $('bdeep').setAttribute('aria-pressed', String(deep)); };
 $('bback').onclick = () => {
-  Object.assign(ctl, rest()); shifted.clear(); current = pose(ctl);
-  $('slides').querySelectorAll('input').forEach((i) => i.onreset()); $('scene').value = 'cold';
-  $('bback').hidden = true; if (T) paint();
+  setPlaying(false); Object.assign(ctl, rest()); shifted.clear(); current = pose(ctl);
+  $('slides').querySelectorAll('input').forEach((i) => i.onreset?.()); $('scene').value = 'cold'; updateStrokes();
+  $('bback').hidden = true; if (T) paint(); sync();
 };
 systems.forEach((s) => {
   const b = el('button', 'ufuq-tab'), nm = systemName(s); b.append(both(nm.en, nm.ar)); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
@@ -406,6 +473,7 @@ $('explore').onclick = () => {
   if (p) {
     if (!shown.includes(p)) { setFilters({}); render(); }
     view = link.view; scope = link.scope; solid = scope === 'aircraft'; quiet = false; $('bsolid').setAttribute('aria-pressed', String(solid));
+    if (view === '3d') applyPose(parsePose(params, CONTROLS, (id) => entry.has(id)));   // before the window opens, which writes the address
     document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.scope === scope)));
     open(shown.indexOf(p));
   }

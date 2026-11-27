@@ -79,7 +79,7 @@ body.page > main { flex: 1; }
   .ufuq-shell__nav a { flex: none; }
 }
 /* Moving it like the real aircraft: one slider for each control. */
-.parts-slides { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--ufuq-space-2) var(--ufuq-space-4); max-block-size: 28dvh; overflow-y: auto; padding-block: var(--ufuq-space-2); }
+.parts-slides { display: grid; gap: var(--ufuq-space-2); padding-block: var(--ufuq-space-2); min-inline-size: 0; }
 .parts-slide { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--ufuq-space-2); align-items: center; font-size: var(--ufuq-fs-sm); color: var(--ufuq-text-muted); }
 .parts-slide-name { grid-column: 1 / -1; }
 .parts-slide input { min-inline-size: 0; accent-color: var(--ufuq-brand); direction: ltr; }
@@ -88,7 +88,7 @@ body.page > main { flex: 1; }
 .parts-big { flex: none; }
 .parts-ctl { flex: none; max-block-size: 30dvh; overflow-y: auto; }
 .parts-dlg.is-wide.has-slides .parts-big { block-size: 46dvh; }
-.parts-slides { max-block-size: none; }
+
 .parts-slides-head { grid-column: 1 / -1; margin: var(--ufuq-space-2) 0 0; padding-block-end: var(--ufuq-space-1); border-block-end: 1px solid var(--ufuq-border); color: var(--ufuq-text); font-size: var(--ufuq-fs-sm); font-weight: var(--ufuq-fw-medium); }
 .parts-slide output { display: inline-flex; gap: 0; justify-content: flex-end; }
 .parts-switch { grid-template-columns: auto minmax(0, 1fr) auto; }
@@ -98,3 +98,19 @@ body.page > main { flex: 1; }
 .parts-scene { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--ufuq-space-2); align-items: center; }
 .parts-scene .parts-slide-name { grid-column: auto; }
 .parts-scene-note { grid-column: 1 / -1; margin: 0; color: var(--ufuq-text-dim); font-size: var(--ufuq-fs-xs); }
+
+/* The controls come a group at a time: one tab for each, so a phone shows a few controls, not forty. */
+.parts-gtabs { max-inline-size: 100%; overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; justify-self: start; }
+.parts-gtabs .ufuq-tab { flex: none; white-space: nowrap; }
+.parts-gpanel { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr)); gap: var(--ufuq-space-2) var(--ufuq-space-4); min-inline-size: 0; }
+.parts-play { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--ufuq-space-3) var(--ufuq-space-4); }
+.parts-play .parts-slide { flex: 1 1 13rem; }
+.parts-strokes { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--ufuq-space-1) var(--ufuq-space-4); margin: 0; font-family: var(--ufuq-font-mono); font-size: var(--ufuq-fs-xs); color: var(--ufuq-text-muted); }
+.parts-stroke { white-space: nowrap; }
+.parts-stroke[data-stroke='power'] { color: var(--ufuq-text); font-weight: var(--ufuq-fw-medium); }
+/* A phone with the controls open: the picture gives up height to them, and the tabs stay in view while a group scrolls. */
+.parts-gtabs { position: sticky; inset-block-start: 0; z-index: 1; background: var(--ufuq-surface); }
+@media (max-width: 40rem) {
+  .parts-dlg.is-wide.has-slides .parts-big { block-size: 34dvh; }
+  .parts-dlg.has-slides .parts-ctl { max-block-size: 48dvh; }
+}

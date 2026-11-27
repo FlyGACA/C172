@@ -8,6 +8,7 @@ export const D2R = Math.PI / 180;
 
 /** The headings the controls are grouped under. */
 export const GROUPS = {
+  scene: { en: 'Scene', ar: 'المشهد' },
   flight: { en: 'Flight controls and doors', ar: 'أدوات الطيران والأبواب' },
   engine: { en: 'Engine', ar: 'المحرك' },
   levers: { en: 'Levers and knobs', ar: 'الأذرع والمقابض' },
@@ -193,3 +194,14 @@ export const SCENES = [
   { key: 'landing', en: 'Final approach: flaps 40, landing light on', ar: 'الاقتراب النهائي: قلابات 40، ضوء الهبوط مضاء',
     set: { swBat: 1, swAlt: 1, swAvionics: 1, swBeacon: 1, swNav: 1, swLanding: 1, swStrobe: 1, flaps: 40, mixture: 0, throttle: 0.8, ignition: 1, fuelSel: 1, elevator: 0.2, trim: -0.2, crank: 100, tach: 1500, oilP: 60, oilT: 180, suction: 5, ammeter: 5, asi: 65, alt: 800, vsi: -500, pitch: -3, bank: 5, hdg: 270, fuelL: 5, fuelR: 5 } },
 ];
+
+/** The four strokes, named in both languages. */
+export const STROKE_NAMES = {
+  intake: { en: 'Intake', ar: 'السحب' },
+  compression: { en: 'Compression', ar: 'الانضغاط' },
+  power: { en: 'Power', ar: 'القدرة' },
+  exhaust: { en: 'Exhaust', ar: 'العادم' },
+};
+
+/** The stroke each cylinder is on at a crank angle (degrees, 0 to 720), cylinders 1 to 4. */
+export const strokes = (crank) => [1, 2, 3, 4].map((cyl) => ({ cyl, stroke: K.strokeOf(crank, cyl) }));

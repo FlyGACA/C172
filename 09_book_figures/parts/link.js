@@ -54,9 +54,9 @@ export function linkPairs({ part, view = 'alone', scope = 'part' }) {
   return pairs;
 }
 
-/** The link to a part, on top of `base` (a URL without its query or fragment). */
-export function buildLink(base, state) {
-  return `${base}?${new URLSearchParams(linkPairs(state))}`;
+/** The link to a part, on top of `base` (a URL without its query or fragment); `extra` adds more query pairs, such as a pose. */
+export function buildLink(base, state, extra = []) {
+  return `${base}?${new URLSearchParams([...linkPairs(state), ...extra])}`;
 }
 
 export const SOURCES = ['poh', 'type_data', 'estimated'];
@@ -105,4 +105,74 @@ export function indexParts(parts) {
   for (const p of parts) for (const m of p.more) index.set(m[0], p);
   for (const p of parts) index.set(p.id, p);
   return index;
+}
+
+// A pose: how the controls are set and which parts have been dragged, so a posed aircraft can be shared.
+//   pose   key:value pairs for the controls that are off their resting value, e.g. pose=flaps:30,doorL:1,crank:90
+//   moved  parts dragged by the reader, id:x:y:z in metres, e.g. moved=ENGINE.piston_1:0.01:0:-0.02
+// Same rules as the rest of the link: each entry is checked, one that fails is named in `rejected` and left out.
+export const MAX_SHIFTS = 24;
+const MAX_POSE = 1200;
+const MAX_SHIFT_M = 20;
+const decimals = (step) => (String(step).split('.')[1] || '').length;
+
+/**
+ * @param {URLSearchParams} params
+ * @param {{ key: string, min: number, max: number, step: number, toggle?: boolean, group: string }[]} controls
+ * @param {(id: string) => boolean} hasPart  whether the catalogue has a part with this name
+ * @returns {{ values: Record<string, number>, shifts: { piece: string, x: number, y: number, z: number }[], rejected: { key: string, value: string, reason: string }[] }}
+ */
+export function parsePose(params, controls, hasPart) {
+  const out = { values: {}, shifts: [], rejected: [] };
+  const reject = (key, value, reason) => out.rejected.push({ key, value: String(value).slice(0, SHOWN), reason });
+  const one = (key) => {
+    const all = params.getAll(key);
+    if (all.length === 0) return null;
+    if (all.length > 1) { reject(key, all.join(','), 'given more than once'); return null; }
+    if (all[0].length > MAX_POSE) { reject(key, all[0], `longer than ${MAX_POSE} characters`); return null; }
+    return all[0];
+  };
+  const by = new Map(controls.map((c) => [c.key, c]));
+  const pose = one('pose'), moved = one('moved');
+  for (const item of pose ? pose.split(',') : []) {
+    const [key, text, ...rest] = item.split(':'), c = by.get(key), v = Number(text);
+    if (!c) { reject('pose', item, 'no such control'); continue; }
+    if (rest.length || text === undefined || text === '' || !Number.isFinite(v)) { reject('pose', item, 'not a number'); continue; }
+    if (key in out.values) { reject('pose', item, 'given more than once'); continue; }
+    if (v < c.min || v > c.max) { reject('pose', item, `outside ${c.min} to ${c.max}`); continue; }
+    if (c.toggle && v !== 1 && v !== -1) { reject('pose', item, 'a switch is 1 (up) or -1 (down)'); continue; }
+    const k = 10 ** decimals(c.step);
+    out.values[key] = Math.round(v * k) / k;
+  }
+  const seen = new Set();
+  for (const item of moved ? moved.split(',') : []) {
+    const [piece, ...xyz] = item.split(':'), n = xyz.map(Number);
+    if (out.shifts.length >= MAX_SHIFTS) { reject('moved', item, `more than ${MAX_SHIFTS} parts`); break; }
+    if (!PART_NAME.test(piece) || piece.length > MAX_PART || !hasPart(piece)) { reject('moved', item, 'no such part'); continue; }
+    if (xyz.length !== 3 || n.some((x) => !Number.isFinite(x) || Math.abs(x) > MAX_SHIFT_M)) { reject('moved', item, `three distances of at most ${MAX_SHIFT_M} metres`); continue; }
+    if (seen.has(piece)) { reject('moved', item, 'given more than once'); continue; }
+    seen.add(piece); out.shifts.push({ piece, x: n[0], y: n[1], z: n[2] });
+  }
+  return out;
+}
+
+/**
+ * The query values of a pose, in the order of the controls. A control at its resting value is left out, and so is every
+ * instrument until one has been set (`values.inst`). A shift smaller than a millimetre in every direction is left out.
+ */
+export function posePairs(values, controls, shifts = []) {
+  const parts = [];
+  for (const c of controls) {
+    if (c.group === 'instruments' && !values.inst) continue;
+    const v = values[c.key], home = c.home ?? 0;
+    // with the instruments on, one is always written so that they stay on even if every reading is back at its resting value
+    if (v === undefined || (v === home && !(values.inst && c.key === 'asi'))) continue;
+    const k = 10 ** decimals(c.step); parts.push(`${c.key}:${Math.round(v * k) / k}`);
+  }
+  const moved = shifts.filter((s) => Math.max(Math.abs(s.x), Math.abs(s.y), Math.abs(s.z)) >= 0.0005).slice(0, MAX_SHIFTS)
+    .map((s) => `${s.piece}:${[s.x, s.y, s.z].map((x) => Math.round(x * 1000) / 1000).join(':')}`);
+  const pairs = [];
+  if (parts.length) pairs.push(['pose', parts.join(',')]);
+  if (moved.length) pairs.push(['moved', moved.join(',')]);
+  return pairs;
 }
