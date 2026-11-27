@@ -140,3 +140,8 @@ body.page > main { flex: 1; }
 }
 .parts-quiz .parts-big { inline-size: min(100%, calc(32dvh * 1.6)); margin-inline: auto; }
 .parts-setting { inline-size: auto; min-inline-size: 9rem; }
+
+/* The 3D view has no white page behind it: while the model loads it is the dark surface, and the hint sits on a dark strip. */
+.parts-big:has(canvas:not([hidden])) { background-color: var(--ufuq-surface); }
+.parts-big canvas { background: transparent; }
+.parts-big:has(canvas:not([hidden])) .parts-msg { background: var(--ufuq-surface); color: var(--ufuq-text); }

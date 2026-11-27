@@ -237,7 +237,7 @@ function fit(all) {
   const { THREE, camera, controls } = T, box = new THREE.Box3();
   for (const [system, m] of meshes()) if (all ? m.visible && system !== 'GROUND_EQUIPMENT' : m.userData.chosen) box.expandByObject(m);
   if (box.isEmpty()) return;
-  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all && scope === 'aircraft' ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(T.shown === 'airfield' ? 5 : 22);   // on the airfield the camera sits low enough to show the horizon and the sky
+  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all && scope === 'aircraft' ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(T.shown === 'airfield' && scope === 'aircraft' ? 5 : 22);   // on the airfield the camera sits low enough to show the horizon and the sky
   controls.target.copy(s.center); camera.position.set(s.center.x + d * Math.cos(el) * Math.sin(az), s.center.y + d * Math.sin(el), s.center.z + d * Math.cos(el) * Math.cos(az));
   camera.near = all ? 0.02 : Math.max(R / 200, 1e-4); camera.far = d + R * 400 + 50; camera.updateProjectionMatrix();
   controls.minDistance = all ? 0.05 : R * 0.3; controls.maxDistance = d * 30 + 20; if (T.shown === 'hangar') controls.maxDistance = Math.min(controls.maxDistance, 24); controls.update(); T.draw();
@@ -303,11 +303,11 @@ function choose() {
 const HINT = ['Drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
 const DRAG = ['Drag a part to move it · drag empty space to turn the view', 'اسحب قطعة لتحريكها · اسحب في الفراغ لتدوير العرض'];
 const HINT_ALL = ['Click a part to choose it · drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'انقر على قطعة لاختيارها · اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
-// The setting: the aircraft stands on the apron of an airfield under the sky, or on the floor of a hangar, or on plain white. The
-// sky and the apron are the Phase 8 viewer's own, painted by the program (08_realistic_digital_twin/js/sky.js). By default the whole
-// aircraft stands on the airfield and a single part or system has the plain white; the reader can choose.
+// The setting: the aircraft, a system or a part stands on the apron of an airfield under the sky, or on the floor of a hangar; there is no
+// blank background. The sky and the apron are the Phase 8 viewer's own, painted by the program (08_realistic_digital_twin/js/sky.js).
+// The airfield is the default; the reader can choose the hangar.
 let setting = 'airfield', chosenSetting = false, settingTurn = 0;
-const settingFor = () => (chosenSetting ? setting : scope === 'aircraft' ? 'airfield' : 'plain');
+const settingFor = () => (chosenSetting ? setting : 'airfield');
 async function backdrop() {
   const want = settingFor(); if (!T || T.shown === want) return;
   const mine = ++settingTurn, { THREE, scene, controls } = T;

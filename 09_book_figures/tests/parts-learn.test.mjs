@@ -119,9 +119,11 @@ test('the page has the quiz, the offline controls and the trainer, and every but
   assert.ok(readFileSync(path('../parts/parts.js'), 'utf8').includes("'trainer'"), 'the trainer tab is missing');
 });
 
-test('the setting menu offers the airfield, the hangar and plain white, and the sky it uses is the viewer’s own file', () => {
+test('the setting menu offers the airfield and the hangar and no blank background, and the sky it uses is the viewer’s own file', () => {
   const page = readFileSync(path('../parts/index.html'), 'utf8'), code = readFileSync(path('../parts/parts.js'), 'utf8');
-  for (const v of ['airfield', 'hangar', 'plain']) assert.match(page, new RegExp(`<option value="${v}">`));
+  for (const v of ['airfield', 'hangar']) assert.match(page, new RegExp(`<option value="${v}">`));
+  assert.doesNotMatch(page, /<option value="plain">/, 'there is no plain-white setting');
+  assert.match(code, /const settingFor = \(\) => \(chosenSetting \? setting : 'airfield'\);/, 'every view opens on the airfield');
   assert.match(page, /id="setting"/);
   assert.ok(existsSync(path('../../08_realistic_digital_twin/js/sky.js')));
   for (const name of ['createSky', 'apronTextures', 'standMarkings', 'HAZE']) assert.match(readFileSync(path('../../08_realistic_digital_twin/js/sky.js'), 'utf8'), new RegExp(`export (function|const) ${name}\\b`));
