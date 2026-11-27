@@ -5,7 +5,7 @@
 import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList } from './link.js';
 import { ORDER, SOURCE_NAMES, systemName } from './names.js';
 import { haystack, matches, words } from './search.js';
-import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, pose, rest, setScales } from './motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, SCENES, isLit, pose, rest, setScales } from './motions.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -250,6 +250,22 @@ function place(m) {
     if (d) m.position.add(v.set(...d).applyQuaternion(j.parent));
   }
 }
+/** The beacon and strobes flash while the window is open (steady if the reader prefers reduced motion). */
+let flashFrame = 0;
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+function flash() {
+  flashFrame = 0; if (!T || !$('dlg').open) return;
+  const now = performance.now(); let changed = false, any = false;
+  for (const [, m] of meshes()) {
+    const g = m.userData.lamp && current.glow.get(m.userData.lamp);
+    if (!g || !g.flash || m.material !== m.userData.lit) continue;
+    any = true; const k = isLit(g.flash, now) ? g.k : 0;
+    if (m.userData.lit.emissiveIntensity !== k) { m.userData.lit.emissiveIntensity = k; changed = true; }
+  }
+  if (changed) T.draw();
+  if (any) flashFrame = requestAnimationFrame(flash);
+}
+function startFlash() { if (!flashFrame && !calm.matches) flashFrame = requestAnimationFrame(flash); }
 /** The material of a lamp or a spark plug that is lit: its own, glowing. */
 function lit(m, g) {
   const c = (m.userData.lit ||= m.userData.material.clone());
@@ -271,7 +287,7 @@ function paint() {
     if (g && m.material !== T.faint) m.material = lit(m, g);
     m.renderOrder = chosen || solid ? 0 : 1;
   }
-  T.draw();
+  T.draw(); startFlash();
 }
 function choose() {
   const p = shown[cur], want = new Set([p.id, ...p.more.map((m) => m[0])]); let any = false;
@@ -324,12 +340,19 @@ $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pre
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
 // Moving it like the real aircraft: one slider for each control, which moves every part that control moves in the aircraft.
+// A scene sets the controls and instruments together to a state worth looking at.
+{
+  const row = el('label', 'parts-scene'), name = el('span', 'parts-slide-name'), pick = el('select', 'ufuq-input'), note = el('p', 'parts-scene-note');
+  pick.id = 'scene'; name.append(both('Scene', 'المشهد')); for (const c of SCENES) pick.append(new Option(`${c.en} · ${c.ar}`, c.key));
+  note.append(both('Typical settings to look at, not values from the POH. The aircraft is posed, not simulated.', 'إعدادات نموذجية للمعاينة وليست قيمًا من دليل POH. الطائرة موضوعة في وضع وليست محاكاة.'));
+  pick.onchange = () => applyScene(pick.value); row.append(name, pick); $('slides').append(row, note);
+}
 let heading = null;
 for (const c of CONTROLS) {
   if (c.group !== heading) { heading = c.group; const h = el('h4', 'parts-slides-head'); h.append(both(GROUPS[heading].en, GROUPS[heading].ar)); $('slides').append(h); }
   const row = el('label', c.toggle ? 'parts-slide parts-switch' : 'parts-slide'), input = el('input'), name = el('span', 'parts-slide-name'), shown = el('output');
   name.append(both(c.en, c.ar)); if (c.note) row.title = c.note.en + ' · ' + c.note.ar;
-  input.dataset.key = c.key; const home = c.home ?? 0; const decimals = (String(c.step).split('.')[1] || '').length; const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = v.toFixed(decimals); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
+  input.dataset.key = c.key; input.onshow = (v) => readout(v); const home = c.home ?? 0; const decimals = (String(c.step).split('.')[1] || '').length; const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = v.toFixed(decimals); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
   if (c.toggle) {
     // A switch rests in the middle of its throw; the box puts it up, and unticking it puts it down.
     input.type = 'checkbox'; input.oninput = () => { ctl[c.key] = input.checked ? 1 : -1; readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
@@ -341,6 +364,16 @@ for (const c of CONTROLS) {
   }
   readout(home); row.append(name, input, shown); $('slides').append(row);
 }
+function applyScene(key) {
+  const scene = SCENES.find((c) => c.key === key);
+  Object.assign(ctl, rest()); $('slides').querySelectorAll('input').forEach((i) => i.onreset());
+  for (const [k, v] of Object.entries(scene.set)) {
+    const i = $('slides').querySelector(`input[data-key="${k}"]`); ctl[k] = v;
+    if (i.type === 'checkbox') i.checked = v > 0; else i.value = v;
+    i.onshow(v); if (CONTROLS.find((c) => c.key === k).group === 'instruments') ctl.inst = 1;
+  }
+  current = pose(ctl); if (T) paint(); tidy();
+}
 const anything = () => CONTROLS.some((c) => ctl[c.key] !== (c.home ?? 0)) || ctl.inst || shifted.size > 0;
 const tidy = () => { $('bback').hidden = !anything(); };
 $('slides').addEventListener('input', tidy);
@@ -349,7 +382,7 @@ $('bmove').onclick = () => { moving = !moving; $('bmove').setAttribute('aria-pre
 $('bdeep').onclick = () => { deep = !deep; $('bdeep').setAttribute('aria-pressed', String(deep)); };
 $('bback').onclick = () => {
   Object.assign(ctl, rest()); shifted.clear(); current = pose(ctl);
-  $('slides').querySelectorAll('input').forEach((i) => i.onreset());
+  $('slides').querySelectorAll('input').forEach((i) => i.onreset()); $('scene').value = 'cold';
   $('bback').hidden = true; if (T) paint();
 };
 systems.forEach((s) => {

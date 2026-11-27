@@ -128,14 +128,14 @@ export function pose(s) {
   for (const [key, id] of SWITCHES) hinge.set(id, s[key] * 15);
 
   // (The strengths are lower than the Phase 8 viewer's: it adds a bloom to its glow and this view does not, so the same numbers wash out.)
-  // Lamps light when their switch is up and the battery switch is up; the strobes are steady here. A spark plug glows at the
+  // Lamps light when their switch is up and the battery switch is up; the beacon and the strobes flash (see `isLit`). A spark plug glows at the
   // moment it fires, when the ignition is on and the engine is turned (a "hot prop": the magnetos need no battery).
-  const lit = (id, color, k) => glow.set(id, { color, k });
+  const lit = (id, color, k, flash) => glow.set(id, { color, k, flash });
   if (s.swBat > 0) {
-    if (s.swBeacon > 0) lit('ELECTRICAL.beacon', 0xff2020, 1.6);
+    if (s.swBeacon > 0) lit('ELECTRICAL.beacon', 0xff2020, 1.6, 'beacon');
     if (s.swNav > 0) { lit('WING_L.nav_light', 0xff2020, 0.8); lit('WING_R.nav_light', 0x20ff40, 0.8); lit('ELECTRICAL.tail_nav_light', 0xffffff, 0.8); }
     if (s.swLanding > 0) lit('ELECTRICAL.landing_light', 0xffffff, 2);
-    if (s.swStrobe > 0) { lit('WING_L.strobe', 0xffffff, 3); lit('WING_R.strobe', 0xffffff, 3); }
+    if (s.swStrobe > 0) { lit('WING_L.strobe', 0xffffff, 3, 'strobe'); lit('WING_R.strobe', 0xffffff, 3, 'strobe'); }
   }
   const mags = s.ignition === -1 ? ['R'] : s.ignition === 0 ? ['L'] : s.ignition > 0 ? ['L', 'R'] : [];
   for (const [id, cyl, mag] of PLUGS) if (mags.includes(mag) && K.sparkActive(deg, cyl)) lit(id, 0x66aaff, 1.6);
@@ -167,3 +167,29 @@ export const MOVING = new Set([...Object.values(pose(Object.fromEntries(CONTROLS
 
 /** The connecting rods turn about the z axis of the frame they hang in; every other turning part about its own hinge or spin axis. */
 export const ABOUT_PARENT_Z = (id) => /^ENGINE\.rod_\d$/.test(id);
+
+/** Whether a flashing lamp is lit at a moment (milliseconds): the patterns of the Phase 8 viewer's rig. A steady lamp is always lit. */
+export function isLit(flash, ms) {
+  if (flash === 'beacon') return Math.sin(ms / 90) > 0.3;
+  if (flash === 'strobe') return ms % 1400 < 60;
+  return true;
+}
+
+/**
+ * Scenes: the controls and instruments set together to a state worth looking at. They pose the aircraft; nothing is simulated
+ * between them. The values are typical and illustrative, not read from the POH. The `throttle`, `mixture` and other knob values
+ * are how far the knob is pulled out: a closed throttle is 1, full throttle 0, and a rich mixture 0.
+ */
+export const SCENES = [
+  { key: 'cold', en: 'Parked, as built', ar: 'متوقفة كما بُنيت', set: {} },
+  { key: 'start', en: 'Engine start: starter turning', ar: 'تشغيل المحرك: البادئ يدير المحرك',
+    set: { swBat: 1, swAlt: 1, mixture: 0, throttle: 0.9, primer: 0.4, ignition: 2, fuelSel: 1, crank: 90, tach: 200, oilP: 5, oilT: 60, ammeter: -30, fuelL: 12, fuelR: 12 } },
+  { key: 'runup', en: 'Run-up at 1700 rpm, magneto on Right', ar: 'فحص المحرك عند 1700 لفة، المغناطيس الأيمن',
+    set: { swBat: 1, swAlt: 1, swAvionics: 1, swBeacon: 1, mixture: 0, throttle: 0.55, ignition: -1, fuelSel: 1, crank: 700, tach: 1700, oilP: 60, oilT: 150, suction: 5, ammeter: 10, fuelL: 12, fuelR: 12, hdg: 90 } },
+  { key: 'takeoff', en: 'Takeoff roll: full power, flaps 10', ar: 'الإقلاع: قدرة كاملة، قلابات 10',
+    set: { swBat: 1, swAlt: 1, swAvionics: 1, swBeacon: 1, swNav: 1, swLanding: 1, swStrobe: 1, flaps: 10, mixture: 0, throttle: 0, ignition: 1, fuelSel: 1, elevator: 0.3, trim: 0.1, crank: 300, tach: 2300, oilP: 70, oilT: 180, suction: 5, ammeter: 8, asi: 55, vsi: 500, pitch: 8, hdg: 90, fuelL: 15, fuelR: 15 } },
+  { key: 'cruise', en: 'Cruise at 5,500 feet', ar: 'الطيران المستوي على ارتفاع 5500 قدم',
+    set: { swBat: 1, swAlt: 1, swAvionics: 1, swBeacon: 1, swNav: 1, swStrobe: 1, mixture: 0.2, throttle: 0.3, ignition: 1, fuelSel: 1, trim: 0.05, crank: 500, tach: 2400, oilP: 70, oilT: 190, suction: 5, ammeter: 6, asi: 110, alt: 5500, pitch: 2, hdg: 90, fuelL: 11, fuelR: 10 } },
+  { key: 'landing', en: 'Final approach: flaps 40, landing light on', ar: 'الاقتراب النهائي: قلابات 40، ضوء الهبوط مضاء',
+    set: { swBat: 1, swAlt: 1, swAvionics: 1, swBeacon: 1, swNav: 1, swLanding: 1, swStrobe: 1, flaps: 40, mixture: 0, throttle: 0.8, ignition: 1, fuelSel: 1, elevator: 0.2, trim: -0.2, crank: 100, tach: 1500, oilP: 60, oilT: 180, suction: 5, ammeter: 5, asi: 65, alt: 800, vsi: -500, pitch: -3, bank: 5, hdg: 270, fuelL: 5, fuelR: 5 } },
+];

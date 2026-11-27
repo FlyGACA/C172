@@ -95,3 +95,6 @@ body.page > main { flex: 1; }
 .parts-switch .parts-slide-name { grid-column: 2; grid-row: 1; }
 .parts-switch input { grid-column: 1; grid-row: 1; inline-size: 1.25rem; block-size: 1.25rem; }
 .parts-switch output { grid-column: 3; grid-row: 1; }
+.parts-scene { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--ufuq-space-2); align-items: center; }
+.parts-scene .parts-slide-name { grid-column: auto; }
+.parts-scene-note { grid-column: 1 / -1; margin: 0; color: var(--ufuq-text-dim); font-size: var(--ufuq-fs-xs); }

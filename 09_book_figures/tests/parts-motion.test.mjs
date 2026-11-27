@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, PLUGS, SWITCHES, pose, rest, setScales } from '../parts/motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, PLUGS, SCENES, SWITCHES, isLit, pose, rest, setScales } from '../parts/motions.js';
 
 const path = (relative) => fileURLToPath(new URL(relative, import.meta.url));
 const nodes = new Map();   // id -> the node's extras
@@ -104,4 +104,30 @@ test('the lamps light when their switch and the battery switch are up, and a plu
   assert.equal([...Array(72).keys()].flatMap((i) => fired(-2, i * 10)).length, 0, 'a plug fired with the ignition off');
   assert.ok([...Array(72).keys()].some((i) => fired(1, i * 10).length > 0), 'no plug fires in a whole cycle');
   assert.ok([...Array(72).keys()].every((i) => fired(-1, i * 10).every((id) => PLUGS.find((p) => p[0] === id)[2] === 'R')), 'on the right magneto only its plugs fire');
+});
+
+test('the beacon and strobes flash as the Phase 8 viewer does, and every other lamp is steady', () => {
+  const lit = (flash) => [...Array(1400).keys()].filter((ms) => isLit(flash, ms)).length;
+  const beacon = lit('beacon'), strobe = lit('strobe');
+  assert.ok(beacon > 300 && beacon < 1100, `the beacon is lit ${beacon} of 1400 ms`);
+  assert.equal(strobe, 60, 'a strobe flash lasts 60 ms in each 1400');
+  assert.equal(lit(undefined), 1400);
+  const g = pose({ ...rest(), swBat: 1, swBeacon: 1, swNav: 1, swStrobe: 1 }).glow;
+  assert.equal(g.get('ELECTRICAL.beacon').flash, 'beacon'); assert.equal(g.get('WING_L.strobe').flash, 'strobe'); assert.equal(g.get('WING_L.nav_light').flash, undefined);
+});
+
+test('every scene names real controls, inside their ranges, in both languages; the first is the aircraft as built', () => {
+  assert.equal(new Set(SCENES.map((c) => c.key)).size, SCENES.length);
+  assert.deepEqual(SCENES[0].set, {});
+  const by = new Map(CONTROLS.map((c) => [c.key, c]));
+  for (const sc of SCENES) {
+    assert.ok(sc.en && sc.ar, sc.key);
+    for (const [k, v] of Object.entries(sc.set)) { const c = by.get(k); assert.ok(c, `${sc.key}: no control ${k}`); assert.ok(v >= c.min && v <= c.max, `${sc.key}: ${k}=${v} outside ${c.min}..${c.max}`); if (c.step >= 1 || c.names || c.toggle) assert.ok(Number.isInteger(v), `${sc.key}: ${k}=${v} is not a step`); }
+  }
+  // a scene that sets any instrument puts the needles at their readings
+  const run = SCENES.find((c) => c.key === 'runup'), p = pose({ ...rest(), ...run.set, inst: 1 });
+  assert.ok(p.spin.get('PANEL.TACH.needle_TACH') !== 0, 'the run-up shows 1700 rpm');
+  assert.ok([...p.glow.keys()].some((id) => id.startsWith('ENGINE.plug')), 'in the run-up scene a plug is firing');
+  const takeoff = pose({ ...rest(), ...SCENES.find((c) => c.key === 'takeoff').set }).glow;
+  assert.ok(takeoff.has('ELECTRICAL.landing_light') && takeoff.has('WING_L.strobe'), 'the takeoff scene has its lights on');
 });
