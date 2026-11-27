@@ -118,3 +118,13 @@ test('the page has the quiz, the offline controls and the trainer, and every but
   for (const b of page.match(/<button[\s\S]*?<\/button>/g)) assert.ok(b.includes('ufuq-en') && b.includes('ufuq-ar'), `not bilingual: ${b.slice(0, 70)}`);
   assert.ok(readFileSync(path('../parts/parts.js'), 'utf8').includes("'trainer'"), 'the trainer tab is missing');
 });
+
+test('the setting menu offers the airfield, the hangar and plain white, and the sky it uses is the viewer’s own file', () => {
+  const page = readFileSync(path('../parts/index.html'), 'utf8'), code = readFileSync(path('../parts/parts.js'), 'utf8');
+  for (const v of ['airfield', 'hangar', 'plain']) assert.match(page, new RegExp(`<option value="${v}">`));
+  assert.match(page, /id="setting"/);
+  assert.ok(existsSync(path('../../08_realistic_digital_twin/js/sky.js')));
+  for (const name of ['createSky', 'apronTextures', 'standMarkings', 'HAZE']) assert.match(readFileSync(path('../../08_realistic_digital_twin/js/sky.js'), 'utf8'), new RegExp(`export (function|const) ${name}\\b`));
+  assert.ok(code.includes("catch(() => null)") || code.includes('catch(() => null)'), 'a sky that cannot be loaded must not stop the 3D view');
+  assert.ok(readFileSync(path('../parts/offline.js'), 'utf8').includes('sky.js'), 'the offline copy must include the sky');
+});

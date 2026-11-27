@@ -89,7 +89,7 @@ function open(n) {
 function show() {
   const p = shown[cur], is3d = view === '3d';
   document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
-  $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = $('moves3d').hidden = !is3d;
+  $('d-3d').hidden = !is3d; $('around').hidden = $('bfit').hidden = $('moves3d').hidden = $('setting').hidden = !is3d; $('setting').value = settingFor();
   if (!is3d) { $('bsolid').hidden = $('hide').hidden = $('pull').hidden = $('slides').hidden = true; $('dlg').classList.remove('is-wide'); }
   tile($('d-pic'), view === 'place' ? D.place : D.large, p.i);
   $('d-full').href = `full/${view === 'place' ? 'place' : 'alone'}/${p.k}.png`; $('d-full').hidden = is3d;
@@ -154,6 +154,7 @@ function setup() {
     const [{ GLTFLoader }, { OrbitControls }, { RoomEnvironment }] = await Promise.all([import('three/addons/loaders/GLTFLoader.js'), import('three/addons/controls/OrbitControls.js'), import('three/addons/environments/RoomEnvironment.js')]);
     const canvas = $('d-3d'), renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     const scene = new THREE.Scene(); scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
     const camera = new THREE.PerspectiveCamera(24, 1.6, 0.01, 100), sun = new THREE.DirectionalLight(0xffffff, 1.2);
     camera.add(sun); sun.position.set(1, 2, 1); scene.add(camera);
@@ -169,7 +170,7 @@ function setup() {
     };
     const draw = () => requestAnimationFrame(frame);
     controls.addEventListener('change', draw); new ResizeObserver(draw).observe(canvas);
-    T = { THREE, GLTFLoader, scene, camera, controls, faint, marked, draw, roots: new Map(), ray: new THREE.Raycaster() };
+    T = { THREE, GLTFLoader, scene, camera, controls, faint, marked, draw, renderer, headlight: sun, roomEnv: scene.environment, shown: 'plain', roots: new Map(), ray: new THREE.Raycaster() };
     // A click that is not a drag chooses the part under it.
     let down = null;
     canvas.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
@@ -216,6 +217,7 @@ function model(system) {
     };
     const joints = new Map(); gltf.scene.traverse((o) => { if (o.userData.id && MOVING.has(o.userData.id)) joints.set(o, joint(o)); });
     for (const m of meshes) { m.userData.joints = []; m.userData.lamp = null; for (let a = m; a; a = a.parent) { if (joints.has(a)) m.userData.joints.push(joints.get(a)); if (!m.userData.lamp && GLOWING.has(a.userData.id)) m.userData.lamp = a.userData.id; } }
+    for (const m of meshes) { m.castShadow = true; m.receiveShadow = true; }
     for (const m of meshes) { let a = m, id = null; while (a && !id) { id = ids[a.name] || null; a = a.parent; } m.userData.part = id; m.userData.material = m.material; m.visible = false; }
     const root = new THREE.Group(); for (const m of meshes) root.attach(m);
     root.updateMatrixWorld(true);
@@ -235,10 +237,10 @@ function fit(all) {
   const { THREE, camera, controls } = T, box = new THREE.Box3();
   for (const [system, m] of meshes()) if (all ? m.visible && system !== 'GROUND_EQUIPMENT' : m.userData.chosen) box.expandByObject(m);
   if (box.isEmpty()) return;
-  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all && scope === 'aircraft' ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(22);
+  const s = box.getBoundingSphere(new THREE.Sphere()), R = Math.max(s.radius, 1e-4), d = (R / Math.sin(THREE.MathUtils.degToRad(12))) * (all && scope === 'aircraft' ? 0.6 : 1.08), az = THREE.MathUtils.degToRad(35), el = THREE.MathUtils.degToRad(T.shown === 'airfield' ? 5 : 22);   // on the airfield the camera sits low enough to show the horizon and the sky
   controls.target.copy(s.center); camera.position.set(s.center.x + d * Math.cos(el) * Math.sin(az), s.center.y + d * Math.sin(el), s.center.z + d * Math.cos(el) * Math.cos(az));
   camera.near = all ? 0.02 : Math.max(R / 200, 1e-4); camera.far = d + R * 400 + 50; camera.updateProjectionMatrix();
-  controls.minDistance = all ? 0.05 : R * 0.3; controls.maxDistance = d * 30 + 20; controls.update(); T.draw();
+  controls.minDistance = all ? 0.05 : R * 0.3; controls.maxDistance = d * 30 + 20; if (T.shown === 'hangar') controls.maxDistance = Math.min(controls.maxDistance, 24); controls.update(); T.draw();
 }
 /** Moves a mesh as the controls say, about each hinge or axis it hangs from, the nearest first. */
 let current = pose(ctl);
@@ -288,6 +290,7 @@ function paint() {
     m.material = chosen ? (solid && !quiet ? T.marked : m.userData.material) : solid ? m.userData.material : T.faint;
     const g = m.userData.lamp && current.glow.get(m.userData.lamp);
     if (g && m.material !== T.faint) m.material = lit(m, g);
+    m.castShadow = m.material !== T.faint;   // a part drawn as a faint ghost throws no shadow
     m.renderOrder = chosen || solid ? 0 : 1;
   }
   T.draw(); startFlash();
@@ -300,12 +303,59 @@ function choose() {
 const HINT = ['Drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
 const DRAG = ['Drag a part to move it · drag empty space to turn the view', 'اسحب قطعة لتحريكها · اسحب في الفراغ لتدوير العرض'];
 const HINT_ALL = ['Click a part to choose it · drag to turn · scroll or pinch to zoom · right-drag or two fingers to move', 'انقر على قطعة لاختيارها · اسحب للتدوير · مرّر أو قرّب بإصبعين للتكبير · اسحب بالزر الأيمن أو بإصبعين للتحريك'];
+// The setting: the aircraft stands on the apron of an airfield under the sky, or on the floor of a hangar, or on plain white. The
+// sky and the apron are the Phase 8 viewer's own, painted by the program (08_realistic_digital_twin/js/sky.js). By default the whole
+// aircraft stands on the airfield and a single part or system has the plain white; the reader can choose.
+let setting = 'airfield', chosenSetting = false, settingTurn = 0;
+const settingFor = () => (chosenSetting ? setting : scope === 'aircraft' ? 'airfield' : 'plain');
+async function backdrop() {
+  const want = settingFor(); if (!T || T.shown === want) return;
+  const mine = ++settingTurn, { THREE, scene, controls } = T;
+  // If the sky cannot be loaded (offline without it saved), the plain white stays and nothing else is lost.
+  const sky = want === 'plain' ? null : await import('../../08_realistic_digital_twin/js/sky.js').catch(() => null);
+  if (mine !== settingTurn) return;
+  if (want !== 'plain' && !sky) { $('setting').value = T.shown; return; }
+  if (T.back) { scene.remove(T.back); T.back.traverse((o) => { o.geometry?.dispose(); }); T.back = null; }
+  T.shown = want; scene.fog = null; controls.maxPolarAngle = Math.PI; T.headlight.intensity = 1.2; scene.environment = T.roomEnv;
+  if (want === 'plain') { T.draw(); return; }
+  const back = new THREE.Group(); back.name = '_setting';
+  const nothing = () => {}; const solid = (o) => { o.raycast = nothing; o.receiveShadow = true; return o; };
+  if (want === 'airfield') {
+    const el = THREE.MathUtils.degToRad(42), az = THREE.MathUtils.degToRad(35), sunDir = new THREE.Vector3(Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az));
+    const dome = sky.createSky(sunDir); back.add(dome);
+    const t = sky.apronTextures(1024, 4); for (const k of ['map', 'roughnessMap', 'normalMap']) t[k].repeat.set(1200 / 20, 1200 / 20);
+    const apron = solid(new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), new THREE.MeshStandardMaterial({ ...t, roughness: 1, metalness: 0 }))); apron.rotation.x = -Math.PI / 2; back.add(apron);
+    back.add(sky.standMarkings());
+    const sun = new THREE.DirectionalLight(0xfff0d8, 3.2); sun.position.copy(sunDir).multiplyScalar(30); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 5, far: 80 }); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02; sun.shadow.radius = 2.5;
+    back.add(sun, sun.target, new THREE.HemisphereLight(0xcfe2ff, 0x8c8477, 0.5));
+    if (!T.skyEnv) { const pm = new THREE.PMREMGenerator(T.renderer), box = new THREE.Scene(), d = sky.createSky(sunDir); d.scale.setScalar(50); box.add(d); T.skyEnv = pm.fromScene(box, 0, 0.1, 100).texture; pm.dispose(); }
+    scene.environment = T.skyEnv; scene.fog = new THREE.Fog(sky.HAZE, 150, 800); controls.maxPolarAngle = Math.PI * 0.495; T.headlight.intensity = 0.15;
+  } else {
+    // a hangar: concrete floor, corrugated walls and roof, rows of lights overhead
+    const W = 36, L = 56, H = 11, stripes = document.createElement('canvas'); stripes.width = 256; stripes.height = 16;
+    { const g = stripes.getContext('2d'); g.fillStyle = '#c9ced4'; g.fillRect(0, 0, 256, 16); for (let x = 0; x < 256; x += 16) { g.fillStyle = 'rgba(0,0,0,.14)'; g.fillRect(x + 8, 0, 8, 16); } }
+    const wall = new THREE.CanvasTexture(stripes); wall.wrapS = wall.wrapT = THREE.RepeatWrapping; wall.colorSpace = THREE.SRGBColorSpace; wall.repeat.set(20, 1);
+    const wallMat = new THREE.MeshStandardMaterial({ map: wall, roughness: 0.85, metalness: 0.1, side: THREE.DoubleSide });
+    const floor = solid(new THREE.Mesh(new THREE.PlaneGeometry(W, L), new THREE.MeshStandardMaterial({ color: 0x6f757b, roughness: 0.5, metalness: 0 }))); floor.rotation.x = -Math.PI / 2; back.add(floor, sky.standMarkings());
+    const plane = (w, h, x, y, z, rx, ry, mat) => { const m = solid(new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat)); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); back.add(m); return m; };
+    plane(L, H, -W / 2, H / 2, 0, 0, Math.PI / 2, wallMat); plane(L, H, W / 2, H / 2, 0, 0, -Math.PI / 2, wallMat);
+    plane(W, H, 0, H / 2, -L / 2, 0, 0, wallMat); plane(W, H, 0, H / 2, L / 2, 0, Math.PI, wallMat);
+    plane(W, L, 0, H, 0, Math.PI / 2, 0, new THREE.MeshStandardMaterial({ color: 0x8d949c, roughness: 0.9, side: THREE.DoubleSide }));
+    const lamp = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false });
+    for (const x of [-9, 0, 9]) for (const z of [-16, -5, 6, 17]) plane(5, 0.5, x, H - 0.05, z, Math.PI / 2, 0, lamp);
+    for (const [x, z, shadow] of [[-6, -6, true], [7, 8, false]]) { const sp = new THREE.SpotLight(0xffffff, 700, 0, 0.95, 0.6, 2); sp.position.set(x, H - 0.5, z); sp.target.position.set(0, 0, 0); sp.castShadow = shadow; sp.shadow.mapSize.set(1024, 1024); sp.shadow.bias = -0.0005; back.add(sp, sp.target); }
+    back.add(new THREE.HemisphereLight(0xeef2f7, 0x5a5e62, 0.5));
+    controls.maxDistance = Math.min(controls.maxDistance, 24); T.headlight.intensity = 0.3;
+  }
+  T.back = back; scene.add(back); T.draw();
+}
 async function show3d(keep) {
   const mine = ++turn, p = shown[cur], whole = scope === 'aircraft';
   $('dlg').classList.toggle('is-wide', whole); $('bsolid').hidden = $('pull').hidden = scope === 'part'; $('hide').hidden = !whole;
   message('Loading the 3D model…', 'جارٍ تحميل النموذج ثلاثي الأبعاد…');
   try {
-    await setup(); await model(p.s); if (mine !== turn) return;
+    await setup(); await model(p.s); await backdrop(); if (mine !== turn) return;
     if (!choose()) { paint(); message('This part has no 3D model. Choose another view to see its picture.', 'لا يوجد نموذج ثلاثي الأبعاد لهذه القطعة. اختر عرضًا آخر لرؤية صورتها.'); return; }
     paint(); if (!keep) fit(false);
     if (!whole) { message(...(scope === 'system' ? HINT_ALL : HINT)); return; }
@@ -339,6 +389,7 @@ function pick(event) {
   open(shown.indexOf(p));
 }
 document.querySelectorAll('[data-scope]').forEach((b) => { b.onclick = () => { scope = b.dataset.scope; document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); if (view === '3d') show3d(); sync(); }; });
+$('setting').onchange = () => { chosenSetting = true; setting = $('setting').value; if (T) backdrop(); };
 $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pressed', String(solid)); if (T) paint(); };
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };

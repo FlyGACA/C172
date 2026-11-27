@@ -27,7 +27,7 @@ export async function status() {
  */
 export async function save(D, onProgress = () => {}, signal) {
   // The code the page loads when the 3D view opens is part of the copy, so open it once if it has not been.
-  await Promise.all([import('three'), import('three/addons/loaders/GLTFLoader.js'), import('three/addons/controls/OrbitControls.js'), import('three/addons/environments/RoomEnvironment.js')]).catch(() => {});
+  await Promise.all([import('three'), import('three/addons/loaders/GLTFLoader.js'), import('three/addons/controls/OrbitControls.js'), import('three/addons/environments/RoomEnvironment.js'), import('../../08_realistic_digital_twin/js/sky.js')]).catch(() => {});
   const here = location.href.split(/[?#]/)[0], base = new URL('.', location.href).href;
   const seen = performance.getEntriesByType('resource').map((e) => e.name).filter((u) => u.startsWith(location.origin) && !u.includes('/cdn-cgi/'));
   const urls = [...new Set([here, base, ...seen.map((u) => u.split('#')[0]), ...packList(D).map((f) => new URL(f, base).href)])];

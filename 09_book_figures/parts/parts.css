@@ -139,3 +139,4 @@ body.page > main { flex: 1; }
   .parts-dlg.is-wide.has-slides .parts-big { block-size: 40dvh; }
 }
 .parts-quiz .parts-big { inline-size: min(100%, calc(32dvh * 1.6)); margin-inline: auto; }
+.parts-setting { inline-size: auto; min-inline-size: 9rem; }
