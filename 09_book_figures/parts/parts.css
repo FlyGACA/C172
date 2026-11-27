@@ -114,3 +114,28 @@ body.page > main { flex: 1; }
   .parts-dlg.is-wide.has-slides .parts-big { block-size: 34dvh; }
   .parts-dlg.has-slides .parts-ctl { max-block-size: 48dvh; }
 }
+/* The quiz, the trainer and the offline copy. A right or wrong answer is marked with a sign and a border, never by colour alone. */
+.parts-quiz { inline-size: min(44rem, calc(100vw - 1.5rem)); }
+.parts-ask { margin: 0; font-size: var(--ufuq-fs-lg); font-weight: var(--ufuq-fw-medium); }
+.parts-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr)); gap: var(--ufuq-space-2); }
+.parts-opts[data-mode='picture'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.parts-opt { position: relative; display: flex; flex-direction: column; gap: var(--ufuq-space-1); min-block-size: 3rem; padding: var(--ufuq-space-2) var(--ufuq-space-3); background: var(--ufuq-surface); border: 2px solid var(--ufuq-border-strong); border-radius: var(--ufuq-radius-sm); color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.parts-opt:hover:not(:disabled) { border-color: var(--ufuq-brand); }
+.parts-opt:focus-visible { outline: var(--ufuq-focus-ring-width) solid var(--ufuq-focus); outline-offset: var(--ufuq-focus-ring-offset); }
+.parts-opt:disabled { cursor: default; color: inherit; }
+.parts-opts[data-mode='picture'] .parts-opt { padding: var(--ufuq-space-1); }
+.parts-opt.is-right { border-color: var(--ufuq-sage); border-width: 4px; }
+.parts-opt.is-wrong { border-color: var(--ufuq-clay); border-style: dashed; border-width: 4px; }
+.parts-opt.is-right::after, .parts-opt.is-wrong::after { position: absolute; inset-block-start: var(--ufuq-space-1); inset-inline-end: var(--ufuq-space-2); padding-inline: var(--ufuq-space-2); background: var(--ufuq-surface); border-radius: var(--ufuq-radius-pill); font-weight: var(--ufuq-fw-medium); }
+.parts-opt.is-right::after { content: '✓'; }
+.parts-opt.is-wrong::after { content: '✗'; }
+.parts-fb { margin: 0; min-block-size: 1.5em; }
+.parts-again { display: grid; gap: var(--ufuq-space-1); margin: 0; padding: 0; list-style: none; }
+.parts-slot { grid-column: 1 / -1; }
+.parts-off { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ufuq-space-2); margin: var(--ufuq-space-2) 0 0; }
+/* More room for the controls on a wide screen, and a smaller picture in the quiz so that its answers are on screen with it. */
+@media (min-width: 40.01rem) {
+  .parts-dlg.has-slides .parts-ctl { max-block-size: 40dvh; }
+  .parts-dlg.is-wide.has-slides .parts-big { block-size: 40dvh; }
+}
+.parts-quiz .parts-big { inline-size: min(100%, calc(32dvh * 1.6)); margin-inline: auto; }

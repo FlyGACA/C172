@@ -14,6 +14,7 @@ export const GROUPS = {
   levers: { en: 'Levers and knobs', ar: 'الأذرع والمقابض' },
   switches: { en: 'Switches', ar: 'المفاتيح' },
   instruments: { en: 'Instruments', ar: 'العدادات' },
+  trainer: { en: 'Trainer', ar: 'المدرّب' },
 };
 
 /** The panel switches: control key, part, English and Arabic names. A switch is up (+15 degrees) or down (-15 degrees). */

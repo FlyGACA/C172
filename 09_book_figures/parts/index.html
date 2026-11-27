@@ -38,7 +38,13 @@
     <p class="ufuq-eyebrow"><span class="ufuq-en">Fly GACA · Cessna 172N, 1979</span><span class="ufuq-ar" lang="ar">فلاي قاكا · سيسنا 172N، موديل 1979</span></p>
     <h1><span class="ufuq-en">Parts catalogue</span><span class="ufuq-ar" lang="ar">فهرس القطع</span></h1>
     <p class="parts-lead"><span class="ufuq-en">Every part of the model, drawn on its own, shown in its place in the aircraft, and in 3D to turn and zoom. Search by name in English or Arabic, or narrow by system and by how well the part is sourced.</span><span class="ufuq-ar" lang="ar">كل قطعة في النموذج: مرسومة وحدها، وفي مكانها من الطائرة، وبعرض ثلاثي الأبعاد يمكن تدويره وتقريبه. ابحث بالاسم بالعربية أو الإنجليزية، أو اختر النظام ودرجة توثيق القطعة.</span></p>
-    <p class="parts-actions"><button type="button" class="ufuq-btn ufuq-btn--primary" id="explore"><span class="ufuq-en">Explore the whole aircraft in 3D</span><span class="ufuq-ar" lang="ar">استكشف الطائرة كاملة بعرض ثلاثي الأبعاد</span></button></p>
+    <p class="parts-actions"><button type="button" class="ufuq-btn ufuq-btn--primary" id="explore"><span class="ufuq-en">Explore the whole aircraft in 3D</span><span class="ufuq-ar" lang="ar">استكشف الطائرة كاملة بعرض ثلاثي الأبعاد</span></button>
+      <button type="button" class="ufuq-btn ufuq-btn--secondary" id="bquiz"><span class="ufuq-en">Quiz: name the parts</span><span class="ufuq-ar" lang="ar">اختبار: سمِّ القطع</span></button></p>
+    <p class="parts-off" id="off" hidden>
+      <button type="button" class="ufuq-btn ufuq-btn--quiet" id="boff"><span class="ufuq-en">Save for offline use</span><span class="ufuq-ar" lang="ar">احفظ للاستخدام دون اتصال</span></button>
+      <button type="button" class="ufuq-btn ufuq-btn--quiet" id="boffx" hidden><span class="ufuq-en">Remove the offline copy</span><span class="ufuq-ar" lang="ar">احذف النسخة المحفوظة</span></button>
+      <span id="off-msg" class="parts-note" role="status"></span>
+    </p>
   </div>
   <div class="parts-bar" id="bar">
     <div class="parts-row">
@@ -69,6 +75,34 @@
   <p lang="en" dir="ltr">Not affiliated with GACA. Always verify against the latest official GACA publication.</p>
   <p lang="ar" dir="rtl">غير تابعة لـ GACA. تحقّق دائمًا من أحدث منشور رسمي صادر عن GACA.</p>
 </footer>
+<dialog id="qdlg" class="parts-dlg parts-quiz" aria-labelledby="q-title">
+  <div class="parts-info">
+    <h3 id="q-title"><span class="ufuq-en">Quiz: name the parts</span><span class="ufuq-ar" lang="ar">اختبار: سمِّ القطع</span></h3>
+    <div id="q-setup" class="parts-tools">
+      <select id="q-mode" class="ufuq-input" aria-label="Kind of question · نوع السؤال">
+        <option value="name">Picture → name · صورة ← اسم</option><option value="picture">Name → picture · اسم ← صورة</option><option value="mixed">Both · الاثنان</option>
+      </select>
+      <select id="q-sys" class="ufuq-input" aria-label="System · النظام"></select>
+      <button type="button" class="ufuq-btn ufuq-btn--primary" id="q-start"><span class="ufuq-en">Start: 10 questions</span><span class="ufuq-ar" lang="ar">ابدأ: ١٠ أسئلة</span></button>
+    </div>
+    <div id="q-play" hidden>
+      <p id="q-prog" class="parts-note"></p>
+      <p id="q-ask" class="parts-ask"></p>
+      <div id="q-pic" class="parts-big" role="img" aria-label="The part · القطعة" hidden></div>
+      <div id="q-opts" class="parts-opts"></div>
+      <p id="q-fb" class="parts-fb" role="status"></p>
+    </div>
+    <div id="q-end" hidden>
+      <p id="q-score" class="parts-ask"></p>
+      <ul id="q-again" class="parts-again"></ul>
+    </div>
+  </div>
+  <div class="parts-nav">
+    <span><button type="button" class="ufuq-btn ufuq-btn--primary" id="q-next" hidden><span class="ufuq-en">Next</span><span class="ufuq-ar" lang="ar">التالي</span></button>
+    <button type="button" class="ufuq-btn ufuq-btn--quiet" id="q-again-btn" hidden><span class="ufuq-en">Another round</span><span class="ufuq-ar" lang="ar">جولة أخرى</span></button></span>
+    <button type="button" class="ufuq-btn ufuq-btn--secondary" id="q-close"><span class="ufuq-en">Close</span><span class="ufuq-ar" lang="ar">إغلاق</span></button>
+  </div>
+</dialog>
 <dialog id="dlg" class="parts-dlg" aria-labelledby="d-en">
   <div class="parts-big" id="d-pic"><canvas id="d-3d" hidden></canvas><p id="d-msg" class="parts-msg" hidden></p></div>
   <div class="parts-ctl">

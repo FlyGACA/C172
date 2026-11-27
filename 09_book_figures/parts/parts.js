@@ -5,6 +5,9 @@
 import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList, parsePose, posePairs } from './link.js';
 import { ORDER, SOURCE_NAMES, systemName } from './names.js';
 import { haystack, matches, words } from './search.js';
+import { CHALLENGES, effectOf, judge, nextChallenge } from './trainer.js';
+import { ROUND, makeRound, summarize } from './quiz.js';
+import * as offline from './offline.js';
 import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, SCENES, STROKE_NAMES, isLit, pose, rest, setScales, strokes } from './motions.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -341,7 +344,7 @@ $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'syste
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
 // Moving it like the real aircraft: a tab for the scenes and one for each group of controls, a slider (or a box for a
 // switch) for each control, and a play button for the engine. Each control moves every part it moves in the aircraft.
-const PANELS = ['scene', ...new Set(CONTROLS.map((c) => c.group))], panels = {};
+const PANELS = ['scene', ...new Set(CONTROLS.map((c) => c.group)), 'trainer'], panels = {}, rows = {};
 let tab = 'flight', playing = false, lastTick = 0, playFrame = 0;
 {
   const tabs = el('div', 'ufuq-tabs parts-gtabs'); tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Controls · أدوات التحكم');
@@ -352,7 +355,7 @@ let tab = 'flight', playing = false, lastTick = 0, playFrame = 0;
   $('slides').append(tabs, ...PANELS.map((g) => panels[g]));
 }
 function showTab(g) {
-  tab = g;
+  tab = g; if (g === 'trainer') trainerOpen(); else trainerRelease();
   for (const b of $('slides').querySelectorAll('.parts-gtabs button')) b.setAttribute('aria-pressed', String(b.dataset.group === g));
   for (const k of PANELS) panels[k].hidden = k !== g;
 }
@@ -385,13 +388,53 @@ for (const c of CONTROLS) {
     input.oninput = () => { ctl[c.key] = Number(input.value); if (c.group === 'instruments') ctl.inst = 1; changed(); };
     input.onreset = () => { input.value = home; ctl[c.key] = home; readout(home); };
   }
-  readout(home); row.append(name, input, shown); panels[c.group].append(row);
+  readout(home); row.append(name, input, shown); panels[c.group].append(row); rows[c.key] = row;
   if (c.key === 'crank') {
     // Run the engine: the crank turns by itself at the speed chosen, and each cylinder's stroke is named as it goes.
     const play = el('div', 'parts-play'), bp = el('button', 'ufuq-btn ufuq-btn--quiet'), rate = el('label', 'parts-slide'), rn = el('span', 'parts-slide-name'), rin = el('input'), rout = el('output');
     bp.type = 'button'; bp.id = 'bplay'; bp.setAttribute('aria-pressed', 'false'); bp.append(both('Run the engine', 'شغّل المحرك')); bp.onclick = () => setPlaying(!playing);
     rn.append(both('Speed (turns of the crank per minute)', 'السرعة (دورات عمود المرفق في الدقيقة)')); rin.type = 'range'; rin.id = 'rpm'; rin.min = 2; rin.max = 300; rin.step = 1; rin.value = 20; rout.textContent = '20';
     rin.oninput = () => { rout.textContent = rin.value; }; rate.append(rn, rin, rout); play.append(bp, rate); panels.engine.append(play, strokesEl);
+  }
+}
+// The control-effect trainer: a challenge names an effect ("raise the nose"), the control that causes it moves into the panel,
+// and the reader sets it and checks. What the reader's setting does is told whether it is right or not.
+const trainer = { asked: [], now: null, tries: 0, right: 0, total: 0, held: null };
+{
+  const ask = el('p', 'parts-ask'), slot = el('div', 'parts-slot'), fb = el('p', 'parts-fb'), note = el('p', 'parts-note'), row = el('div', 'parts-play');
+  ask.id = 't-ask'; slot.id = 't-slot'; fb.id = 't-fb'; fb.setAttribute('role', 'status'); note.id = 't-score';
+  const check = el('button', 'ufuq-btn ufuq-btn--primary'), next = el('button', 'ufuq-btn ufuq-btn--quiet');
+  check.type = next.type = 'button'; check.id = 't-check'; next.id = 't-next'; check.append(both('Check', 'تحقّق')); next.append(both('Next challenge', 'التحدي التالي')); next.hidden = true;
+  check.onclick = trainerCheck; next.onclick = () => trainerNext();
+  row.append(check, next); panels.trainer.append(ask, slot, row, fb, note);
+}
+function trainerHold(key) { const row = rows[key], mark = document.createComment('control'); row.replaceWith(mark); $('t-slot').append(row); trainer.held = { row, mark }; }
+function trainerRelease() { if (trainer.held) { trainer.held.mark.replaceWith(trainer.held.row); trainer.held = null; } }
+function trainerOpen() { if (trainer.now) { trainerHold(trainer.now.key); } else trainerNext(); }
+function trainerScore() { $('t-score').replaceChildren(both(`Right first time: ${trainer.right} of ${trainer.total}`, `صحيح من أول مرة: ${trainer.right} من ${trainer.total}`)); }
+function trainerNext() {
+  trainerRelease();
+  if (trainer.now) { const i = $('slides').querySelector(`input[data-key="${trainer.now.key}"]`); i.onreset(); current = pose(ctl); if (T) paint(); tidy(); sync(); }   // the last control goes back to centre
+  const c = nextChallenge(trainer.asked); trainer.now = c; trainer.asked.push(c.id); trainer.tries = 0; trainerHold(c.key);
+  $('t-ask').replaceChildren(both(`Challenge: ${c.en}`, `التحدي: ${c.ar}`)); $('t-fb').replaceChildren(); $('t-next').hidden = true; $('t-check').hidden = false; trainerScore();
+}
+/** The names of the parts that a control moves, from the catalogue. */
+function movedNames(key, value) {
+  const p = pose({ ...rest(), [key]: value }), ids = new Set();
+  for (const m of [p.hinge, p.spin, p.move]) for (const [id, v] of m) if ([].concat(v).some((x) => Math.abs(x) > 1e-9)) ids.add(id);
+  return [...ids].map((id) => entry.get(id)).filter(Boolean).slice(0, 6);
+}
+function trainerCheck() {
+  const c = trainer.now, v = ctl[c.key], j = judge(c, v), fb = $('t-fb'); trainer.tries += 1;
+  const line = (t) => both(t.en, t.ar);
+  if (j.ok) {
+    if (trainer.tries === 1) trainer.right += 1; trainer.total += 1;
+    const names = movedNames(c.key, v), moved = el('span');
+    names.forEach((p, i) => { if (i) moved.append(', '); moved.append(both(p.en, p.ar)); });
+    fb.replaceChildren(both('Right. ', 'صحيح. '), line(j.now), document.createElement('br'), both('Moved: ', 'تحرّك: '), moved);
+    $('t-next').hidden = false; $('t-check').hidden = true; $('t-next').focus(); trainerScore();
+  } else {
+    fb.replaceChildren(both('Not quite. ', 'ليس تمامًا. '), j.now ? both('Your setting: ', 'إعدادك: ') : both('The control is centred, so nothing moves. ', 'أداة التحكم في الوسط فلا شيء يتحرك. '), ...(j.now ? [line(j.now)] : []), both(' Try the other way.', ' جرّب الاتجاه الآخر.'));
   }
 }
 /** Sets the crank angle (0 to 720 degrees) as if the slider had been moved. */
@@ -462,6 +505,84 @@ $('explore').onclick = () => {
   document.querySelectorAll('[data-scope]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.scope === 'aircraft')));
   open(Math.max(0, shown.findIndex((p) => p.id === 'AIRFRAME.fuselage')));
 };
+
+// The naming quiz: a picture and four names, or a name and four pictures; ten questions, then the parts to look at again.
+{
+  const dlg = $('qdlg'); let round = [], at = 0, results = [], answered = false;
+  option($('q-sys'), '', 'All systems · كل الأنظمة'); for (const sys of systems) option($('q-sys'), sys, names(systemName(sys)));
+  const show = (id, on) => { $(id).hidden = !on; };
+  const setup = () => { show('q-setup', true); show('q-play', false); show('q-end', false); show('q-next', false); show('q-again-btn', false); };
+  function question() {
+    const q = round[at]; answered = false; show('q-next', false); $('q-fb').replaceChildren();
+    $('q-prog').replaceChildren(both(`Question ${at + 1} of ${round.length}`, `السؤال ${at + 1} من ${round.length}`));
+    const opts = $('q-opts'); opts.replaceChildren(); opts.dataset.mode = q.mode;
+    if (q.mode === 'name') { show('q-pic', true); tile($('q-pic'), D.large, q.answer.i); say($('q-ask'), 'What is this part?', 'ما هذه القطعة؟'); }
+    else {
+      show('q-pic', false); const a = el('span', 'parts-name', q.answer.en), r = el('span', 'parts-name parts-ar', q.answer.ar); a.lang = 'en'; a.dir = 'ltr'; r.lang = 'ar'; r.dir = 'rtl';
+      $('q-ask').replaceChildren(both('Which picture shows this part?', 'أي صورة تُظهر هذه القطعة؟'), document.createElement('br'), a, document.createElement('br'), r);
+    }
+    q.options.forEach((o, k) => {
+      const b = el('button', 'parts-opt'); b.type = 'button'; b.dataset.k = k;
+      if (q.mode === 'name') { const a = el('span', 'parts-name', o.en), r = el('span', 'parts-name parts-ar', o.ar); a.lang = 'en'; a.dir = 'ltr'; r.lang = 'ar'; r.dir = 'rtl'; b.append(`${k + 1}  `, a, r); }
+      else { const pic = el('div', 'parts-pic'); tile(pic, D.large, o.i); b.append(pic); b.setAttribute('aria-label', `Picture ${k + 1} · الصورة ${k + 1}`); }
+      b.onclick = () => choose(k); opts.append(b);
+    });
+  }
+  function choose(k) {
+    if (answered) return; answered = true;
+    const q = round[at], ok = k === q.correct, buttons = [...$('q-opts').children];
+    results.push({ ok, part: q.answer }); buttons.forEach((b) => { b.disabled = true; });
+    buttons[q.correct].classList.add('is-right'); if (!ok) buttons[k].classList.add('is-wrong');
+    const a = el('span', 'parts-name', q.answer.en), r = el('span', 'parts-name parts-ar', q.answer.ar); a.lang = 'en'; a.dir = 'ltr'; r.lang = 'ar'; r.dir = 'rtl';
+    $('q-fb').replaceChildren(ok ? both('Right! ', 'صحيح! ') : both('Not that one. It is: ', 'ليست هذه. إنها: '), a, ' · ', r, ' ', status(q.answer.st));
+    const last = at === round.length - 1; $('q-next').replaceChildren(last ? both('See the result', 'اعرض النتيجة') : both('Next', 'التالي')); show('q-next', true); $('q-next').focus();
+  }
+  function finish() {
+    const s = summarize(results); show('q-play', false); show('q-end', true); show('q-next', false); show('q-again-btn', true);
+    $('q-score').replaceChildren(both(`${s.right} of ${s.total} right`, `${s.right} صحيحة من ${s.total}`));
+    $('q-again').replaceChildren(...s.again.map((p) => {
+      const li = el('li'), b = el('button', 'ufuq-btn ufuq-btn--quiet'); b.type = 'button'; b.append(both(`${p.en}`, `${p.ar}`));
+      b.onclick = () => { dlg.close(); const q = entry.get(p.id); if (!shown.includes(q)) { setFilters({}); render(); } open(shown.indexOf(q)); }; li.append(b); return li;
+    }));
+    if (!s.again.length) $('q-again').replaceChildren(el('li', null, '★'));
+  }
+  $('q-start').onclick = () => {
+    round = makeRound(P, { mode: $('q-mode').value, system: $('q-sys').value, n: ROUND }); results = []; at = 0;
+    if (!round.length) { say($('q-prog'), 'This system has too few parts for a quiz.', 'عدد قطع هذا النظام قليل لاختبار.'); show('q-play', true); show('q-pic', false); $('q-opts').replaceChildren(); $('q-ask').replaceChildren(); return; }
+    show('q-setup', false); show('q-play', true); question();
+  };
+  $('q-next').onclick = () => { at += 1; if (at < round.length) question(); else finish(); };
+  $('q-again-btn').onclick = setup; $('q-close').onclick = () => dlg.close();
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  addEventListener('keydown', (e) => { if (dlg.open && /^[1-4]$/.test(e.key) && !answered && !$('q-play').hidden && !e.target.matches('select')) { $('q-opts').children[Number(e.key) - 1]?.click(); } });
+  $('bquiz').onclick = () => { setup(); dlg.showModal(); };
+}
+
+// Offline use: the reader may keep a copy of the models, the picture sheets and the code, so that the catalogue opens without a
+// connection (sw.js serves it). Nothing is kept unless they ask, and the copy can be removed.
+if (offline.supported()) {
+  navigator.serviceWorker.register('sw.js').catch(() => { /* a page opened from disk, or a browser that refuses: no offline copy */ });
+  let saving = null;
+  const msg = (en, ar) => say($('off-msg'), en, ar);
+  const mb = (bytes) => (bytes ? ` (${Math.max(1, Math.round(bytes / 1048576))} MB)` : '');
+  async function refresh() {
+    const s = await offline.status(); $('off').hidden = false; $('boffx').hidden = !s.saved;
+    $('boff').replaceChildren(s.saved ? both('Update the offline copy', 'حدّث النسخة المحفوظة') : both('Save for offline use', 'احفظ للاستخدام دون اتصال'));
+    if (s.saved) msg(`Saved for offline use: ${s.files ?? '?'} files${mb(s.bytes)}. The pictures at full size are not included.`, `محفوظة للاستخدام دون اتصال: ${s.files ?? '?'} ملفًا${mb(s.bytes)}. الصور بالحجم الكامل غير مشمولة.`); else $('off-msg').replaceChildren();
+  }
+  $('boff').onclick = async () => {
+    if (saving) { saving.abort(); return; }
+    saving = new AbortController(); $('boff').replaceChildren(both('Stop', 'أوقف')); $('boffx').hidden = true;
+    msg('Saving… keep this page open. The models and pictures are tens of megabytes: use Wi-Fi if you can.', 'جارٍ الحفظ… أبقِ الصفحة مفتوحة. النماذج والصور عشرات الميغابايت: استخدم الواي فاي إن أمكن.');
+    try {
+      const r = await offline.save(D, (done, total) => msg(`Saving… ${done} of ${total} files`, `جارٍ الحفظ… ${done} من ${total} ملفًا`), saving.signal);
+      await refresh(); if (r.aborted) msg('Stopped. Nothing was kept.', 'تم الإيقاف. لم يُحفظ شيء.'); else if (r.failed.length) msg(`Saved, but ${r.failed.length} files could not be fetched; the rest work offline.`, `تم الحفظ، لكن تعذّر جلب ${r.failed.length} ملفًا؛ والباقي يعمل دون اتصال.`);
+    } catch { await refresh(); msg('Could not save an offline copy here (the browser may have refused or be out of space).', 'تعذّر حفظ نسخة دون اتصال هنا (قد يكون المتصفح رفض أو لا توجد مساحة).'); }
+    saving = null;
+  };
+  $('boffx').onclick = async () => { await offline.remove(); await refresh(); };
+  refresh();
+}
 
 // The list and the part an address names. A part that the list leaves out clears the list.
 {
