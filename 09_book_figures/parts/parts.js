@@ -5,7 +5,7 @@
 import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList } from './link.js';
 import { ORDER, SOURCE_NAMES, systemName } from './names.js';
 import { haystack, matches, words } from './search.js';
-import { ABOUT_PARENT_Z, CONTROLS, GROUPS, MOVING, pose, rest } from './motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, pose, rest, setScales } from './motions.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -212,7 +212,7 @@ function model(system) {
       return { id, kind: 'move', parent };
     };
     const joints = new Map(); gltf.scene.traverse((o) => { if (o.userData.id && MOVING.has(o.userData.id)) joints.set(o, joint(o)); });
-    for (const m of meshes) { m.userData.joints = []; for (let a = m; a; a = a.parent) if (joints.has(a)) m.userData.joints.push(joints.get(a)); }
+    for (const m of meshes) { m.userData.joints = []; m.userData.lamp = null; for (let a = m; a; a = a.parent) { if (joints.has(a)) m.userData.joints.push(joints.get(a)); if (!m.userData.lamp && GLOWING.has(a.userData.id)) m.userData.lamp = a.userData.id; } }
     for (const m of meshes) { let a = m, id = null; while (a && !id) { id = ids[a.name] || null; a = a.parent; } m.userData.part = id; m.userData.material = m.material; m.visible = false; }
     const root = new THREE.Group(); for (const m of meshes) root.attach(m);
     root.updateMatrixWorld(true);
@@ -239,6 +239,8 @@ function fit(all) {
 }
 /** Moves a mesh as the controls say, about each hinge or axis it hangs from, the nearest first. */
 let current = pose(ctl);
+// The instrument scales come from the same file as the Phase 8 viewer's dials; until they arrive the needles stay put.
+fetch('../../08_realistic_digital_twin/data/instruments.json').then((r) => r.json()).then((j) => { setScales(j.instruments); current = pose(ctl); if (T) paint(); }).catch(() => {});
 function place(m) {
   const { THREE } = T, q = new THREE.Quaternion(), v = new THREE.Vector3();
   for (const j of m.userData.joints) {
@@ -247,6 +249,11 @@ function place(m) {
     const d = current.move.get(j.id);   // a turn is about the part's own origin; the shift comes after it
     if (d) m.position.add(v.set(...d).applyQuaternion(j.parent));
   }
+}
+/** The material of a lamp or a spark plug that is lit: its own, glowing. */
+function lit(m, g) {
+  const c = (m.userData.lit ||= m.userData.material.clone());
+  c.emissive = new T.THREE.Color(g.color); c.emissiveIntensity = g.k; return c;
 }
 function paint() {
   const home = shown[cur].s, { THREE } = T, span = new THREE.Box3(), k = scope === 'part' ? 0 : pull * 1.5;
@@ -260,6 +267,8 @@ function paint() {
     const by = shifted.get(m.userData.piece); if (by) m.position.add(by);
     m.visible = scope === 'aircraft' ? around : chosen || around;
     m.material = chosen ? (solid && !quiet ? T.marked : m.userData.material) : solid ? m.userData.material : T.faint;
+    const g = m.userData.lamp && current.glow.get(m.userData.lamp);
+    if (g && m.material !== T.faint) m.material = lit(m, g);
     m.renderOrder = chosen || solid ? 0 : 1;
   }
   T.draw();
@@ -320,26 +329,26 @@ for (const c of CONTROLS) {
   if (c.group !== heading) { heading = c.group; const h = el('h4', 'parts-slides-head'); h.append(both(GROUPS[heading].en, GROUPS[heading].ar)); $('slides').append(h); }
   const row = el('label', c.toggle ? 'parts-slide parts-switch' : 'parts-slide'), input = el('input'), name = el('span', 'parts-slide-name'), shown = el('output');
   name.append(both(c.en, c.ar)); if (c.note) row.title = c.note.en + ' · ' + c.note.ar;
-  input.dataset.key = c.key; const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = c.max > 1 ? String(v) : v.toFixed(2); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
+  input.dataset.key = c.key; const home = c.home ?? 0; const decimals = (String(c.step).split('.')[1] || '').length; const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = v.toFixed(decimals); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
   if (c.toggle) {
     // A switch rests in the middle of its throw; the box puts it up, and unticking it puts it down.
     input.type = 'checkbox'; input.oninput = () => { ctl[c.key] = input.checked ? 1 : -1; readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
     input.onreset = () => { input.checked = false; ctl[c.key] = 0; readout(0); };
   } else {
-    input.type = 'range'; input.min = c.min; input.max = c.max; input.step = c.step; input.value = 0;
-    input.oninput = () => { ctl[c.key] = Number(input.value); readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
-    input.onreset = () => { input.value = 0; ctl[c.key] = 0; readout(0); };
+    input.type = 'range'; input.min = c.min; input.max = c.max; input.step = c.step; input.value = home;
+    input.oninput = () => { ctl[c.key] = Number(input.value); if (c.group === 'instruments') ctl.inst = 1; readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
+    input.onreset = () => { input.value = home; ctl[c.key] = home; readout(home); };
   }
-  readout(0); row.append(name, input, shown); $('slides').append(row);
+  readout(home); row.append(name, input, shown); $('slides').append(row);
 }
-const anything = () => CONTROLS.some((c) => ctl[c.key]) || shifted.size > 0;
+const anything = () => CONTROLS.some((c) => ctl[c.key] !== (c.home ?? 0)) || ctl.inst || shifted.size > 0;
 const tidy = () => { $('bback').hidden = !anything(); };
 $('slides').addEventListener('input', tidy);
 $('bctl').onclick = () => { const open = $('slides').hidden; $('slides').hidden = !open; $('bctl').setAttribute('aria-pressed', String(open)); $('dlg').classList.toggle('has-slides', open); };
 $('bmove').onclick = () => { moving = !moving; $('bmove').setAttribute('aria-pressed', String(moving)); $('bdeep').hidden = !moving; message(...(moving ? DRAG : scope === 'aircraft' ? HINT_ALL : HINT)); };
 $('bdeep').onclick = () => { deep = !deep; $('bdeep').setAttribute('aria-pressed', String(deep)); };
 $('bback').onclick = () => {
-  for (const c of CONTROLS) ctl[c.key] = 0; shifted.clear(); current = pose(ctl);
+  Object.assign(ctl, rest()); shifted.clear(); current = pose(ctl);
   $('slides').querySelectorAll('input').forEach((i) => i.onreset());
   $('bback').hidden = true; if (T) paint();
 };

@@ -2,6 +2,7 @@
 // control moves every part it moves in the real aircraft. No Three.js here; the catalogue applies the numbers about each
 // part's own hinge or axis.
 import * as K from '../../08_realistic_digital_twin/js/kinematics.js';
+import { valueToAngle } from '../../shared/js/gauges.js';
 
 export const D2R = Math.PI / 180;
 
@@ -11,6 +12,7 @@ export const GROUPS = {
   engine: { en: 'Engine', ar: 'المحرك' },
   levers: { en: 'Levers and knobs', ar: 'الأذرع والمقابض' },
   switches: { en: 'Switches', ar: 'المفاتيح' },
+  instruments: { en: 'Instruments', ar: 'العدادات' },
 };
 
 /** The panel switches: control key, part, English and Arabic names. A switch is up (+15 degrees) or down (-15 degrees). */
@@ -37,6 +39,28 @@ const PULLS = [
   ['parking', 'INTERIOR.parking_brake', 0.035, 'Parking brake pulled out', 'سحب مقبض فرامل الإيقاف'],
 ];
 
+/** The instrument scales (data/instruments.json, `instruments`), set once the page has read them; until then needles stay put. */
+let SCALES = null;
+export const setScales = (scales) => { SCALES = scales; };
+
+/** The instruments: control key, scale, range, step, resting reading, names. Setting any of them puts every needle at its reading. */
+const INSTRUMENTS = [
+  ['asi', 'ASI', 0, 200, 1, 0, 'Airspeed (knots)', 'السرعة (عقدة)'],
+  ['alt', 'ALT', 0, 12000, 50, 0, 'Altitude (feet)', 'الارتفاع (قدم)'],
+  ['vsi', 'VSI', -2000, 2000, 50, 0, 'Vertical speed (feet per minute)', 'السرعة الرأسية (قدم في الدقيقة)'],
+  ['hdg', null, 0, 360, 1, 0, 'Heading (degrees)', 'الاتجاه (بالدرجات)'],
+  ['bank', null, -60, 60, 1, 0, 'Bank (degrees)', 'الميل الجانبي (بالدرجات)'],
+  ['pitch', null, -20, 20, 1, 0, 'Pitch (degrees)', 'الميل الطولي (بالدرجات)'],
+  ['turn', null, -3, 3, 0.1, 0, 'Turn rate (standard rates)', 'معدل الدوران (معدل قياسي)'],
+  ['tach', 'TACH', 0, 3500, 50, 0, 'Engine speed (rpm)', 'سرعة المحرك (لفة في الدقيقة)'],
+  ['oilP', 'OIL_P', 0, 120, 1, 0, 'Oil pressure (psi)', 'ضغط الزيت (psi)'],
+  ['oilT', 'OIL_T', 50, 275, 1, 50, 'Oil temperature (°F)', 'حرارة الزيت (°F)'],
+  ['suction', 'SUCTION', 0, 10, 0.1, 0, 'Suction (inches of mercury)', 'الشفط (بوصة زئبق)'],
+  ['ammeter', 'AMMETER', -60, 60, 1, 0, 'Ammeter (amps)', 'مقياس التيار (أمبير)'],
+  ['fuelL', 'FUEL_L', 0, 20, 0.5, 0, 'Fuel, left tank (gallons)', 'الوقود، الخزان الأيسر (غالون)'],
+  ['fuelR', 'FUEL_R', 0, 20, 0.5, 0, 'Fuel, right tank (gallons)', 'الوقود، الخزان الأيمن (غالون)'],
+];
+
 /** The controls, in the order they are offered. Each runs from `min` to `max`; the aircraft rests at 0. */
 export const CONTROLS = [
   { group: 'flight', key: 'aileron', min: -1, max: 1, step: 0.01, en: 'Ailerons and yokes', ar: 'الجنيحات وعجلتا القيادة', note: { en: 'Turning the yoke: one aileron goes up, the other down, and both yokes turn.', ar: 'عند تدوير العجلة يُرفع جنيح ويُخفض الآخر وتدور العجلتان.' } },
@@ -53,9 +77,11 @@ export const CONTROLS = [
   { group: 'levers', key: 'ignition', min: -2, max: 2, step: 1, names: [{ en: 'Off', ar: 'إيقاف' }, { en: 'Right', ar: 'يمين' }, { en: 'Left', ar: 'يسار' }, { en: 'Both', ar: 'كلاهما' }, { en: 'Start', ar: 'تشغيل' }], en: 'Ignition switch', ar: 'مفتاح الإشعال' },
   { group: 'levers', key: 'fuelSel', min: -1, max: 2, step: 1, names: [{ en: 'Left', ar: 'يسار' }, { en: 'Both', ar: 'كلاهما' }, { en: 'Right', ar: 'يمين' }, { en: 'Off', ar: 'إغلاق' }], en: 'Fuel selector', ar: 'محدد الوقود' },
   ...SWITCHES.map(([key, , en, ar]) => ({ group: 'switches', key, min: -1, max: 1, step: 1, toggle: true, en, ar })),
+  ...INSTRUMENTS.map(([key, scale, min, max, step, home, en, ar]) => ({ group: 'instruments', key, scale, min, max, step, home, en, ar })),
 ];
 
-export const rest = () => Object.fromEntries(CONTROLS.map((c) => [c.key, 0]));
+/** Every control at rest. `inst` is 0 until a reader sets an instrument; then every needle goes to its reading. */
+export const rest = () => ({ ...Object.fromEntries(CONTROLS.map((c) => [c.key, c.home ?? 0])), inst: 0 });
 
 /**
  * What each part does at the given control settings. `hinge` is degrees before the part's own sign, `spin` is radians before its
@@ -63,7 +89,7 @@ export const rest = () => Object.fromEntries(CONTROLS.map((c) => [c.key, 0]));
  * origin and then shifted. Parts not named stay where they are, and at rest every number is zero.
  */
 export function pose(s) {
-  const hinge = new Map(), spin = new Map(), move = new Map();
+  const hinge = new Map(), spin = new Map(), move = new Map(), glow = new Map();
   const ail = s.aileron * 20;
   hinge.set('WING_L.aileron', -ail * 0.85); hinge.set('WING_R.aileron', ail * 0.85);
   hinge.set('EMPENNAGE.elevator', s.elevator > 0 ? -s.elevator * 28 : -s.elevator * 23);
@@ -100,11 +126,44 @@ export function pose(s) {
   spin.set('PANEL.ignition_switch', s.ignition * 35 * D2R);
   spin.set('FUEL.selector_handle', s.fuelSel * 90 * D2R);
   for (const [key, id] of SWITCHES) hinge.set(id, s[key] * 15);
-  return { hinge, spin, move };
+
+  // (The strengths are lower than the Phase 8 viewer's: it adds a bloom to its glow and this view does not, so the same numbers wash out.)
+  // Lamps light when their switch is up and the battery switch is up; the strobes are steady here. A spark plug glows at the
+  // moment it fires, when the ignition is on and the engine is turned (a "hot prop": the magnetos need no battery).
+  const lit = (id, color, k) => glow.set(id, { color, k });
+  if (s.swBat > 0) {
+    if (s.swBeacon > 0) lit('ELECTRICAL.beacon', 0xff2020, 1.6);
+    if (s.swNav > 0) { lit('WING_L.nav_light', 0xff2020, 0.8); lit('WING_R.nav_light', 0x20ff40, 0.8); lit('ELECTRICAL.tail_nav_light', 0xffffff, 0.8); }
+    if (s.swLanding > 0) lit('ELECTRICAL.landing_light', 0xffffff, 2);
+    if (s.swStrobe > 0) { lit('WING_L.strobe', 0xffffff, 3); lit('WING_R.strobe', 0xffffff, 3); }
+  }
+  const mags = s.ignition === -1 ? ['R'] : s.ignition === 0 ? ['L'] : s.ignition > 0 ? ['L', 'R'] : [];
+  for (const [id, cyl, mag] of PLUGS) if (mags.includes(mag) && K.sparkActive(deg, cyl)) lit(id, 0x66aaff, 1.6);
+
+  // The instruments, once a reader has set one: the same readings-to-angles as the Phase 8 viewer.
+  if (s.inst && SCALES) {
+    const turn = (id, degrees) => spin.set(id, degrees * D2R);
+    for (const [key, scale] of INSTRUMENTS.map((i) => [i[0], i[1]])) if (scale && scale !== 'ALT') turn(`PANEL.${scale}.needle_${scale}`, valueToAngle(SCALES[scale], s[key]));
+    turn('PANEL.ALT.needle_ALT_100', (((s.alt % 1000) + 1000) % 1000) * 0.36);
+    turn('PANEL.ALT.needle_ALT_1000', (((s.alt % 10000) + 10000) % 10000) * 0.036);
+    turn('PANEL.ALT.needle_ALT_10000', s.alt * 0.0036);
+    turn('PANEL.TC.needle_TC', s.turn * 20);
+    turn('PANEL.AI.ball', -s.bank); move.set('PANEL.AI.ball', [0, -Math.max(-20, Math.min(20, s.pitch)) * 0.0005, 0]);
+    turn('PANEL.DG.card', -s.hdg);
+  }
+  return { hinge, spin, move, glow };
 }
 
-/** Every part that any control moves. */
-export const MOVING = new Set(Object.values(pose(Object.fromEntries(CONTROLS.map((c) => [c.key, c.max])))).flatMap((m) => [...m.keys()]));
+/** The eight spark plugs: part, cylinder and the magneto that fires it (Lycoming: the right magneto fires the lower plugs of odd cylinders and the upper plugs of even ones). */
+const PLUGS = [1, 2, 3, 4].flatMap((c) => ['bottom', 'top'].map((pos) => [`ENGINE.plug_${pos}_${c}`, c, (c % 2 === 1) === (pos === 'bottom') ? 'R' : 'L']));
+export { PLUGS };
+const LIGHTS = ['ELECTRICAL.beacon', 'WING_L.nav_light', 'WING_R.nav_light', 'ELECTRICAL.tail_nav_light', 'ELECTRICAL.landing_light', 'WING_L.strobe', 'WING_R.strobe'];
+/** Every part that can light up. */
+export const GLOWING = new Set([...LIGHTS, ...PLUGS.map((p) => p[0])]);
+
+/** Every part that any control moves (the instruments count once an instrument is set). */
+const NEEDLES = [...INSTRUMENTS.filter((i) => i[1] && i[1] !== 'ALT').map((i) => `PANEL.${i[1]}.needle_${i[1]}`), 'PANEL.ALT.needle_ALT_100', 'PANEL.ALT.needle_ALT_1000', 'PANEL.ALT.needle_ALT_10000', 'PANEL.TC.needle_TC', 'PANEL.AI.ball', 'PANEL.DG.card'];
+export const MOVING = new Set([...Object.values(pose(Object.fromEntries(CONTROLS.map((c) => [c.key, c.max])))).slice(0, 3).flatMap((m) => [...m.keys()]), ...NEEDLES]);
 
 /** The connecting rods turn about the z axis of the frame they hang in; every other turning part about its own hinge or spin axis. */
 export const ABOUT_PARENT_Z = (id) => /^ENGINE\.rod_\d$/.test(id);

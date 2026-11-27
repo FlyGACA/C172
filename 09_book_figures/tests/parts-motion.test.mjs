@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { ABOUT_PARENT_Z, CONTROLS, GROUPS, MOVING, SWITCHES, pose, rest } from '../parts/motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GLOWING, GROUPS, MOVING, PLUGS, SWITCHES, pose, rest, setScales } from '../parts/motions.js';
 
 const path = (relative) => fileURLToPath(new URL(relative, import.meta.url));
 const nodes = new Map();   // id -> the node's extras
@@ -12,6 +12,7 @@ for (const f of readdirSync(path('../parts/m')).filter((n) => n.endsWith('.glb')
   const b = readFileSync(path(`../parts/m/${f}`)), json = JSON.parse(b.subarray(20, 20 + b.readUInt32LE(12)));
   for (const n of json.nodes) if (n.extras?.id) nodes.set(n.extras.id, n.extras);
 }
+setScales(JSON.parse(readFileSync(path('../../08_realistic_digital_twin/data/instruments.json'), 'utf8')).instruments);
 const total = (p) => [...p.hinge.values(), ...p.spin.values(), ...[...p.move.values()].flat()].reduce((a, v) => a + Math.abs(v), 0);
 
 test('at rest nothing is turned or shifted', () => assert.equal(total(pose(rest())), 0));
@@ -40,8 +41,8 @@ test('the rudder control moves the rudder, the nose strut and all four pedals', 
 
 test('every control moves something, and stays inside the range the model allows', () => {
   for (const c of CONTROLS) {
-    assert.ok(total(pose({ ...rest(), [c.key]: c.max })) > 0, `${c.key} moves nothing`);
-    assert.ok(c.min <= 0 && c.max > 0 && c.en && c.ar, c.key);
+    assert.ok(total(pose({ ...rest(), [c.key]: c.max, inst: 1 })) > 0 || pose({ ...rest(), [c.key]: c.max, swBat: 1, swBeacon: 1 }).glow.size > 0, `${c.key} moves nothing`);
+    assert.ok(c.min <= (c.home ?? 0) && c.max > c.min && c.en && c.ar, c.key);
   }
   for (const [id, deg] of pose({ ...rest(), flaps: 40 }).hinge) { const r = nodes.get(id)?.range_deg; if (r && deg) assert.ok(deg >= r[0] && deg <= r[1], `${id} ${deg}`); }
 });
@@ -76,4 +77,31 @@ test('every control belongs to a heading and has names in both languages (a disc
     if (c.names) { assert.equal(c.names.length, c.max - c.min + 1, c.key); for (const n of c.names) assert.ok(n.en && n.ar, c.key); }
   }
   for (const g of Object.values(GROUPS)) assert.ok(g.en && g.ar);
+});
+
+test('the instruments: every needle is in the models, readings turn it the way the Phase 8 viewer does, and nothing moves until one is set', () => {
+  assert.equal(total(pose({ ...rest(), asi: 120 })), 0, 'a reading set without `inst` moved a needle');
+  const p = pose({ ...rest(), inst: 1, asi: 120, tach: 2300, alt: 4500, bank: 30, hdg: 90, turn: 1 });
+  for (const id of ['PANEL.ASI.needle_ASI', 'PANEL.TACH.needle_TACH', 'PANEL.ALT.needle_ALT_100', 'PANEL.ALT.needle_ALT_1000', 'PANEL.ALT.needle_ALT_10000', 'PANEL.TC.needle_TC', 'PANEL.AI.ball', 'PANEL.DG.card']) {
+    assert.ok(nodes.get(id)?.spin_axis, `${id} is not a spinning part in the models`); assert.ok(p.spin.has(id), `${id} is not driven`);
+  }
+  assert.ok(Math.abs(p.spin.get('PANEL.ALT.needle_ALT_100') - ((4500 % 1000) * 0.36 * Math.PI) / 180) < 1e-9);
+  assert.ok(MOVING.has('PANEL.ASI.needle_ASI'));
+  assert.ok(p.spin.get('PANEL.AI.ball') < 0 && p.spin.get('PANEL.DG.card') < 0, 'bank and heading turn the ball and the card the other way');
+  for (const c of CONTROLS.filter((c) => c.scale && c.scale !== 'ALT')) { const sc = JSON.parse(readFileSync(path('../../08_realistic_digital_twin/data/instruments.json'), 'utf8')).instruments[c.scale].map; assert.equal(c.min, sc[0][0], c.key); assert.equal(c.max, sc.at(-1)[0], c.key); }
+});
+
+test('the lamps light when their switch and the battery switch are up, and a plug glows at its spark with the ignition on', () => {
+  for (const id of GLOWING) assert.ok(nodes.has(id), `${id} is in no model`);
+  const lamps = (s) => pose({ ...rest(), ...s }).glow;
+  assert.equal(lamps({ swBeacon: 1 }).size, 0, 'a lamp lit with the battery switch down');
+  assert.ok(lamps({ swBat: 1, swBeacon: 1 }).has('ELECTRICAL.beacon'));
+  assert.deepEqual([...lamps({ swBat: 1, swNav: 1 }).keys()].sort(), ['ELECTRICAL.tail_nav_light', 'WING_L.nav_light', 'WING_R.nav_light']);
+  assert.ok(lamps({ swBat: 1, swNav: 1 }).get('WING_L.nav_light').color !== lamps({ swBat: 1, swNav: 1 }).get('WING_R.nav_light').color, 'port red, starboard green');
+  // plugs: the table matches the models, none glows with the ignition off, and with it on some fire within the cycle
+  for (const [id, cyl, mag] of PLUGS) { const x = nodes.get(id); assert.equal(x.cyl, cyl, id); assert.equal(x.magneto, mag, id); }
+  const fired = (ignition, crank) => [...pose({ ...rest(), ignition, crank }).glow.keys()].filter((id) => id.startsWith('ENGINE.plug'));
+  assert.equal([...Array(72).keys()].flatMap((i) => fired(-2, i * 10)).length, 0, 'a plug fired with the ignition off');
+  assert.ok([...Array(72).keys()].some((i) => fired(1, i * 10).length > 0), 'no plug fires in a whole cycle');
+  assert.ok([...Array(72).keys()].every((i) => fired(-1, i * 10).every((id) => PLUGS.find((p) => p[0] === id)[2] === 'R')), 'on the right magneto only its plugs fire');
 });
