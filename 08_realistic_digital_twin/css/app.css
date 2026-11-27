@@ -149,6 +149,20 @@ dialog h3 { margin:0 0 8px; }
   #top .right button, #top select, #modes button { min-height:38px; }
 }
 @media (pointer: coarse) and (max-width: 700px) {
-  #top { height:128px; }
-  #main { height:calc(100% - 128px); }
+  #top { height:100px; }
+  #main { height:calc(100% - 100px); }
+}
+/* A phone: the name shrinks to its mark so the buttons share its row and the five modes get the second row, instead of
+   three rows. The link keeps its text for screen readers; font-size 0 only hides it from the eye. */
+@media (max-width: 700px) {
+  .brand .logo { display:inline-flex; align-items:center; justify-content:center; min-width:38px; min-height:38px; font-size:0; }
+  .brand .logo img { width:24px; height:24px; }
+  #top .right { flex:1 1 0; min-width:0; justify-content:flex-end; }
+  #top .right button, #top .right a, #top select { white-space:nowrap; font-size:.8rem; }
+  #quality { width:auto; }
+}
+/* Under 420 px there is no room for the Gallery link as well; it stays one tap away, in the page list on the home page the
+   mark links to. */
+@media (max-width: 420px) {
+  #top .right #galleryLink { display:none; }
 }
