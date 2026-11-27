@@ -5,7 +5,7 @@
 import { SOURCES, buildLink, indexParts, linkPairs, listPairs, parseLink, parseList } from './link.js';
 import { ORDER, SOURCE_NAMES, systemName } from './names.js';
 import { haystack, matches, words } from './search.js';
-import { CONTROLS, MOVING, pose, rest } from './motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GROUPS, MOVING, pose, rest } from './motions.js';
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 /** A phrase in both languages; the page's language switch shows one. */
@@ -206,8 +206,9 @@ function model(system) {
     const joint = (o) => {
       const u = o.userData, id = u.id, at = o.getWorldPosition(new THREE.Vector3()), q = o.getWorldQuaternion(new THREE.Quaternion());
       const parent = o.parent ? o.parent.getWorldQuaternion(wq).clone() : new THREE.Quaternion();
-      if (u.hinge_axis) return { id, kind: 'hinge', at, axis: AXES[u.hinge_axis].clone().applyQuaternion(q), sign: u.hinge_sign || 1 };
-      if (u.spin_axis) return { id, kind: 'spin', at, axis: AXES[u.spin_axis].clone().applyQuaternion(q), sign: u.spin_sign || 1 };
+      if (ABOUT_PARENT_Z(id)) return { id, kind: 'spin', at, axis: AXES.z.clone().applyQuaternion(parent), sign: 1, parent };
+      if (u.hinge_axis) return { id, kind: 'hinge', at, axis: AXES[u.hinge_axis].clone().applyQuaternion(q), sign: u.hinge_sign || 1, parent };
+      if (u.spin_axis) return { id, kind: 'spin', at, axis: AXES[u.spin_axis].clone().applyQuaternion(q), sign: u.spin_sign || 1, parent };
       return { id, kind: 'move', parent };
     };
     const joints = new Map(); gltf.scene.traverse((o) => { if (o.userData.id && MOVING.has(o.userData.id)) joints.set(o, joint(o)); });
@@ -241,11 +242,10 @@ let current = pose(ctl);
 function place(m) {
   const { THREE } = T, q = new THREE.Quaternion(), v = new THREE.Vector3();
   for (const j of m.userData.joints) {
-    if (j.kind === 'move') { const d = current.move.get(j.id); if (d) m.position.add(v.set(...d).applyQuaternion(j.parent)); continue; }
-    const amount = j.kind === 'hinge' ? (current.hinge.get(j.id) ?? 0) * Math.PI / 180 : (current.spin.get(j.id) ?? 0);
-    if (!amount) continue;
-    q.setFromAxisAngle(j.axis, amount * j.sign);
-    m.position.sub(j.at).applyQuaternion(q).add(j.at); m.quaternion.premultiply(q);
+    const amount = j.kind === 'hinge' ? (current.hinge.get(j.id) ?? 0) * Math.PI / 180 : j.kind === 'spin' ? (current.spin.get(j.id) ?? 0) : 0;
+    if (amount) { q.setFromAxisAngle(j.axis, amount * j.sign); m.position.sub(j.at).applyQuaternion(q).add(j.at); m.quaternion.premultiply(q); }
+    const d = current.move.get(j.id);   // a turn is about the part's own origin; the shift comes after it
+    if (d) m.position.add(v.set(...d).applyQuaternion(j.parent));
   }
 }
 function paint() {
@@ -315,12 +315,22 @@ $('bsolid').onclick = () => { solid = !solid; $('bsolid').setAttribute('aria-pre
 $('bfit').onclick = () => { if (T) fit(scope === 'aircraft' || (scope === 'system' && pull > 0)); };
 $('spread').oninput = () => { pull = $('spread').value / 100; if (T) paint(); };
 // Moving it like the real aircraft: one slider for each control, which moves every part that control moves in the aircraft.
+let heading = null;
 for (const c of CONTROLS) {
-  const row = el('label', 'parts-slide'), input = el('input'), name = el('span', 'parts-slide-name'), shown = el('output');
-  input.type = 'range'; input.min = c.min; input.max = c.max; input.step = c.step; input.value = 0; name.append(both(c.en, c.ar));
-  if (c.note) { row.title = c.note.en + ' · ' + c.note.ar; }
-  input.oninput = () => { ctl[c.key] = Number(input.value); shown.textContent = c.max > 1 ? input.value : Number(input.value).toFixed(2); current = pose(ctl); if (T) paint(); };
-  shown.textContent = c.max > 1 ? '0' : '0.00'; input.dataset.key = c.key; row.append(name, input, shown); $('slides').append(row);
+  if (c.group !== heading) { heading = c.group; const h = el('h4', 'parts-slides-head'); h.append(both(GROUPS[heading].en, GROUPS[heading].ar)); $('slides').append(h); }
+  const row = el('label', c.toggle ? 'parts-slide parts-switch' : 'parts-slide'), input = el('input'), name = el('span', 'parts-slide-name'), shown = el('output');
+  name.append(both(c.en, c.ar)); if (c.note) row.title = c.note.en + ' · ' + c.note.ar;
+  input.dataset.key = c.key; const readout = (v) => { shown.replaceChildren(); if (c.names) shown.append(both(c.names[v - c.min].en, c.names[v - c.min].ar)); else if (!c.toggle) shown.textContent = c.max > 1 ? String(v) : v.toFixed(2); else shown.append(...(v ? [both(v > 0 ? 'Up' : 'Down', v > 0 ? 'للأعلى' : 'للأسفل')] : [])); };
+  if (c.toggle) {
+    // A switch rests in the middle of its throw; the box puts it up, and unticking it puts it down.
+    input.type = 'checkbox'; input.oninput = () => { ctl[c.key] = input.checked ? 1 : -1; readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
+    input.onreset = () => { input.checked = false; ctl[c.key] = 0; readout(0); };
+  } else {
+    input.type = 'range'; input.min = c.min; input.max = c.max; input.step = c.step; input.value = 0;
+    input.oninput = () => { ctl[c.key] = Number(input.value); readout(ctl[c.key]); current = pose(ctl); if (T) paint(); };
+    input.onreset = () => { input.value = 0; ctl[c.key] = 0; readout(0); };
+  }
+  readout(0); row.append(name, input, shown); $('slides').append(row);
 }
 const anything = () => CONTROLS.some((c) => ctl[c.key]) || shifted.size > 0;
 const tidy = () => { $('bback').hidden = !anything(); };
@@ -330,7 +340,7 @@ $('bmove').onclick = () => { moving = !moving; $('bmove').setAttribute('aria-pre
 $('bdeep').onclick = () => { deep = !deep; $('bdeep').setAttribute('aria-pressed', String(deep)); };
 $('bback').onclick = () => {
   for (const c of CONTROLS) ctl[c.key] = 0; shifted.clear(); current = pose(ctl);
-  $('slides').querySelectorAll('input').forEach((i) => { i.value = 0; i.dispatchEvent(new Event('input')); });
+  $('slides').querySelectorAll('input').forEach((i) => i.onreset());
   $('bback').hidden = true; if (T) paint();
 };
 systems.forEach((s) => {

@@ -89,3 +89,9 @@ body.page > main { flex: 1; }
 .parts-ctl { flex: none; max-block-size: 30dvh; overflow-y: auto; }
 .parts-dlg.is-wide.has-slides .parts-big { block-size: 46dvh; }
 .parts-slides { max-block-size: none; }
+.parts-slides-head { grid-column: 1 / -1; margin: var(--ufuq-space-2) 0 0; padding-block-end: var(--ufuq-space-1); border-block-end: 1px solid var(--ufuq-border); color: var(--ufuq-text); font-size: var(--ufuq-fs-sm); font-weight: var(--ufuq-fw-medium); }
+.parts-slide output { display: inline-flex; gap: 0; justify-content: flex-end; }
+.parts-switch { grid-template-columns: auto minmax(0, 1fr) auto; }
+.parts-switch .parts-slide-name { grid-column: 2; grid-row: 1; }
+.parts-switch input { grid-column: 1; grid-row: 1; inline-size: 1.25rem; block-size: 1.25rem; }
+.parts-switch output { grid-column: 3; grid-row: 1; }

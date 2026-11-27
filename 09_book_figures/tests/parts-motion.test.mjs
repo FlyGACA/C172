@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { CONTROLS, MOVING, pose, rest } from '../parts/motions.js';
+import { ABOUT_PARENT_Z, CONTROLS, GROUPS, MOVING, SWITCHES, pose, rest } from '../parts/motions.js';
 
 const path = (relative) => fileURLToPath(new URL(relative, import.meta.url));
 const nodes = new Map();   // id -> the node's extras
@@ -21,7 +21,7 @@ test('every part a control moves is in the models, with the hinge or axis it mov
     const x = nodes.get(id); assert.ok(x, `${id} is in no system model`);
     const p = pose(Object.fromEntries(CONTROLS.map((c) => [c.key, c.max])));
     if (p.hinge.has(id)) assert.ok(x.hinge_axis, `${id} is hinged here but the model gives it no hinge`);
-    if (p.spin.has(id)) assert.ok(x.spin_axis, `${id} spins here but the model gives it no axis`);
+    if (p.spin.has(id) && !ABOUT_PARENT_Z(id)) assert.ok(x.spin_axis, `${id} spins here but the model gives it no axis`);
   }
 });
 
@@ -44,4 +44,36 @@ test('every control moves something, and stays inside the range the model allows
     assert.ok(c.min <= 0 && c.max > 0 && c.en && c.ar, c.key);
   }
   for (const [id, deg] of pose({ ...rest(), flaps: 40 }).hinge) { const r = nodes.get(id)?.range_deg; if (r && deg) assert.ok(deg >= r[0] && deg <= r[1], `${id} ${deg}`); }
+});
+
+test('turning the engine moves the crank, the propeller, the pistons, the rods and the valves, and two turns bring it back', () => {
+  const at = (crank) => pose({ ...rest(), crank });
+  const a = at(100);
+  for (const id of ['ENGINE.crankshaft', 'POWERPLANT.spinner', 'ENGINE.crank_flange_pulley']) assert.ok(Math.abs(a.spin.get(id)) > 0, id);
+  assert.equal(a.spin.get('ENGINE.camshaft'), -a.spin.get('ENGINE.crankshaft') / 2);
+  for (const c of [1, 2, 3, 4]) { assert.ok(a.move.get(`ENGINE.piston_${c}`)[0] !== 0, `piston ${c}`); assert.ok(a.spin.get(`ENGINE.rod_${c}`) !== 0, `rod ${c}`); }
+  // the valves open somewhere in the cycle and are shut at the start
+  assert.ok([...Array(72).keys()].some((i) => at(i * 10).move.get('ENGINE.valve_intake_1')[0] !== 0), 'the intake valve never opens');
+  const b = at(720), z = at(0);
+  for (const [id, v] of b.move) for (let i = 0; i < 3; i++) assert.ok(Math.abs(v[i] - z.move.get(id)[i]) < 1e-9, `${id} is not back after two turns`);
+});
+
+test('a piston travels its full stroke in half a turn of the crank', () => {
+  const x = (crank, c) => pose({ ...rest(), crank }).move.get(`ENGINE.piston_${c}`)[0];
+  assert.ok(Math.abs(x(180, 1) - x(0, 1)) > 0.05, 'a piston moves its full stroke in half a turn');
+});
+
+test('the levers pull out toward the pilot, the ignition and fuel selector turn, and every switch goes up and down about its middle', () => {
+  const p = pose({ ...rest(), throttle: 1, mixture: 1, ignition: 2, fuelSel: 2 });
+  assert.ok(p.move.get('PANEL.throttle')[2] < 0 && p.move.get('PANEL.mixture')[2] < 0);
+  assert.ok(p.spin.get('PANEL.ignition_switch') > 0 && p.spin.get('FUEL.selector_handle') > 0);
+  for (const [key, id] of SWITCHES) { const up = pose({ ...rest(), [key]: 1 }).hinge.get(id), down = pose({ ...rest(), [key]: -1 }).hinge.get(id); assert.ok(up > 0 && down < 0 && up === -down, id); }
+});
+
+test('every control belongs to a heading and has names in both languages (a discrete one names each position)', () => {
+  for (const c of CONTROLS) {
+    assert.ok(GROUPS[c.group], `${c.key} has no heading`); assert.ok(c.en && c.ar, c.key);
+    if (c.names) { assert.equal(c.names.length, c.max - c.min + 1, c.key); for (const n of c.names) assert.ok(n.en && n.ar, c.key); }
+  }
+  for (const g of Object.values(GROUPS)) assert.ok(g.en && g.ar);
 });
